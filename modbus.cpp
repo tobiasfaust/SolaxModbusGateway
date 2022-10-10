@@ -139,7 +139,7 @@ void modbus::ReceiveLiveData() {
 /*******************************************************
  * Calcule CRC Checksum
 *******************************************************/
-uint16_t Calc_CRC(uint8_t* message, uint8_t len) {
+uint16_t modbus::Calc_CRC(uint8_t* message, uint8_t len) {
   uint16_t crc = 0xFFFF;
   for (int pos = 0; pos < len; pos++) {
     crc ^= (uint16_t)message[pos];          // XOR byte into least sig. byte of crc
@@ -152,7 +152,6 @@ uint16_t Calc_CRC(uint8_t* message, uint8_t len) {
         crc >>= 1;                    // Just shift right
     }
   }
-
   return crc;
 }    
 
