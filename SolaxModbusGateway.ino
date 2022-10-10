@@ -17,21 +17,19 @@ _________________________________________________________________
 #include "commonlibs.h"
 #include "modbus.h" 
 
+modbus* mb = NULL;
+
 void setup() {
-   
   // Start the built-in serial port, for Serial Monitor
   Serial.begin(115200);
-  Serial.println("Anemometer"); 
-  Serial.println("Anemometer"); 
-  Serial.println("Anemometer"); 
+  Serial.println("Start of Solax MQTT Gateway"); 
 
+  mb = new modbus();
+  mb->init(0x01);
 }
-
-
-
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  mb->loop(); 
   delay(1000);
 }

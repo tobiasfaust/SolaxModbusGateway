@@ -4,4 +4,5 @@
   #include "WProgram.h"
 #endif
 
-#include <vector>
+//#include <vector>
+#include <string.h>

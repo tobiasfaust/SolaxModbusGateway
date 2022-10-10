@@ -21,10 +21,10 @@ class modbus {
     uint8_t              ClientID;
     int                     Baudrate;
     int                     TxInterval;
-    unsigned long   LastTx = 0;
+    unsigned long       LastTx = 0;
     
     
-    std::string         Hex2String(uint8_t num);
+    String         PrintHex(uint8_t num);
     uint16_t            Calc_CRC(uint8_t* message, uint8_t len);
 
     void                  QueryLiveData();
