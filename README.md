@@ -13,6 +13,7 @@ It´s recommend to start with one example to check wiring works correctly. The e
 
 <code>
 request: 01 03 00 00 00 07 08 04
+
 Response: 01 03 .....
 </code>
 
