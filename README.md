@@ -1,4 +1,4 @@
-# Solax Modbus-RTU to MQTT Gateway
+# Modbus-RTU to MQTT Gateway for Solax G4 X1/X3
 This project implements a Gatewayx for Solax X1/X3 Inverter with Version G4 with Modbus-RTU communication to MQTT on ESP32 basis.
 Please note: A Solax Inverter Version G3 don´t works because the modbus protocol has changed between G3 and G4. 
 
