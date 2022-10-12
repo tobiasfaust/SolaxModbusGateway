@@ -15,7 +15,8 @@ _________________________________________________________________
 #pragma once
 
 #include "commonlibs.h"
-#include "modbus.h" 
+//#include "register.h"
+#include "modbus.h"
 
 modbus* mb = NULL;
 
@@ -31,5 +32,4 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   mb->loop(); 
-  delay(1000);
 }

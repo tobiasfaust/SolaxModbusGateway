@@ -1,19 +1,35 @@
+#ifndef SOLAXREGISTER_H
+#define SOLAXREGISTER_H
+
+enum DataType_t {STRING, INTEGER, FLOAT};
+
 typedef struct { 
-    uint8_t StartByte;              // register address
+    uint8_t Position;              // register address
     uint8_t Length;
     String MqttTopicName;
     String RealName;
-    char Datatype;               // S = String, I = Integer
+    DataType_t Datatype;            // S = String, I = Integer, F = Float
+    float factor;                   // Umrechnungsfaktor, nur bei Datatype = I,F, default = 1
     void* value;
-  } register_t;
+  } reg_t;
 
-register_t regs[] = {
-    {0,   1,"GridVoltage",    "Grid Voltage",       "I", 0},
-    {1,   1,"GridCurrent",    "Grid Current",       "I", 0},
-    {2,   1,"GridPower",      "Grid Power",         "I", 0},
-    {3,   1,"PvVoltage1",     "PV Voltage 1",       "I", 0},
-    {4,   1,"PvVoltage2",     "PV Voltage 2",       "I", 0},
-    {5,   1,"PvCurrent1",     "PV Current 1",       "I", 0},
-    {6,   1,"PvCurrent2",     "PV Current 2",       "I", 0},
-    {7,   1,"GridFrequency",  "Grid Frequency",     "I", 0}
+reg_t RegsLiveData[11] = {
+    {0,   2,"GridVoltage",    "Grid Voltage",         INTEGER,  0.1,  0},
+    {2,   2,"GridCurrent",    "Grid Current",         INTEGER,  0.1,  0},
+    {4,   2,"GridPower",      "Grid Power",           INTEGER,    1,  0},
+    {6,   2,"PvVoltage1",     "PV Voltage 1",         INTEGER,  0.1,  0},
+    {8,   2,"PvVoltage2",     "PV Voltage 2",         INTEGER,  0.1,  0},
+    {10,  2,"PvCurrent1",     "PV Current 1",         INTEGER,  0.1,  0},
+    {12,  2,"PvCurrent2",     "PV Current 2",         INTEGER,  0.1,  0},
+    {14,  2,"GridFrequency",  "Grid Frequency",       INTEGER, 0.01,  0},
+    {16,  2,"Temperature",    "Radiator Temperature", INTEGER,    1,  0},
+//  {18,  2,"Run Mode",       "Run Mode",             STRING,     1,  0}, 
+    {20,  2,"PowerDC1",       "Power DC 1",           INTEGER,    1,  0},
+    {22,  2,"PowerDC2",       "Power DC 2",           INTEGER,    1,  0}
 };
+
+reg_t RegsIdData[1] = {
+    {0,  14,"InverterSN",     "Inverter SerialNumber",STRING,     1,  0}
+};
+
+#endif;
