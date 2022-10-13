@@ -15,7 +15,6 @@ _________________________________________________________________
 #pragma once
 
 #include "commonlibs.h"
-//#include "register.h"
 #include "modbus.h"
 
 modbus* mb = NULL;

@@ -6,6 +6,8 @@
 modbus::modbus() : Baudrate(19200), TxInterval(5), LastTx(0) {
   Serial.println("Initialize Modbus Class");  
   Serial.print("TxIntervall: ");  Serial.println(TxInterval);  
+
+  InverterData = new std::vector<reg_t>{};
 }
 
 /*******************************************************
@@ -105,78 +107,88 @@ void modbus::QueryLiveData() {
  * Receive Live Data after Quering
 *******************************************************/
 void modbus::ReceiveData() {
-  bool err = false;
-  String errMsg = "";
-  uint8_t payload_len = 0x00;
+  std::vector<byte>DataFrame {};
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
 
-
   Serial.println("Lese Daten: ");
-  if (!Serial2.available()) {
-    err =true;
-    errMsg = "no Response from client";
-  }
-  
-  if (!err && Serial2.available() && Serial2.read() != this->ClientID) {
-    err =true;
-    errMsg = "ClientID nicht erkannt";
-  }
 
-  if (!err && Serial2.available() && (Serial2.read() == 0x83 || Serial2.read() == 0x84)) {
-    if (Serial2.available()) {
-      errMsg = Serial2.read();
-    }else {
-      errMsg = "Slave fault response";}
-      err =true;
-  }
+// TEST ***********************************************
+byte ReadBuffer[] = {0x01, 0x04, 0x18, 0x08, 0xE7, 0x00, 0x0C, 0x00, 0xEE, 0x0A, 0xD5, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x13, 0x85, 0x00, 0x1C, 0x00, 0x02, 0x00, 0xF8, 0x00, 0x00, 0x2E, 0x8F};
+for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
+  DataFrame.push_back(ReadBuffer[i]);
+  Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");
+}
+// ***********************************************
 
-  if (!err && Serial2.available() ) {
-    payload_len = Serial2.read();
-    Serial.print("PayLoad Länge: ");Serial.println(payload_len);
-  }
-
-// TEST
-payload_len=24;
-uint8_t ReadBuffer[payload_len + 2] = {0x08, 0xE7, 0x00, 0x0C, 0x00, 0xEE, 0x0A, 0xD5, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x13, 0x85, 0x00, 0x1C, 0x00, 0x02, 0x00, 0xF8, 0x00, 0x00, 0x2E, 0x8F};
-//  uint8_t ReadBuffer[payload_len + 2]; // + 2Byte CRC
-  
-  if (payload_len > 0) {
+  if (!Serial2.available() || true) {
     int i = 0;
     while(Serial2.available()) {
-      ReadBuffer[i] = Serial2.read();
-      Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");
+      byte d = Serial2.read();
+      DataFrame.push_back(d);
+      Serial.print(PrintHex(d)); Serial.print(" ");
       i++;
     }    
     Serial.println();
+    
+    if (DataFrame.size() > 5 && DataFrame.at(0) == this->ClientID && DataFrame.at(1) != 0x83 && DataFrame.at(1) != 0x84) {
+      // Dataframe valid
+      Serial.println("Dataframe valid");
+      // clear old data
+      InverterData->clear();
 
-    // loop über den Buffer und zuordnung
-    for (uint8_t i = 0; i < (sizeof(RegsLiveData)/sizeof(reg_t)); i++) {
-      
-      if (RegsLiveData[i].Position + RegsLiveData[i].Length > (sizeof(ReadBuffer)-1)) {
-        Serial.println("Error:cannot read more than receiving string");
-        continue;
+      StaticJsonDocument<2048> doc;
+      StaticJsonDocument<100> filter;
+      if (DataFrame.at(1) == 0x03) {
+        filter["id"] = true;
+      } else if (DataFrame.at(1) == 0x04) {
+        filter["livedata"] = true;
       }
+      deserializeJson(doc, JSON, DeserializationOption::Filter(filter));
 
-      if (RegsLiveData[i].Datatype == STRING) {  // String
-        String val = "";
-        for (uint8_t j = 0; j < RegsLiveData[i].Length; j++) {
-          // String* val = static_cast<String*>(RegsLiveData[i].value); // -> zurücklesen
-          val += (char)ReadBuffer[RegsLiveData[i].Position + j];
+      // Print the result
+      //serializeJsonPretty(doc, Serial);
+
+      // https://arduinojson.org/v6/api/jsonobject/begin_end/
+      JsonObject root = doc.as<JsonObject>();
+      JsonObject::iterator it = doc.as<JsonObject>().begin();
+      const char* rootname = it->key().c_str();
+      
+      for (JsonObject elem : doc[rootname].as<JsonArray>()) {
+        
+        if (((int)elem["position"] | 0) + ((int)elem["length"] | 0) > (DataFrame.size())-5) { // clientID(1), FunctionCode(1), Length(1), CRC(2)
+          Serial.println("Error:cannot read more than receiving string");
+          continue;
         }
-        RegsLiveData[i].value = &val;
-        sprintf(dbg, "String Ausgabe: %s", val.c_str());
-        Serial.println(dbg);
-      } else if (RegsLiveData[i].Datatype == INTEGER) {  // Integer
-        float f = ((ReadBuffer[RegsLiveData[i].Position] << 8) | ReadBuffer[RegsLiveData[i].Position +1]) * RegsLiveData[i].factor;
-        RegsLiveData[i].value = &f;
-        sprintf(dbg, "RegsLiveData (%d): %s -> %.2f", i, RegsLiveData[i].RealName.c_str(), (*(float*)RegsLiveData[i].value));
-        Serial.println(dbg);
-      }
       
-    }
-  }
+        reg_t d = {};
+        d.MqttTopicName = elem["MqttTopicName"];
+        d.RealName = elem["realname"] | "?";
+        uint8_t pos = ((uint8_t)elem["position"] | 0) + 3;
+        //const char* name = elem["datatype"];  
+        
+        if (elem["datatype"] == "float") {
+          float f = ((DataFrame.at(pos) << 8) | DataFrame.at(pos +1));
+          if (elem.containsKey("factor")) { f = f * (float)elem["factor"]; }
+          d.value = &f;
+        } else if (elem["datatype"] == "integer") {
+          int f = ((DataFrame.at(pos) << 8) | DataFrame.at(pos +1));
+          if (elem.containsKey("factor")) { f = f * (int)elem["factor"]; }
+          d.value = &f;
+        }
 
+        sprintf(dbg, "LiveData: %s -> %.2f", d.RealName, *(float*)d.value);
+        Serial.println(dbg);
+
+        InverterData->push_back(d);
+      }
+      Serial.print("Anzahl Datensätze: "); Serial.println(InverterData->size());
+    } else { Serial.println("fault response received"); }
+    
+  } else {
+    Serial.println("No client response");
+  }
+  
 }
 
 /*******************************************************
@@ -201,9 +213,8 @@ uint16_t modbus::Calc_CRC(uint8_t* message, uint8_t len) {
 /*******************************************************
  * friendly output of hex nums
 *******************************************************/
-String modbus::PrintHex(uint8_t num) {
-  char hexCar[2];
-
+String modbus::PrintHex(byte num) {
+  char hexCar[4];
   sprintf(hexCar, "0x%02X", num);
   return hexCar;
 }
