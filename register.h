@@ -1,25 +1,13 @@
 #ifndef SOLAXREGISTER_H
 #define SOLAXREGISTER_H
 
-const char JSON_TEST[] PROGMEM = R"=====(
-{
-      "position": 0,
-      "length": 2,
-      "mqtttopicname": "GridVoltage",
-      "realname": "Grid Voltage",
-      "datatype": "float",
-      "factor": 0.1
-    }
-
-)=====";
-
 /* https://jsonlint.com/ */
 const char JSON[] PROGMEM = R"=====(
 {
   "livedata": [{
       "position": 0,
       "length": 2,
-      "mqtttopicname": "GridVoltage",
+      "Name": "GridVoltage",
       "realname": "Grid Voltage",
       "datatype": "float",
       "factor": 0.1
@@ -27,7 +15,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 2,
       "length": 2,
-      "mqtttopicname": "GridCurrent",
+      "Name": "GridCurrent",
       "realname": "Grid Current",
       "datatype": "float",
       "factor": 0.1
@@ -35,7 +23,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 4,
       "length": 2,
-      "mqtttopicname": "GridPower",
+      "Name": "GridPower",
       "realname": "Grid Power",
       "datatype": "integer",
       "factor": 1
@@ -43,7 +31,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 6,
       "length": 2,
-      "mqtttopicname": "PvVoltage1",
+      "Name": "PvVoltage1",
       "realname": "Pv Voltage 1",
       "datatype": "float",
       "factor": 0.1
@@ -51,7 +39,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 8,
       "length": 2,
-      "mqtttopicname": "PvVoltage2",
+      "Name": "PvVoltage2",
       "realname": "Pv Voltage 2",
       "datatype": "float",
       "factor": 0.1
@@ -59,7 +47,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 10,
       "length": 2,
-      "mqtttopicname": "PvCurrent1",
+      "Name": "PvCurrent1",
       "realname": "Pv Current 1",
       "datatype": "float",
       "factor": 0.1
@@ -67,7 +55,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 12,
       "length": 2,
-      "mqtttopicname": "PvCurrent2",
+      "Name": "PvCurrent2",
       "realname": "Pv Current 2",
       "datatype": "float",
       "factor": 0.1
@@ -75,7 +63,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 14,
       "length": 2,
-      "mqtttopicname": "GridFrequency",
+      "Name": "GridFrequency",
       "realname": "Grid Frequency",
       "datatype": "float",
       "factor": 0.01
@@ -83,15 +71,14 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 16,
       "length": 2,
-      "mqtttopicname": "Temperature",
+      "Name": "Temperature",
       "realname": "Temperature",
-      "datatype": "integer",
-      "factor": 1
+      "datatype": "integer"
     },
     {
       "position": 20,
       "length": 2,
-      "mqtttopicname": "PowerDC1",
+      "Name": "PowerDC1",
       "realname": "Power DC 1",
       "datatype": "integer",
       "factor": 1
@@ -99,7 +86,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 22,
       "length": 2,
-      "mqtttopicname": "PowerDC2",
+      "Name": "PowerDC2",
       "realname": "Power DC 2",
       "datatype": "integer",
       "factor": 1
@@ -108,7 +95,7 @@ const char JSON[] PROGMEM = R"=====(
   "id": [{
     "position": 0,
     "length": 14,
-    "mqtttopicname": "InverterSN",
+    "Name": "InverterSN",
     "realname": "Inverter SN",
     "datatype": "string"
   }]

@@ -9,7 +9,7 @@
 class modbus {
 
   typedef struct { 
-      const char* MqttTopicName;
+      const char* Name;
       const char* RealName;
       void* value;
   } reg_t;
@@ -37,6 +37,7 @@ class modbus {
     std::vector<reg_t>*     InverterData;
     
     String                  PrintHex(byte num);
+    String                  PrintDataFrame(std::vector<byte>* frame);
     uint16_t                Calc_CRC(uint8_t* message, uint8_t len);
 
     void                    QueryLiveData();

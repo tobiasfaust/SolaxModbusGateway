@@ -4,9 +4,6 @@
  * Constructor
 *******************************************************/
 modbus::modbus() : Baudrate(19200), TxInterval(5), LastTx(0) {
-  Serial.println("Initialize Modbus Class");  
-  Serial.print("TxIntervall: ");  Serial.println(TxInterval);  
-
   InverterData = new std::vector<reg_t>{};
 }
 
@@ -46,7 +43,7 @@ void modbus::QueryIdData() {
   }
   
   Serial.print("Schreibe Daten: ");
-  byte message[8] = {this->ClientID, 
+  byte message[] = {this->ClientID, 
                                0x03,  // FunctionCode
                                0x00,  // StartAddress MSB
                                0x00,  // StartAddress LSB
@@ -60,10 +57,10 @@ void modbus::QueryIdData() {
   message[sizeof(message)-1] = highByte(crc);
   message[sizeof(message)-2] = lowByte(crc);
   
-  for(uint8_t i=0; i<sizeof(message); i++){
-    Serial.print(PrintHex(message[i]).c_str());Serial.print(' ');
-  }
-  Serial.println("");
+//  for(uint8_t i=0; i<sizeof(message); i++){
+//    Serial.print(PrintHex(message[i]).c_str());Serial.print(' ');
+//  }
+//  Serial.println("");
     
   Serial2.write(message, sizeof(message));
   Serial2.flush();
@@ -80,7 +77,7 @@ void modbus::QueryLiveData() {
   }
   
   Serial.print("Schreibe Daten: ");
-  byte message[8] = {this->ClientID, 
+  byte message[] = {this->ClientID, 
                                0x04,  // FunctionCode
                                0x00,  // StartAddress MSB
                                0x00,  // StartAddress LSB
@@ -94,23 +91,23 @@ void modbus::QueryLiveData() {
   message[sizeof(message)-1] = highByte(crc);
   message[sizeof(message)-2] = lowByte(crc);
   
-  for(uint8_t i=0; i<sizeof(message); i++){
-    Serial.print(PrintHex(message[i]).c_str());Serial.print(' ');
-  }
-  Serial.println("");
+//  for(uint8_t i=0; i<sizeof(message); i++){
+//    Serial.print(PrintHex(message[i]).c_str());Serial.print(' ');
+//  }
+//  Serial.println("");
     
   Serial2.write(message, sizeof(message));
   Serial2.flush();
 }
 
 /*******************************************************
- * Receive Live Data after Quering
+ * Receive Data after Quering
 *******************************************************/
 void modbus::ReceiveData() {
   std::vector<byte>DataFrame {};
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
-
+  
   Serial.println("Lese Daten: ");
 
 // TEST ***********************************************
@@ -121,7 +118,7 @@ for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
 }
 // ***********************************************
 
-  if (!Serial2.available() || true) {
+  if (Serial2.available() || true) {
     int i = 0;
     while(Serial2.available()) {
       byte d = Serial2.read();
@@ -155,36 +152,44 @@ for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
       const char* rootname = it->key().c_str();
       
       for (JsonObject elem : doc[rootname].as<JsonArray>()) {
+        float val_f = 0;
+        int val_i = 0;
+        float factor = 0;
+        reg_t d = {};
         
         if (((int)elem["position"] | 0) + ((int)elem["length"] | 0) > (DataFrame.size())-5) { // clientID(1), FunctionCode(1), Length(1), CRC(2)
           Serial.println("Error:cannot read more than receiving string");
           continue;
         }
-      
-        reg_t d = {};
-        d.MqttTopicName = elem["MqttTopicName"];
+        
+        d.Name = elem["Name"];
         d.RealName = elem["realname"] | "?";
         uint8_t pos = ((uint8_t)elem["position"] | 0) + 3;
+        
+        if (elem.containsKey("factor")) {
+          factor = elem["factor"];
+        } else { factor = 1; }
+        
         //const char* name = elem["datatype"];  
         
         if (elem["datatype"] == "float") {
-          float f = ((DataFrame.at(pos) << 8) | DataFrame.at(pos +1));
-          if (elem.containsKey("factor")) { f = f * (float)elem["factor"]; }
-          d.value = &f;
+          val_f = (((DataFrame.at(pos) << 8) | DataFrame.at(pos +1)) * factor);
+          d.value = &val_f;
+          sprintf(dbg, "Data: %s -> %.2f", d.RealName, *(float*)d.value);
         } else if (elem["datatype"] == "integer") {
-          int f = ((DataFrame.at(pos) << 8) | DataFrame.at(pos +1));
-          if (elem.containsKey("factor")) { f = f * (int)elem["factor"]; }
-          d.value = &f;
+          val_i = (((DataFrame.at(pos) << 8) | DataFrame.at(pos +1)) * (int)factor);
+          d.value = &val_i;
+          sprintf(dbg, "Data: %s -> %d", d.RealName, *(int*)d.value);
         }
 
-        sprintf(dbg, "LiveData: %s -> %.2f", d.RealName, *(float*)d.value);
         Serial.println(dbg);
 
         InverterData->push_back(d);
       }
-      Serial.print("Anzahl Datensätze: "); Serial.println(InverterData->size());
-    } else { Serial.println("fault response received"); }
-    
+    } else { 
+      Serial.println("unexpected response received: "); 
+      this->PrintDataFrame(&DataFrame);
+    }
   } else {
     Serial.println("No client response");
   }
@@ -219,6 +224,14 @@ String modbus::PrintHex(byte num) {
   return hexCar;
 }
 
+String modbus::PrintDataFrame(std::vector<byte>* frame) {
+  String out = "";
+  for (uint8_t i = 0; i<frame->size(); i++) {
+    out.concat(this->PrintHex(frame->at(i)));
+    out.concat(" ");
+  }
+  return out;
+}
 /*******************************************************
  * Loop function
 *******************************************************/
