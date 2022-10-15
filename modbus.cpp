@@ -42,7 +42,7 @@ void modbus::QueryIdData() {
     Serial2.read();
   }
   
-  Serial.print("Schreibe Daten: ");
+  Serial.println("Schreibe Daten: ");
   byte message[] = {this->ClientID, 
                                0x03,  // FunctionCode
                                0x00,  // StartAddress MSB
@@ -76,7 +76,7 @@ void modbus::QueryLiveData() {
     Serial2.read();
   }
   
-  Serial.print("Schreibe Daten: ");
+  Serial.println("Schreibe Daten: ");
   byte message[] = {this->ClientID, 
                                0x04,  // FunctionCode
                                0x00,  // StartAddress MSB
@@ -111,14 +111,14 @@ void modbus::ReceiveData() {
   Serial.println("Lese Daten: ");
 
 // TEST ***********************************************
-byte ReadBuffer[] = {0x01, 0x04, 0x18, 0x08, 0xE7, 0x00, 0x0C, 0x00, 0xEE, 0x0A, 0xD5, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x13, 0x85, 0x00, 0x1C, 0x00, 0x02, 0x00, 0xF8, 0x00, 0x00, 0x2E, 0x8F};
-for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
-  DataFrame.push_back(ReadBuffer[i]);
-  Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");
-}
+//byte ReadBuffer[] = {0x01, 0x04, 0x18, 0x08, 0xE7, 0x00, 0x0C, 0x00, 0xEE, 0x0A, 0xD5, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x13, 0x85, 0x00, 0x1C, 0x00, 0x02, 0x00, 0xF8, 0x00, 0x00, 0x2E, 0x8F};
+//for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
+//  DataFrame.push_back(ReadBuffer[i]);
+//  Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");
+//}
 // ***********************************************
 
-  if (Serial2.available() || true) {
+  if (Serial2.available()) {
     int i = 0;
     while(Serial2.available()) {
       byte d = Serial2.read();
@@ -130,7 +130,7 @@ for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
     
     if (DataFrame.size() > 5 && DataFrame.at(0) == this->ClientID && DataFrame.at(1) != 0x83 && DataFrame.at(1) != 0x84) {
       // Dataframe valid
-      Serial.println("Dataframe valid");
+      //Serial.println("Dataframe valid");
       // clear old data
       InverterData->clear();
 
