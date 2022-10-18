@@ -3,6 +3,7 @@
 
 #include "commonlibs.h"
 #include "register.h"
+#include "baseconfig.h"
 #include <vector>
 #include <ArduinoJson.h>
 
@@ -17,12 +18,12 @@ class modbus {
 
   public:
     modbus();
-    void                  init(uint8_t clientid);
+    void                  init(uint8_t clientid, uint32_t baudrate);
     
     void                  loop();
 
     const uint8_t& GetClientID()      const {return ClientID;}
-    const uint8_t& GetBaudrate()      const {return Baudrate;}
+    const uint32_t& GetBaudrate()     const {return Baudrate;}
     const uint8_t& GetTxInterval()    const {return TxInterval;}
     
 
@@ -31,8 +32,8 @@ class modbus {
     
   private:
     uint8_t                 ClientID;
-    int                     Baudrate;
-    int                     TxInterval; // in seconds
+    uint32_t                Baudrate;
+    int                     TxInterval;  // in seconds
     unsigned long           LastTx = 0;
     std::vector<reg_t>*     InverterData;
     

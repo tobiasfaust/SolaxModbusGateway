@@ -3,8 +3,8 @@
 
 /* https://jsonlint.com/ */
 const char JSON[] PROGMEM = R"=====(
-{
-  "livedata": [{
+ {
+ "livedata": [{
       "position": 0,
       "length": 2,
       "Name": "GridVoltage",
@@ -102,4 +102,4 @@ const char JSON[] PROGMEM = R"=====(
 }
 )=====";
 
-#endif;
+#endif
