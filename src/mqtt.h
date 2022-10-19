@@ -26,35 +26,37 @@ class MQTT {
 
   public:
 
-    MQTT(const char* server, uint16_t port, String root);
-    void    loop();
-    void    Publish_Bool(const char* subtopic, bool b);
-    void    Publish_Int(const char* subtopic, int number);
-    void    Publish_Float(const char* subtopic, float number);
-    void    Publish_String(const char* subtopic, String value);
-    void    Publish_IP();
-    void    setCallback(CALLBACK_FUNCTION);
-    void    disconnect();
-    String  GetRoot();
+    MQTT(const char* server, uint16_t port, String basepath, String root);
+    void          loop();
+    void          Publish_Bool(const char* subtopic, bool b);
+    void          Publish_Int(const char* subtopic, int number);
+    void          Publish_Float(const char* subtopic, float number);
+    void          Publish_String(const char* subtopic, String value);
+    void          Publish_IP();
+    void          setCallback(CALLBACK_FUNCTION);
+    void          disconnect();
+    String        GetRoot();
     
-    const bool& GetConnectStatusWifi()      const {return ConnectStatusWifi;}
-    const bool& GetConnectStatusMqtt()      const {return ConnectStatusMqtt;}
+    
+    const bool&   GetConnectStatusWifi()      const {return ConnectStatusWifi;}
+    const bool&   GetConnectStatusMqtt()      const {return ConnectStatusMqtt;}
 
   private:
-    WiFiClient espClient;
+    WiFiClient    espClient;
     PubSubClient* mqtt;
     CALLBACK_FUNCTION;
-    void    reconnect();
-    void    callback(char* topic, byte* payload, unsigned int length);
+    void          reconnect();
+    void          callback(char* topic, byte* payload, unsigned int length);
     
-    String  mqtt_root = "";
+    String        mqtt_root = "";
+    String        mqtt_basepath = "";
     unsigned long mqttreconnect_lasttry = 0;
     unsigned long last_keepalive = 0;
-    bool     ConnectStatusWifi;
-    bool     ConnectStatusMqtt;
+    bool          ConnectStatusWifi;
+    bool          ConnectStatusMqtt;
   
 };
 
-extern MQTT* mqtt;
+//extern MQTT* mqtt;
 
 #endif

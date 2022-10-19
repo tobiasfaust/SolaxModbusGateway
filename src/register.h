@@ -7,7 +7,7 @@ const char JSON[] PROGMEM = R"=====(
  "livedata": [{
       "position": 0,
       "length": 2,
-      "Name": "GridVoltage",
+      "name": "GridVoltage",
       "realname": "Grid Voltage",
       "datatype": "float",
       "factor": 0.1
@@ -15,7 +15,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 2,
       "length": 2,
-      "Name": "GridCurrent",
+      "name": "GridCurrent",
       "realname": "Grid Current",
       "datatype": "float",
       "factor": 0.1
@@ -23,7 +23,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 4,
       "length": 2,
-      "Name": "GridPower",
+      "name": "GridPower",
       "realname": "Grid Power",
       "datatype": "integer",
       "factor": 1
@@ -31,7 +31,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 6,
       "length": 2,
-      "Name": "PvVoltage1",
+      "name": "PvVoltage1",
       "realname": "Pv Voltage 1",
       "datatype": "float",
       "factor": 0.1
@@ -39,7 +39,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 8,
       "length": 2,
-      "Name": "PvVoltage2",
+      "name": "PvVoltage2",
       "realname": "Pv Voltage 2",
       "datatype": "float",
       "factor": 0.1
@@ -47,7 +47,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 10,
       "length": 2,
-      "Name": "PvCurrent1",
+      "name": "PvCurrent1",
       "realname": "Pv Current 1",
       "datatype": "float",
       "factor": 0.1
@@ -55,7 +55,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 12,
       "length": 2,
-      "Name": "PvCurrent2",
+      "name": "PvCurrent2",
       "realname": "Pv Current 2",
       "datatype": "float",
       "factor": 0.1
@@ -63,7 +63,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 14,
       "length": 2,
-      "Name": "GridFrequency",
+      "name": "GridFrequency",
       "realname": "Grid Frequency",
       "datatype": "float",
       "factor": 0.01
@@ -71,14 +71,14 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 16,
       "length": 2,
-      "Name": "Temperature",
+      "name": "Temperature",
       "realname": "Temperature",
       "datatype": "integer"
     },
     {
       "position": 20,
       "length": 2,
-      "Name": "PowerDC1",
+      "name": "PowerDC1",
       "realname": "Power DC 1",
       "datatype": "integer",
       "factor": 1
@@ -86,7 +86,7 @@ const char JSON[] PROGMEM = R"=====(
     {
       "position": 22,
       "length": 2,
-      "Name": "PowerDC2",
+      "name": "PowerDC2",
       "realname": "Power DC 2",
       "datatype": "integer",
       "factor": 1
@@ -95,7 +95,7 @@ const char JSON[] PROGMEM = R"=====(
   "id": [{
     "position": 0,
     "length": 14,
-    "Name": "InverterSN",
+    "name": "InverterSN",
     "realname": "Inverter SN",
     "datatype": "string"
   }]

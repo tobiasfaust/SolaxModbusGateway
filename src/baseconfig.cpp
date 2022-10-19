@@ -63,7 +63,7 @@ void BaseConfig::LoadJsonConfig() {
         if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
         if (doc.containsKey("clientid"))         { this->clientid = strtoul(doc["clientid"], NULL, 16);} else {this->clientid = 0x01;} // hex convert to dec
         if (doc.containsKey("baudrate"))         { this->baudrate = (int)(doc["baudrate"]);} else {this->baudrate = 19200;}
-          
+        if (doc.containsKey("txinterval"))       { this->txinterval = (int)(doc["txinterval"]);} else {this->txinterval = 5;}
       } else {
         if (Config->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
@@ -86,9 +86,16 @@ void BaseConfig::LoadJsonConfig() {
     this->debuglevel = 0;
     this->clientid = 0x01;
     this->baudrate = 19200;
+    this->txinterval = 5;
     
     loadDefaultConfig = false; //set back
   }
+
+  // Data Cleaning
+  if(this->mqtt_basepath.endsWith("/")) {
+    this->mqtt_basepath = this->mqtt_basepath.substring(0, this->mqtt_basepath.length()-1); 
+  }
+
 }
 
 void BaseConfig::GetWebContent(WM_WebServer* server) {
@@ -140,7 +147,7 @@ void BaseConfig::GetWebContent(WM_WebServer* server) {
   html.concat("</tr>\n");
 
   html.concat("<tr>\n");
-  html.concat("<td>MQTT Topic Base Path (example: home/)</td>\n");
+  html.concat("<td>MQTT Topic Base Path (example: home/inverter)</td>\n");
   sprintf(buffer, "<td><input size='30' maxlength='40' name='mqttbasepath' type='text' value='%s'/></td>\n", this->mqtt_basepath.c_str());
   html.concat(buffer);
   html.concat("</tr>\n");
@@ -186,6 +193,12 @@ void BaseConfig::GetWebContent(WM_WebServer* server) {
   html.concat("<tr>\n");
   html.concat("<td>Modbus Baudrate (Default: 19200)</td>\n");
   sprintf(buffer, "<td><input min='9600' max='115200' name='baudrate' type='number' style='width: 6em' value='%d'/></td>\n", this->baudrate);
+  html.concat(buffer);
+  html.concat("</tr>\n");
+
+  html.concat("<tr>\n");
+  html.concat("<td>Interval for Datatransmission in sec (Default: 5)</td>\n");
+  sprintf(buffer, "<td><input min='2' max='3600' name='txinterval' type='number' style='width: 6em' value='%d'/></td>\n", this->txinterval);
   html.concat(buffer);
   html.concat("</tr>\n");
 

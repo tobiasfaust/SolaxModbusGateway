@@ -257,8 +257,8 @@ void MyWebServer::getPage_Status(String* html) {
 
   html->concat("<tr>\n");
   html->concat("<td>MQTT Status:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected"));
-  html->concat(buffer);
+  //sprintf(buffer, "<td>%s</td>\n", (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected"));
+  //html->concat(buffer);
   html->concat("</tr>\n");
 
   html->concat("<tr>\n");

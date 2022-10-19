@@ -28,6 +28,7 @@ class BaseConfig {
     const uint8_t& GetDebugLevel()    const {return debuglevel;}
     const uint8_t& GetClientID()      const {return clientid;}
     const uint32_t& GetBaudRate()     const {return baudrate;}
+    const uint16_t& GetTxInterval()   const {return txinterval;}
     
   private:
     String    mqtt_server;
@@ -41,6 +42,7 @@ class BaseConfig {
     uint8_t   debuglevel;
     uint8_t   clientid;
     uint32_t  baudrate;
+    uint16_t  txinterval;
 };
 
 extern BaseConfig* Config;

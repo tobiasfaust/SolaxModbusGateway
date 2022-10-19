@@ -3,7 +3,7 @@
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus() : Baudrate(19200), TxInterval(5), LastTx(0) {
+modbus::modbus() : Baudrate(19200), LastTx(0) {
   InverterData = new std::vector<reg_t>{};
 }
 
@@ -24,17 +24,19 @@ void modbus::init(uint8_t clientid, uint32_t baudrate) {
 }
 
 /*******************************************************
- * set Interval for Query Inverter
-*******************************************************/
-void modbus::setTxInterval(int TxInterval) {
-  this->TxInterval = TxInterval;
-}
-
-/*******************************************************
  * set Baudrate for Modbus
 *******************************************************/
 void modbus::setBaudrate(int baudrate) {
   this->Baudrate = baudrate;
+}
+
+
+/*******************************************************
+ * Enable MQTT Transmission
+*******************************************************/
+void modbus::enableMqtt(MQTT* object) {
+  this->mqtt = object;
+  Serial.println("MQTT aktiviert");
 }
 
 /*******************************************************
@@ -162,7 +164,7 @@ void modbus::ReceiveData() {
           continue;
         }
         
-        d.Name = elem["Name"];
+        d.Name = elem["name"];
         d.RealName = elem["realname"] | "?";
         uint8_t pos = ((uint8_t)elem["position"] | 0) + 3;
         
@@ -173,10 +175,12 @@ void modbus::ReceiveData() {
         if (elem["datatype"] == "float") {
           val_f = (((DataFrame.at(pos) << 8) | DataFrame.at(pos +1)) * factor);
           d.value = &val_f;
+          if (this->mqtt) { this->mqtt->Publish_Float(d.Name, val_f);}
           sprintf(dbg, "Data: %s -> %.2f", d.RealName, *(float*)d.value);
         } else if (elem["datatype"] == "integer") {
-          val_i = (((DataFrame.at(pos) << 8) | DataFrame.at(pos +1)) * (int)factor);
+          val_i = (((DataFrame.at(pos) << 8) | DataFrame.at(pos +1)) *(int)factor);
           d.value = &val_i;
+          if (this->mqtt) { this->mqtt->Publish_Int(d.Name, val_i);}
           sprintf(dbg, "Data: %s -> %d", d.RealName, *(int*)d.value);
         }
 
@@ -222,6 +226,9 @@ String modbus::PrintHex(byte num) {
   return hexCar;
 }
 
+/*******************************************************
+ * friendly output the entire received Dataframe
+*******************************************************/
 String modbus::PrintDataFrame(std::vector<byte>* frame) {
   String out = "";
   for (uint8_t i = 0; i<frame->size(); i++) {
@@ -234,7 +241,7 @@ String modbus::PrintDataFrame(std::vector<byte>* frame) {
  * Loop function
 *******************************************************/
 void modbus::loop() {
-  if (millis() - this->LastTx > this->TxInterval*1000) {
+  if (millis() - this->LastTx > Config->GetTxInterval() * 1000) {
     this->LastTx = millis();
     
     this->QueryLiveData();

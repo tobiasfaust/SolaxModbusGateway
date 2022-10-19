@@ -4,6 +4,7 @@
 #include "commonlibs.h"
 #include "register.h"
 #include "baseconfig.h"
+#include "mqtt.h"
 #include <vector>
 #include <ArduinoJson.h>
 
@@ -24,23 +25,20 @@ class modbus {
 
     const uint8_t& GetClientID()      const {return ClientID;}
     const uint32_t& GetBaudrate()     const {return Baudrate;}
-    const uint8_t& GetTxInterval()    const {return TxInterval;}
-    
 
     void                    setBaudrate(int baudrate);
-    void                    setTxInterval(int TxInterval);
+    void                    enableMqtt(MQTT* object);
     
   private:
     uint8_t                 ClientID;
     uint32_t                Baudrate;
-    int                     TxInterval;  // in seconds
     unsigned long           LastTx = 0;
     std::vector<reg_t>*     InverterData;
     
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
     uint16_t                Calc_CRC(uint8_t* message, uint8_t len);
-
+    MQTT*                   mqtt = NULL;
     void                    QueryLiveData();
     void                    QueryIdData();
     void                    ReceiveData();
