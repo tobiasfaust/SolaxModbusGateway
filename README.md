@@ -17,4 +17,4 @@ request: 01 03 00 00 00 07 08 04
 Response: 01 03 .....
 </code>
 
-## important: Project under development, not buggy free, no guarantee of fail-free working
+## please refer full documentation in our [Wiki](https://github.com/tobiasfaust/SolaxModbusGateway/wiki)
