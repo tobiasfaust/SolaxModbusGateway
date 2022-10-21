@@ -57,9 +57,9 @@ void MQTT::reconnect() {
     this->Publish_String("state", "Online"); //LWT reset
     
     // ... and resubscribe if needed
-    snprintf (topic, sizeof(topic), "%s/%s/#", this->mqtt_basepath, this->mqtt_root.c_str());
-    this->mqtt->subscribe(topic);
-    Serial.print(F("MQTT Subscribed to: ")); Serial.println(FPSTR(topic));
+    //snprintf (topic, sizeof(topic), "%s/%s/#", this->mqtt_basepath.c_str(), this->mqtt_root.c_str());
+    //this->mqtt->subscribe(topic);
+    //Serial.print(F("MQTT Subscribed to: ")); Serial.println(FPSTR(topic));
 
   } else {
     Serial.print(F("failed, rc="));
@@ -105,7 +105,7 @@ void MQTT::Publish_Float(const char* subtopic, float number ) {
 void MQTT::Publish_String(const char* subtopic, String value ) {
   char topic[50] = {0};
   memset(topic, 0, sizeof(topic));
-  snprintf(topic, sizeof(topic), "%s/%s/%s", this->mqtt_basepath.c_str(), this->mqtt_root, subtopic);
+  snprintf(topic, sizeof(topic), "%s/%s/%s", this->mqtt_basepath.c_str(), this->mqtt_root.c_str(), subtopic);
   if (this->mqtt->connected()) {
     this->mqtt->publish((const char*)topic, value.c_str(), true);
     if (Config->GetDebugLevel() >=4) {Serial.print(F("Publish ")); Serial.print(FPSTR(topic)); Serial.print(F(": ")); Serial.println(value);}

@@ -133,7 +133,6 @@ void MyWebServer::handleAjax() {
   String ret;
   bool RaiseError = false;
 
-  uint8_t port = 0;
   String action, newState; 
   
   //DynamicJsonBuffer jsonBufferGet;
@@ -219,7 +218,6 @@ void MyWebServer::getPageFooter(String* html) {
 void MyWebServer::getPage_Status(String* html) {
   char buffer[100] = {0};
   memset(buffer, 0, sizeof(buffer));
-  uint8_t count = 0;
   uptime::calculateUptime();
   
   html->concat("<table class='editorDemoTable'>\n");

@@ -7,6 +7,7 @@
 #include "mqtt.h"
 #include <vector>
 #include <ArduinoJson.h>
+#include <HardwareSerial.h>
 
 class modbus {
 
@@ -19,12 +20,12 @@ class modbus {
 
   public:
     modbus();
-    void                  init(uint8_t clientid, uint32_t baudrate);
+    void                    init(uint8_t clientid, uint32_t baudrate);
     
-    void                  loop();
+    void                    loop();
 
-    const uint8_t& GetClientID()      const {return ClientID;}
-    const uint32_t& GetBaudrate()     const {return Baudrate;}
+    const uint8_t&          GetClientID()     const {return ClientID;}
+    const uint32_t&         GetBaudrate()     const {return Baudrate;}
 
     void                    setBaudrate(int baudrate);
     void                    enableMqtt(MQTT* object);
@@ -43,7 +44,7 @@ class modbus {
     void                    QueryIdData();
     void                    ReceiveData();
 
-
+    HardwareSerial*         mySerial;
 
 };
 
