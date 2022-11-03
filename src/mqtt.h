@@ -57,6 +57,6 @@ class MQTT {
   
 };
 
-//extern MQTT* mqtt;
+extern MQTT* mqtt;
 
 #endif

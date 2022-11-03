@@ -108,7 +108,7 @@ void MQTT::Publish_String(const char* subtopic, String value ) {
   snprintf(topic, sizeof(topic), "%s/%s/%s", this->mqtt_basepath.c_str(), this->mqtt_root.c_str(), subtopic);
   if (this->mqtt->connected()) {
     this->mqtt->publish((const char*)topic, value.c_str(), true);
-    if (Config->GetDebugLevel() >=4) {Serial.print(F("Publish ")); Serial.print(FPSTR(topic)); Serial.print(F(": ")); Serial.println(value);}
+    if (Config->GetDebugLevel() >=3) {Serial.print(F("Publish ")); Serial.print(FPSTR(topic)); Serial.print(F(": ")); Serial.println(value);}
   } else { if (Config->GetDebugLevel() >=2) {Serial.println(F("Request for MQTT Publish, but not connected to Broker")); }}
 }
 
@@ -164,9 +164,8 @@ void MQTT::loop() {
     this->ConnectStatusMqtt = false;
   }
 
-  if (Config->GetKeepAlive() > 0 && millis() - this->last_keepalive > (Config->GetKeepAlive() * 1000))  {
+  if (Config->GetDebugLevel() >=4 && millis() - this->last_keepalive > (30 * 1000))  {
     this->last_keepalive = millis();
-    this->Publish_Bool("alive", true);
     
     if (Config->GetDebugLevel() >=4) {
       char buffer[100] = {0};

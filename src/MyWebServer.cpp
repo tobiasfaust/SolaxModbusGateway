@@ -21,12 +21,15 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->onNotFound([this]() { this->handleNotFound(); });
   server->on("/", [this]() {this->handleRoot(); });
   server->on("/BaseConfig", [this]() {this->handleBaseConfig(); });
+  server->on("/ModbusConfig", [this]() {this->handleModbusConfig(); });
   
   server->on("/style.css", HTTP_GET, [this]() {this->handleCSS(); });
   server->on("/javascript.js", HTTP_GET, [this]() {this->handleJS(); });
   server->on("/jsajax.js", HTTP_GET, [this]() {this->handleJsAjax(); });
   
   server->on("/StoreBaseConfig", HTTP_POST, [this]()   { this->ReceiveJSONConfiguration(BASECONFIG); });
+  server->on("/StoreModbusConfig", HTTP_POST, [this]() { this->ReceiveJSONConfiguration(MODBUSCONFIG); });
+  server->on("/favicon.ico", HTTP_GET, [this]()        { this->handleFavIcon(); });
   server->on("/reboot", HTTP_GET, [this]()             { this->handleReboot(); });
   server->on("/reset", HTTP_GET, [this]()              { this->handleReset(); });
   server->on("/wifireset", HTTP_GET, [this]()          { this->handleWiFiReset(); });
@@ -59,6 +62,11 @@ void MyWebServer::handleRoot() {
 void MyWebServer::handleCSS() {
   //server->setContentLength(sizeof(STYLE_CSS));
   server->send_P(200, "text/css", STYLE_CSS);
+}
+
+void MyWebServer::handleFavIcon() {
+  //server->send_P(200, "image/x-icon", FAVICON);
+  server->send_P(200, "image/x-icon", FAVICON, sizeof(FAVICON));
 }
 
 void MyWebServer::handleJS() {
@@ -115,13 +123,29 @@ void MyWebServer::handleBaseConfig() {
   server->sendContent("");
 }
 
+void MyWebServer::handleModbusConfig() {
+  String html;
+  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server->sendHeader("Pragma", "no-cache");
+  server->sendHeader("Expires", "-1");
+  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server->send(200, "text/html", "");
+  this->getPageHeader(&html, MODBUSCONFIG);
+  server->sendContent(html.c_str()); html = "";
+  mb->GetWebContent(server);
+  this->getPageFooter(&html);
+  server->sendContent(html.c_str()); 
+  server->sendContent("");
+}
+
 void MyWebServer::ReceiveJSONConfiguration(page_t page) {
   String json = server->arg("json");
   String targetPage = "/";
   Serial.print(F("json empfangen: "));
   Serial.println(FPSTR(json.c_str()));  
   
-  if (page==BASECONFIG) { Config->StoreJsonConfig(&json); targetPage = "/BaseConfig"; }
+  if (page==BASECONFIG)   { Config->StoreJsonConfig(&json); targetPage = "/BaseConfig"; }
+  if (page==MODBUSCONFIG) { mb->StoreJsonConfig(&json);     targetPage = "/ModbusConfig"; }
   
   server->sendHeader("Location", targetPage.c_str());
   server->send(303); 
@@ -132,16 +156,11 @@ void MyWebServer::handleAjax() {
   memset(buffer, 0, sizeof(buffer));
   String ret;
   bool RaiseError = false;
-
   String action, newState; 
   
-  //DynamicJsonBuffer jsonBufferGet;
-  //JsonObject& jsonGet = jsonBufferGet.parseObject(server->arg("json"));
   StaticJsonDocument<512> jsonGet; // TODO Use computed size??
   DeserializationError error = deserializeJson(jsonGet, server->arg("json"));
 
-  //DynamicJsonBuffer jsonBufferReturn;
-  //JsonObject& jsonReturn = jsonBufferReturn.createObject();
   StaticJsonDocument<256> jsonReturn;
 
   
@@ -170,15 +189,15 @@ void MyWebServer::getPageHeader(String* html, page_t pageactive) {
   html->concat("<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'/>\n");
   html->concat("<meta charset='utf-8'>\n");
   html->concat("<link rel='stylesheet' type='text/css' href='/style.css'>\n");
-  html->concat("<script language='javascript' type='text/javascript' src='/parameter.js'></script>\n");
+  //html->concat("<script language='javascript' type='text/javascript' src='/parameter.js'></script>\n");
   html->concat("<script language='javascript' type='text/javascript' src='/javascript.js'></script>\n");
   html->concat("<script language='javascript' type='text/javascript' src='/jsajax.js'></script>\n");
-  html->concat("<title>Solax X1/X3 G4 MOdbus MQTT Gateway</title></head>\n");
+  html->concat("<title>Solax X1/X3 G4 Modbus MQTT Gateway</title></head>\n");
   html->concat("<body>\n");
   html->concat("<table>\n");
   html->concat("  <tr>\n");
-  html->concat("   <td colspan='4'>\n");
-  html->concat("     <h2>Konfiguration</h2>\n");
+  html->concat("   <td colspan='2'>\n");
+  html->concat("     <h2>Configuration</h2>\n");
   html->concat("   </td>\n");
 
   html->concat("   <td colspan='4' style='color:#CCCCCC;'>\n");
@@ -198,6 +217,9 @@ void MyWebServer::getPageHeader(String* html, page_t pageactive) {
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/BaseConfig'>Basis Config</a></td>\n", (pageactive==BASECONFIG)?"navi_active":"");
+  html->concat(buffer);
+  html->concat("   <td class='navi' style='width: 50px'></td>\n");
+  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusConfig'>Modbus Config</a></td>\n", (pageactive==MODBUSCONFIG)?"navi_active":"");
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   html->concat("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");
@@ -255,8 +277,14 @@ void MyWebServer::getPage_Status(String* html) {
 
   html->concat("<tr>\n");
   html->concat("<td>MQTT Status:</td>\n");
-  //sprintf(buffer, "<td>%s</td>\n", (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected"));
-  //html->concat(buffer);
+  sprintf(buffer, "<td>%s</td>\n", (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected"));
+  html->concat(buffer);
+  html->concat("</tr>\n");
+
+  html->concat("<tr>\n");
+  html->concat("<td>Selected Inverter:</td>\n");
+  sprintf(buffer, "<td>%s</td>\n", mb->GetInverterType());
+  html->concat(buffer);
   html->concat("</tr>\n");
 
   html->concat("<tr>\n");

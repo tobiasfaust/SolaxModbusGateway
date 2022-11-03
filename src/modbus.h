@@ -20,21 +20,32 @@ class modbus {
 
   public:
     modbus();
-    void                    init(uint8_t clientid, uint32_t baudrate);
-    
+    void                    init();
+    void                    StoreJsonConfig(String* json);
+    void                    LoadJsonConfig();
+
     void                    loop();
 
-    const uint8_t&          GetClientID()     const {return ClientID;}
-    const uint32_t&         GetBaudrate()     const {return Baudrate;}
+    //const uint8_t&          GetClientID()     const {return ClientID;}
+    //const uint32_t&         GetBaudrate()     const {return Baudrate;}
+    const String&           GetInverterType()   const {return InverterType;}
 
-    void                    setBaudrate(int baudrate);
+    //void                    setBaudrate(int baudrate);
     void                    enableMqtt(MQTT* object);
-    
+    void                    GetWebContent(WM_WebServer* server);
+
   private:
-    uint8_t                 ClientID;
-    uint32_t                Baudrate;
-    unsigned long           LastTx = 0;
+    uint8_t                 ClientID;     // 0x01
+    uint32_t                Baudrate;     // 19200
+    uint16_t                TxIntervalLiveData;   // 5
+    uint16_t                TxIntervalIdData; // 3600
+    String                  InverterType; //Solax-X1
+
+    unsigned long           LastTxLiveData = 0;
+    unsigned long           LastTxIdData = 0;
+
     std::vector<reg_t>*     InverterData;
+    std::vector<String>*    AvailableInverters;
     
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
@@ -43,12 +54,14 @@ class modbus {
     void                    QueryLiveData();
     void                    QueryIdData();
     void                    ReceiveData();
+    void                    LoadInvertersFromJson();
+    void                    LoadInverterConfigFromJson();
+
 
     HardwareSerial*         mySerial;
 
 };
 
-
-
+extern modbus* mb;
 
 #endif

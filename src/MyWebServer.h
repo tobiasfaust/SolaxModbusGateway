@@ -14,14 +14,16 @@
 #include "uptime.h" // https://github.com/YiannisBourkelis/Uptime-Library/
 
 #include "BaseConfig.h"
+#include "modbus.h"
 #include "mqtt.h"
 #include "JavaScript.h"
 #include "JsAjax.h"
 #include "CSS.h"
+#include "favicon.h"
 
 class MyWebServer {
 
-  enum page_t {ROOT, BASECONFIG};
+  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG};
   
   public:
     MyWebServer();
@@ -54,6 +56,8 @@ class MyWebServer {
     void      handleJSParam();
     void      handleRoot();
     void      handleBaseConfig();
+    void      handleModbusConfig();
+    void      handleFavIcon();
     void      handleAjax();
     void      ReceiveJSONConfiguration(page_t page);
     void      getPageHeader(String* html, page_t pageactive);

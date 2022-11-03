@@ -24,11 +24,13 @@ class BaseConfig {
     const String&  GetMqttRoot()      const {return mqtt_root;}
     const String&  GetMqttBasePath()  const {return mqtt_basepath;}
     const bool&    UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
-    const uint16_t& GetKeepAlive()    const {return keepalive;}
     const uint8_t& GetDebugLevel()    const {return debuglevel;}
-    const uint8_t& GetClientID()      const {return clientid;}
-    const uint32_t& GetBaudRate()     const {return baudrate;}
-    const uint16_t& GetTxInterval()   const {return txinterval;}
+    
+    //const uint8_t& GetClientID()      const {return clientid;}
+    //const uint32_t& GetBaudRate()     const {return baudrate;}
+    //const uint16_t& GetTxInterval()   const {return txinterval;}
+    //const String&   GetInverterType() const {return inverterType;}
+
     
   private:
     String    mqtt_server;
@@ -38,11 +40,12 @@ class BaseConfig {
     String    mqtt_root;
     String    mqtt_basepath;
     bool      mqtt_UseRandomClientID;
-    uint16_t  keepalive;
     uint8_t   debuglevel;
-    uint8_t   clientid;
-    uint32_t  baudrate;
-    uint16_t  txinterval;
+
+    //uint8_t   clientid;
+    //uint32_t  baudrate;
+    //uint16_t  txinterval;
+    //String    inverterType;
 };
 
 extern BaseConfig* Config;

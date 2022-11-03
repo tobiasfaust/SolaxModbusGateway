@@ -47,7 +47,6 @@ void setup() {
   mqtt->setCallback(myMQTTCallBack);
 
   mb = new modbus();
-  mb->init(0x01, 19200);
   mb->enableMqtt(mqtt);
 
   Serial.println("Starting WebServer");

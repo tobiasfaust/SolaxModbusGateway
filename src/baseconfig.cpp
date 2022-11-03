@@ -59,11 +59,7 @@ void BaseConfig::LoadJsonConfig() {
         if (doc.containsKey("mqttpass"))         { this->mqtt_password = doc["mqttpass"].as<String>();} else {this->mqtt_password = "";}
         if (doc.containsKey("mqttbasepath"))     { this->mqtt_basepath = doc["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
         if (doc.containsKey("UseRandomClientID")){ if (strcmp(doc["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
-        if (doc.containsKey("keepalive"))        { if ((int)(doc["keepalive"]) == 0) { this->keepalive = 0;} else { this->keepalive = _max((int)(doc["keepalive"]), 10);}} else {this->keepalive = 0; }
         if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
-        if (doc.containsKey("clientid"))         { this->clientid = strtoul(doc["clientid"], NULL, 16);} else {this->clientid = 0x01;} // hex convert to dec
-        if (doc.containsKey("baudrate"))         { this->baudrate = (int)(doc["baudrate"]);} else {this->baudrate = 19200;}
-        if (doc.containsKey("txinterval"))       { this->txinterval = (int)(doc["txinterval"]);} else {this->txinterval = 5;}
       } else {
         if (Config->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
@@ -82,11 +78,7 @@ void BaseConfig::LoadJsonConfig() {
     this->mqtt_root = "Solax";
     this->mqtt_basepath = "home/";
     this->mqtt_UseRandomClientID = true;
-    this->keepalive = 0;
     this->debuglevel = 0;
-    this->clientid = 0x01;
-    this->baudrate = 19200;
-    this->txinterval = 5;
     
     loadDefaultConfig = false; //set back
   }
@@ -171,34 +163,8 @@ void BaseConfig::GetWebContent(WM_WebServer* server) {
   html.concat("</tr>\n");
 
   html.concat("<tr>\n");
-  html.concat("<td>Senden einer KeepAlive Message via MQTT (in sek > 10, 0=disabled)</td>\n");
-  sprintf(buffer, "<td><input min='10' max='65000' name='keepalive' type='number' style='width: 6em' value='%d'/></td>\n", this->keepalive);
-  html.concat(buffer);
-  html.concat("</tr>\n");
-
-  html.concat("<tr>\n");
   html.concat("<td>DebugMode (0 [off] .. 5 [max]</td>\n");
   sprintf(buffer, "<td><input min='0' max='5' name='debuglevel' type='number' style='width: 6em' value='%d'/></td>\n", this->debuglevel);
-  html.concat(buffer);
-  html.concat("</tr>\n");
-
-  server->sendContent(html.c_str()); html = "";
-
-  html.concat("<tr>\n");
-  html.concat("<td>Solax Modbus ClientID (in hex) (Default: 01)</td>\n");
-  sprintf(buffer, "<td><input maxlength='2' name='clientid' type='text' style='width: 6em' value='%02x'/></td>\n", this->clientid);
-  html.concat(buffer);
-  html.concat("</tr>\n");
-
-  html.concat("<tr>\n");
-  html.concat("<td>Modbus Baudrate (Default: 19200)</td>\n");
-  sprintf(buffer, "<td><input min='9600' max='115200' name='baudrate' type='number' style='width: 6em' value='%d'/></td>\n", this->baudrate);
-  html.concat(buffer);
-  html.concat("</tr>\n");
-
-  html.concat("<tr>\n");
-  html.concat("<td>Interval for Datatransmission in sec (Default: 5)</td>\n");
-  sprintf(buffer, "<td><input min='2' max='3600' name='txinterval' type='number' style='width: 6em' value='%d'/></td>\n", this->txinterval);
   html.concat(buffer);
   html.concat("</tr>\n");
 

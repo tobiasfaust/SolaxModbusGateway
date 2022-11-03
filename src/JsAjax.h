@@ -3,67 +3,11 @@
 
 const char JSAJAX[] PROGMEM = R"=====(
 
-function ChangeEnabled(id) {
-  obj = document.getElementById(id);
-  num = id.replace(/^.*_(\d+)$/g, "$1");
-  var data = {};
-
-  data['action'] = "EnableValve"
-  data['newState'] = obj.checked;
-
-  port = document.getElementById('AllePorts_'+num); //'AllePorts_'+num
-  if (port && port.style.display != 'none') { data['port'] = port.value; }
-  port = document.getElementById('AllePorts_PortA_'+num);
-  if (port && port.style.display != 'none') { data['port'] = port.value; }
-  
-  ajax_send(null, JSON.stringify(data));
-}
-
-function ChangeValve(id) {
-  btn = document.getElementById(id);
-  num = id.replace(/^action_(\d+).*/g, "$1");
-  var data = {};
-  
-  data['action'] = "SetValve";
-  data['newState'] = btn.value.replace(/^Set\ (.*)/, "$1");
-  
-  port = document.getElementById('AllePorts_'+num); //'AllePorts_'+num
-  if (port && port.style.display != 'none') { data['port'] = port.value; }
-  port = document.getElementById('AllePorts_PortA_'+num);
-  if (port && port.style.display != 'none') { data['port'] = port.value; }
-  
-  ajax_send(btn, JSON.stringify(data));
-}
-
-function InstallRelease() {
-  rel = document.getElementById('releases').value;
-  var data = {}; 
-  data['action'] = "InstallRelease";
-  data['newState'] = rel;
-  ajax_send(null, JSON.stringify(data));
-}
-
-function RefreshReleases() {
-  var data = {}; 
-  data['action'] = "RefreshReleases";
-  data['newState'] = "";
-  ajax_send(null, JSON.stringify(data));
-}
-
 function RefreshI2C(id) {
   btn = document.getElementById(id);
   
   var data = {};
   data['action'] = "RefreshI2C";
-  data['newState'] = "";
-  ajax_send(btn, JSON.stringify(data));
-}
-
-function Refresh1Wire(id) {
-  btn = document.getElementById(id);
-  
-  var data = {};
-  data['action'] = "Refresh1Wire";
   data['newState'] = "";
   ajax_send(btn, JSON.stringify(data));
 }
