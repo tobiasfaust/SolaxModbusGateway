@@ -3,16 +3,15 @@
 
 const char JSAJAX[] PROGMEM = R"=====(
 
-function RefreshI2C(id) {
-  btn = document.getElementById(id);
-  
+var myInterval = setInterval(RefreshLiveData, 5000);
+
+function RefreshLiveData() {
   var data = {};
-  data['action'] = "RefreshI2C";
-  data['newState'] = "";
-  ajax_send(btn, JSON.stringify(data));
+  data['action'] = "RefreshLiveData";
+  ajax_send(JSON.stringify(data));
 }
 
-function ajax_send(btn, json) {
+function ajax_send(json) {
   var http = null;
   ShowError("");
   if (window.XMLHttpRequest)  { http =new XMLHttpRequest(); }
@@ -27,29 +26,21 @@ function ajax_send(btn, json) {
   
   //Send the proper header information along with the request
   http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  http.setRequestHeader('Content-length', params.length);
-  http.setRequestHeader('Connection', 'close');
   
   //http.onerror = function(){ alert (http.responseText); }
   //http.onload = function(){ alert (http.responseText); }
   
-  http.onreadystatechange = function() {//Call a function when the state changes.
+  http.onreadystatechange = function() { //Call a function when the state changes.
       if(http.readyState == 4 && http.status == 200) {
-          var jsonReturn = JSON.parse(http.responseText);
-          if (btn.type == "button") {
-            switch (jsonReturn.NewState) {
-              case 'On':
-                btn.value = 'Set Off';
-                break;
-              case 'Off':
-                btn.value = 'Set On';
-             }
-           }
-           else if (btn.tagName == "DIV") { 
-            btn.innerHTML = "<span class='ajaxchange'>"+jsonReturn.NewState+"</span>";
-           }
-           
-           if (jsonReturn.accepted == 0 && jsonReturn.error) { ShowError(jsonReturn.error); }
+          var res = JSON.parse(http.responseText);
+          
+          Object.entries(res).forEach((entry) => {
+            const [key, value] = entry;
+            
+            obj = document.getElementById(key);
+            obj.innerHTML = "<span class='ajaxchange'>"+value+"</span>";
+
+          });
       } 
     }
   http.send(params);

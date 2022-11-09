@@ -22,7 +22,8 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->on("/", [this]() {this->handleRoot(); });
   server->on("/BaseConfig", [this]() {this->handleBaseConfig(); });
   server->on("/ModbusConfig", [this]() {this->handleModbusConfig(); });
-  
+  server->on("/Livedata", [this]() {this->handleModbusLivedata(); });
+
   server->on("/style.css", HTTP_GET, [this]() {this->handleCSS(); });
   server->on("/javascript.js", HTTP_GET, [this]() {this->handleJS(); });
   server->on("/jsajax.js", HTTP_GET, [this]() {this->handleJsAjax(); });
@@ -132,7 +133,22 @@ void MyWebServer::handleModbusConfig() {
   server->send(200, "text/html", "");
   this->getPageHeader(&html, MODBUSCONFIG);
   server->sendContent(html.c_str()); html = "";
-  mb->GetWebContent(server);
+  mb->GetWebContentConfig(server);
+  this->getPageFooter(&html);
+  server->sendContent(html.c_str()); 
+  server->sendContent("");
+}
+
+void MyWebServer::handleModbusLivedata() {
+  String html;
+  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server->sendHeader("Pragma", "no-cache");
+  server->sendHeader("Expires", "-1");
+  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server->send(200, "text/html", "");
+  this->getPageHeader(&html, LIVEDATA);
+  server->sendContent(html.c_str()); html = "";
+  mb->GetWebContentLiveData(server);
   this->getPageFooter(&html);
   server->sendContent(html.c_str()); 
   server->sendContent("");
@@ -163,22 +179,30 @@ void MyWebServer::handleAjax() {
 
   StaticJsonDocument<256> jsonReturn;
 
-  
-  Serial.print("Ajax Json Empfangen: "); 
+  if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Empfangen: "); }
   if (!error) {
-    serializeJsonPretty(jsonGet, Serial); Serial.println();
-    
+    if (Config->GetDebugLevel() >=4) { serializeJsonPretty(jsonGet, Serial); Serial.println(); }
+
+    if (jsonGet.containsKey("action"))   {action = jsonGet["action"].as<String>();}
+  
   } else { RaiseError = true; }
 
   if (RaiseError) {
-    jsonReturn["accepted"] = 0;
-    snprintf(buffer, sizeof(buffer), "No supported Ajax Json Command: %s", server->arg("json").c_str());
-    Serial.println(FPSTR(buffer));
     jsonReturn["error"] = buffer;
+    serializeJson(jsonReturn, ret);
+
+    if (Config->GetDebugLevel() >=2) {
+      snprintf(buffer, sizeof(buffer), "No supported Ajax Json Command: %s", server->arg("json").c_str());
+      Serial.println(FPSTR(buffer));
+    }
+    
+  } else if (action && strcmp(action.c_str(), "RefreshLiveData")==0) {
+      ret = mb->GetLiveDataAsJson();
+  } else {
+    serializeJson(jsonReturn, ret);
   }
-  
-  serializeJson(jsonReturn, ret);
-  Serial.print("Ajax Json Antwort: ");serializeJson(jsonReturn, Serial);; Serial.println();
+
+  if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Antwort: "); Serial.println(ret); }
   server->send(200, "text/html", ret.c_str());
 }
 
@@ -220,6 +244,9 @@ void MyWebServer::getPageHeader(String* html, page_t pageactive) {
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusConfig'>Modbus Config</a></td>\n", (pageactive==MODBUSCONFIG)?"navi_active":"");
+  html->concat(buffer);
+  html->concat("   <td class='navi' style='width: 50px'></td>\n");
+  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/Livedata'>Modbus LiveData</a></td>\n", (pageactive==LIVEDATA)?"navi_active":"");
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   html->concat("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");
@@ -283,7 +310,13 @@ void MyWebServer::getPage_Status(String* html) {
 
   html->concat("<tr>\n");
   html->concat("<td>Selected Inverter:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", mb->GetInverterType());
+  sprintf(buffer, "<td>%s</td>\n", mb->GetInverterType().c_str());
+  html->concat(buffer);
+  html->concat("</tr>\n");
+
+  html->concat("<tr>\n");
+  html->concat("<td>Inverter SerialNumber:</td>\n");
+  sprintf(buffer, "<td>%s</td>\n", mb->GetInverterSN().c_str());
   html->concat(buffer);
   html->concat("</tr>\n");
 

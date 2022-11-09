@@ -23,7 +23,7 @@
 
 class MyWebServer {
 
-  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG};
+  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, LIVEDATA};
   
   public:
     MyWebServer();
@@ -57,6 +57,7 @@ class MyWebServer {
     void      handleRoot();
     void      handleBaseConfig();
     void      handleModbusConfig();
+    void      handleModbusLivedata();
     void      handleFavIcon();
     void      handleAjax();
     void      ReceiveJSONConfiguration(page_t page);

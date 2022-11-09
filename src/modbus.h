@@ -12,9 +12,9 @@
 class modbus {
 
   typedef struct { 
-      const char* Name;
-      const char* RealName;
-      void* value;
+      String Name;
+      String RealName;
+      String value;
   } reg_t;
 
 
@@ -26,13 +26,13 @@ class modbus {
 
     void                    loop();
 
-    //const uint8_t&          GetClientID()     const {return ClientID;}
-    //const uint32_t&         GetBaudrate()     const {return Baudrate;}
     const String&           GetInverterType()   const {return InverterType;}
 
-    //void                    setBaudrate(int baudrate);
     void                    enableMqtt(MQTT* object);
-    void                    GetWebContent(WM_WebServer* server);
+    void                    GetWebContentConfig(WM_WebServer* server);
+    void                    GetWebContentLiveData(WM_WebServer* server);
+    String                  GetInverterSN();
+    String                  GetLiveDataAsJson();
 
   private:
     uint8_t                 ClientID;     // 0x01
@@ -44,19 +44,38 @@ class modbus {
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
 
-    std::vector<reg_t>*     InverterData;
+    std::vector<reg_t>*     InverterIdData;
+    std::vector<reg_t>*     InverterLiveData;
     std::vector<String>*    AvailableInverters;
+    MQTT*                   mqtt = NULL;
     
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
+    String                  PrintDataFrame(byte* frame, uint8_t len);
     uint16_t                Calc_CRC(uint8_t* message, uint8_t len);
-    MQTT*                   mqtt = NULL;
     void                    QueryLiveData();
     void                    QueryIdData();
     void                    ReceiveData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
 
+    // inverter config, in sync with register.h ->config
+    std::vector<byte>*      Conf_RequestLiveData;
+    std::vector<byte>*      Conf_RequestIdData;
+		uint8_t                 Conf_LiveDataStartsAtPos;
+		uint8_t                 Conf_IdDataStartsAtPos;
+		uint8_t                 Conf_LiveDataErrorPos;
+		byte                    Conf_LiveDataErrorCode;
+		uint8_t                 Conf_IdDataErrorPos;
+		byte                    Conf_IdDataErrorCode;
+		uint8_t                 Conf_LiveDataSuccessPos;
+		byte                    Conf_LiveDataSuccessCode;
+		uint8_t                 Conf_IdDataSuccessPos;
+		byte                    Conf_IdDataSuccessCode;
+    byte                    Conf_LiveDataFunctionCode;
+    byte                    Conf_IdDataFunctionCode;
+
+    byte                    String2Byte(String s);
 
     HardwareSerial*         mySerial;
 

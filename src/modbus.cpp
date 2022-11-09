@@ -4,8 +4,12 @@
  * Constructor
 *******************************************************/
 modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0) {
-  InverterData = new std::vector<reg_t>{};
+  InverterLiveData = new std::vector<reg_t>{};
+  InverterIdData = new std::vector<reg_t>{};
   AvailableInverters = new std::vector<String>{};
+
+  Conf_RequestLiveData = new std::vector<byte>{};
+  Conf_RequestIdData = new std::vector<byte>{};
 
   // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
   //HardwareSerial mySerial(2);
@@ -14,7 +18,7 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0) {
   this->LoadJsonConfig();
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
-  this->init();
+  this->init();    
 }
 
 /*******************************************************
@@ -34,8 +38,6 @@ void modbus::LoadInvertersFromJson() {
   DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
 
   if (!error) {
-    serializeJsonPretty(regjson, Serial);
-    
     // https://arduinojson.org/v6/api/jsonobject/begin_end/
     JsonObject root = regjson.as<JsonObject>();
     for (JsonPair kv : root) {
@@ -44,6 +46,8 @@ void modbus::LoadInvertersFromJson() {
 
       AvailableInverters->push_back(kv.key().c_str());
     }
+  } else{
+    sprintf(dbg, "Error: unable to load inverters form JSON: %s", error.c_str());
   }
 }
 
@@ -54,17 +58,62 @@ void modbus::LoadInverterConfigFromJson() {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  StaticJsonDocument<512> IDjson;
-  StaticJsonDocument<100> IDfilter;
+  StaticJsonDocument<1024> doc;
+  StaticJsonDocument<100> filter;
 
-  IDfilter[this->InverterType]["config"] = true;
+  filter[this->InverterType]["config"] = true;
     
-  DeserializationError error = deserializeJson(IDjson, JSON, DeserializationOption::Filter(IDfilter));
+  DeserializationError error = deserializeJson(doc, JSON, DeserializationOption::Filter(filter));
 
   if (error && Config->GetDebugLevel() >=1) {
-    sprintf(dbg, "Error: unable to read configdata for inverter: %s", this->InverterType);
+    sprintf(dbg, "Error: unable to read configdata for inverter %s: %s", this->InverterType, error.c_str());
     Serial.println(dbg);
+  } else {
+    if (Config->GetDebugLevel() >=4) {
+      sprintf(dbg, "Read config data for inverter %s", this->InverterType);
+      Serial.println(dbg);
+      serializeJsonPretty(doc, Serial);
+      Serial.println();
+    }
   }
+
+  this->Conf_LiveDataFunctionCode   = this->String2Byte(doc[this->InverterType]["config"]["LiveDataFunctionCode"].as<String>());
+  this->Conf_IdDataFunctionCode     = this->String2Byte(doc[this->InverterType]["config"]["IdDataFunctionCode"].as<String>());
+  this->Conf_LiveDataErrorCode      = this->String2Byte(doc[this->InverterType]["config"]["LiveDataErrorCode"].as<String>());
+	this->Conf_IdDataErrorCode        = this->String2Byte(doc[this->InverterType]["config"]["IdDataErrorCode"].as<String>());
+	this->Conf_LiveDataSuccessCode    = this->String2Byte(doc[this->InverterType]["config"]["LiveDataSuccessCode"].as<String>());
+	this->Conf_IdDataSuccessCode      = this->String2Byte(doc[this->InverterType]["config"]["IdDataSuccessCode"].as<String>());
+  this->Conf_LiveDataStartsAtPos    = int(doc[this->InverterType]["config"]["LiveDataStartsAtPos"]);
+	this->Conf_IdDataStartsAtPos      = int(doc[this->InverterType]["config"]["IdDataStartsAtPos"]);
+	this->Conf_LiveDataErrorPos       = int(doc[this->InverterType]["config"]["LiveDataErrorPos"]);
+	this->Conf_IdDataErrorPos         = int(doc[this->InverterType]["config"]["IdDataErrorPos"]);
+	this->Conf_LiveDataSuccessPos     = int(doc[this->InverterType]["config"]["LiveDataSuccessPos"]);
+	this->Conf_IdDataSuccessPos       = int(doc[this->InverterType]["config"]["IdDataSuccessPos"]);
+
+  Conf_RequestLiveData->clear();
+  for (String elem : doc[this->InverterType]["config"]["RequestLiveData"].as<JsonArray>()) {
+    byte e = this->String2Byte(elem);
+    Conf_RequestLiveData->push_back(e);
+  }
+
+  Conf_RequestIdData->clear();
+  for (String elem : doc[this->InverterType]["config"]["RequestIdData"].as<JsonArray>()) {
+    byte e = this->String2Byte(elem);
+    Conf_RequestIdData->push_back(e);
+  }
+}
+
+/*******************************************************
+ * convert a particular string from JSON to a byte
+*******************************************************/
+byte modbus::String2Byte(String s){
+  byte ret = 0x00;
+  if(s.startsWith("0x")) {
+    ret = strtoul(s.substring(2).c_str(), NULL, 16);
+  } else if(s.equalsIgnoreCase("#clientid")) {
+    ret = this->ClientID;
+  }
+  return ret;
 }
 
 /*******************************************************
@@ -78,6 +127,11 @@ void modbus::init() {
 
   // Start the Modbus serial Port
   Serial2.begin(this->Baudrate); 
+
+  //at first read ID Data
+  this->QueryIdData();
+  delay(100);
+  this->ReceiveData();
 }
 
 /*******************************************************
@@ -92,13 +146,13 @@ void modbus::enableMqtt(MQTT* object) {
  * Query ID Data to Inverter
 *******************************************************/
 void modbus::QueryIdData() {
-  if (Config->GetDebugLevel() >=4) {Serial.println("Query ID Data");}
+  if (Config->GetDebugLevel() >=4) {Serial.print("Query ID Data: ");}
   
   while (Serial2.available() > 0) { // read serial if any old data is available
     Serial2.read();
   }
   
-  byte message[] = {this->ClientID, 
+  /* byte message[] = {this->ClientID, 
                                0x03,  // FunctionCode
                                0x00,  // StartAddress MSB
                                0x00,  // StartAddress LSB
@@ -107,11 +161,19 @@ void modbus::QueryIdData() {
                                0x00,  // CRC LSB
                                0x00   // CRC MSB
            }; // 
-           
+  */
+
+  byte message[Conf_RequestIdData->size()+2] = {0x00}; // +2 Byte CRC
+  for (uint8_t i=0; i < Conf_RequestIdData->size(); i++) {
+    message[i] = Conf_RequestIdData->at(i);
+  }
+
   uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
   message[sizeof(message)-1] = highByte(crc);
   message[sizeof(message)-2] = lowByte(crc);
-    
+  
+  if (Config->GetDebugLevel() >=4) Serial.println(this->PrintDataFrame(message, sizeof(message)));
+
   Serial2.write(message, sizeof(message));
   Serial2.flush();
 }
@@ -120,13 +182,13 @@ void modbus::QueryIdData() {
  * Query Live Data to Inverter
 *******************************************************/
 void modbus::QueryLiveData() {
-  if (Config->GetDebugLevel() >=4) {Serial.println("Query Live Data");}
+  if (Config->GetDebugLevel() >=4) Serial.print("Query Live Data: ");
   
   while (Serial2.available() > 0) { // read serial if any old data is available
     Serial2.read();
   }
-  
-  byte message[] = {this->ClientID, 
+   
+  /* byte message[] = {this->ClientID, 
                                0x04,  // FunctionCode
                                0x00,  // StartAddress MSB
                                0x00,  // StartAddress LSB
@@ -135,11 +197,19 @@ void modbus::QueryLiveData() {
                                0x00,  // CRC LSB
                                0x00   // CRC MSB
            }; // 
-           
+  */
+
+  byte message[Conf_RequestLiveData->size()+2] = {0x00}; // +2 Byte CRC
+  for (uint8_t i=0; i < Conf_RequestLiveData->size(); i++) {
+    message[i] = Conf_RequestLiveData->at(i);
+  }
+
   uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
   message[sizeof(message)-1] = highByte(crc);
   message[sizeof(message)-2] = lowByte(crc);
-    
+  
+  if (Config->GetDebugLevel() >=4) Serial.println(this->PrintDataFrame(message, sizeof(message)));
+
   Serial2.write(message, sizeof(message));
   Serial2.flush();
 }
@@ -181,8 +251,6 @@ void modbus::ReceiveData() {
         DataFrame.at(1) != 0x84) {
       // Dataframe valid
       if (Config->GetDebugLevel() >=4) {Serial.println("Dataframe valid");}
-      // clear old data
-      InverterData->clear();
 
       StaticJsonDocument<2048> regjson;
       StaticJsonDocument<200> filter;
@@ -204,26 +272,34 @@ void modbus::ReceiveData() {
         if (Config->GetDebugLevel() >=1) {Serial.print("Failed to parse JSON Register Data: "); Serial.print(error.c_str()); }
       }
       
-      // https://arduinojson.org/v6/api/jsonobject/begin_end/
-      //JsonObject root = regjson.as<JsonObject>();
-      //JsonObject::iterator it = regjson.as<JsonObject>().begin();
-      //const char* rootname = it->key().c_str();
-      
+     // clear old data
+      if(RequestType == "livedata") {
+        this->InverterLiveData->clear();
+      } else if(RequestType == "id") {
+        this->InverterIdData->clear();
+      }
+
       // über alle Elemente des JSON Arrays
+      int* ptr_i = NULL;
       for (JsonObject elem : regjson[this->InverterType]["data"][RequestType].as<JsonArray>()) {
+        String datatype = "";
+        float factor = 0;
+        JsonArray posArray;
         float val_f = 0;
         int val_i = 0;
         String val_str = "";
-        float factor = 0;
-        JsonArray posArray;
         reg_t d = {};
         
         // mandantory field
-        d.Name = elem["name"] | "undefined";
+        if(!elem["name"].isNull()) {
+          d.Name = elem["name"].as<String>();
+        } else {
+          d.Name = String("undefined");
+        }
         
         // optional field
         if(!elem["realname"].isNull()) {
-          d.RealName = elem["realname"];
+          d.RealName = elem["realname"].as<String>();
         } else {
           d.RealName = d.Name;
         }
@@ -244,8 +320,14 @@ void modbus::ReceiveData() {
           factor = elem["factor"];
         } else { factor = 1; }
         
+        // mandantory field
+        if(!elem["datatype"].isNull()) {
+          datatype = elem["datatype"].as<String>();
+          datatype.toLowerCase();
+        } 
         
-        if (elem["datatype"] == "float") {
+        
+        if (datatype == "float") {
           //********** handle Datatype FLOAT ***********//
           if (!posArray.isNull()){ 
             for(int v : posArray) {
@@ -253,40 +335,44 @@ void modbus::ReceiveData() {
             }
           } 
           val_f = (float)val_i * factor;
-          d.value = &val_f;
-          if (this->mqtt) { this->mqtt->Publish_Float(d.Name, val_f);}
-          sprintf(dbg, "Data: %s -> %.2f", d.RealName, *(float*)d.value);
+          d.value = String(val_f, 2);
+          if (this->mqtt) { this->mqtt->Publish_Float(d.Name.c_str(), val_f);}
+          sprintf(dbg, "Data: %s -> %.2f", d.RealName.c_str(), val_f);
         
-        } else if (elem["datatype"] == "integer") {
+        } else if (datatype == "integer") {
           //********** handle Datatype Integer ***********//
           if (!posArray.isNull()){ 
             for(int v : posArray) {
               if (v < DataFrame.size()-4) { val_i = (val_i << 8) | DataFrame.at(v +3); }
             }
           } 
-          val_i = val_i * factor;
-          d.value = &val_i;
-          if (this->mqtt) { this->mqtt->Publish_Int(d.Name, val_i);}
-          sprintf(dbg, "Data: %s -> %d", d.RealName, *(int*)d.value);
+          d.value = String(val_i * factor);
+          if (this->mqtt) { this->mqtt->Publish_Int(d.Name.c_str(), val_i);}
+          sprintf(dbg, "Data: %s -> %d", d.RealName.c_str(), val_i);
         
-        } else if (elem["datatype"] == "string") {
+        } else if (datatype == "string") {
           //********** handle Datatype String ***********//
           if (!posArray.isNull()){ 
             for(int v : posArray) {
               val_str.concat(String((char)DataFrame.at(v +3)));
             }
           } 
-          d.value = &val_str;
-          if (this->mqtt) { this->mqtt->Publish_String(d.Name, val_str);}
-          sprintf(dbg, "Data: %s -> %s", d.RealName, (*(String*)d.value).c_str());
+          d.value = val_str;
+          if (this->mqtt) { this->mqtt->Publish_String(d.Name.c_str(), d.value);}
+          sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
         } else {
-          d.value = NULL;
-          sprintf(dbg, "Error: for Name '%s' no valid datatype found", d.Name);
+          //********** sonst, leer ***********//
+          d.value = "";
+          sprintf(dbg, "Error: for Name '%s' no valid datatype found", d.Name.c_str());
         }
 
         if (Config->GetDebugLevel() >=4) {Serial.println(dbg);}
 
-        InverterData->push_back(d);
+        if(RequestType == "livedata") {
+          this->InverterLiveData->push_back(d);
+        } else if(RequestType == "id") {
+          this->InverterIdData->push_back(d);
+        }
       }
     } else { 
       if (Config->GetDebugLevel() >=3) {Serial.println("unexpected response received: ");} 
@@ -338,8 +424,42 @@ String modbus::PrintDataFrame(std::vector<byte>* frame) {
   return out;
 }
 
+String modbus::PrintDataFrame(byte* frame, uint8_t len) {
+  String out = "";
+  for (uint8_t i = 0; i<len; i++) {
+    out.concat(this->PrintHex(frame[i]));
+    out.concat(" ");
+  }
+  return out;
+}
+
 /*******************************************************
- * Loop function
+ * make InverterSN callable from outside
+*******************************************************/
+String modbus::GetInverterSN() {
+  String sn = "unknown";
+  for (uint8_t i=0; i < this->InverterIdData->size(); i++) {
+    if (this->InverterIdData->at(i).Name == "InverterSN")
+      sn = this->InverterIdData->at(i).value;
+  }
+  return sn;
+}
+
+/*******************************************************
+ * Return all LiveData as json
+*******************************************************/
+String modbus::GetLiveDataAsJson() {
+  String sn;
+  StaticJsonDocument<1024> doc;
+  for (uint8_t i=0; i < this->InverterLiveData->size(); i++) {
+    doc[this->InverterLiveData->at(i).Name] = this->InverterLiveData->at(i).value;
+  }
+  serializeJson(doc, sn);
+  return sn;  
+}
+
+/*******************************************************
+ * loop function
 *******************************************************/
 void modbus::loop() {
   if (millis() - this->LastTxLiveData > this->TxIntervalLiveData * 1000) {
@@ -357,6 +477,7 @@ void modbus::loop() {
     delay(100);
     this->ReceiveData();
   }
+  
 }
 
 /*******************************************************
@@ -394,17 +515,17 @@ void modbus::LoadJsonConfig() {
 
   if (SPIFFS.exists("/ModbusConfig.json")) {
     //file exists, reading and loading
-    Serial.println("reading config file");
+    if (Config->GetDebugLevel() >=3) Serial.println("reading config file....");
     File configFile = SPIFFS.open("/ModbusConfig.json", "r");
     if (configFile) {
-      Serial.println("opened config file");
+      if (Config->GetDebugLevel() >=3) Serial.println("config file is open:");
       //size_t size = configFile.size();
 
       StaticJsonDocument<512> doc; // TODO Use computed size??
       DeserializationError error = deserializeJson(doc, configFile);
       
       if (!error) {
-        serializeJsonPretty(doc, Serial);
+        if (Config->GetDebugLevel() >=3) { serializeJsonPretty(doc, Serial); Serial.println(); }
         
         if (doc.containsKey("clientid"))         { this->ClientID = strtoul(doc["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
         if (doc.containsKey("baudrate"))         { this->Baudrate = (int)(doc["baudrate"]);} else {this->Baudrate = 19200;}
@@ -442,7 +563,7 @@ void modbus::LoadJsonConfig() {
 /*******************************************************
  * WebContent
 *******************************************************/
-void modbus::GetWebContent(WM_WebServer* server) {
+void modbus::GetWebContentConfig(WM_WebServer* server) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
@@ -504,6 +625,42 @@ void modbus::GetWebContent(WM_WebServer* server) {
   html.concat("  <input type='text' id='json' name='json' />\n");
   html.concat("  <input type='submit' value='Speichern' />\n");
   html.concat("</form>\n\n");
+
+  server->sendContent(html.c_str()); html = "";
+}
+
+void modbus::GetWebContentLiveData(WM_WebServer* server) {
+  char buffer[200] = {0};
+  memset(buffer, 0, sizeof(buffer));
+
+  String html = "";
+
+  html.concat("<form id='DataForm'>\n");
+  html.concat("<table id='maintable' class='editorDemoTable'>\n");
+  html.concat("<thead>\n");
+  html.concat("<tr>\n");
+  html.concat("<td style='width: 250px;'>Name</td>\n");
+  html.concat("<td style='width: 200px;'>Wert</td>\n");
+  html.concat("</tr>\n");
+  html.concat("</thead>\n");
+  html.concat("<tbody>\n");
+
+  server->sendContent(html.c_str()); html = "";
+
+  for (uint8_t i=0; i < this->InverterLiveData->size(); i++) {
+    html.concat("<tr>\n");
+    sprintf(buffer, "<td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
+    html.concat(buffer);
+    sprintf(buffer, "<td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
+
+    html.concat(buffer);
+    html.concat("</tr>\n");
+
+    server->sendContent(html.c_str()); html = "";
+  }
+  
+  html.concat("</tbody>\n");
+  html.concat("</table>\n");
 
   server->sendContent(html.c_str()); html = "";
 }
