@@ -4,6 +4,7 @@
  * Constructor
 *******************************************************/
 modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0) {
+  DataFrame = new std::vector<byte>{};
   InverterLiveData = new std::vector<reg_t>{};
   InverterIdData = new std::vector<reg_t>{};
   AvailableInverters = new std::vector<String>{};
@@ -95,7 +96,7 @@ void modbus::LoadInverterConfigFromJson() {
     byte e = this->String2Byte(elem);
     Conf_RequestLiveData->push_back(e);
   }
-
+  
   Conf_RequestIdData->clear();
   for (String elem : doc[this->InverterType]["config"]["RequestIdData"].as<JsonArray>()) {
     byte e = this->String2Byte(elem);
@@ -132,6 +133,7 @@ void modbus::init() {
   this->QueryIdData();
   delay(100);
   this->ReceiveData();
+  this->ParseData();
 }
 
 /*******************************************************
@@ -215,173 +217,207 @@ void modbus::QueryLiveData() {
 }
 
 /*******************************************************
- * Receive Data after Quering
+ * Receive Data after Quering, put them into vector
 *******************************************************/
 void modbus::ReceiveData() {
-  std::vector<byte>DataFrame {};
-  String RequestType = "";
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
-  
-  if (Config->GetDebugLevel() >=4) {Serial.println("Lese Daten: ");}
 
-// TEST ***********************************************
-//byte ReadBuffer[] = {0x01, 0x04, 0x18, 0x08, 0xE7, 0x00, 0x0C, 0x00, 0xEE, 0x0A, 0xD5, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x13, 0x85, 0x00, 0x1C, 0x00, 0x02, 0x00, 0xF8, 0x00, 0x00, 0x2E, 0x8F};
-//byte ReadBuffer[] = {0x01 ,0x04 ,0x46 ,0x09 ,0x01 ,0x00 ,0x0E ,0x01 ,0x21 ,0x0A ,0xC5 ,0x00 ,0x00 ,0x00 ,0x0A ,0x00 ,0x00 ,0x13 ,0x85 ,0x00 ,0x1D ,0x00 ,0x02 ,0x01 ,0x30 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0xFE ,0xF6};
-//for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
-//  DataFrame.push_back(ReadBuffer[i]);
-//  if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
-//}
-// ***********************************************
+  if (Config->GetDebugLevel() >=4) {Serial.println("Read Data from Queue: ");}
 
   if (Serial2.available()) {
     int i = 0;
     // lese alle Daten, speichern im Vektor "Dataframe"
     while(Serial2.available()) {
       byte d = Serial2.read();
-      DataFrame.push_back(d);
-      if (Config->GetDebugLevel() >=5) {Serial.print(PrintHex(d)); Serial.print(" ");}
+      this->DataFrame->push_back(d);
+      if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(d)); Serial.print(" ");}
       i++;
     }    
-    if (Config->GetDebugLevel() >=5) {Serial.println();}
+    if (Config->GetDebugLevel() >=4) {Serial.println();}
     
-    if (DataFrame.size() > 5 && 
-        DataFrame.at(0) == this->ClientID && 
-        DataFrame.at(1) != 0x83 && 
-        DataFrame.at(1) != 0x84) {
+    if (this->DataFrame->size() > 5 && 
+        this->DataFrame->at(0) == this->ClientID && 
+        this->DataFrame->at(1) != 0x83 && 
+        this->DataFrame->at(1) != 0x84) {
       // Dataframe valid
       if (Config->GetDebugLevel() >=4) {Serial.println("Dataframe valid");}
-
-      StaticJsonDocument<2048> regjson;
-      StaticJsonDocument<200> filter;
-
-      if (DataFrame.at(1) == 0x03) {
-        RequestType = "id";
-      } else if (DataFrame.at(1) == 0x04) {
-        RequestType = "livedata";
-      }
-      filter[this->InverterType]["data"][RequestType] = true;
-    
-      DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
-
-      if (!error) {
-        // Print the result
-        if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
-        if (Config->GetDebugLevel() >=5) {serializeJsonPretty(regjson, Serial);}
-      } else {
-        if (Config->GetDebugLevel() >=1) {Serial.print("Failed to parse JSON Register Data: "); Serial.print(error.c_str()); }
-      }
-      
-     // clear old data
-      if(RequestType == "livedata") {
-        this->InverterLiveData->clear();
-      } else if(RequestType == "id") {
-        this->InverterIdData->clear();
-      }
-
-      // über alle Elemente des JSON Arrays
-      int* ptr_i = NULL;
-      for (JsonObject elem : regjson[this->InverterType]["data"][RequestType].as<JsonArray>()) {
-        String datatype = "";
-        float factor = 0;
-        JsonArray posArray;
-        float val_f = 0;
-        int val_i = 0;
-        String val_str = "";
-        reg_t d = {};
-        
-        // mandantory field
-        if(!elem["name"].isNull()) {
-          d.Name = elem["name"].as<String>();
-        } else {
-          d.Name = String("undefined");
-        }
-        
-        // optional field
-        if(!elem["realname"].isNull()) {
-          d.RealName = elem["realname"].as<String>();
-        } else {
-          d.RealName = d.Name;
-        }
-        
-        // check if "position" is a well defined array
-        if (elem["position"].is<JsonArray>()) {
-          posArray = elem["position"].as<JsonArray>();
-        } else {
-          if (Config->GetDebugLevel() >=1) {
-            sprintf(dbg, "Error: for Name '%s' no position array found", d.Name);
-            Serial.println(dbg);
-          }
-          continue;
-        }
-
-        // optional field
-        if (elem.containsKey("factor")) {
-          factor = elem["factor"];
-        } else { factor = 1; }
-        
-        // mandantory field
-        if(!elem["datatype"].isNull()) {
-          datatype = elem["datatype"].as<String>();
-          datatype.toLowerCase();
-        } 
-        
-        
-        if (datatype == "float") {
-          //********** handle Datatype FLOAT ***********//
-          if (!posArray.isNull()){ 
-            for(int v : posArray) {
-              if (v < DataFrame.size()-4) { val_i = (val_i << 8) | DataFrame.at(v +3); }
-            }
-          } 
-          val_f = (float)val_i * factor;
-          d.value = String(val_f, 2);
-          if (this->mqtt) { this->mqtt->Publish_Float(d.Name.c_str(), val_f);}
-          sprintf(dbg, "Data: %s -> %.2f", d.RealName.c_str(), val_f);
-        
-        } else if (datatype == "integer") {
-          //********** handle Datatype Integer ***********//
-          if (!posArray.isNull()){ 
-            for(int v : posArray) {
-              if (v < DataFrame.size()-4) { val_i = (val_i << 8) | DataFrame.at(v +3); }
-            }
-          } 
-          d.value = String(val_i * factor);
-          if (this->mqtt) { this->mqtt->Publish_Int(d.Name.c_str(), val_i);}
-          sprintf(dbg, "Data: %s -> %d", d.RealName.c_str(), val_i);
-        
-        } else if (datatype == "string") {
-          //********** handle Datatype String ***********//
-          if (!posArray.isNull()){ 
-            for(int v : posArray) {
-              val_str.concat(String((char)DataFrame.at(v +3)));
-            }
-          } 
-          d.value = val_str;
-          if (this->mqtt) { this->mqtt->Publish_String(d.Name.c_str(), d.value);}
-          sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
-        } else {
-          //********** sonst, leer ***********//
-          d.value = "";
-          sprintf(dbg, "Error: for Name '%s' no valid datatype found", d.Name.c_str());
-        }
-
-        if (Config->GetDebugLevel() >=4) {Serial.println(dbg);}
-
-        if(RequestType == "livedata") {
-          this->InverterLiveData->push_back(d);
-        } else if(RequestType == "id") {
-          this->InverterIdData->push_back(d);
-        }
-      }
-    } else { 
-      if (Config->GetDebugLevel() >=3) {Serial.println("unexpected response received: ");} 
-      this->PrintDataFrame(&DataFrame);
+    } else {
+      if (Config->GetDebugLevel() >=2) {Serial.println("Dataframe invalid");}
     }
   } else {
-    if (Config->GetDebugLevel() >=3) {Serial.println("No client response");}
+    if (Config->GetDebugLevel() >=3) {Serial.println("no response from client");}
   }
+}
+
+/*******************************************************
+ * Parse all received Data in vector 
+*******************************************************/
+void modbus::ParseData() {
+  String RequestType = "";
+  char dbg[100] = {0}; 
+  memset(dbg, 0, sizeof(dbg));
   
+  if (Config->GetDebugLevel() >=4) {Serial.println("Parse Data: ");}
+
+  if (this->DataFrame->size() == 0) {
+
+    //  ***********************************************
+    // do some tests if client isn´t connected, dataframe is empty
+    //  ***********************************************
+    if (Config->GetDebugLevel() >=3) {Serial.println("Start parsing in testmode, use some testdata instead real live data :)");}
+    //byte ReadBuffer[] = {0x01 ,0x04 ,0x46 ,0x09 ,0x01 ,0x00 ,0x0E ,0x01 ,0x21 ,0x0A ,0xC5 ,0x00 ,0x00 ,0x00 ,0x0A ,0x00 ,0x00 ,0x13 ,0x85 ,0x00 ,0x1D ,0x00 ,0x02 ,0x01 ,0x30 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0xFE ,0xF6};
+    byte ReadBuffer[] = {0x01, 0x04, 0xA6, 0x08, 0xF4, 0x00, 0x0D, 0x01, 0x0D, 0x0A, 0x26, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x13, 0x8B, 0x00, 0x1C, 0x00, 0x02, 0x01, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE6, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x09, 0x17, 0x04, 0x56};
+    for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
+      this->DataFrame->push_back(ReadBuffer[i]);
+      if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
+    }
+    // ***********************************************
+  }
+
+  if (this->DataFrame->size() > 0) {
+    StaticJsonDocument<5048> regjson;
+    StaticJsonDocument<200> filter;
+
+    if (this->DataFrame->at(1) == 0x03) {
+      RequestType = "id";
+    } else if (this->DataFrame->at(1) == 0x04) {
+      RequestType = "livedata";
+    }
+    filter[this->InverterType]["data"][RequestType] = true;
+    
+    // clear old data
+    if(RequestType == "livedata") {
+      this->InverterLiveData->clear();
+    } else if(RequestType == "id") {
+      this->InverterIdData->clear();
+    }
+
+  /*
+    input.find("\"livedata\":[");
+    do {
+      DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
+
+    } while (Stream.findUntil(",","]"));
+  */
+
+
+    DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
+
+    if (!error) {
+      // Print the result
+      if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
+      if (Config->GetDebugLevel() >=5) {serializeJsonPretty(regjson, Serial);}
+    } else {
+      if (Config->GetDebugLevel() >=1) {
+        Serial.print("Failed to parse JSON Register Data: "); 
+        Serial.print(error.c_str()); 
+        Serial.println();
+      }
+    }
+    
+    // über alle Elemente des JSON Arrays
+    for (JsonObject elem : regjson[this->InverterType]["data"][RequestType].as<JsonArray>()) {
+      String datatype = "";
+      float factor = 0;
+      JsonArray posArray;
+      float val_f = 0;
+      int val_i = 0;
+      String val_str = "";
+      reg_t d = {};
+      
+      // mandantory field
+      if(!elem["name"].isNull()) {
+        d.Name = elem["name"].as<String>();
+      } else {
+        d.Name = String("undefined");
+      }
+      
+      // optional field
+      if(!elem["realname"].isNull()) {
+        d.RealName = elem["realname"].as<String>();
+      } else {
+        d.RealName = d.Name;
+      }
+      
+      // check if "position" is a well defined array
+      if (elem["position"].is<JsonArray>()) {
+        posArray = elem["position"].as<JsonArray>();
+      } else {
+        if (Config->GetDebugLevel() >=1) {
+        sprintf(dbg, "Error: for Name '%s' no position array found", d.Name);
+        Serial.println(dbg);
+        }
+        continue;
+      }
+
+      // optional field
+      if (elem.containsKey("factor")) {
+        factor = elem["factor"];
+      } else { factor = 1; }
+      
+      // mandantory field
+      if(!elem["datatype"].isNull()) {
+        datatype = elem["datatype"].as<String>();
+        datatype.toLowerCase();
+      } 
+      
+      
+      if (datatype == "float") {
+        //********** handle Datatype FLOAT ***********//
+        if (!posArray.isNull()){ 
+          for(int v : posArray) {
+            if (v < this->DataFrame->size()-4) { val_i = (val_i << 8) | this->DataFrame->at(v +3); }
+          }
+        } 
+        val_f = (float)val_i * factor;
+        sprintf(dbg, "%.2f %s", val_f, elem["unit"].as<String>());
+        d.value = String(dbg);
+        //d.value = String(val_f, 2);
+        if (this->mqtt) { this->mqtt->Publish_Float(d.Name.c_str(), val_f);}
+        sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
+      
+      } else if (datatype == "integer") {
+        //********** handle Datatype Integer ***********//
+        if (!posArray.isNull()){ 
+          for(int v : posArray) {
+            if (v < this->DataFrame->size()-4) { val_i = (val_i << 8) | this->DataFrame->at(v +3); }
+          }
+        } 
+        val_i = val_i * factor;
+        sprintf(dbg, "%d %s", val_i, elem["unit"].as<String>());
+        d.value = String(dbg);
+        if (this->mqtt) { this->mqtt->Publish_Int(d.Name.c_str(), val_i);}
+        sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
+      
+      } else if (datatype == "string") {
+        //********** handle Datatype String ***********//
+        if (!posArray.isNull()){ 
+          for(int v : posArray) {
+            val_str.concat(String((char)this->DataFrame->at(v +3)));
+          }
+        } 
+        d.value = val_str;
+        if (this->mqtt) { this->mqtt->Publish_String(d.Name.c_str(), d.value);}
+        sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
+      } else {
+        //********** sonst, leer ***********//
+        d.value = "";
+        sprintf(dbg, "Error: for Name '%s' no valid datatype found", d.Name.c_str());
+      }
+
+      if (Config->GetDebugLevel() >=4) {Serial.println(dbg);}
+
+      if(RequestType == "livedata") {
+        this->InverterLiveData->push_back(d);
+      } else if(RequestType == "id") {
+        this->InverterIdData->push_back(d);
+      }
+    }
+  } 
+
+  // all data were process, clear Dataframe now for next query
+  this->DataFrame->clear();   
 }
 
 /*******************************************************
@@ -468,6 +504,7 @@ void modbus::loop() {
     this->QueryLiveData();
     delay(100);
     this->ReceiveData();
+    this->ParseData();
   }
 
   if (millis() - this->LastTxIdData > this->TxIntervalIdData * 1000) {
@@ -476,6 +513,7 @@ void modbus::loop() {
     this->QueryIdData();
     delay(100);
     this->ReceiveData();
+    this->ParseData();
   }
   
 }

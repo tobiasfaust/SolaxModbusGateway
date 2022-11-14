@@ -44,6 +44,7 @@ class modbus {
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
 
+    std::vector<byte>*      DataFrame;
     std::vector<reg_t>*     InverterIdData;
     std::vector<reg_t>*     InverterLiveData;
     std::vector<String>*    AvailableInverters;
@@ -56,6 +57,7 @@ class modbus {
     void                    QueryLiveData();
     void                    QueryIdData();
     void                    ReceiveData();
+    void                    ParseData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
 
