@@ -93,7 +93,6 @@ void modbus::LoadInverterConfigFromJson() {
 
   Conf_RequestLiveData->clear();
   for (JsonArray arr : doc[this->InverterType]["config"]["RequestLiveData"].as<JsonArray>()) {
-    //Conf_RequestLiveData->push_back(arr);
   
     std::vector<byte> t = {};
     for (String x : arr) {
@@ -311,7 +310,7 @@ void modbus::ParseData() {
     streamString = "\""+ RequestType +"\": [";
     stream.find(streamString.c_str());
     do {
-      StaticJsonDocument<1024> elem;
+      StaticJsonDocument<512> elem;
       DeserializationError error = deserializeJson(elem, stream); 
       
       if (!error) {
@@ -325,9 +324,6 @@ void modbus::ParseData() {
           Serial.println();
         }
       }
-
-      //sprintf(dbg, "%s -> %s \n", elem["name"].as<String>().c_str(), elem["realname"].as<String>().c_str() );
-      //Serial.println(dbg);
 
       // setUp local variables
       String datatype = "";
