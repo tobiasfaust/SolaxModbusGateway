@@ -9,7 +9,7 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0) {
   InverterIdData = new std::vector<reg_t>{};
   AvailableInverters = new std::vector<String>{};
 
-  Conf_RequestLiveData = new std::vector<byte>{};
+  Conf_RequestLiveData = new std::vector<std::vector<byte>>{};
   Conf_RequestIdData = new std::vector<byte>{};
 
   // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
@@ -92,9 +92,17 @@ void modbus::LoadInverterConfigFromJson() {
 	this->Conf_IdDataSuccessPos       = int(doc[this->InverterType]["config"]["IdDataSuccessPos"]);
 
   Conf_RequestLiveData->clear();
-  for (String elem : doc[this->InverterType]["config"]["RequestLiveData"].as<JsonArray>()) {
-    byte e = this->String2Byte(elem);
-    Conf_RequestLiveData->push_back(e);
+  for (JsonArray arr : doc[this->InverterType]["config"]["RequestLiveData"].as<JsonArray>()) {
+    //Conf_RequestLiveData->push_back(arr);
+  
+    std::vector<byte> t = {};
+    for (String x : arr) {
+      byte e = this->String2Byte(x);
+      t.push_back(e);
+      Serial.print(e, HEX); Serial.print(" ");
+    }
+    Serial.println();
+    Conf_RequestLiveData->push_back(t);
   }
   
   Conf_RequestIdData->clear();
@@ -102,6 +110,7 @@ void modbus::LoadInverterConfigFromJson() {
     byte e = this->String2Byte(elem);
     Conf_RequestIdData->push_back(e);
   }
+
 }
 
 /*******************************************************
@@ -201,15 +210,17 @@ void modbus::QueryLiveData() {
            }; // 
   */
 
-  byte message[Conf_RequestLiveData->size()+2] = {0x00}; // +2 Byte CRC
-  for (uint8_t i=0; i < Conf_RequestLiveData->size(); i++) {
-    message[i] = Conf_RequestLiveData->at(i);
+  std::vector<byte>* m = &Conf_RequestLiveData->at(0);
+  byte message[m->size() + 2] = {0x00}; // +2 Byte CRC
+  
+  for (uint8_t i; i < m->size(); i++) {
+    message[i] = m->at(i);
   }
 
   uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
   message[sizeof(message)-1] = highByte(crc);
   message[sizeof(message)-2] = lowByte(crc);
-  
+
   if (Config->GetDebugLevel() >=4) Serial.println(this->PrintDataFrame(message, sizeof(message)));
 
   Serial2.write(message, sizeof(message));
@@ -272,19 +283,18 @@ void modbus::ParseData() {
       this->DataFrame->push_back(ReadBuffer[i]);
       if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
     }
+    if (Config->GetDebugLevel() >=4) { Serial.println(); }
     // ***********************************************
   }
 
   if (this->DataFrame->size() > 0) {
-    StaticJsonDocument<5048> regjson;
-    StaticJsonDocument<200> filter;
-
+    
+    // setup RequestType
     if (this->DataFrame->at(1) == 0x03) {
       RequestType = "id";
     } else if (this->DataFrame->at(1) == 0x04) {
       RequestType = "livedata";
     }
-    filter[this->InverterType]["data"][RequestType] = true;
     
     // clear old data
     if(RequestType == "livedata") {
@@ -293,31 +303,33 @@ void modbus::ParseData() {
       this->InverterIdData->clear();
     }
 
-  /*
-    input.find("\"livedata\":[");
-    do {
-      DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
-
-    } while (Stream.findUntil(",","]"));
-  */
-
-
-    DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
-
-    if (!error) {
-      // Print the result
-      if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
-      if (Config->GetDebugLevel() >=5) {serializeJsonPretty(regjson, Serial);}
-    } else {
-      if (Config->GetDebugLevel() >=1) {
-        Serial.print("Failed to parse JSON Register Data: "); 
-        Serial.print(error.c_str()); 
-        Serial.println();
-      }
-    }
+    ProgmemStream stream{JSON};
+    String streamString = "";
+    streamString = "\""+ this->InverterType +"\": {";
+    stream.find(streamString.c_str());
     
-    // über alle Elemente des JSON Arrays
-    for (JsonObject elem : regjson[this->InverterType]["data"][RequestType].as<JsonArray>()) {
+    streamString = "\""+ RequestType +"\": [";
+    stream.find(streamString.c_str());
+    do {
+      StaticJsonDocument<1024> elem;
+      DeserializationError error = deserializeJson(elem, stream); 
+      
+      if (!error) {
+        // Print the result
+        if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
+        if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
+      } else {
+        if (Config->GetDebugLevel() >=1) {
+          Serial.print("Failed to parse JSON Register Data: "); 
+          Serial.print(error.c_str()); 
+          Serial.println();
+        }
+      }
+
+      //sprintf(dbg, "%s -> %s \n", elem["name"].as<String>().c_str(), elem["realname"].as<String>().c_str() );
+      //Serial.println(dbg);
+
+      // setUp local variables
       String datatype = "";
       float factor = 0;
       JsonArray posArray;
@@ -413,7 +425,9 @@ void modbus::ParseData() {
       } else if(RequestType == "id") {
         this->InverterIdData->push_back(d);
       }
-    }
+    
+    } while (stream.findUntil(",","]"));
+
   } 
 
   // all data were process, clear Dataframe now for next query

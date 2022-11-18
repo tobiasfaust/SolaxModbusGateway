@@ -6,7 +6,10 @@ const char JSON[] PROGMEM = R"=====(
 {
 	"Solax-X1": {
 		"config": {
-			"RequestLiveData": ["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"],
+			"RequestLiveData": [
+				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
+				["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"]
+			],
 			"RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
 			"LiveDataFunctionCode": "0x04",
 			"IdDataFunctionCode": "0x03",

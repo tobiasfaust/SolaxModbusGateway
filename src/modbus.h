@@ -7,6 +7,7 @@
 #include "mqtt.h"
 #include <vector>
 #include <ArduinoJson.h>
+#include <StreamUtils.h>
 #include <HardwareSerial.h>
 
 class modbus {
@@ -62,7 +63,7 @@ class modbus {
     void                    LoadInverterConfigFromJson();
 
     // inverter config, in sync with register.h ->config
-    std::vector<byte>*      Conf_RequestLiveData;
+    std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<byte>*      Conf_RequestIdData;
 		uint8_t                 Conf_LiveDataStartsAtPos;
 		uint8_t                 Conf_IdDataStartsAtPos;
