@@ -8,6 +8,7 @@
 #include <vector>
 #include <ArduinoJson.h>
 #include <StreamUtils.h>
+#include <ArduinoQueue.h>
 #include <HardwareSerial.h>
 
 class modbus {
@@ -36,19 +37,20 @@ class modbus {
     String                  GetLiveDataAsJson();
 
   private:
-    uint8_t                 ClientID;     // 0x01
-    uint32_t                Baudrate;     // 19200
+    uint8_t                 ClientID;             // 0x01
+    uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
-    uint16_t                TxIntervalIdData; // 3600
-    String                  InverterType; //Solax-X1
+    uint16_t                TxIntervalIdData;     // 3600
+    String                  InverterType;         //Solax-X1
 
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
+    unsigned long           LastTxInverter = 0;
 
-    std::vector<byte>*      DataFrame;
-    std::vector<reg_t>*     InverterIdData;
-    std::vector<reg_t>*     InverterLiveData;
-    std::vector<String>*    AvailableInverters;
+    std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
+    std::vector<reg_t>*     InverterIdData;       // storing readable results
+    std::vector<reg_t>*     InverterLiveData;     // storing readable results
+    std::vector<String>*    AvailableInverters;   // available inverters from JSON
     MQTT*                   mqtt = NULL;
     
     String                  PrintHex(byte num);
@@ -57,12 +59,15 @@ class modbus {
     uint16_t                Calc_CRC(uint8_t* message, uint8_t len);
     void                    QueryLiveData();
     void                    QueryIdData();
+    void                    QueryQueueToInverter();
     void                    ReceiveData();
     void                    ParseData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
 
     // inverter config, in sync with register.h ->config
+    ArduinoQueue<std::vector<byte>>* RequestQueue;
+
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<byte>*      Conf_RequestIdData;
 		uint8_t                 Conf_LiveDataStartsAtPos;

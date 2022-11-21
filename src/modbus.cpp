@@ -3,7 +3,7 @@
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0) {
+modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0) {
   DataFrame = new std::vector<byte>{};
   InverterLiveData = new std::vector<reg_t>{};
   InverterIdData = new std::vector<reg_t>{};
@@ -11,6 +11,8 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0) {
 
   Conf_RequestLiveData = new std::vector<std::vector<byte>>{};
   Conf_RequestIdData = new std::vector<byte>{};
+
+  RequestQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 requests
 
   // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
   //HardwareSerial mySerial(2);
@@ -139,9 +141,6 @@ void modbus::init() {
 
   //at first read ID Data
   this->QueryIdData();
-  delay(100);
-  this->ReceiveData();
-  this->ParseData();
 }
 
 /*******************************************************
@@ -156,11 +155,7 @@ void modbus::enableMqtt(MQTT* object) {
  * Query ID Data to Inverter
 *******************************************************/
 void modbus::QueryIdData() {
-  if (Config->GetDebugLevel() >=4) {Serial.print("Query ID Data: ");}
-  
-  while (Serial2.available() > 0) { // read serial if any old data is available
-    Serial2.read();
-  }
+  if (Config->GetDebugLevel() >=4) {Serial.println("Query ID Data into Queue:");}
   
   /* byte message[] = {this->ClientID, 
                                0x03,  // FunctionCode
@@ -173,30 +168,18 @@ void modbus::QueryIdData() {
            }; // 
   */
 
-  byte message[Conf_RequestIdData->size()+2] = {0x00}; // +2 Byte CRC
-  for (uint8_t i=0; i < Conf_RequestIdData->size(); i++) {
-    message[i] = Conf_RequestIdData->at(i);
+  if (this->RequestQueue->isEmpty()) {
+    if (Config->GetDebugLevel() >=4) { Serial.println(this->PrintDataFrame(this->Conf_RequestIdData).c_str()); }
+    this->RequestQueue->enqueue(*this->Conf_RequestIdData);
   }
-
-  uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
-  message[sizeof(message)-1] = highByte(crc);
-  message[sizeof(message)-2] = lowByte(crc);
-  
-  if (Config->GetDebugLevel() >=4) Serial.println(this->PrintDataFrame(message, sizeof(message)));
-
-  Serial2.write(message, sizeof(message));
-  Serial2.flush();
 }
+
 
 /*******************************************************
  * Query Live Data to Inverter
 *******************************************************/
 void modbus::QueryLiveData() {
-  if (Config->GetDebugLevel() >=4) Serial.print("Query Live Data: ");
-  
-  while (Serial2.available() > 0) { // read serial if any old data is available
-    Serial2.read();
-  }
+  if (Config->GetDebugLevel() >=4) Serial.println("Query Live Data into Queue:");
    
   /* byte message[] = {this->ClientID, 
                                0x04,  // FunctionCode
@@ -209,21 +192,49 @@ void modbus::QueryLiveData() {
            }; // 
   */
 
-  std::vector<byte>* m = &Conf_RequestLiveData->at(0);
-  byte message[m->size() + 2] = {0x00}; // +2 Byte CRC
-  
-  for (uint8_t i; i < m->size(); i++) {
-    message[i] = m->at(i);
+  if (this->RequestQueue->isEmpty()) {
+    for (uint8_t i = 0; i < this->Conf_RequestLiveData->size(); i++) {
+      if (Config->GetDebugLevel() >=4) { Serial.println(this->PrintDataFrame(&this->Conf_RequestLiveData->at(i)).c_str()); }
+      this->RequestQueue->enqueue(this->Conf_RequestLiveData->at(i));
+    }
   }
+}
 
-  uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
-  message[sizeof(message)-1] = highByte(crc);
-  message[sizeof(message)-2] = lowByte(crc);
+/*******************************************************
+ * send 1 query from queue to inverter 
+*******************************************************/
+void modbus::QueryQueueToInverter() {
+  if (!this->RequestQueue->isEmpty()) {
+    if (Config->GetDebugLevel() >=4) Serial.print("Request queue data from inverter: ");
+  
+    while (Serial2.available() > 0) { // read serial if any old data is available
+      Serial2.read();
+    }
 
-  if (Config->GetDebugLevel() >=4) Serial.println(this->PrintDataFrame(message, sizeof(message)));
+    std::vector<byte> m = this->RequestQueue->dequeue();
 
-  Serial2.write(message, sizeof(message));
-  Serial2.flush();
+    byte message[m.size() + 2] = {0x00}; // +2 Byte CRC
+  
+    for (uint8_t i; i < m.size(); i++) {
+      message[i] = m.at(i);
+    }
+
+    uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
+    message[sizeof(message)-1] = highByte(crc);
+    message[sizeof(message)-2] = lowByte(crc);
+
+    if (Config->GetDebugLevel() >=4) Serial.println(this->PrintDataFrame(message, sizeof(message)));
+
+    Serial2.write(message, sizeof(message));
+    Serial2.flush();
+
+    delay(100);
+    this->ReceiveData();
+
+    if (this->RequestQueue->isEmpty()) {
+      this->ParseData();
+    }
+  }
 }
 
 /*******************************************************
@@ -512,20 +523,25 @@ void modbus::loop() {
     this->LastTxLiveData = millis();
     
     this->QueryLiveData();
-    delay(100);
-    this->ReceiveData();
-    this->ParseData();
+    //delay(100);
+    //this->ReceiveData();
+    //this->ParseData();
   }
 
   if (millis() - this->LastTxIdData > this->TxIntervalIdData * 1000) {
     this->LastTxIdData = millis();
     
     this->QueryIdData();
-    delay(100);
-    this->ReceiveData();
-    this->ParseData();
+    //elay(100);
+    //this->ReceiveData();
+    //this->ParseData();
   }
-  
+
+  //its allowed to send a new request every 800ms, we use recommend 1000ms
+  if (millis() - this->LastTxInverter > 1000) {
+    this->LastTxInverter = millis();
+    this->QueryQueueToInverter();
+  }
 }
 
 /*******************************************************
