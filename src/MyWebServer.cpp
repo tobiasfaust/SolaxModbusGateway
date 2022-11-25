@@ -22,7 +22,7 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->on("/", [this]() {this->handleRoot(); });
   server->on("/BaseConfig", [this]() {this->handleBaseConfig(); });
   server->on("/ModbusConfig", [this]() {this->handleModbusConfig(); });
-  server->on("/Livedata", [this]() {this->handleModbusLivedata(); });
+  server->on("/ModbusItemConfig", [this]() {this->handleModbusItemConfig(); });
 
   server->on("/style.css", HTTP_GET, [this]() {this->handleCSS(); });
   server->on("/javascript.js", HTTP_GET, [this]() {this->handleJS(); });
@@ -30,6 +30,8 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   
   server->on("/StoreBaseConfig", HTTP_POST, [this]()   { this->ReceiveJSONConfiguration(BASECONFIG); });
   server->on("/StoreModbusConfig", HTTP_POST, [this]() { this->ReceiveJSONConfiguration(MODBUSCONFIG); });
+  server->on("/StoreModbusItemConfig", HTTP_POST, [this]() { this->ReceiveJSONConfiguration(MODBUSITEMCONFIG); });
+  
   server->on("/favicon.ico", HTTP_GET, [this]()        { this->handleFavIcon(); });
   server->on("/reboot", HTTP_GET, [this]()             { this->handleReboot(); });
   server->on("/reset", HTTP_GET, [this]()              { this->handleReset(); });
@@ -139,16 +141,16 @@ void MyWebServer::handleModbusConfig() {
   server->sendContent("");
 }
 
-void MyWebServer::handleModbusLivedata() {
+void MyWebServer::handleModbusItemConfig() {
   String html;
   server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server->sendHeader("Pragma", "no-cache");
   server->sendHeader("Expires", "-1");
   server->setContentLength(CONTENT_LENGTH_UNKNOWN);
   server->send(200, "text/html", "");
-  this->getPageHeader(&html, LIVEDATA);
+  this->getPageHeader(&html, MODBUSITEMCONFIG);
   server->sendContent(html.c_str()); html = "";
-  mb->GetWebContentLiveData(server);
+  mb->GetWebContentItemConfig(server);
   this->getPageFooter(&html);
   server->sendContent(html.c_str()); 
   server->sendContent("");
@@ -160,8 +162,9 @@ void MyWebServer::ReceiveJSONConfiguration(page_t page) {
   Serial.print(F("json empfangen: "));
   Serial.println(FPSTR(json.c_str()));  
   
-  if (page==BASECONFIG)   { Config->StoreJsonConfig(&json); targetPage = "/BaseConfig"; }
-  if (page==MODBUSCONFIG) { mb->StoreJsonConfig(&json);     targetPage = "/ModbusConfig"; }
+  if (page==BASECONFIG)        { Config->StoreJsonConfig(&json); targetPage = "/BaseConfig"; }
+  if (page==MODBUSCONFIG)      { mb->StoreJsonConfig(&json);     targetPage = "/ModbusConfig"; }
+  if (page==MODBUSITEMCONFIG)  { mb->StoreJsonItemConfig(&json); targetPage = "/ModbusItemConfig"; }
   
   server->sendHeader("Location", targetPage.c_str());
   server->send(303); 
@@ -172,7 +175,7 @@ void MyWebServer::handleAjax() {
   memset(buffer, 0, sizeof(buffer));
   String ret;
   bool RaiseError = false;
-  String action, newState; 
+  String action, item, newState; 
   
   StaticJsonDocument<512> jsonGet; // TODO Use computed size??
   DeserializationError error = deserializeJson(jsonGet, server->arg("json"));
@@ -183,7 +186,9 @@ void MyWebServer::handleAjax() {
   if (!error) {
     if (Config->GetDebugLevel() >=4) { serializeJsonPretty(jsonGet, Serial); Serial.println(); }
 
-    if (jsonGet.containsKey("action"))   {action = jsonGet["action"].as<String>();}
+    if (jsonGet.containsKey("action"))   {action    = jsonGet["action"].as<String>();}
+    if (jsonGet.containsKey("item"))     {item      = jsonGet["item"].as<String>();}
+    if (jsonGet.containsKey("newState")) {newState  = jsonGet["newState"].as<String>();}
   
   } else { RaiseError = true; }
 
@@ -192,13 +197,24 @@ void MyWebServer::handleAjax() {
     serializeJson(jsonReturn, ret);
 
     if (Config->GetDebugLevel() >=2) {
-      snprintf(buffer, sizeof(buffer), "No supported Ajax Json Command: %s", server->arg("json").c_str());
+      snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", server->arg("json").c_str(), error.c_str());
       Serial.println(FPSTR(buffer));
     }
     
-  } else if (action && strcmp(action.c_str(), "RefreshLiveData")==0) {
+  } else if (action && action == "RefreshLiveData") {
       ret = mb->GetLiveDataAsJson();
+  
+  } else if (action && action == "SetActiveStatus") {
+      if (strcmp(newState.c_str(),"true")==0)  mb->SetItemActiveStatus(item, true); 
+      if (strcmp(newState.c_str(),"false")==0) mb->SetItemActiveStatus(item, false);    
+      jsonReturn["error"] = "false";
+      serializeJson(jsonReturn, ret);
+  
   } else {
+    if (Config->GetDebugLevel() >=1) {
+      snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s", action);
+      Serial.println(buffer);
+    }
     serializeJson(jsonReturn, ret);
   }
 
@@ -246,7 +262,7 @@ void MyWebServer::getPageHeader(String* html, page_t pageactive) {
   sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusConfig'>Modbus Config</a></td>\n", (pageactive==MODBUSCONFIG)?"navi_active":"");
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/Livedata'>Modbus LiveData</a></td>\n", (pageactive==LIVEDATA)?"navi_active":"");
+  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusItemConfig'>Item Config</a></td>\n", (pageactive==MODBUSITEMCONFIG)?"navi_active":"");
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   html->concat("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");

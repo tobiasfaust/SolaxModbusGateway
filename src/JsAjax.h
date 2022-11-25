@@ -2,8 +2,18 @@
 #define AJAX_H
 
 const char JSAJAX[] PROGMEM = R"=====(
-
 var myInterval = setInterval(RefreshLiveData, 5000);
+
+function ChangeActiveStatus(id) {
+  obj = document.getElementById(id);
+  item = id.replace(/^.*_([0-9a-zA-Z]+)$/g, "$1");
+  var data = {};
+  data['action'] = "SetActiveStatus";
+  data['newState'] = (obj.checked?"true":"false");
+  data['item'] = item;
+  
+  ajax_send(JSON.stringify(data));
+}
 
 function RefreshLiveData() {
   var data = {};

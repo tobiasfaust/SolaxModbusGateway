@@ -39,7 +39,7 @@ const char JSON[] PROGMEM = R"=====(
 					"realname": "Grid Current",
 					"datatype": "float",
 					"factor": 0.1,
-					"unit": "V"
+					"unit": "A"
 				},
 				{
 					"position": [4, 5],
@@ -359,12 +359,26 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				}
 			],
-			"id": [{
-				"position": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
-				"name": "InverterSN",
-				"realname": "Inverter SN",
-				"datatype": "string"
-			}]
+			"id": [
+					{
+					"position": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+					"name": "InverterSN",
+					"realname": "Inverter SerialNumber",
+					"datatype": "string"
+				},
+				{
+					"position": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+					"name": "FactoryName",
+					"realname": "Factory Name",
+					"datatype": "string"
+				},
+				{
+					"position": [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41],
+					"name": "ModuleName",
+					"realname": "Module Name",
+					"datatype": "string"
+				}
+			]
 		}
 	}
 }

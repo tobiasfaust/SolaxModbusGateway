@@ -19,12 +19,18 @@ class modbus {
       String value;
   } reg_t;
 
+  typedef struct { 
+      String Name;
+      bool value;
+  } itemconfig_t;
 
   public:
     modbus();
     void                    init();
     void                    StoreJsonConfig(String* json);
+    void                    StoreJsonItemConfig(String* json);
     void                    LoadJsonConfig();
+    void                    LoadJsonItemConfig();
 
     void                    loop();
 
@@ -32,9 +38,10 @@ class modbus {
 
     void                    enableMqtt(MQTT* object);
     void                    GetWebContentConfig(WM_WebServer* server);
-    void                    GetWebContentLiveData(WM_WebServer* server);
+    void                    GetWebContentItemConfig(WM_WebServer* server);
     String                  GetInverterSN();
     String                  GetLiveDataAsJson();
+    void                    SetItemActiveStatus(String item, bool newstate);
 
   private:
     uint8_t                 ClientID;             // 0x01
@@ -50,6 +57,7 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
+    std::vector<itemconfig_t>* ActiveItems;       // configured active Modbus Items
     std::vector<String>*    AvailableInverters;   // available inverters from JSON
     MQTT*                   mqtt = NULL;
     
