@@ -11,7 +11,9 @@ const char JSON[] PROGMEM = R"=====(
 				["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"]
 			],
 			"RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
+			"LiveDataFunctionPos": 1,
 			"LiveDataFunctionCode": "0x04",
+			"IDDataFunctionPos": 1,
 			"IdDataFunctionCode": "0x03",
 			"LiveDataStartsAtPos": 3,
 			"IdDataStartsAtPos": 3,
