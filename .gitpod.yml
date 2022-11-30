@@ -1,0 +1,3 @@
+tasks:
+  - command: pip3 install -U platformio && run
+  
