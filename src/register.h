@@ -221,7 +221,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [273, 274, 275, 276],
+					"position": [276, 277, 278, 279],
 					"name": "OnGridRunTime",
 					"realname": "OnGrid RunTime",
 					"datatype": "float", 
@@ -229,7 +229,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "h"
 				},
 				{
-					"position": [277, 278, 279, 280],
+					"position": [280, 281, 282, 283],
 					"name": "OffGridRunTime",
 					"realname": "OffGrid RunTime",
 					"datatype": "float", 
