@@ -38,7 +38,7 @@ void modbus::LoadInvertersFromJson() {
 
   AvailableInverters->clear();
 
-  filter["*"]["config"]["IdDataStartsAtPos"] = true;  
+  filter["*"]["config"]["ClientIdPos"] = true;  
   
   DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
 
@@ -88,13 +88,16 @@ void modbus::LoadInverterConfigFromJson() {
 	this->Conf_IdDataErrorCode        = this->String2Byte(doc[this->InverterType]["config"]["IdDataErrorCode"].as<String>());
 	this->Conf_LiveDataSuccessCode    = this->String2Byte(doc[this->InverterType]["config"]["LiveDataSuccessCode"].as<String>());
 	this->Conf_IdDataSuccessCode      = this->String2Byte(doc[this->InverterType]["config"]["IdDataSuccessCode"].as<String>());
+  this->Conf_ClientIdPos            = int(doc[this->InverterType]["config"]["ClientIdPos"]);
   this->Conf_LiveDataStartsAtPos    = int(doc[this->InverterType]["config"]["LiveDataStartsAtPos"]);
 	this->Conf_IdDataStartsAtPos      = int(doc[this->InverterType]["config"]["IdDataStartsAtPos"]);
 	this->Conf_LiveDataErrorPos       = int(doc[this->InverterType]["config"]["LiveDataErrorPos"]);
 	this->Conf_IdDataErrorPos         = int(doc[this->InverterType]["config"]["IdDataErrorPos"]);
 	this->Conf_LiveDataSuccessPos     = int(doc[this->InverterType]["config"]["LiveDataSuccessPos"]);
 	this->Conf_IdDataSuccessPos       = int(doc[this->InverterType]["config"]["IdDataSuccessPos"]);
-
+  this->Conf_IdDataFunctionCodePos  = int(doc[this->InverterType]["config"]["IdDataFunctionCodePos"]);
+  this->Conf_LiveDataFunctionCodePos= int(doc[this->InverterType]["config"]["LiveDataFunctionCodePos"]);
+  
   Conf_RequestLiveData->clear();
   for (JsonArray arr : doc[this->InverterType]["config"]["RequestLiveData"].as<JsonArray>()) {
   
@@ -102,7 +105,6 @@ void modbus::LoadInverterConfigFromJson() {
     for (String x : arr) {
       byte e = this->String2Byte(x);
       t.push_back(e);
-      Serial.print(e, HEX); Serial.print(" ");
     }
     Serial.println();
     Conf_RequestLiveData->push_back(t);
@@ -258,10 +260,10 @@ void modbus::ReceiveData() {
     }    
     if (Config->GetDebugLevel() >=4) {Serial.println();}
     
-    if (this->DataFrame->size() > 5 && 
-        this->DataFrame->at(0) == this->ClientID && 
-        this->DataFrame->at(1) != 0x83 && 
-        this->DataFrame->at(1) != 0x84) {
+    if (this->DataFrame->size() > 5 &&
+        this->DataFrame->at(this->Conf_ClientIdPos) == this->ClientID && 
+        this->DataFrame->at(this->Conf_IdDataErrorPos) != this->Conf_IdDataErrorCode && 
+        this->DataFrame->at(this->Conf_LiveDataErrorPos) != this->Conf_LiveDataErrorCode) {
       // Dataframe valid
       if (Config->GetDebugLevel() >=3) {
         sprintf(dbg, "Dataframe valid, Dateframe size: %d bytes", this->DataFrame->size());
@@ -307,12 +309,12 @@ void modbus::ParseData() {
   if (this->DataFrame->size() > 0) {
     
     // setup RequestType
-    if (this->DataFrame->at(1) == 0x03) {
+    if (this->DataFrame->at(this->Conf_IdDataFunctionCodePos) == this->Conf_IdDataFunctionCode) {
       RequestType = "id";
-    } else if (this->DataFrame->at(1) == 0x04) {
+    } else if (this->DataFrame->at(this->Conf_LiveDataFunctionCodePos) == this->Conf_LiveDataFunctionCode) {
       RequestType = "livedata";
     }
-    
+
     // clear old data
     if(RequestType == "livedata") {
       this->InverterLiveData->clear();
@@ -400,7 +402,7 @@ void modbus::ParseData() {
         //********** handle Datatype FLOAT ***********//
         if (!posArray.isNull()){ 
           for(int v : posArray) {
-            if (v < this->DataFrame->size()-4) { val_i = (val_i << 8) | this->DataFrame->at(v +3); }
+            if (v < this->DataFrame->size()) { val_i = (val_i << 8) | this->DataFrame->at(v); }
           }
         } 
         val_f = (float)val_i * factor;
@@ -414,7 +416,7 @@ void modbus::ParseData() {
         //********** handle Datatype Integer ***********//
         if (!posArray.isNull()){ 
           for(int v : posArray) {
-            if (v < this->DataFrame->size()-4) { val_i = (val_i << 8) | this->DataFrame->at(v +3); }
+            if (v < this->DataFrame->size()) { val_i = (val_i << 8) | this->DataFrame->at(v); }
           }
         } 
         val_i = val_i * factor;
@@ -427,7 +429,7 @@ void modbus::ParseData() {
         //********** handle Datatype String ***********//
         if (!posArray.isNull()){ 
           for(int v : posArray) {
-            val_str.concat(String((char)this->DataFrame->at(v +3)));
+            val_str.concat(String((char)this->DataFrame->at(v)));
           }
         } 
         d.value = val_str;

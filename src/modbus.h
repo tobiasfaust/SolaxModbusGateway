@@ -78,7 +78,8 @@ class modbus {
 
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<byte>*      Conf_RequestIdData;
-		uint8_t                 Conf_LiveDataStartsAtPos;
+		uint8_t                 Conf_ClientIdPos;
+    uint8_t                 Conf_LiveDataStartsAtPos;
 		uint8_t                 Conf_IdDataStartsAtPos;
 		uint8_t                 Conf_LiveDataErrorPos;
 		byte                    Conf_LiveDataErrorCode;
@@ -90,6 +91,8 @@ class modbus {
 		byte                    Conf_IdDataSuccessCode;
     byte                    Conf_LiveDataFunctionCode;
     byte                    Conf_IdDataFunctionCode;
+    uint8_t                 Conf_LiveDataFunctionCodePos;
+    uint8_t                 Conf_IdDataFunctionCodePos;
 
     byte                    String2Byte(String s);
 
