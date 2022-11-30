@@ -9,11 +9,11 @@
 #ifndef MYWEBSERVER_H
 #define MYWEBSERVER_H
 
-#include "CommonLibs.h"
+#include "commonlibs.h"
 #include <ArduinoJson.h>
 #include "uptime.h" // https://github.com/YiannisBourkelis/Uptime-Library/
 
-#include "BaseConfig.h"
+#include "baseconfig.h"
 #include "modbus.h"
 #include "mqtt.h"
 #include "JavaScript.h"

@@ -1,4 +1,4 @@
-#include "BaseConfig.h"
+#include "baseconfig.h"
 
 BaseConfig::BaseConfig() {  
   #ifdef ESP8266
