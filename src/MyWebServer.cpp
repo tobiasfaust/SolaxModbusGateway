@@ -349,6 +349,11 @@ void MyWebServer::getPage_Status(String* html) {
   html->concat("</tr>\n");
 
   html->concat("<tr>\n");
+  html->concat("  <td>Firmware Update</td>\n");
+  html->concat("  <td><form action='update'><input class='button' type='submit' value='Update' /></form></td>\n");
+  html->concat("</tr>\n");
+  
+  html->concat("<tr>\n");
   html->concat("  <td>Device Reboot</td>\n");
   html->concat("  <td><form action='reboot'><input class='button' type='submit' value='Reboot' /></form></td>\n");
   html->concat("</tr>\n");
