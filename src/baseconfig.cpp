@@ -1,6 +1,6 @@
 #include "baseconfig.h"
 
-BaseConfig::BaseConfig() {  
+BaseConfig::BaseConfig() : debuglevel(0) {  
   #ifdef ESP8266
     SPIFFS.begin();
   #elif ESP32
@@ -10,7 +10,7 @@ BaseConfig::BaseConfig() {
   // Flash Write Issue
   // https://github.com/esp8266/Arduino/issues/4061#issuecomment-428007580
   //SPIFFS.format();
-
+  
   LoadJsonConfig();
 }
 
@@ -23,11 +23,11 @@ void BaseConfig::StoreJsonConfig(String* json) {
   if (!root.isNull()) {
     File configFile = SPIFFS.open("/BaseConfig.json", "w");
     if (!configFile) {
-      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
+      if (this->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
     } else {  
       serializeJsonPretty(doc, Serial);
       if (serializeJson(doc, configFile) == 0) {
-        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
+        if (this->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
       }
       configFile.close();
   
@@ -61,12 +61,12 @@ void BaseConfig::LoadJsonConfig() {
         if (doc.containsKey("UseRandomClientID")){ if (strcmp(doc["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
         if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
       } else {
-        if (Config->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
+        if (this->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
       }
     }
   } else {
-    if (Config->GetDebugLevel() >=3) {Serial.println("BaseConfig.json config File not exists, load default config");}
+    if (this->GetDebugLevel() >=3) {Serial.println("BaseConfig.json config File not exists, load default config");}
     loadDefaultConfig = true;
   }
 
