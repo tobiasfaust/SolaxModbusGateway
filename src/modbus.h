@@ -39,6 +39,7 @@ class modbus {
     void                    enableMqtt(MQTT* object);
     void                    GetWebContentConfig(WM_WebServer* server);
     void                    GetWebContentItemConfig(WM_WebServer* server);
+    void                    GetWebContentRawData(WM_WebServer* server);
     String                  GetInverterSN();
     String                  GetLiveDataAsJson();
     void                    SetItemActiveStatus(String item, bool newstate);
@@ -95,6 +96,9 @@ class modbus {
     uint8_t                 Conf_IdDataFunctionCodePos;
 
     byte                    String2Byte(String s);
+
+    std::vector<byte>*      SaveIdDataframe;
+    std::vector<byte>*      SaveLiveDataframe;
 
     HardwareSerial*         mySerial;
 

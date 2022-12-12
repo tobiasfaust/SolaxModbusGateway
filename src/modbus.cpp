@@ -5,6 +5,9 @@
 *******************************************************/
 modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0) {
   DataFrame           = new std::vector<byte>{};
+  SaveIdDataframe     = new std::vector<byte>{};
+  SaveLiveDataframe   = new std::vector<byte>{};
+
   InverterLiveData    = new std::vector<reg_t>{};
   InverterIdData      = new std::vector<reg_t>{};
   ActiveItems         = new std::vector<itemconfig_t>{};
@@ -292,16 +295,18 @@ void modbus::ParseData() {
 
   if (this->DataFrame->size() == 0) {
 
+    // TODO
     //  ***********************************************
     // do some tests if client isn´t connected, dataframe is empty
     //  ***********************************************
     //if (Config->GetDebugLevel() >=3) {Serial.println("Start parsing in testmode, use some testdata instead real live data :)");}
     //byte ReadBuffer[] = {0x01, 0x04, 0xA6, 0x08, 0xF4, 0x00, 0x0D, 0x01, 0x0D, 0x0A, 0x26, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x13, 0x8B, 0x00, 0x1C, 0x00, 0x02, 0x01, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE6, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x09, 0x17, 0x04, 0x56};
+    //byte ReadBuffer[] = {0x01, 0x03, 0x28, 0x48, 0x34, 0x35, 0x30, 0x32, 0x41, 0x49, 0x34, 0x34, 0x35, 0x39, 0x30, 0x30, 0x35, 0x73, 0x6F, 0x6C, 0x61, 0x78, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x4A, 0xA0};
     //for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
     //  this->DataFrame->push_back(ReadBuffer[i]);
     //  if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
-    //}
-    //if (Config->GetDebugLevel() >=4) { Serial.println(); }
+    //o}
+    if (Config->GetDebugLevel() >=4) { Serial.println(); }
     // ***********************************************
   }
 
@@ -470,6 +475,15 @@ void modbus::ParseData() {
   } 
 
   // all data were process, clear Dataframe now for next query
+  // save this for WebGUI first
+  if(RequestType == "livedata") {
+    this->SaveLiveDataframe->clear();
+    this->SaveLiveDataframe->assign(this->DataFrame->begin(), this->DataFrame->end());
+  } else if(RequestType == "id") {
+    this->SaveIdDataframe->clear();
+    this->SaveIdDataframe->assign(this->DataFrame->begin(), this->DataFrame->end());
+  }
+
   this->DataFrame->clear();   
 }
 
@@ -496,9 +510,10 @@ uint16_t modbus::Calc_CRC(uint8_t* message, uint8_t len) {
  * friendly output of hex nums
 *******************************************************/
 String modbus::PrintHex(byte num) {
-  char hexCar[4];
-  sprintf(hexCar, "0x%02X", num);
-  return hexCar;
+  char hexCar[5] = {0};
+  memset(hexCar, 0, sizeof(hexCar));
+  snprintf(hexCar, sizeof(hexCar), "0x%02X", num);
+  return String(hexCar);
 }
 
 /*******************************************************
@@ -506,16 +521,18 @@ String modbus::PrintHex(byte num) {
 *******************************************************/
 String modbus::PrintDataFrame(std::vector<byte>* frame) {
   String out = "";
-  for (uint8_t i = 0; i<frame->size(); i++) {
-    out.concat(this->PrintHex(frame->at(i)));
-    out.concat(" ");
+  for (uint16_t i = 0; i<frame->size(); i++) {
+    if (out.length() < 2040) { // max string length 2048
+      out.concat(this->PrintHex(frame->at(i)));
+      out.concat(" ");
+    }
   }
   return out;
 }
 
 String modbus::PrintDataFrame(byte* frame, uint8_t len) {
   String out = "";
-  for (uint8_t i = 0; i<len; i++) {
+  for (uint16_t i = 0; i<len; i++) {
     out.concat(this->PrintHex(frame[i]));
     out.concat(" ");
   }
@@ -527,7 +544,7 @@ String modbus::PrintDataFrame(byte* frame, uint8_t len) {
 *******************************************************/
 String modbus::GetInverterSN() {
   String sn = "unknown";
-  for (uint8_t i=0; i < this->InverterIdData->size(); i++) {
+  for (uint16_t i=0; i < this->InverterIdData->size(); i++) {
     if (this->InverterIdData->at(i).Name == "InverterSN")
       sn = this->InverterIdData->at(i).value;
   }
@@ -919,5 +936,57 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
   html.concat("  <input type='submit' value='Speichern' />\n");
   html.concat("</form>\n\n");
 
+  server->sendContent(html.c_str()); html = "";
+}
+
+void modbus::GetWebContentRawData(WM_WebServer* server) {
+  char buffer[200] = {0};
+  memset(buffer, 0, sizeof(buffer));
+
+  String html = "";
+
+  html.concat("<form id='DataForm'>\n");
+  html.concat("<table id='maintable' class='editorDemoTable'>\n");
+  html.concat("<thead>\n");
+  html.concat("<tr>\n");
+  html.concat("<td style='width: 250px;'>Typ</td>\n");
+  html.concat("<td style='width: 400px;'>Raw Data</td>\n");
+  html.concat("</tr>\n");
+  html.concat("</thead>\n");
+  html.concat("<tbody>\n");
+
+  html.concat("<tr>\n");
+  html.concat("<td>RawData of ID-Data</td>\n");
+  html.concat("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span>\n");
+  
+  for (uint16_t i = 0; i < (this->SaveIdDataframe->size()); i++) {
+    html.concat(this->PrintHex(this->SaveIdDataframe->at(i)));
+    html.concat(" ");
+    if (html.length() > 2000) { server->sendContent(html.c_str()); html = ""; }
+  }
+
+  html.concat("</span></td>\n");
+  html.concat("</tr>\n");
+
+  server->sendContent(html.c_str()); html = "";
+  
+  html.concat("<tr>\n");
+  html.concat("<td>RawData of Live-Data</td>\n");
+  html.concat("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span>\n");
+  
+  for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
+    html.concat(this->PrintHex(this->SaveLiveDataframe->at(i)));
+    html.concat(" ");
+    if (html.length() > 2000) { server->sendContent(html.c_str()); html = ""; }
+  }
+
+  html.concat("</span></td>\n");
+  html.concat("</tr>\n");
+
+  server->sendContent(html.c_str()); html = "";
+  
+  html.concat("</tbody>\n");
+  html.concat("</table>\n");
+  html.concat("</form>\n\n<br />\n");
   server->sendContent(html.c_str()); html = "";
 }

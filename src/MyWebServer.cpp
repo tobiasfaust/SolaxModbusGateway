@@ -23,6 +23,8 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->on("/BaseConfig", [this]() {this->handleBaseConfig(); });
   server->on("/ModbusConfig", [this]() {this->handleModbusConfig(); });
   server->on("/ModbusItemConfig", [this]() {this->handleModbusItemConfig(); });
+  server->on("/ModbusRawData", [this]() {this->handleModbusRawData(); });
+  
 
   server->on("/style.css", HTTP_GET, [this]() {this->handleCSS(); });
   server->on("/javascript.js", HTTP_GET, [this]() {this->handleJS(); });
@@ -156,6 +158,21 @@ void MyWebServer::handleModbusItemConfig() {
   server->sendContent("");
 }
 
+void MyWebServer::handleModbusRawData() {
+  String html;
+  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server->sendHeader("Pragma", "no-cache");
+  server->sendHeader("Expires", "-1");
+  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server->send(200, "text/html", "");
+  this->getPageHeader(&html, MODBUSRAWDATA);
+  server->sendContent(html.c_str()); html = "";
+  mb->GetWebContentRawData(server);
+  this->getPageFooter(&html);
+  server->sendContent(html.c_str()); 
+  server->sendContent("");
+}
+
 void MyWebServer::ReceiveJSONConfiguration(page_t page) {
   String json = server->arg("json");
   String targetPage = "/";
@@ -236,7 +253,7 @@ void MyWebServer::getPageHeader(String* html, page_t pageactive) {
   html->concat("<body>\n");
   html->concat("<table>\n");
   html->concat("  <tr>\n");
-  html->concat("   <td colspan='2'>\n");
+  html->concat("   <td colspan='4'>\n");
   html->concat("     <h2>Configuration</h2>\n");
   html->concat("   </td>\n");
 
@@ -263,6 +280,9 @@ void MyWebServer::getPageHeader(String* html, page_t pageactive) {
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusItemConfig'>Item Config</a></td>\n", (pageactive==MODBUSITEMCONFIG)?"navi_active":"");
+  html->concat(buffer);
+  html->concat("   <td class='navi' style='width: 50px'></td>\n");
+  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusRawData'>Raw Data</a></td>\n", (pageactive==MODBUSRAWDATA)?"navi_active":"");
   html->concat(buffer);
   html->concat("   <td class='navi' style='width: 50px'></td>\n");
   html->concat("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");
