@@ -4,6 +4,58 @@
 #define JAVASCRIPT_H
 
 const char JAVASCRIPT[] PROGMEM = R"=====(
+const gpio_disabled = [];
+
+const gpio = [  {port: 2 , name:'D2'},
+                {port: 4 , name:'D4'},
+                {port: 5 , name:'D5'},
+                {port: 6 , name:'D6'},
+                {port: 7 , name:'D7'},
+                {port: 8 , name:'D8'},
+                {port: 9 , name:'D9/RX1'},
+                {port: 10, name:'D10/TX1'},
+                {port: 12, name:'D12'},
+                {port: 13, name:'D13'},
+                {port: 14, name:'D14'},
+                {port: 15, name:'D15'},
+                {port: 16, name:'D16/RX2'},
+                {port: 17, name:'D17/TX2'},
+                {port: 18, name:'D18'},
+                {port: 19, name:'D19'},
+                {port: 21, name:'D21/SDA'},
+                {port: 22, name:'D22/SCL'},
+                {port: 23, name:'D23'},
+                {port: 25, name:'D25'},
+                {port: 26, name:'D26'},
+                {port: 27, name:'D27'},
+                {port: 32, name:'D32'},
+                {port: 33, name:'D33'},
+                {port: 34, name:'D34'},
+                {port: 35, name:'D35'},
+                {port: 36, name:'D36'},
+                {port: 39, name:'D39'}
+              ];
+
+const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
+                  {port: 37, name:'ADC1_CH1 - GPIO37'},
+                  {port: 38, name:'ADC1_CH2 - GPIO38'},
+                  {port: 39, name:'ADC1_CH3 - GPIO39'},
+                  {port: 32, name:'ADC1_CH4 - GPIO32'},
+                  {port: 33, name:'ADC1_CH5 - GPIO33'},
+                  {port: 34, name:'ADC1_CH6 - GPIO34'},
+                  {port: 35, name:'ADC1_CH7 - GPIO35'},
+                  {port: 4 , name:'ADC2_CH0 - GPIO4'},
+                  {port: 0 , name:'ADC2_CH1 - GPIO0'},
+                  {port: 2 , name:'ADC2_CH2 - GPIO2'},
+                  {port: 15, name:'ADC2_CH3 - GPIO15'},
+                  {port: 13, name:'ADC2_CH4 - GPIO13'},
+                  {port: 12, name:'ADC2_CH5 - GPIO12'},
+                  {port: 14, name:'ADC2_CH6 - GPIO14'},
+                  {port: 27, name:'ADC2_CH7 - GPIO27'},
+                  {port: 25, name:'ADC2_CH8 - GPIO25'},
+                  {port: 26, name:'ADC2_CH9 - GPIO26'}
+               ];
+
 //############ DO NOT CHANGE BELOW ###################
 
 window.addEventListener('load', init, false);
@@ -49,6 +101,46 @@ function SetAvailablePorts() {
     _parent.removeChild( objects[j] );
     _parent.appendChild( _select );
   }
+}
+
+function createGpioPortSelectionList(id, name, value) {
+  _select = document.createElement('select');
+  _select.id = id;
+  _select.name = name;
+  for ( i = 0; i < gpio.length; i += 1 ) {
+    // alle GPIO Pins in die Liste
+    _option = document.createElement( 'option' );
+    _option.value = gpio[i].port; 
+    if(gpio_disabled.indexOf(gpio[i].port)>=0) {_option.disabled = true;}
+    if(value == (gpio[i].port)) { _option.selected = true;}
+    _option.text  = gpio[i].name;
+    _select.add( _option ); 
+  }
+  if (id.match(/^Alle.*/)) {
+    // Alle PCF Ports in die Liste wenn ID match "Alle*"
+    for ( k = 0; k < availablePorts.length; k++ ) {
+      _option = document.createElement( 'option' );
+      _option.value = _option.text = availablePorts[k];
+      if(value == availablePorts[k]) { _option.selected = true;}
+      _select.add( _option );
+    }
+  }
+  return _select;
+}
+function createAnalogPortSelectionList(id, name, value) {
+  _select = document.createElement('select');
+  _select.id = id;
+  _select.name = name;
+  for ( i = 0; i < gpioanalog.length; i += 1 ) {
+    // alle GPIO Pins in die Liste
+    _option = document.createElement( 'option' );
+    _option.value = gpioanalog[i].port; 
+    if(value == (gpioanalog[i].port)) { _option.selected = true;}
+    _option.text  = gpioanalog[i].name;
+    _select.add( _option ); 
+  }
+  
+  return _select;
 }
 
 function ShowError(t){

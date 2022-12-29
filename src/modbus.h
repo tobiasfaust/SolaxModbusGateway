@@ -9,7 +9,9 @@
 #include <ArduinoJson.h>
 #include <StreamUtils.h>
 #include <ArduinoQueue.h>
+//#include <SoftwareSerial.h>
 #include <HardwareSerial.h>
+
 
 class modbus {
 
@@ -23,6 +25,9 @@ class modbus {
       String Name;
       bool value;
   } itemconfig_t;
+
+  #define RS485Transmit    HIGH
+  #define RS485Receive     LOW
 
   public:
     modbus();
@@ -45,6 +50,9 @@ class modbus {
     void                    SetItemActiveStatus(String item, bool newstate);
 
   private:
+    uint8_t                 pin_RX;               // Serial Receive pin
+    uint8_t                 pin_TX;               // Serial Transmit pin
+    uint8_t                 pin_RTS;              // Direction control pin
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
@@ -100,7 +108,7 @@ class modbus {
     std::vector<byte>*      SaveIdDataframe;
     std::vector<byte>*      SaveLiveDataframe;
 
-    HardwareSerial*         mySerial;
+    HardwareSerial*         RS485Serial;
 
 };
 

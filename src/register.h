@@ -7,8 +7,8 @@ const char JSON[] PROGMEM = R"=====(
 	"Solax-X1": {
 		"config": {
 			"RequestLiveData": [
-				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
-				["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"]
+				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x66"],
+				["#ClientID", "0x04", "0x00", "0x67", "0x00", "0x66"]
 			],
 			"RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
 			"ClientIdPos": 0,
@@ -205,7 +205,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [166, 167],
+					"position": [163, 164],
 					"name": "EtodayToGrid",
 					"realname": "Today Energy to Grid",
 					"datatype": "float",

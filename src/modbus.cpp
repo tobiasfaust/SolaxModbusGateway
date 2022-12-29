@@ -3,7 +3,7 @@
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0) {
+modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0), pin_RX(16), pin_TX(17), pin_RTS(18) {
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -18,15 +18,35 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
 
   RequestQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 requests
 
-  // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
-  //HardwareSerial mySerial(2);
-  mySerial = new HardwareSerial(2);
-
   this->LoadJsonConfig();
   this->LoadJsonItemConfig();
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
   this->init();    
+}
+
+/*******************************************************
+ * initialize transmission
+*******************************************************/
+void modbus::init() {
+  char dbg[100] = {0}; 
+  memset(dbg, 0, sizeof(dbg));
+  if (Config->GetDebugLevel() >=3) {
+    sprintf(dbg, "Start Hardwareserial 1 on RX (%d), TX(%d), RTS(%d)", this->pin_RX, this->pin_TX, this->pin_RTS);
+    Serial.println(dbg);
+    sprintf(dbg, "Init Modbus to Client 0x%02X with %d Baud", this->ClientID, this->Baudrate);
+    Serial.println(dbg);
+  }
+
+  // Configure Direction Control pin
+  pinMode(this->pin_RTS, OUTPUT);  
+
+  // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
+  RS485Serial = new HardwareSerial(1);
+  RS485Serial->begin(this->Baudrate, SERIAL_8N1, this->pin_RX, this->pin_TX);
+
+  //at first read ID Data
+  this->QueryIdData();
 }
 
 /*******************************************************
@@ -135,22 +155,6 @@ byte modbus::String2Byte(String s){
 }
 
 /*******************************************************
- * initialize transmission
-*******************************************************/
-void modbus::init() {
-  char dbg[100] = {0}; 
-  memset(dbg, 0, sizeof(dbg));
-  sprintf(dbg, "Init Modbus to Client 0x%02X with %d Baud", this->ClientID, this->Baudrate);
-  if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
-
-  // Start the Modbus serial Port
-  Serial2.begin(this->Baudrate); 
-
-  //at first read ID Data
-  this->QueryIdData();
-}
-
-/*******************************************************
  * Enable MQTT Transmission
 *******************************************************/
 void modbus::enableMqtt(MQTT* object) {
@@ -214,8 +218,9 @@ void modbus::QueryQueueToInverter() {
   if (!this->RequestQueue->isEmpty()) {
     if (Config->GetDebugLevel() >=3) { Serial.print("Request queue data from inverter: "); }
   
-    while (Serial2.available() > 0) { // read serial if any old data is available
-      Serial2.read();
+    digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
+    while (RS485Serial->available() > 0) { // read serial if any old data is available
+      RS485Serial->read();
     }
 
     std::vector<byte> m = this->RequestQueue->dequeue();
@@ -232,8 +237,9 @@ void modbus::QueryQueueToInverter() {
 
     if (Config->GetDebugLevel() >=3) { Serial.println(this->PrintDataFrame(message, sizeof(message))); }
 
-    Serial2.write(message, sizeof(message));
-    Serial2.flush();
+    digitalWrite(this->pin_RTS, RS485Transmit);     // init Transmit
+    RS485Serial->write(message, sizeof(message));
+    RS485Serial->flush();
 
     delay(100);
     this->ReceiveData();
@@ -253,10 +259,11 @@ void modbus::ReceiveData() {
 
   if (Config->GetDebugLevel() >=3) {Serial.println("Read Data from Queue: ");}
 
-  if (Serial2.available()) {
+  digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
+  if (RS485Serial->available()) {
     // lese alle Daten, speichern im Vektor "Dataframe"
-    while(Serial2.available()) {
-      byte d = Serial2.read();
+    while(RS485Serial->available()) {
+      byte d = RS485Serial->read();
       this->DataFrame->push_back(d);
       if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(d)); Serial.print(" ");}
       delay(1); // keep this! Loosing bytes possible if too fast
@@ -305,8 +312,8 @@ void modbus::ParseData() {
     //for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
     //  this->DataFrame->push_back(ReadBuffer[i]);
     //  if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
-    //o}
-    if (Config->GetDebugLevel() >=4) { Serial.println(); }
+    //}
+    //if (Config->GetDebugLevel() >=4) { Serial.println(); }
     // ***********************************************
   }
 
@@ -688,8 +695,10 @@ void modbus::StoreJsonItemConfig(String* json) {
 void modbus::LoadJsonConfig() {
   bool loadDefaultConfig = false;
   uint32_t Baudrate_old = this->Baudrate;
+  uint8_t pin_RX_old    = this->pin_RX;
+  uint8_t pin_TX_old    = this->pin_TX;
+  uint8_t pin_RTS_old   = this->pin_RTS;
   String InverterType_old = this->InverterType;
-
 
   if (SPIFFS.exists("/ModbusConfig.json")) {
     //file exists, reading and loading
@@ -705,6 +714,9 @@ void modbus::LoadJsonConfig() {
       if (!error) {
         if (Config->GetDebugLevel() >=3) { serializeJsonPretty(doc, Serial); Serial.println(); }
         
+        if (doc.containsKey("pin_rx"))           { this->pin_RX = (int)(doc["pin_rx"]);} else {this->pin_RX = 16;}
+        if (doc.containsKey("pin_tx"))           { this->pin_TX = (int)(doc["pin_tx"]);} else {this->pin_TX = 17;}
+        if (doc.containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["pin_rts"]);} else {this->pin_RTS = 18;}
         if (doc.containsKey("clientid"))         { this->ClientID = strtoul(doc["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
         if (doc.containsKey("baudrate"))         { this->Baudrate = (int)(doc["baudrate"]);} else {this->Baudrate = 19200;}
         if (doc.containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
@@ -721,6 +733,9 @@ void modbus::LoadJsonConfig() {
   }
 
   if (loadDefaultConfig) {
+    this->pin_RX = 16;
+    this->pin_TX = 17;
+    this->pin_RTS = 18;
     this->ClientID = 0x01;
     this->Baudrate = 19200;
     this->TxIntervalLiveData = 5;
@@ -728,13 +743,16 @@ void modbus::LoadJsonConfig() {
     this->InverterType = "Solax-X1";
     
     loadDefaultConfig = false; //set back
-
-    // ReInit if Baudrate was changed
-    if(Baudrate_old != this->Baudrate) { this->init();}
-
-    // ReInit if Invertertype was changed
-    if(InverterType_old != this->InverterType) { this->LoadInverterConfigFromJson(); }
   }
+
+  // ReInit if Baudrate was changed
+  if((Baudrate_old != this->Baudrate) ||
+     (pin_RX_old   != this->pin_RX)   ||
+     (pin_TX_old   != this->pin_TX)   ||
+     (pin_RTS_old  != this->pin_RTS)) { this->init();}
+
+  // ReInit if Invertertype was changed
+  if(InverterType_old != this->InverterType) { this->LoadInverterConfigFromJson(); }
 
 }
 
@@ -804,6 +822,24 @@ void modbus::GetWebContentConfig(WM_WebServer* server) {
   html.concat("<tbody>\n");
 
   server->sendContent(html.c_str()); html = "";
+
+  html.concat("<tr>\n");
+  html.concat("<td>Modbus RX-Pin (Default: 16)</td>\n");
+  sprintf(buffer, "<td><input min='0' max='255' id='GpioPin_RX'name='pin_rx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RX);
+  html.concat(buffer);
+  html.concat("</tr>\n");
+
+  html.concat("<tr>\n");
+  html.concat("<td>Modbus TX-Pin (Default: 17)</td>\n");
+  sprintf(buffer, "<td><input min='0' max='255' id='GpioPin_TX'name='pin_tx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_TX);
+  html.concat(buffer);
+  html.concat("</tr>\n");
+
+  html.concat("<tr>\n");
+  html.concat("<td>Modbus Direction Control RTS-Pin (Default: 18)</td>\n");
+  sprintf(buffer, "<td><input min='0' max='255' id='GpioPin_RTS'name='pin_rts' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RTS);
+  html.concat(buffer);
+  html.concat("</tr>\n");
 
   html.concat("<tr>\n");
   html.concat("<td>Solax Modbus ClientID (in hex) (Default: 01)</td>\n");
