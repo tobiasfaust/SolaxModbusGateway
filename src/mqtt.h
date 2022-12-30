@@ -28,10 +28,10 @@ class MQTT {
 
     MQTT(const char* server, uint16_t port, String basepath, String root);
     void          loop();
-    void          Publish_Bool(const char* subtopic, bool b);
-    void          Publish_Int(const char* subtopic, int number);
-    void          Publish_Float(const char* subtopic, float number);
-    void          Publish_String(const char* subtopic, String value);
+    void          Publish_Bool(const char* subtopic, bool b, bool fulltopic);
+    void          Publish_Int(const char* subtopic, int number, bool fulltopic);
+    void          Publish_Float(const char* subtopic, float number, bool fulltopic);
+    void          Publish_String(const char* subtopic, String value, bool fulltopic);
     void          Publish_IP();
     void          setCallback(CALLBACK_FUNCTION);
     void          disconnect();

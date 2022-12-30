@@ -54,7 +54,7 @@ void MQTT::reconnect() {
     Serial.println("connected... ");
     // Once connected, publish basics ...
     this->Publish_IP();
-    this->Publish_String("state", "Online"); //LWT reset
+    this->Publish_String("state", "Online", false); //LWT reset
     
     // ... and resubscribe if needed
     //snprintf (topic, sizeof(topic), "%s/%s/#", this->mqtt_basepath.c_str(), this->mqtt_root.c_str());
@@ -82,30 +82,34 @@ String MQTT::GetRoot() {
   return mqtt_root;
 }
 
-void MQTT::Publish_Bool(const char* subtopic, bool b) {
+void MQTT::Publish_Bool(const char* subtopic, bool b, bool fulltopic) {
   String s;
   if(b) {s = "1";} else {s = "0";};
-  Publish_String(subtopic, s);
+  Publish_String(subtopic, s, fulltopic);
 }
 
-void MQTT::Publish_Int(const char* subtopic, int number ) {
+void MQTT::Publish_Int(const char* subtopic, int number, bool fulltopic) {
   char buffer[20] = {0}; 
   memset(buffer, 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%d", number);
-  Publish_String(subtopic, buffer);
+  Publish_String(subtopic, buffer, fulltopic);
 }
 
-void MQTT::Publish_Float(const char* subtopic, float number ) {
+void MQTT::Publish_Float(const char* subtopic, float number, bool fulltopic) {
   char buffer[10] = {0};
   memset(&buffer[0], 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%.2f", number);
-  Publish_String(subtopic, buffer);
+  Publish_String(subtopic, buffer, fulltopic);
 }
 
-void MQTT::Publish_String(const char* subtopic, String value ) {
+void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
   char topic[50] = {0};
   memset(topic, 0, sizeof(topic));
-  snprintf(topic, sizeof(topic), "%s/%s/%s", this->mqtt_basepath.c_str(), this->mqtt_root.c_str(), subtopic);
+  if (fulltopic) {
+    snprintf(topic, sizeof(topic), "%s", subtopic);
+  } else {
+    snprintf(topic, sizeof(topic), "%s/%s/%s", this->mqtt_basepath.c_str(), this->mqtt_root.c_str(), subtopic);
+  }
   if (this->mqtt->connected()) {
     this->mqtt->publish((const char*)topic, value.c_str(), true);
     if (Config->GetDebugLevel() >=3) {Serial.print(F("Publish ")); Serial.print(FPSTR(topic)); Serial.print(F(": ")); Serial.println(value);}
@@ -116,7 +120,7 @@ void MQTT::Publish_IP() {
   char buffer[15] = {0};
   memset(&buffer[0], 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%s", WiFi.localIP().toString().c_str());
-  Publish_String("IP", buffer);
+  Publish_String("IP", buffer, false);
 }
 
 void MQTT::setCallback(CALLBACK_FUNCTION) {
@@ -172,10 +176,10 @@ void MQTT::loop() {
       memset(buffer, 0, sizeof(buffer));
       
       snprintf(buffer, sizeof(buffer), "%d", ESP.getFreeHeap());
-      this->Publish_String("memory", buffer);
+      this->Publish_String("memory", buffer, false);
 
       snprintf(buffer, sizeof(buffer), "%d", WiFi.RSSI());
-      this->Publish_String("rssi", buffer);
+      this->Publish_String("rssi", buffer, false);
     }
   }
   
