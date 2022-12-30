@@ -7,8 +7,8 @@ const char JSON[] PROGMEM = R"=====(
 	"Solax-X1": {
 		"config": {
 			"RequestLiveData": [
-				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x66"],
-				["#ClientID", "0x04", "0x00", "0x67", "0x00", "0x66"]
+				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
+				["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"]
 			],
 			"RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
 			"ClientIdPos": 0,
@@ -32,6 +32,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [3, 4],
 					"name": "GridVoltage",
 					"realname": "Grid Voltage",
+					"mqtttopic": "openWB/set/grid/W",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "V"
@@ -512,6 +513,55 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "string"
 				}
 			]
+		}
+	},
+	"Growatt-SPH1000TL3-BH-UP": {
+		"config": {
+			"RequestLiveData": [
+				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
+				["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"]
+			],
+			"RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
+			"ClientIdPos": 0,
+			"LiveDataFunctionCodePos": 1,
+			"LiveDataFunctionCode": "0x04",
+			"IdDataFunctionCodePos": 1,
+			"IdDataFunctionCode": "0x03",
+			"LiveDataStartsAtPos": 3,
+			"IdDataStartsAtPos": 3,
+			"LiveDataErrorPos": 1,
+			"LiveDataErrorCode": "0x84",
+			"IdDataErrorPos": 1,
+			"IdDataErrorCode": "0x83",
+			"LiveDataSuccessPos": 1,
+			"LiveDataSuccessCode": "0x04",
+			"IdDataSuccessPos": 1,
+			"IdDataSuccessCode": "0x03"
+		},
+		"data": {
+			"livedata": [{
+					"position": [197, 198],
+					"name": "BatVoltage",
+					"realname": "Battery Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [77, 78],
+					"name": "GridFrequency",
+					"realname": "Grid Frequency",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
+				}
+			],
+			"id": [{
+				"position": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+				"name": "InverterSN",
+				"realname": "Inverter SerialNumber",
+				"datatype": "string"
+			}]
 		}
 	}
 }
