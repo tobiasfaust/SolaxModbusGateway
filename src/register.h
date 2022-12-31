@@ -32,7 +32,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [3, 4],
 					"name": "GridVoltage",
 					"realname": "Grid Voltage",
-					"mqtttopic": "openWB/set/grid/W",
+					"openwbtopic": "openWB/set/grid/W",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "V"
@@ -103,6 +103,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [23, 24],
 					"name": "PowerDC1",
 					"realname": "Power DC 1",
+					"openwbtopic": "openWB/set/pv/1/W",
 					"datatype": "integer",
 					"unit": "W"
 				},
@@ -110,6 +111,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [25, 26],
 					"name": "PowerDC2",
 					"realname": "Power DC 2",
+					"openwbtopic": "openWB/set/pv/2/W",
 					"datatype": "integer",
 					"unit": "W"
 				},
@@ -133,6 +135,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [47, 48],
 					"name": "BatPower",
 					"realname": "Battery Power",
+					"openwbtopic": "openWB/set/houseBattery/W",
 					"datatype": "integer",
 					"unit": "W"
 				},
@@ -147,6 +150,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [56, 57],
 					"name": "BatCapacity",
 					"realname": "Battery Capacity",
+					"openwbtopic": "openWB/set/houseBattery/%Soc",
 					"datatype": "integer",
 					"unit": "%"
 				},

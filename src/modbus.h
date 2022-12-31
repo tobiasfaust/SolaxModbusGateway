@@ -9,9 +9,9 @@
 #include <ArduinoJson.h>
 #include <StreamUtils.h>
 #include <ArduinoQueue.h>
-//#include <SoftwareSerial.h>
 #include <HardwareSerial.h>
 
+// #define DEBUGMODE
 
 class modbus {
 
@@ -102,6 +102,8 @@ class modbus {
     byte                    Conf_IdDataFunctionCode;
     uint8_t                 Conf_LiveDataFunctionCodePos;
     uint8_t                 Conf_IdDataFunctionCodePos;
+
+    bool                    Conf_EnableOpenWBTopic;
 
     byte                    String2Byte(String s);
 

@@ -306,14 +306,16 @@ void modbus::ParseData() {
     //  ***********************************************
     // do some tests if client isn´t connected, dataframe is empty
     //  ***********************************************
-    //if (Config->GetDebugLevel() >=3) {Serial.println("Start parsing in testmode, use some testdata instead real live data :)");}
-    //byte ReadBuffer[] = {0x01, 0x04, 0xA6, 0x08, 0xF4, 0x00, 0x0D, 0x01, 0x0D, 0x0A, 0x26, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x13, 0x8B, 0x00, 0x1C, 0x00, 0x02, 0x01, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE6, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x09, 0x17, 0x04, 0x56};
-    //byte ReadBuffer[] = {0x01, 0x03, 0x28, 0x48, 0x34, 0x35, 0x30, 0x32, 0x41, 0x49, 0x34, 0x34, 0x35, 0x39, 0x30, 0x30, 0x35, 0x73, 0x6F, 0x6C, 0x61, 0x78, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x4A, 0xA0};
-    //for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
-    //  this->DataFrame->push_back(ReadBuffer[i]);
-    //  if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
-    //}
-    //if (Config->GetDebugLevel() >=4) { Serial.println(); }
+    #ifdef DEBUGMODE 
+      if (Config->GetDebugLevel() >=3) {Serial.println("Start parsing in testmode, use some testdata instead real live data :)");}
+      byte ReadBuffer[] = {0x01, 0x04, 0xA6, 0x08, 0xF4, 0x00, 0x0D, 0x01, 0x0D, 0x0A, 0x26, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x13, 0x8B, 0x00, 0x1C, 0x00, 0x02, 0x01, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE6, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x09, 0x17, 0x04, 0x56};
+      //byte ReadBuffer[] = {0x01, 0x03, 0x28, 0x48, 0x34, 0x35, 0x30, 0x32, 0x41, 0x49, 0x34, 0x34, 0x35, 0x39, 0x30, 0x30, 0x35, 0x73, 0x6F, 0x6C, 0x61, 0x78, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x4A, 0xA0};
+      for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
+        this->DataFrame->push_back(ReadBuffer[i]);
+        if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
+      }
+      if (Config->GetDebugLevel() >=4) { Serial.println(); }
+    #endif
     // ***********************************************
   }
 
@@ -366,9 +368,8 @@ void modbus::ParseData() {
       String val_str = "";
       reg_t d = {};
       bool IsActiveItem = false;
-      String mqtttopic = "";
-      bool usemqtttopic = false;
-
+      String openwbtopic = "";
+      
       // mandantory field
       if(!elem["name"].isNull()) {
         d.Name = elem["name"].as<String>();
@@ -383,12 +384,10 @@ void modbus::ParseData() {
         d.RealName = d.Name;
       }
 
-      if(!elem["mqtttopic"].isNull()) {
-        mqtttopic = elem["mqtttopic"].as<String>();
-        usemqtttopic = true;
+      if(!elem["openwbtopic"].isNull()) {
+        openwbtopic = elem["openwbtopic"].as<String>();
       } else {
-        mqtttopic = d.Name;
-        usemqtttopic = false;
+        openwbtopic = "";
       }
       
       // check if "position" is a well defined array
@@ -438,8 +437,11 @@ void modbus::ParseData() {
         val_f = (float)val_i * factor;
         sprintf(dbg, "%.2f %s", val_f, elem["unit"].as<String>());
         d.value = String(dbg);
-        //d.value = String(val_f, 2);
-        if (this->mqtt && IsActiveItem) { this->mqtt->Publish_Float(mqtttopic.c_str(), val_f, usemqtttopic);}
+
+        if (this->mqtt && IsActiveItem) { 
+          this->mqtt->Publish_Float(d.Name.c_str(), val_f, false);
+          if (openwbtopic.length() > 0) { this->mqtt->Publish_Float(openwbtopic.c_str(), val_f, true);}
+        }
         sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
       
       } else if (datatype == "integer") {
@@ -460,7 +462,11 @@ void modbus::ParseData() {
         val_i = val_i * factor;
         sprintf(dbg, "%d %s", val_i, elem["unit"].as<String>());
         d.value = String(dbg);
-        if (this->mqtt && IsActiveItem) { this->mqtt->Publish_Int(mqtttopic.c_str(), val_i, usemqtttopic);}
+
+        if (this->mqtt && IsActiveItem) { 
+          this->mqtt->Publish_Int(d.Name.c_str(), val_i, false);
+          if (openwbtopic.length() > 0) { this->mqtt->Publish_Int(openwbtopic.c_str(), val_i, true);}
+        }
         sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
       
       } else if (datatype == "string") {
@@ -471,7 +477,11 @@ void modbus::ParseData() {
           }
         } 
         d.value = val_str;
-        if (this->mqtt && IsActiveItem) { this->mqtt->Publish_String(mqtttopic.c_str(), d.value, usemqtttopic);}
+
+        if (this->mqtt && IsActiveItem) { 
+          this->mqtt->Publish_String(d.Name.c_str(), d.value, false);
+          if (openwbtopic.length() > 0) { this->mqtt->Publish_String(openwbtopic.c_str(), d.value, true); }
+        }
         sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
       } else {
         //********** sonst, leer ***********//
@@ -732,6 +742,7 @@ void modbus::LoadJsonConfig() {
         if (doc.containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
         if (doc.containsKey("txintervalid"))     { this->TxIntervalIdData = (int)(doc["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
         if (doc.containsKey("invertertype"))     { this->InverterType = (doc["invertertype"]).as<String>();} else {this->InverterType = "Solax-X1";}
+        if (doc.containsKey("openwbtopic"))      { this->Conf_EnableOpenWBTopic = (doc["openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
       } else {
         if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus json config, load default config");}
         loadDefaultConfig = true;
@@ -751,7 +762,8 @@ void modbus::LoadJsonConfig() {
     this->TxIntervalLiveData = 5;
     this->TxIntervalIdData = 3600;
     this->InverterType = "Solax-X1";
-    
+    this->Conf_EnableOpenWBTopic = false;
+
     loadDefaultConfig = false; //set back
   }
 
@@ -886,9 +898,23 @@ void modbus::GetWebContentConfig(WM_WebServer* server) {
 
   server->sendContent(html.c_str()); html = "";
   
+  html.concat("<tr>\n");
+  html.concat("<td>Enable OpenWB Compatibility</td>\n");
+  html.concat("  <td>\n");
+  html.concat("    <div class='onoffswitch'>\n");
+  sprintf(buffer, "      <input type='checkbox' name='openwbtopic' class='onoffswitch-checkbox' id='openwbtopic' %s>\n", (this->Conf_EnableOpenWBTopic?"checked":""));
+  html.concat(buffer);
+  html.concat("      <label class='onoffswitch-label' for='openwbtopic'>\n");
+  html.concat("        <span class='onoffswitch-inner'></span>\n");
+  html.concat("        <span class='onoffswitch-switch'></span>\n");
+  html.concat("      </label>\n");
+  html.concat("    </div>\n");
+  html.concat("  </td></tr>\n");
+
   html.concat("</tbody>\n");
   html.concat("</table>\n");
 
+  server->sendContent(html.c_str()); html = "";
 
   html.concat("</form>\n\n<br />\n");
   html.concat("<form id='jsonform' action='StoreModbusConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
