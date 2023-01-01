@@ -288,6 +288,50 @@ void modbus::ReceiveData() {
 }
 
 /*******************************************************
+ * Helper function
+ * convert a json position array to integer values of Dataframe
+*******************************************************/
+int modbus::JsonPosArrayToInt(JsonArray posArray, JsonArray posArray2) {
+  int val_i = 0;
+  int val2_i = 0;
+  int val_max = 0;
+
+  // handle Main Position Array
+  if (!posArray.isNull()){ 
+    for(int v : posArray) {
+      if (v < this->DataFrame->size()) { 
+        val_i = (val_i << 8) | this->DataFrame->at(v); 
+        val_max = (val_max << 8) | 0xFF;
+      }
+    }
+  }
+
+  // handle Position Array 2
+  if (!posArray2.isNull()){ 
+    for(int w : posArray2) {
+      if (w < this->DataFrame->size()) { 
+        val2_i = (val2_i << 8) | this->DataFrame->at(w); 
+      }
+    }
+  }
+
+  // Check Type 1: convert into a negative value
+  if (posArray2.isNull() && (val_i > (val_max/2))) {
+    // negative Zahl, umrechnen notwendig 
+    val_i = val_i ^ val_max;
+    val_i = val_i * -1;
+  } 
+
+  // Check type 2: convert into a negative value
+  // an extra position field for a neg value existis. Take this if value > 0
+  if (val2_i > 0) {
+    val_i = val2_i * -1;
+  } 
+
+  return val_i;
+}
+
+/*******************************************************
  * Parse all received Data in vector 
 *******************************************************/
 void modbus::ParseData() {
@@ -361,10 +405,10 @@ void modbus::ParseData() {
       // setUp local variables
       String datatype = "";
       float factor = 0;
-      JsonArray posArray;
+      JsonArray posArray, posArray2;
       float val_f = 0;
       int val_i = 0;
-      int val_max = 0; 
+      //int val_max = 0; 
       String val_str = "";
       reg_t d = {};
       bool IsActiveItem = false;
@@ -377,6 +421,24 @@ void modbus::ParseData() {
         d.Name = String("undefined");
       }
       
+      // mandantory field
+      // check if "position" is a well defined array
+      if (elem["position"].is<JsonArray>()) {
+        posArray = elem["position"].as<JsonArray>();
+      } else {
+        if (Config->GetDebugLevel() >=1) {
+          sprintf(dbg, "Error: for Name '%s' no position array found", d.Name);
+          Serial.println(dbg);
+        }
+        continue;
+      }
+
+      // mandantory field
+      if(!elem["datatype"].isNull()) {
+        datatype = elem["datatype"].as<String>();
+        datatype.toLowerCase();
+      } 
+      
       // optional field
       if(!elem["realname"].isNull()) {
         d.RealName = elem["realname"].as<String>();
@@ -384,34 +446,24 @@ void modbus::ParseData() {
         d.RealName = d.Name;
       }
 
+      // optional field
       if(!elem["openwbtopic"].isNull()) {
         openwbtopic = elem["openwbtopic"].as<String>();
       } else {
         openwbtopic = "";
       }
       
-      // check if "position" is a well defined array
-      if (elem["position"].is<JsonArray>()) {
-        posArray = elem["position"].as<JsonArray>();
-      } else {
-        if (Config->GetDebugLevel() >=1) {
-        sprintf(dbg, "Error: for Name '%s' no position array found", d.Name);
-        Serial.println(dbg);
-        }
-        continue;
-      }
-
       // optional field
       if (elem.containsKey("factor")) {
         factor = elem["factor"];
       } else { factor = 1; }
       
-      // mandantory field
-      if(!elem["datatype"].isNull()) {
-        datatype = elem["datatype"].as<String>();
-        datatype.toLowerCase();
+      // optional field
+      // check, if a extra position for a negative value was defined
+      if (elem["position-"].is<JsonArray>()) {
+        posArray2 = elem["position2"].as<JsonArray>();
       } 
-      
+
       // check if active item to send out via mqtt
       for (uint16_t i=0; i < this->ActiveItems->size(); i++) {
         if (this->ActiveItems->at(i).Name == d.Name && this->ActiveItems->at(i).value) {
@@ -419,22 +471,10 @@ void modbus::ParseData() {
         }
       }
       
+      // ************* processing data ******************
       if (datatype == "float") {
         //********** handle Datatype FLOAT ***********//
-        if (!posArray.isNull()){ 
-          for(int v : posArray) {
-            if (v < this->DataFrame->size()) { 
-              val_i = (val_i << 8) | this->DataFrame->at(v); 
-              val_max = (val_max << 8) | 0xFF;
-            }
-          }
-        }
-        if (val_i > (val_max/2)) {
-           // negative Zahl, umrechnen notwendig 
-           val_i = val_i ^ val_max;
-           val_i = val_i * -1;
-        } 
-        val_f = (float)val_i * factor;
+        val_f = (float)this->JsonPosArrayToInt(posArray, posArray2) * factor;
         sprintf(dbg, "%.2f %s", val_f, elem["unit"].as<String>());
         d.value = String(dbg);
 
@@ -446,20 +486,7 @@ void modbus::ParseData() {
       
       } else if (datatype == "integer") {
         //********** handle Datatype Integer ***********//
-        if (!posArray.isNull()){ 
-          for(int v : posArray) {
-            if (v < this->DataFrame->size()) { 
-              val_i = (val_i << 8) | this->DataFrame->at(v); 
-              val_max = (val_max << 8) | 0xFF; 
-            }
-          }
-        } 
-        if (val_i > (val_max/2)) {
-           // negative Zahl, umrechnen notwendig 
-           val_i = val_i ^ val_max;
-           val_i = val_i * -1;
-        }
-        val_i = val_i * factor;
+        val_i = this->JsonPosArrayToInt(posArray, posArray2) * factor;
         sprintf(dbg, "%d %s", val_i, elem["unit"].as<String>());
         d.value = String(dbg);
 
@@ -484,7 +511,7 @@ void modbus::ParseData() {
         }
         sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
       } else {
-        //********** sonst, leer ***********//
+        //****************** sonst, leer *******************//
         d.value = "";
         sprintf(dbg, "Error: for Name '%s' no valid datatype found", d.Name.c_str());
       }

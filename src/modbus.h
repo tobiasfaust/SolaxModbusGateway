@@ -11,7 +11,7 @@
 #include <ArduinoQueue.h>
 #include <HardwareSerial.h>
 
-// #define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -74,6 +74,7 @@ class modbus {
     String                  PrintDataFrame(std::vector<byte>* frame);
     String                  PrintDataFrame(byte* frame, uint8_t len);
     uint16_t                Calc_CRC(uint8_t* message, uint8_t len);
+    int                     JsonPosArrayToInt(JsonArray posArray, JsonArray posArray2);
     void                    QueryLiveData();
     void                    QueryIdData();
     void                    QueryQueueToInverter();

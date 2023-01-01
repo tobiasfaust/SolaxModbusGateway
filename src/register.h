@@ -49,6 +49,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [7, 8],
 					"name": "GridPower",
 					"realname": "Grid Power",
+					"openwbtopic": "openWB/set/pv/W",
 					"datatype": "integer",
 					"unit": "W"
 				},
@@ -158,6 +159,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [58, 59, 60, 61],
 					"name": "OutputEnergyCharge",
 					"realname": "Output Energy Charge",
+					"openwbtopic": "openWB/set/houseBattery/WhExported",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "kWh"
@@ -174,6 +176,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [66, 67, 68, 69],
 					"name": "InputEnergyCharge",
 					"realname": "Input Energy Charge",
+					"openwbtopic": "openWB/set/houseBattery/WhImported",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "kWh"
@@ -221,6 +224,7 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [165, 166, 167, 168],
 					"name": "EtotalToGrid",
 					"realname": "Total Energy to Grid",
+					"openwbtopic": "openWB/set/pv/WhCounter",
 					"datatype": "float", 
 					"factor": 0.1,
 					"unit": "kWh"
@@ -240,6 +244,16 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "float", 
 					"factor": 0.1,
 					"unit": "h"
+				},
+				{
+					"position": [58, 59, 60, 61],
+					"position2": [66, 67, 68, 69],
+					"name": "BatChargingPower",
+					"realname": "Battery Charging Power",
+					"openwbtopic": "openWB/set/houseBattery/W",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "W"
 				}
 			],
 			"id": [
@@ -262,7 +276,7 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "string"
 				}
 			]
-		}
+		},
 	},
 	"Solax-X3": {
 		"config": {
