@@ -12,17 +12,19 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
   InverterIdData      = new std::vector<reg_t>{};
   ActiveItems         = new std::vector<itemconfig_t>{};
   AvailableInverters  = new std::vector<String>{};
+  Setters             = new std::vector<subscription_t>{};
 
   Conf_RequestLiveData= new std::vector<std::vector<byte>>{};
   Conf_RequestIdData  = new std::vector<byte>{};
 
-  RequestQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 requests
+  ReadQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 read requests parallel
+  SetQueue  = new ArduinoQueue<std::vector<byte>>(5); // max 5 set requests parallel
 
   this->LoadJsonConfig();
   this->LoadJsonItemConfig();
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
-  this->init();    
+  this->init();
 }
 
 /*******************************************************
@@ -50,6 +52,108 @@ void modbus::init() {
 }
 
 /*******************************************************
+ * generate the full mqtt topic without /# at end
+*******************************************************/
+String modbus::GetMqttSetTopic(String command) {
+  char dbg[100] = {0}; 
+  memset(dbg, 0, sizeof(dbg));
+
+  snprintf(dbg, sizeof(dbg), "%s/%s/set/%s", Config->GetMqttBasePath().c_str(), Config->GetMqttRoot().c_str(), command.c_str());
+  return (String)dbg;
+}
+
+/*******************************************************
+ * subscribe to all possible "set" register (register.h)
+*******************************************************/
+void modbus::GenerateMqttSubscriptions() {
+  char dbg[100] = {0}; 
+  memset(dbg, 0, sizeof(dbg));
+
+  // clear vector
+  this->Setters->clear();
+  ProgmemStream stream{JSON};
+  String streamString = "";
+  streamString = "\""+ this->InverterType +"\": {";
+  stream.find(streamString.c_str());
+  streamString = "\"set\": [";
+  stream.find(streamString.c_str());
+  do {
+    StaticJsonDocument<512> elem;
+    DeserializationError error = deserializeJson(elem, stream); 
+    if (!error) {
+      // Print the result
+      if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON for <set> data ok"); }
+      if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
+     
+      if(!elem["name"].isNull() && elem["request"].is<JsonArray>()) {
+        subscription_t s = {};
+        s.command = elem["name"].as<String>();  
+        
+        JsonArray arr = elem["request"].as<JsonArray>();
+        std::vector<byte> t = {};
+        for (String x : arr) {
+          byte e = this->String2Byte(x);
+          t.push_back(e);
+        }
+        s.request = t;        
+
+        this->mqtt->Subscribe(this->GetMqttSetTopic(s.command));
+        if (Config->GetDebugLevel() >=4) {
+          snprintf(dbg, sizeof(dbg), "Set command successfully parsed from JSON: %s with %s", s.command, (this->PrintDataFrame(&(s.request))).c_str());
+          Serial.println(dbg);
+        }
+        this->Setters->push_back(s);
+
+      } else {
+        continue;
+      }
+     
+    } else {
+      if (Config->GetDebugLevel() >=1) {
+        Serial.print("Failed to parse JSON Register <set> Data: "); 
+        Serial.print(error.c_str()); 
+        Serial.println();
+      }
+    }
+  } while (stream.findUntil(",","]"));
+
+}
+
+
+/*******************************************************
+ * act on received mqtt command
+*******************************************************/
+void modbus::ReceiveMQTT(String topic, int msg) {
+  char dbg[100] = {0}; 
+  memset(dbg, 0, sizeof(dbg));
+
+  for (uint8_t i = 0; i < this->Setters->size(); i++ ) {
+    if (topic == this->GetMqttSetTopic(this->Setters->at(i).command)) {
+      std::vector<byte> request = this->Setters->at(i).request;
+      byte bytes[4];
+
+      bytes[0] = (msg >> 24) & 0xFF;
+      bytes[1] = (msg >> 16) & 0xFF;
+      bytes[2] = (msg >> 8) & 0xFF;
+      bytes[3] = (msg >> 0) & 0xFF;
+
+      // 16bit number
+      request.push_back(bytes[2]);
+      request.push_back(bytes[3]);
+
+      if (Config->GetDebugLevel() >=3) {
+        snprintf(dbg, sizeof(dbg), "MQTT Setter found: %s" ,this->Setters->at(i).command.c_str());
+        Serial.println(dbg);
+        snprintf(dbg, sizeof(dbg), "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
+        Serial.println(dbg);
+      }
+
+      this->SetQueue->enqueue(request);
+    }
+  }
+}
+
+/*******************************************************
  * get all defined inverters from json (register.h)
 *******************************************************/
 void modbus::LoadInvertersFromJson() {
@@ -69,8 +173,10 @@ void modbus::LoadInvertersFromJson() {
     // https://arduinojson.org/v6/api/jsonobject/begin_end/
     JsonObject root = regjson.as<JsonObject>();
     for (JsonPair kv : root) {
-      sprintf(dbg, "Inverter found: %s", kv.key().c_str());
-      if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
+      if (Config->GetDebugLevel() >=3) {
+        sprintf(dbg, "Inverter found: %s", kv.key().c_str());
+        Serial.println(dbg);
+      }
 
       AvailableInverters->push_back(kv.key().c_str());
     }
@@ -160,6 +266,8 @@ byte modbus::String2Byte(String s){
 void modbus::enableMqtt(MQTT* object) {
   this->mqtt = object;
   Serial.println("MQTT aktiviert");
+
+  this->GenerateMqttSubscriptions();
 }
 
 /*******************************************************
@@ -179,9 +287,9 @@ void modbus::QueryIdData() {
            }; // 
   */
 
-  if (this->RequestQueue->isEmpty()) {
+  if (this->ReadQueue->isEmpty()) {
     if (Config->GetDebugLevel() >=4) { Serial.println(this->PrintDataFrame(this->Conf_RequestIdData).c_str()); }
-    this->RequestQueue->enqueue(*this->Conf_RequestIdData);
+    this->ReadQueue->enqueue(*this->Conf_RequestIdData);
   }
 }
 
@@ -203,27 +311,39 @@ void modbus::QueryLiveData() {
            }; // 
   */
 
-  if (this->RequestQueue->isEmpty()) {
+  if (this->ReadQueue->isEmpty()) {
     for (uint8_t i = 0; i < this->Conf_RequestLiveData->size(); i++) {
       if (Config->GetDebugLevel() >=4) { Serial.println(this->PrintDataFrame(&this->Conf_RequestLiveData->at(i)).c_str()); }
-      this->RequestQueue->enqueue(this->Conf_RequestLiveData->at(i));
+      this->ReadQueue->enqueue(this->Conf_RequestLiveData->at(i));
     }
   }
 }
 
 /*******************************************************
- * send 1 query from queue to inverter 
+ * send 1 Read query from queue to inverter 
 *******************************************************/
 void modbus::QueryQueueToInverter() {
-  if (!this->RequestQueue->isEmpty()) {
-    if (Config->GetDebugLevel() >=3) { Serial.print("Request queue data from inverter: "); }
+  enum rwtype_t {READ, WRITE, NUL};
+  rwtype_t rwtype;
+  std::vector<byte> m = {};
+
+  if (!this->SetQueue->isEmpty()) {
+    rwtype = WRITE;
+    m = this->SetQueue->dequeue();
+  } // writing has priority
+  else if (!this->ReadQueue->isEmpty()) {
+    rwtype = READ;
+    m = this->ReadQueue->dequeue();
+  }
+  else { rwtype = NUL; }
+
+  if (rwtype != NUL) {
+    if (Config->GetDebugLevel() >=3) { Serial.print("Request queue data to inverter: "); }
   
     digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
     while (RS485Serial->available() > 0) { // read serial if any old data is available
       RS485Serial->read();
     }
-
-    std::vector<byte> m = this->RequestQueue->dequeue();
 
     byte message[m.size() + 2] = {0x00}; // +2 Byte CRC
   
@@ -234,6 +354,8 @@ void modbus::QueryQueueToInverter() {
     uint16_t crc = this->Calc_CRC(message, sizeof(message)-2);
     message[sizeof(message)-1] = highByte(crc);
     message[sizeof(message)-2] = lowByte(crc);
+    m.push_back(lowByte(crc));
+    m.push_back(highByte(crc));
 
     if (Config->GetDebugLevel() >=3) { Serial.println(this->PrintDataFrame(message, sizeof(message))); }
 
@@ -242,18 +364,57 @@ void modbus::QueryQueueToInverter() {
     RS485Serial->flush();
 
     delay(100);
-    this->ReceiveData();
 
-    if (this->RequestQueue->isEmpty()) {
-      this->ParseData();
+    if (rwtype == WRITE) {
+      this->ReceiveSetData(&m);
+    } 
+    else if (rwtype == READ) {
+      this->ReceiveReadData();
+      if (this->ReadQueue->isEmpty()) {
+        this->ParseData();
+      }
     }
+
   }
+}
+
+/***********************************************************
+ * Receive Data after a Set Query, Check if successful set
+************************************************************/
+bool modbus::ReceiveSetData(std::vector<byte>* SendHexFrame) {
+  char dbg[100] = {0}; 
+  memset(dbg, 0, sizeof(dbg));
+  std::vector<byte> RecvHexframe = {};
+  bool ret = false; 
+
+  if (Config->GetDebugLevel() >=3) {Serial.println("Read Data from Queue: ");}
+
+  digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
+  if (RS485Serial->available()) {
+    // lese alle Daten, speichern im Vektor "Dataframe"
+    while(RS485Serial->available()) {
+      byte d = RS485Serial->read();
+      RecvHexframe.push_back(d);
+      if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(d)); Serial.print(" ");}
+      delay(1); // keep this! Loosing bytes possible if too fast
+    }    
+    if (Config->GetDebugLevel() >=4) {Serial.println();}
+    
+    // TODO
+    // compare Set and Received Answer, should be equal
+    //if (SendHexFrame == RecvHexframe) {
+      // successful
+      //ret = true;
+    //}
+  }
+
+  return ret;
 }
 
 /*******************************************************
  * Receive Data after Quering, put them into vector
 *******************************************************/
-void modbus::ReceiveData() {
+void modbus::ReceiveReadData() {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
 
@@ -466,7 +627,7 @@ void modbus::ParseData() {
 
       // check if active item to send out via mqtt
       for (uint16_t i=0; i < this->ActiveItems->size(); i++) {
-        if (this->ActiveItems->at(i).Name == d.Name && this->ActiveItems->at(i).value) {
+        if (this->ActiveItems->at(i).Name == d.Name && this->ActiveItems->at(i).active) {
           IsActiveItem = true;
         }
       }
@@ -613,7 +774,7 @@ String modbus::GetLiveDataAsJson() {
   StaticJsonDocument<1024> doc;
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
     for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
-      if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).value) {
+      if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).active) {
         doc[this->InverterLiveData->at(i).Name] = this->InverterLiveData->at(i).value;
         break;
       }
@@ -637,7 +798,7 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
         sprintf(dbg, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
         Serial.println(dbg);
       }
-      this->ActiveItems->at(j).value = newstate;
+      this->ActiveItems->at(j).active = newstate;
     }
   }
 }
@@ -835,9 +996,9 @@ void modbus::LoadJsonItemConfig() {
           
           item.Name = kv.key().c_str();
           item.Name = item.Name.substring(7, item.Name.length()); //Name: active_<ItemName>
-          item.value = kv.value().as<bool>();
+          item.active = kv.value().as<bool>();
 
-          sprintf(dbg, "item %s -> %d", item.Name.c_str(), item.value);
+          sprintf(dbg, "item %s -> %d", item.Name.c_str(), item.active);
           if (Config->GetDebugLevel() >=4) {Serial.println(dbg);}
           this->ActiveItems->push_back(item);
         } 
@@ -851,9 +1012,9 @@ void modbus::LoadJsonItemConfig() {
   }
 }
 
-/*******************************************************
+/*******************************************************************************************************
  * WebContent
-*******************************************************/
+*******************************************************************************************************/
 void modbus::GetWebContentConfig(WM_WebServer* server) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
@@ -918,7 +1079,7 @@ void modbus::GetWebContentConfig(WM_WebServer* server) {
   html.concat("<td>Select Inverter Type (Default: Solax X1)</td>\n");
   html.concat("<td> <select name='invertertype' size='1' style='width: 10em'>");
   for (uint8_t i=0; i< AvailableInverters->size(); i++) {
-    sprintf(buffer, "<option value='%s' %s>%s</option>\n", AvailableInverters->at(i), (AvailableInverters->at(i)==this->InverterType?"selected":"") , AvailableInverters->at(i));
+    snprintf(buffer, sizeof(buffer), "<option value='%s' %s>%s</option>\n", AvailableInverters->at(i).c_str(), (AvailableInverters->at(i)==this->InverterType?"selected":"") , AvailableInverters->at(i).c_str());
     html.concat(buffer);
   }
   html.concat("</td></tr>\n");
@@ -964,6 +1125,7 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
   html.concat("<tr>\n");
   html.concat("<td style='width: 25px;'>Active</td>\n");
   html.concat("<td style='width: 250px;'>Name</td>\n");
+  html.concat("<td style='width: 80px;'>OpenWB</td>\n");
   html.concat("<td style='width: 200px;'>Wert</td>\n");
   html.concat("</tr>\n");
   html.concat("</thead>\n");
@@ -994,7 +1156,7 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
 
     // lookup for the item if it´s active or not
     for (i=0; i < this->ActiveItems->size(); i++) {
-      if (this->ActiveItems->at(i).Name == elem["name"].as<String>() && this->ActiveItems->at(i).value) {
+      if (this->ActiveItems->at(i).Name == elem["name"].as<String>() && this->ActiveItems->at(i).active) {
         IsActiveItem = true;
         break;
       }
@@ -1017,8 +1179,17 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
 
     sprintf(buffer, "  <td>%s</td>\n", (elem["realname"].isNull()?elem["name"].as<String>().c_str():elem["realname"].as<String>().c_str()));
     html.concat(buffer);
-    sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", elem["name"].as<String>().c_str(), ItemValue.c_str());
+    
+    html.concat("  <td style='text-align: center'>\n");
+    if (!elem["openwbtopic"].isNull()) {
+      html.concat("<dfn class='tooltip'>&#9989;");
+      snprintf(buffer, sizeof(buffer), "<span role='tooltip'>%s</span>", elem["openwbtopic"].as<String>().c_str());
+      html.concat(buffer);
+      html.concat("</dfn>");
+    }
+    html.concat("  </td>\n");
 
+    sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", elem["name"].as<String>().c_str(), ItemValue.c_str());
     html.concat(buffer);
     html.concat("</tr>\n");
 
@@ -1035,6 +1206,44 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
   html.concat("  <input type='submit' value='Speichern' />\n");
   html.concat("</form>\n\n");
 
+  server->sendContent(html.c_str()); html = "";
+}
+
+void modbus::GetWebContentActiveLiveData(WM_WebServer* server) {
+  char buffer[200] = {0};
+  memset(buffer, 0, sizeof(buffer));
+
+  String html = "";
+
+  html.concat("<table class='editorDemoTable'>\n");
+  html.concat("<thead>\n");
+  html.concat("<tr>\n");
+  html.concat("<td style='width: 250px;'>Name</td>\n");
+  html.concat("<td style='width: 200px;'>LiveData</td>\n");
+  html.concat("</tr>\n");
+  html.concat("</thead>\n");
+  html.concat("<tbody>\n");
+
+  for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
+    for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
+      if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).active) {
+          
+        html.concat("</tr>\n");
+        sprintf(buffer, "  <td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
+        html.concat(buffer);
+        sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
+        html.concat(buffer);
+        html.concat("</tr>\n");
+
+        server->sendContent(html.c_str()); html = "";
+
+        break;
+      }
+    }
+  }
+
+  html.concat("</tbody>\n");
+  html.concat("</table>\n");
   server->sendContent(html.c_str()); html = "";
 }
 

@@ -23,16 +23,19 @@ MyWebServer* mywebserver = NULL;
 
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   String msg;
-  if (Config->GetDebugLevel() >=4) {
+  if (Config->GetDebugLevel() >=3) {
     Serial.print("Message arrived ["); Serial.print(topic); Serial.print("] ");
   }
 
   for (unsigned int i = 0; i < length; i++) {
     msg.concat((char)payload[i]);
   }
-  if (Config->GetDebugLevel() >=4) {
+
+  if (Config->GetDebugLevel() >=3) {
     Serial.print("Message: "); Serial.println(msg.c_str());
   }
+
+  mb->ReceiveMQTT(topic, atoi(msg.c_str()));
 }
 
 void setup() {

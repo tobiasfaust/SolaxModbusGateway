@@ -139,6 +139,34 @@ const char STYLE_CSS[] PROGMEM = R"=====(
     .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
         right: 0px; 
     }
+
+/* https://wiki.selfhtml.org/wiki/CSS/Tutorials/Tooltips_mit_CSS */
+
+.tooltip {
+	color: #c32e04;
+	text-decoration: underline;
+	cursor: help;
+	position: relative;
+}
+
+.tooltip span[role=tooltip] {
+	display: none;
+}
+
+.tooltip:hover span[role=tooltip] {
+	display: block;
+	position: absolute;
+	bottom: 1em;
+	left: -6em;
+	width: 15em;
+	padding: 0.5em;
+	z-index: 100;
+	color: #000;
+	background-color: #ffebe6;
+	border: solid 1px #c32e04;
+	border-radius: 0.2em;
+}
+
 )=====";
 
 #endif

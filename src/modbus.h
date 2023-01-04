@@ -23,8 +23,14 @@ class modbus {
 
   typedef struct { 
       String Name;
-      bool value;
+      bool active;
   } itemconfig_t;
+
+  typedef struct {
+    String command = "";
+    std::vector<byte> request; 
+  } subscription_t;
+
 
   #define RS485Transmit    HIGH
   #define RS485Receive     LOW
@@ -45,9 +51,11 @@ class modbus {
     void                    GetWebContentConfig(WM_WebServer* server);
     void                    GetWebContentItemConfig(WM_WebServer* server);
     void                    GetWebContentRawData(WM_WebServer* server);
+    void                    GetWebContentActiveLiveData(WM_WebServer* server);
     String                  GetInverterSN();
     String                  GetLiveDataAsJson();
     void                    SetItemActiveStatus(String item, bool newstate);
+    void                    ReceiveMQTT(String topic, int msg);
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -68,6 +76,8 @@ class modbus {
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
     std::vector<itemconfig_t>* ActiveItems;       // configured active Modbus Items
     std::vector<String>*    AvailableInverters;   // available inverters from JSON
+    std::vector<subscription_t>* Setters;         // available set Options from JSON register 
+
     MQTT*                   mqtt = NULL;
     
     String                  PrintHex(byte num);
@@ -78,13 +88,17 @@ class modbus {
     void                    QueryLiveData();
     void                    QueryIdData();
     void                    QueryQueueToInverter();
-    void                    ReceiveData();
+    void                    ReceiveReadData();
+    bool                    ReceiveSetData(std::vector<byte>* SendHexFrame);
     void                    ParseData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
+    void                    GenerateMqttSubscriptions();
+    String                  GetMqttSetTopic(String command);
 
     // inverter config, in sync with register.h ->config
-    ArduinoQueue<std::vector<byte>>* RequestQueue;
+    ArduinoQueue<std::vector<byte>>* ReadQueue;
+    ArduinoQueue<std::vector<byte>>* SetQueue;
 
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<byte>*      Conf_RequestIdData;

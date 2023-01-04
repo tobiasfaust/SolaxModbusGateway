@@ -244,16 +244,6 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "float", 
 					"factor": 0.1,
 					"unit": "h"
-				},
-				{
-					"position": [58, 59, 60, 61],
-					"position2": [66, 67, 68, 69],
-					"name": "BatChargingPower",
-					"realname": "Battery Charging Power",
-					"openwbtopic": "openWB/set/houseBattery/W",
-					"datatype": "float",
-					"factor": 0.1,
-					"unit": "W"
 				}
 			],
 			"id": [
@@ -277,6 +267,12 @@ const char JSON[] PROGMEM = R"=====(
 				}
 			]
 		},
+		"set": [
+			{
+				"name": "TargetBatSOC",
+				"request" : ["#ClientID", "0x06", "0x00", "0x83"]
+			}
+		]
 	},
 	"Solax-X3": {
 		"config": {
@@ -533,11 +529,11 @@ const char JSON[] PROGMEM = R"=====(
 			]
 		}
 	},
-	"Growatt-SPH1000TL3-BH-UP": {
+	"Growatt-SPH": {
 		"config": {
 			"RequestLiveData": [
 				["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
-				["#ClientID", "0x04", "0x00", "0x78", "0x00", "0x77"]
+				["#ClientID", "0x04", "0x03", "0xE8", "0x00", "0x77"]
 			],
 			"RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
 			"ClientIdPos": 0,
@@ -572,10 +568,28 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "float",
 					"factor": 0.01,
 					"unit": "Hz"
+				},
+				{
+					"position": [182, 183, 184, 185],
+					"position2": [178, 179, 180, 181],
+					"name": "BatChargingPower",
+					"realname": "Battery Charging Power",
+					"openwbtopic": "openWB/set/houseBattery/W",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "W"
+				},
+				{
+					"position": [188, 189],
+					"name": "BatCapacity",
+					"realname": "Battery Capacity (SOC)",
+					"openwbtopic": "openWB/set/houseBattery/%Soc",
+					"datatype": "integer",
+					"unit": "%"
 				}
 			],
 			"id": [{
-				"position": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+				"position": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55],
 				"name": "InverterSN",
 				"realname": "Inverter SerialNumber",
 				"datatype": "string"

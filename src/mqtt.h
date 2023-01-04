@@ -35,7 +35,9 @@ class MQTT {
     void          Publish_IP();
     void          setCallback(CALLBACK_FUNCTION);
     void          disconnect();
-    String        GetRoot();
+    const String& GetRoot()  const {return mqtt_root;}
+    void          Subscribe(String topic);
+    void          ClearSubscriptions();
     
     
     const bool&   GetConnectStatusWifi()      const {return ConnectStatusWifi;}
@@ -48,6 +50,8 @@ class MQTT {
     void          reconnect();
     void          callback(char* topic, byte* payload, unsigned int length);
     
+    std::vector<String>* subscriptions = NULL;
+
     String        mqtt_root = "";
     String        mqtt_basepath = "";
     unsigned long mqttreconnect_lasttry = 0;

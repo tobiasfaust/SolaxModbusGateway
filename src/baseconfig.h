@@ -17,21 +17,15 @@ class BaseConfig {
     void      LoadJsonConfig();
     void      GetWebContent(WM_WebServer* server);
 
-    const String&  GetMqttServer()    const {return mqtt_server;}
+    const String&   GetMqttServer()    const {return mqtt_server;}
     const uint16_t& GetMqttPort()     const {return mqtt_port;}
-    const String&  GetMqttUsername()  const {return mqtt_username;}
-    const String&  GetMqttPassword()  const {return mqtt_password;}
-    const String&  GetMqttRoot()      const {return mqtt_root;}
-    const String&  GetMqttBasePath()  const {return mqtt_basepath;}
-    const bool&    UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
-    const uint8_t& GetDebugLevel()    const {return debuglevel;}
-    
-    //const uint8_t& GetClientID()      const {return clientid;}
-    //const uint32_t& GetBaudRate()     const {return baudrate;}
-    //const uint16_t& GetTxInterval()   const {return txinterval;}
-    //const String&   GetInverterType() const {return inverterType;}
-
-    
+    const String&   GetMqttUsername()  const {return mqtt_username;}
+    const String&   GetMqttPassword()  const {return mqtt_password;}
+    const String&   GetMqttRoot()      const {return mqtt_root;}
+    const String&   GetMqttBasePath()  const {return mqtt_basepath;}
+    const bool&     UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
+    const uint8_t&  GetDebugLevel()    const {return debuglevel;}
+     
   private:
     String    mqtt_server;
     String    mqtt_username;

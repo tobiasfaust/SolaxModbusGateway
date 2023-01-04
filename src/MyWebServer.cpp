@@ -57,20 +57,26 @@ void MyWebServer::handleNotFound() {
 
 void MyWebServer::handleRoot() {
   String html;
+  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server->sendHeader("Pragma", "no-cache");
+  server->sendHeader("Expires", "-1");
+  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server->send(200, "text/html", "");
   this->getPageHeader(&html, ROOT);
   this->getPage_Status(&html);
+  html.concat("<p></p>");
+  server->sendContent(html.c_str()); html = "";
+  mb->GetWebContentActiveLiveData(server);
   this->getPageFooter(&html);
-  server->setContentLength(html.length());
-  server->send(200, "text/html", html.c_str());   // Send HTTP status 200 (Ok) and send some text to the browser/client
+  server->sendContent(html.c_str()); 
+  server->sendContent("");
 }
 
 void MyWebServer::handleCSS() {
-  //server->setContentLength(sizeof(STYLE_CSS));
   server->send_P(200, "text/css", STYLE_CSS);
 }
 
 void MyWebServer::handleFavIcon() {
-  //server->send_P(200, "image/x-icon", FAVICON);
   server->send_P(200, "image/x-icon", FAVICON, sizeof(FAVICON));
 }
 

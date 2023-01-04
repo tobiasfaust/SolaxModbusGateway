@@ -3,6 +3,9 @@
 MQTT::MQTT(const char* server, uint16_t port, String basepath, String root) { 
   this->mqtt_basepath = basepath;
   this->mqtt_root = root;
+  
+  this->subscriptions = new std::vector<String>{};
+
   espClient = WiFiClient();
   WiFi.mode(WIFI_STA); 
   this->mqtt = new PubSubClient();
@@ -57,9 +60,10 @@ void MQTT::reconnect() {
     this->Publish_String("state", "Online", false); //LWT reset
     
     // ... and resubscribe if needed
-    //snprintf (topic, sizeof(topic), "%s/%s/#", this->mqtt_basepath.c_str(), this->mqtt_root.c_str());
-    //this->mqtt->subscribe(topic);
-    //Serial.print(F("MQTT Subscribed to: ")); Serial.println(FPSTR(topic));
+    for (uint8_t i=0; i< this->subscriptions->size(); i++) {
+      this->mqtt->subscribe(this->subscriptions->at(i).c_str()); 
+      Serial.print("MQTT Subscribed to: "); Serial.println(this->subscriptions->at(i).c_str());
+    }
 
   } else {
     Serial.print(F("failed, rc="));
@@ -78,10 +82,6 @@ void MQTT::callback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
-String MQTT::GetRoot() {
-  return mqtt_root;
-}
-
 void MQTT::Publish_Bool(const char* subtopic, bool b, bool fulltopic) {
   String s;
   if(b) {s = "1";} else {s = "0";};
@@ -92,14 +92,14 @@ void MQTT::Publish_Int(const char* subtopic, int number, bool fulltopic) {
   char buffer[20] = {0}; 
   memset(buffer, 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%d", number);
-  Publish_String(subtopic, buffer, fulltopic);
+  Publish_String(subtopic, (String)buffer, fulltopic);
 }
 
 void MQTT::Publish_Float(const char* subtopic, float number, bool fulltopic) {
   char buffer[10] = {0};
   memset(&buffer[0], 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%.2f", number);
-  Publish_String(subtopic, buffer, fulltopic);
+  Publish_String(subtopic, (String)buffer, fulltopic);
 }
 
 void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
@@ -125,6 +125,32 @@ void MQTT::Publish_IP() {
 
 void MQTT::setCallback(CALLBACK_FUNCTION) {
     this->MyCallback = MyCallback;
+}
+
+/*******************************************************
+ * subscribe to a special topic (without /# at end)
+*******************************************************/
+void MQTT::Subscribe(String topic) {
+  char buffer[100] = {0};
+  memset(buffer, 0, sizeof(buffer));
+  
+  snprintf(buffer, sizeof(buffer), "%s/#", topic.c_str());
+  this->subscriptions->push_back(buffer);
+  if (this->mqtt->connected()) {
+    this->mqtt->subscribe(buffer); 
+    if (Config->GetDebugLevel() >=3) {
+      Serial.print(F("MQTT now subscribed to: ")); 
+      Serial.println(buffer);
+    }
+  }
+}
+
+void MQTT::ClearSubscriptions() {
+  for ( uint8_t i=0; i< this->subscriptions->size(); i++) {
+    if (mqtt->connected()) { 
+      mqtt->unsubscribe(this->subscriptions->at(i).c_str()); 
+    }
+  }
 }
 
 void MQTT::loop() {
