@@ -553,7 +553,7 @@ const char JSON[] PROGMEM = R"=====(
 		},
 		"data": {
 			"livedata": [{
-					"position": [197, 198],
+					"position": [272, 273],
 					"name": "BatVoltage",
 					"realname": "Battery Voltage",
 					"datatype": "float",
@@ -579,7 +579,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				},
 				{
-					"position": [188, 189],
+					"position": [274, 275],
 					"name": "BatCapacity",
 					"realname": "Battery Capacity (SOC)",
 					"openwbtopic": "openWB/set/houseBattery/%Soc",
