@@ -20,7 +20,7 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
   ReadQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 read requests parallel
   SetQueue  = new ArduinoQueue<std::vector<byte>>(5); // max 5 set requests parallel
 
-  this->LoadJsonConfig();
+  this->LoadJsonConfig(true);
   this->LoadJsonItemConfig();
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
@@ -867,7 +867,7 @@ void modbus::StoreJsonConfig(String* json) {
       }
       configFile.close();
   
-      LoadJsonConfig();
+      LoadJsonConfig(false);
     }
   }
 }
@@ -911,7 +911,7 @@ void modbus::StoreJsonItemConfig(String* json) {
 /*******************************************************
  * load configuration from file
 *******************************************************/
-void modbus::LoadJsonConfig() {
+void modbus::LoadJsonConfig(bool firstrun) {
   bool loadDefaultConfig = false;
   uint32_t Baudrate_old = this->Baudrate;
   uint8_t pin_RX_old    = this->pin_RX;
@@ -941,7 +941,8 @@ void modbus::LoadJsonConfig() {
         if (doc.containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
         if (doc.containsKey("txintervalid"))     { this->TxIntervalIdData = (int)(doc["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
         if (doc.containsKey("invertertype"))     { this->InverterType = (doc["invertertype"]).as<String>();} else {this->InverterType = "Solax-X1";}
-        if (doc.containsKey("openwbtopic"))      { this->Conf_EnableOpenWBTopic = (doc["openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
+        if (doc.containsKey("enable_openwbtopic")){ this->Conf_EnableOpenWBTopic = (doc["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
+        if (doc.containsKey("enable_setters"))   { this->Conf_EnableSetters = (doc["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
       } else {
         if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus json config, load default config");}
         loadDefaultConfig = true;
@@ -962,18 +963,27 @@ void modbus::LoadJsonConfig() {
     this->TxIntervalIdData = 3600;
     this->InverterType = "Solax-X1";
     this->Conf_EnableOpenWBTopic = false;
+    this->Conf_EnableSetters = false;
 
     loadDefaultConfig = false; //set back
   }
 
-  // ReInit if Baudrate was changed
-  if((Baudrate_old != this->Baudrate) ||
+  // ReInit if Baudrate was changed, not at firstrun!
+  if(!firstrun && (
+     (Baudrate_old != this->Baudrate) ||
      (pin_RX_old   != this->pin_RX)   ||
      (pin_TX_old   != this->pin_TX)   ||
-     (pin_RTS_old  != this->pin_RTS)) { this->init();}
+     (pin_RTS_old  != this->pin_RTS)) ) { 
+    
+    this->init();
+  }
 
   // ReInit if Invertertype was changed
-  if(InverterType_old != this->InverterType) { this->LoadInverterConfigFromJson(); }
+  if(!firstrun && (
+    InverterType_old != this->InverterType) ) { 
+    
+    this->LoadInverterConfigFromJson(); 
+  }
 
 }
 
@@ -1101,9 +1111,27 @@ void modbus::GetWebContentConfig(WM_WebServer* server) {
   html.concat("<td>Enable OpenWB Compatibility</td>\n");
   html.concat("  <td>\n");
   html.concat("    <div class='onoffswitch'>\n");
-  sprintf(buffer, "      <input type='checkbox' name='openwbtopic' class='onoffswitch-checkbox' id='openwbtopic' %s>\n", (this->Conf_EnableOpenWBTopic?"checked":""));
+  sprintf(buffer, "      <input type='checkbox' name='enable_openwbtopic' class='onoffswitch-checkbox' id='enable_openwbtopic' %s>\n", (this->Conf_EnableOpenWBTopic?"checked":""));
   html.concat(buffer);
-  html.concat("      <label class='onoffswitch-label' for='openwbtopic'>\n");
+  html.concat("      <label class='onoffswitch-label' for='enable_openwbtopic'>\n");
+  html.concat("        <span class='onoffswitch-inner'></span>\n");
+  html.concat("        <span class='onoffswitch-switch'></span>\n");
+  html.concat("      </label>\n");
+  html.concat("    </div>\n");
+  html.concat("  </td></tr>\n");
+
+  html.concat("</tbody>\n");
+  html.concat("</table>\n");
+
+  server->sendContent(html.c_str()); html = "";
+
+  html.concat("<tr>\n");
+  html.concat("<td>Enable Set Commands over MQTT (security issue)</td>\n");
+  html.concat("  <td>\n");
+  html.concat("    <div class='onoffswitch'>\n");
+  sprintf(buffer, "      <input type='checkbox' name='enable_setters' class='onoffswitch-checkbox' id='enable_setters' %s>\n", (this->Conf_EnableSetters?"checked":""));
+  html.concat(buffer);
+  html.concat("      <label class='onoffswitch-label' for='enable_setters'>\n");
   html.concat("        <span class='onoffswitch-inner'></span>\n");
   html.concat("        <span class='onoffswitch-switch'></span>\n");
   html.concat("      </label>\n");

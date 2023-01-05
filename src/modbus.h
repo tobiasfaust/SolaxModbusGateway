@@ -40,7 +40,7 @@ class modbus {
     void                    init();
     void                    StoreJsonConfig(String* json);
     void                    StoreJsonItemConfig(String* json);
-    void                    LoadJsonConfig();
+    void                    LoadJsonConfig(bool firstrun);
     void                    LoadJsonItemConfig();
 
     void                    loop();
@@ -119,6 +119,7 @@ class modbus {
     uint8_t                 Conf_IdDataFunctionCodePos;
 
     bool                    Conf_EnableOpenWBTopic;
+    bool                    Conf_EnableSetters;
 
     byte                    String2Byte(String s);
 
