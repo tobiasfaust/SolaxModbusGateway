@@ -32,7 +32,6 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [3, 4],
 					"name": "GridVoltage",
 					"realname": "Grid Voltage",
-					"openwbtopic": "openWB/set/grid/W",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "V"
@@ -570,8 +569,8 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "Hz"
 				},
 				{
-					"position": [182, 183, 184, 185],
-					"position2": [178, 179, 180, 181],
+					"position": [268, 269, 270, 271],
+					"position2": [264, 265, 266, 267],
 					"name": "BatChargingPower",
 					"realname": "Battery Charging Power",
 					"openwbtopic": "openWB/set/houseBattery/W",
@@ -586,6 +585,24 @@ const char JSON[] PROGMEM = R"=====(
 					"openwbtopic": "openWB/set/houseBattery/%Soc",
 					"datatype": "integer",
 					"unit": "%"
+				},
+				{
+					"position": [362, 363, 364, 365],
+					"name": "InputEnergyCharge",
+					"realname": "Geladene Energie Speicher (Wh)",
+					"openwbtopic": "openWB/set/houseBattery/WhImported",
+					"datatype": "integer",
+					"factor": 100,
+					"unit": "Wh"
+				},
+				{
+					"position": [354, 355, 356, 357],
+					"name": "OutputEnergyCharge",
+					"realname": "Entladene Energie Speicher (Wh)",
+					"openwbtopic": "openWB/set/houseBattery/WhExported",
+					"datatype": "integer",
+					"factor": 100,
+					"unit": "Wh"
 				}
 			],
 			"id": [{
