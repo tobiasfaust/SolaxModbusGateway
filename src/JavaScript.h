@@ -195,6 +195,24 @@ function radioselection(a,b) {
   }
 }
 
+/* https://jsfiddle.net/tobiasfaust/p5q9hgsL/ */
+
+function check_rawdata() {
+  string_rawdata = document.getElementById('live_rawdata_org').innerHTML;
+  string_positions = document.getElementById('positions').value;
+  const bytes = string_rawdata.split(" ");
+  const pos = string_positions.split(",");
+
+	var intnum = 0;
+	for( j=0; j< pos.length; j++) {
+    intnum = intnum << 8 | parseInt(Number(bytes[pos[j]]), 10);
+    bytes[pos[j]] = "<span style='color: red;'>" + bytes[pos[j]] + "</span>";
+  }
+
+  document.getElementById('live_rawdata_result').innerHTML = "= " + intnum;
+  document.getElementById('live_rawdata').innerHTML = bytes.join(' ');
+}
+
 )=====";
 
 #endif

@@ -1324,7 +1324,7 @@ void modbus::GetWebContentRawData(WM_WebServer* server) {
   
   html.concat("<tr>\n");
   html.concat("<td>RawData of Live-Data</td>\n");
-  html.concat("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span>\n");
+  html.concat("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='live_rawdata_org' style='display: none;'>\n");
   
   for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
     html.concat(this->PrintHex(this->SaveLiveDataframe->at(i)));
@@ -1332,13 +1332,28 @@ void modbus::GetWebContentRawData(WM_WebServer* server) {
     if (html.length() > 2000) { server->sendContent(html.c_str()); html = ""; }
   }
 
-  html.concat("</span></td>\n");
+  html.concat("</span><span id='live_rawdata'></span></td>\n");
   html.concat("</tr>\n");
 
   server->sendContent(html.c_str()); html = "";
   
   html.concat("</tbody>\n");
   html.concat("</table>\n");
+
+  html.concat("<p>\n");
+  html.concat("<table id='maintable' class='editorDemoTable'>\n");
+  html.concat("<tbody>\n");
+  html.concat("  <tr>\n");
+  html.concat("    <td style='width: 250px;'>Insert your positions (comma separated) to test</td>\n");
+  html.concat("    <td style='width: 400px;'><input id='positions' type='text' style='width: 12em' value='15,16,17,18'/><input class='button' type='button' value='test it' onclick='check_rawdata()' /><span id='live_rawdata_result'></span></td>\n");
+  html.concat("  </tr>\n");
+  html.concat("</tbody>\n");
+  html.concat("</table>\n");
+
   html.concat("</form>\n\n<br />\n");
+
+  html.concat("<script type = 'text/javascript'>\n");
+  html.concat("	document.getElementById('live_rawdata').innerHTML = document.getElementById('live_rawdata_org').innerHTML;\n");
+  html.concat("</script>\n");
   server->sendContent(html.c_str()); html = "";
 }
