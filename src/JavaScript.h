@@ -205,8 +205,8 @@ function check_rawdata() {
 
 	var intnum = 0;
 	for( j=0; j< pos.length; j++) {
-    intnum = intnum << 8 | parseInt(Number(bytes[pos[j]]), 10);
-    bytes[pos[j]] = "<span style='color: red;'>" + bytes[pos[j]] + "</span>";
+    intnum = intnum << 8 | parseInt(Number(bytes[Number(pos[j])]), 10);
+    bytes[pos[j]] = "<span style='color: red;'>" + bytes[Number(pos[j])] + "</span>";
   }
 
   document.getElementById('live_rawdata_result').innerHTML = "= " + intnum;
