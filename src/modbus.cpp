@@ -127,6 +127,14 @@ void modbus::ReceiveMQTT(String topic, int msg) {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
 
+  if (!this->Conf_EnableSetters) {
+    if (Config->GetDebugLevel() >=2) {
+      snprintf(dbg, sizeof(dbg), "Set command <%s> received, but setters over mqtt are currently disabled", topic.c_str());
+      Serial.println(dbg);
+    }
+    return;
+  }
+
   for (uint8_t i = 0; i < this->Setters->size(); i++ ) {
     if (topic == this->GetMqttSetTopic(this->Setters->at(i).command)) {
       std::vector<byte> request = this->Setters->at(i).request;
@@ -1119,9 +1127,6 @@ void modbus::GetWebContentConfig(WM_WebServer* server) {
   html.concat("      </label>\n");
   html.concat("    </div>\n");
   html.concat("  </td></tr>\n");
-
-  html.concat("</tbody>\n");
-  html.concat("</table>\n");
 
   server->sendContent(html.c_str()); html = "";
 
