@@ -557,7 +557,7 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "TotalEnergyPv2",
 					"realname": "Erzeugte Energie Pv2",
 					"openwbtopic": "openWB/set/pv/2/WhCounter",
-					"datatype": "float",
+					"datatype": "integer",
 					"factor": 100,
 					"unit": "Wh"
 				},
