@@ -11,11 +11,11 @@ Direkt Communication wit [OpenWB](https://openwb.de) is implemented.
 
 ### Supported Solar Inverter
 Basically, all Inverters with Modbus RS485 RTU communication. 
-Currently the following Inverters are with thier special registers integrated:
+Currently the following Inverters are with their special registers integrated:
 * Solax Hybrid X1 G4 Series
 * Growatt SPH
 
-If your Solar Inverter is not listed, feel free to add the special register simply, please check th [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
+If your Solar Inverter is not listed, it´s quite simple to add this by yourself. Feel free to add the special register, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
 
 ### What you need
 * ESP32 NodeMCU
