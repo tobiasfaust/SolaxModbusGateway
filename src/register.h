@@ -101,16 +101,16 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [23, 24],
-					"name": "PowerDC1",
-					"realname": "Power DC 1",
+					"name": "PowerPv1",
+					"realname": "Power PV 1",
 					"openwbtopic": "openWB/set/pv/1/W",
 					"datatype": "integer",
 					"unit": "W"
 				},
 				{
 					"position": [25, 26],
-					"name": "PowerDC2",
-					"realname": "Power DC 2",
+					"name": "PowerPv2",
+					"realname": "Power PV 2",
 					"openwbtopic": "openWB/set/pv/2/W",
 					"datatype": "integer",
 					"unit": "W"
@@ -221,7 +221,7 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [165, 166, 167, 168],
-					"name": "EtotalToGrid",
+					"name": "EnergyTotalToGrid",
 					"realname": "Total Energy to Grid",
 					"openwbtopic": "openWB/set/pv/WhCounter",
 					"datatype": "float", 
@@ -475,7 +475,7 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [166, 167],
-					"name": "EtodayToGrid",
+					"name": "EnergyTodayToGrid",
 					"realname": "Today Energy to Grid",
 					"datatype": "float",
 					"factor": 0.1,
@@ -483,7 +483,7 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [165, 166, 167, 168],
-					"name": "EtotalToGrid",
+					"name": "EnergyTotalToGrid",
 					"realname": "Total Energy to Grid",
 					"datatype": "float", 
 					"factor": 0.1,
@@ -553,6 +553,24 @@ const char JSON[] PROGMEM = R"=====(
 		},
 		"data": {
 			"livedata": [{
+					"position": [185, 186, 187, 188],
+					"name": "TotalEnergyPv2",
+					"realname": "Erzeugte Energie Pv2",
+					"openwbtopic": "openWB/set/pv/2/WhCounter",
+					"datatype": "float",
+					"factor": 100,
+					"unit": "Wh"
+				},
+				{
+					"position": [5, 6, 7, 8],
+					"name": "PowerPv2",
+					"realname": "Erzeugungsleistung Pv2",
+					"openwbtopic": "openWB/set/pv/2/W",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "W"
+				},
+				{
 					"position": [272, 273],
 					"name": "BatVoltage",
 					"realname": "Battery Voltage",
