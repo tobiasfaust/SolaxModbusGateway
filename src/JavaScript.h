@@ -196,12 +196,33 @@ function radioselection(a,b) {
 }
 
 /* https://jsfiddle.net/tobiasfaust/p5q9hgsL/ */
+/*******************************
+reset of rawdata views
+*******************************/
+function reset_rawdata(rawdatatype) {
+  var string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
+  var bytes = string_rawdata.split(" ");
 
-function reset_rawdata() {
-  document.getElementById('id_rawdata').innerHTML = document.getElementById('id_rawdata_org').innerHTML;
-  document.getElementById('live_rawdata').innerHTML = document.getElementById('live_rawdata_org').innerHTML;
+	bytes = prettyprint_rawdata(bytes);
+  document.getElementById(rawdatatype).innerHTML = bytes.join(' ');
 }
 
+/*******************************
+insert Tooltips and linebreaks
+*******************************/
+function prettyprint_rawdata(bytearray) {
+	for( i=0; i< bytearray.length; i++) {
+  	bytearray[i] = '<dfn class=\'tooltip\'>' + bytearray[i] + '<span role=\'tooltip\'>Position: ' + i + '</span></dfn>';
+    if (i % 10 == 0) {
+      bytearray[i] = ' <br>' + bytearray[i];
+    }
+  }
+  return bytearray;
+}
+
+/*******************************
+compute result from selected positions
+*******************************/
 function check_rawdata() {
   var datatype = document.querySelector('input[name="datatype"]:checked').value;
   var rawdatatype = document.querySelector('input[name="rawdatatype"]:checked').value;
@@ -211,8 +232,9 @@ function check_rawdata() {
   const bytes = string_rawdata.split(" ");
   const pos = string_positions.split(",");
   
-  // reset rawdata containers
-  reset_rawdata();
+  // reset all rawdata containers
+	reset_rawdata('id_rawdata');
+  reset_rawdata('live_rawdata');
   
 	var result;
   if (datatype == 'int') { result = 0; }
@@ -230,8 +252,7 @@ function check_rawdata() {
   }
   
   document.getElementById('rawdata_result').innerHTML = "= " + result;
-  document.getElementById(rawdatatype).innerHTML = bytes.join(' ');
-  
+  document.getElementById(rawdatatype).innerHTML = prettyprint_rawdata(bytes).join(' ');
 }
 
 )=====";

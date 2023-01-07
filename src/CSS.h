@@ -141,11 +141,11 @@ const char STYLE_CSS[] PROGMEM = R"=====(
     }
 
 /* https://wiki.selfhtml.org/wiki/CSS/Tutorials/Tooltips_mit_CSS */
+/* used at modbusitem and rawdata page*/
 
 .tooltip {
-	color: #c32e04;
-	text-decoration: underline;
-	cursor: help;
+	font-style: normal;
+  cursor: help;
 	position: relative;
 }
 
@@ -158,14 +158,15 @@ const char STYLE_CSS[] PROGMEM = R"=====(
 	position: absolute;
 	bottom: 1em;
 	left: -6em;
-	width: 15em;
 	padding: 0.5em;
 	z-index: 100;
 	color: #000;
 	background-color: #ffebe6;
 	border: solid 1px #c32e04;
 	border-radius: 0.2em;
+  font-style: normal;
 }
+
 
 )=====";
 

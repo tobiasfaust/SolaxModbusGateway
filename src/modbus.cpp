@@ -1374,7 +1374,8 @@ void modbus::GetWebContentRawData(WM_WebServer* server) {
   html.concat("</form>\n\n<br />\n");
 
   html.concat("<script type = 'text/javascript'>\n");
-  html.concat("	reset_rawdata();\n");
+  html.concat("	reset_rawdata('id_rawdata');\n");
+  html.concat("	reset_rawdata('live_rawdata');\n");
   html.concat("</script>\n");
 
   server->sendContent(html.c_str()); html = "";
