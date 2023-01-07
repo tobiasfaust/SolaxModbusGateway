@@ -197,20 +197,41 @@ function radioselection(a,b) {
 
 /* https://jsfiddle.net/tobiasfaust/p5q9hgsL/ */
 
+function reset_rawdata() {
+  document.getElementById('id_rawdata').innerHTML = document.getElementById('id_rawdata_org').innerHTML;
+  document.getElementById('live_rawdata').innerHTML = document.getElementById('live_rawdata_org').innerHTML;
+}
+
 function check_rawdata() {
-  string_rawdata = document.getElementById('live_rawdata_org').innerHTML;
-  string_positions = document.getElementById('positions').value;
+  var datatype = document.querySelector('input[name="datatype"]:checked').value;
+  var rawdatatype = document.querySelector('input[name="rawdatatype"]:checked').value;
+  var string_positions = document.getElementById('positions').value;
+  var string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
+  
   const bytes = string_rawdata.split(" ");
   const pos = string_positions.split(",");
-
-	var intnum = 0;
+  
+  // reset rawdata containers
+  reset_rawdata();
+  
+	var result;
+  if (datatype == 'int') { result = 0; }
+  if (datatype == 'string') { result = "";}
+  
 	for( j=0; j< pos.length; j++) {
-    intnum = intnum << 8 | parseInt(Number(bytes[Number(pos[j])]), 10);
-    bytes[pos[j]] = "<span style='color: red;'>" + bytes[Number(pos[j])] + "</span>";
+    if (datatype == 'int') { 
+    	result = result << 8 | parseInt(Number(bytes[Number(pos[j])]), 10);
+    }
+		if (datatype == 'string') { 
+    	result = result + String.fromCharCode(parseInt(bytes[Number(pos[j])]), 16); 
+    }
+    
+   bytes[Number(pos[j])] = "<span style='color: red;'>" + bytes[Number(pos[j])] + "</span>";
   }
-
-  document.getElementById('live_rawdata_result').innerHTML = "= " + intnum;
-  document.getElementById('live_rawdata').innerHTML = bytes.join(' ');
+  
+  document.getElementById('rawdata_result').innerHTML = "= " + result;
+  document.getElementById(rawdatatype).innerHTML = bytes.join(' ');
+  
 }
 
 )=====";

@@ -259,7 +259,7 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "string"
 				},
 				{
-					"position": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44],
+					"position": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42],
 					"name": "ModuleName",
 					"realname": "Module Name",
 					"datatype": "string"
@@ -520,7 +520,7 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "string"
 				},
 				{
-					"position": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44],
+					"position": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42],
 					"name": "ModuleName",
 					"realname": "Module Name",
 					"datatype": "string"
