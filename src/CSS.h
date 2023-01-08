@@ -144,9 +144,11 @@ const char STYLE_CSS[] PROGMEM = R"=====(
 /* used at modbusitem and rawdata page*/
 
 .tooltip {
-	font-style: normal;
-  cursor: help;
+	color: #c32e04;
+	text-decoration: underline;
+	cursor: help;
 	position: relative;
+  font-style: normal;
 }
 
 .tooltip span[role=tooltip] {
@@ -154,6 +156,30 @@ const char STYLE_CSS[] PROGMEM = R"=====(
 }
 
 .tooltip:hover span[role=tooltip] {
+	display: block;
+	position: absolute;
+	bottom: 1em;
+	left: -6em;
+	width: 15em;
+	padding: 0.5em;
+	z-index: 100;
+	color: #000;
+	background-color: #ffebe6;
+	border: solid 1px #c32e04;
+	border-radius: 0.2em;
+}
+
+.tooltip_simple {
+	font-style: normal;
+  cursor: help;
+	position: relative;
+}
+
+.tooltip_simple span[role=tooltip_simple] {
+	display: none;
+}
+
+.tooltip_simple:hover span[role=tooltip_simple] {
 	display: block;
 	position: absolute;
 	bottom: 1em;
@@ -166,6 +192,7 @@ const char STYLE_CSS[] PROGMEM = R"=====(
 	border-radius: 0.2em;
   font-style: normal;
 }
+
 
 
 )=====";
