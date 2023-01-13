@@ -371,7 +371,9 @@ void modbus::QueryQueueToInverter() {
     RS485Serial->write(message, sizeof(message));
     RS485Serial->flush();
 
-    delay(100);
+    //delay(100);
+    unsigned long timeout=millis()+100;
+    while (millis()<=timeout) { yield(); }
 
     if (rwtype == WRITE) {
       this->ReceiveSetData(&m);
