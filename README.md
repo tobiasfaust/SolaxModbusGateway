@@ -6,16 +6,18 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/tobiasfaust/SolaxModbusGateway/total?style=plastic)
 
 
-This project implements a Gatewayx for Solar Inverter with with Modbus-RTU communication to MQTT on ESP32 basis.  
-Direkt Communication wit [OpenWB](https://openwb.de) is implemented.
+This project implements a Gateway for Solar Inverters with Modbus-RTU communication to MQTT on ESP32 basis.  
+Direkt Communication with [OpenWB](https://openwb.de) is implemented.
+Sending "set" commands to inverter are basically implemented too.
 
-### Supported Solar Inverter
-Basically, all Inverters with Modbus RS485 RTU communication. 
-Currently the following Inverters are with their special registers integrated:
+### Supported Solar Inverters
+Basically, all Inverters with Modbus RS485 RTU communication are supported.  
+Currently the following Inverters with their special registers are integrated:
 * Solax Hybrid X1 G4 Series
+* Solax Hybrid X3 G4 Series
 * Growatt SPH
 
-If your Solar Inverter is not listed, it´s quite simple to add this by yourself. Feel free to add the special register, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
+If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
 
 ### What you need
 * ESP32 NodeMCU
@@ -25,16 +27,19 @@ An ESP8266 is actually not sufficient, because Modbus communication works fail-f
 Please check also the wiki page, [how to wire the circuit](https://github.com/tobiasfaust/SolaxModbusGateway/wiki/wiring-the-circuit).
 
 ### How to start
-It´s recommend to start with one example to check wiring works correctly. The example request the inverter SN and if wiring is correct, the inverter will answer with his number.
+It´s recommend to start with one example to check wiring works correctly. Both LED´s (TX and RX) on your RS-485 module should blink. If only TX-LED blinks, please check: 
+* wiring
+* baud rate
 
-<code>
+The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or soomethink like this.
+
+<pre>
 request: 01 03 00 00 00 07 08 04
 
 Response: 01 03 .....
-</code>
+</pre>
 
 
 There is also a page with all configured livedata items available. This page is refreshing every 5 seconds. Please check [Modbus Item Configuration page](configuration-modbusitems).
-
 
 ## please refer full documentation in our [Wiki](https://github.com/tobiasfaust/SolaxModbusGateway/wiki)
