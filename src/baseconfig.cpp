@@ -53,7 +53,7 @@ void BaseConfig::LoadJsonConfig() {
         serializeJsonPretty(doc, Serial);
         
         if (doc.containsKey("mqttroot"))         { this->mqtt_root = doc["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
-        if (doc.containsKey("mqttserver"))       { this->mqtt_server = doc["mqttserver"].as<String>();} else {this->mqtt_server = "192.168.178.1";}
+        if (doc.containsKey("mqttserver"))       { this->mqtt_server = doc["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
         if (doc.containsKey("mqttport"))         { this->mqtt_port = (int)(doc["mqttport"]);} else {this->mqtt_port = 1883;}
         if (doc.containsKey("mqttuser"))         { this->mqtt_username = doc["mqttuser"].as<String>();} else {this->mqtt_username = "";}
         if (doc.containsKey("mqttpass"))         { this->mqtt_password = doc["mqttpass"].as<String>();} else {this->mqtt_password = "";}
@@ -71,7 +71,7 @@ void BaseConfig::LoadJsonConfig() {
   }
 
   if (loadDefaultConfig) {
-    this->mqtt_server = "192.178.168.1";
+    this->mqtt_server = "test.mosquitto.org";
     this->mqtt_port  = 1883;
     this->mqtt_username = "";
     this->mqtt_password = "";
