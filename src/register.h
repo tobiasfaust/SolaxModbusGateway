@@ -297,28 +297,99 @@ const char JSON[] PROGMEM = R"=====(
 			"IdDataSuccessCode": "0x03"
 		},
 		"data": {
-			"livedata": [{
-					"position": [3, 4],
-					"name": "GridVoltage",
-					"realname": "Grid Voltage",
+			"livedata": [
+				{
+					"position": [215, 216],
+					"name": "GridVoltage_R",
+					"realname": "Grid Voltage L1",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "V"
 				},
 				{
-					"position": [5, 6],
-					"name": "GridCurrent",
-					"realname": "Grid Current",
+					"position": [217, 218],
+					"name": "GridCurrent_R",
+					"realname": "Grid Current L1",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "A"
 				},
 				{
-					"position": [7, 8],
-					"name": "GridPower",
-					"realname": "Grid Power",
+					"position": [219, 220],
+					"name": "GridPower_R",
+					"realname": "Grid Power L1",
 					"datatype": "integer",
 					"unit": "W"
+				},
+				{
+					"position": [221, 222],
+					"name": "GridFrequency_R",
+					"realname": "Grid Frequency L1",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
+				},
+				{
+					"position": [223, 224],
+					"name": "GridVoltage_S",
+					"realname": "Grid Voltage L2",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [225, 226],
+					"name": "GridCurrent_S",
+					"realname": "Grid Current L2",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "A"
+				},
+				{
+					"position": [227, 228],
+					"name": "GridPower_S",
+					"realname": "Grid Power L2",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [229, 230],
+					"name": "GridFrequency_S",
+					"realname": "Grid Frequency L2",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
+				},
+				{
+					"position": [231, 232],
+					"name": "GridVoltage_T",
+					"realname": "Grid Voltage L3",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [233, 234],
+					"name": "GridCurrent_T",
+					"realname": "Grid Current L3",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "A"
+				},
+				{
+					"position": [235, 236],
+					"name": "GridPower_S",
+					"realname": "Grid Power L3",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [237, 238],
+					"name": "GridFrequency_T",
+					"realname": "Grid Frequency L3",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
 				},
 				{
 					"position": [9, 10],
@@ -353,14 +424,6 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "A"
 				},
 				{
-					"position": [17, 18],
-					"name": "GridFrequency",
-					"realname": "Grid Frequency",
-					"datatype": "float",
-					"factor": 0.01,
-					"unit": "Hz"
-				},
-				{
 					"position": [19, 20],
 					"name": "Temperature",
 					"realname": "Temperature",
@@ -390,7 +453,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "V"
 				},
 				{
-					"position": [45, 45],
+					"position": [45, 46],
 					"name": "BatCurrent",
 					"realname": "Battery Current",
 					"datatype": "float",
@@ -412,14 +475,14 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "&deg;C"
 				},
 				{
-					"position": [56, 57],
+					"position": [59, 60],
 					"name": "BatCapacity",
 					"realname": "Battery Capacity",
 					"datatype": "integer",
 					"unit": "%"
 				},
 				{
-					"position": [58, 59, 60, 61],
+					"position": [61, 62, 63, 64],
 					"name": "OutputEnergyCharge",
 					"realname": "Output Energy Charge",
 					"datatype": "float",
@@ -427,7 +490,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [64, 65],
+					"position": [67, 68],
 					"name": "OutputEnergyChargeToday",
 					"realname": "Output Energy Charge Today",
 					"datatype": "float",
@@ -435,7 +498,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				},
 				{
-					"position": [66, 67, 68, 69],
+					"position": [69, 70, 71, 72],
 					"name": "InputEnergyCharge",
 					"realname": "Input Energy Charge",
 					"datatype": "float",
@@ -443,7 +506,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [70, 71],
+					"position": [73, 74],
 					"name": "InputEnergyChargeToday",
 					"realname": "Input Energy Charge Today",
 					"datatype": "float",
@@ -451,14 +514,14 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [141, 142, 143, 144],
+					"position": [143, 144, 145, 146],
 					"name": "feedinPower",
 					"realname": "FeedIn Energy Power to Grid",
 					"datatype": "integer",
 					"unit": "W"
 				},
 				{
-					"position": [145, 146, 147, 148],
+					"position": [147, 148, 149, 150],
 					"name": "feedinEnergyTotal",
 					"realname": "FeedIn Energy Total",
 					"datatype": "float",
@@ -466,7 +529,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [149, 150, 151, 152],
+					"position": [151, 152, 153, 154],
 					"name": "consumedEnergyTotal",
 					"realname": "Consumed Energy Total",
 					"datatype": "float",
@@ -474,7 +537,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [166, 167],
+					"position": [163, 164],
 					"name": "EnergyTodayToGrid",
 					"realname": "Today Energy to Grid",
 					"datatype": "float",
@@ -482,28 +545,118 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [165, 166, 167, 168],
+					"position": [167, 168, 169, 170],
 					"name": "EnergyTotalToGrid",
 					"realname": "Total Energy to Grid",
-					"datatype": "float", 
+					"datatype": "float",
 					"factor": 0.1,
 					"unit": "kWh"
 				},
 				{
-					"position": [273, 274, 275, 276],
+					"position": [280, 281, 282, 283],
 					"name": "OnGridRunTime",
 					"realname": "OnGrid RunTime",
-					"datatype": "float", 
+					"datatype": "float",
 					"factor": 0.1,
 					"unit": "h"
 				},
 				{
-					"position": [277, 278, 279, 280],
+					"position": [284, 285, 286, 287],
 					"name": "OffGridRunTime",
 					"realname": "OffGrid RunTime",
-					"datatype": "float", 
+					"datatype": "float",
 					"factor": 0.1,
 					"unit": "h"
+				},
+				{
+					"position": [239, 240],
+					"name": "OffGridVoltage_R",
+					"realname": "Off Grid Voltage L1",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [241, 242],
+					"name": "OffGridCurrent_R",
+					"realname": "Off Grid Current L1",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "A"
+				},
+				{
+					"position": [248, 249],
+					"name": "OffGridPowerActive_R",
+					"realname": "Off Grid Power L1",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [252, 253],
+					"name": "OffGridVoltage_S",
+					"realname": "Off Grid Voltage L2",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [254, 255],
+					"name": "OffGridCurrent_S",
+					"realname": "Off Grid Current L2",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "A"
+				},
+				{
+					"position": [256, 257],
+					"name": "OffGridPowerActive_S",
+					"realname": "Off Grid Power L2",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [260, 261],
+					"name": "OffGridVoltage_T",
+					"realname": "Off Grid Voltage L3",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [262, 263],
+					"name": "OffGridCurrent_T",
+					"realname": "Off Grid Current L3",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "A"
+				},
+				{
+					"position": [264, 265],
+					"name": "OffGridPowerActive_T",
+					"realname": "Off Grid Power L3",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [268, 269, 270, 271],
+					"name": "FeedInPowerPhase_R",
+					"realname": "FeedIn Power Phase L1",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [272, 273, 274, 275],
+					"name": "FeedInPowerPhase_S",
+					"realname": "FeedIn Power Phase L2",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [276, 277, 278, 279],
+					"name": "FeedInPowerPhase_T",
+					"realname": "FeedIn Power Phase L3",
+					"datatype": "integer",
+					"unit": "W"
 				}
 			],
 			"id": [
