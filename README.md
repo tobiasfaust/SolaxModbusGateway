@@ -31,7 +31,7 @@ It´s recommend to start with one example to check wiring works correctly. Both 
 * wiring
 * baud rate
 
-The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or soomethink like this.
+The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or soomething like this.
 
 <pre>
 request: 01 03 00 00 00 07 08 04
@@ -40,6 +40,4 @@ Response: 01 03 .....
 </pre>
 
 
-There is also a page with all configured livedata items available. This page is refreshing every 5 seconds. Please check [Modbus Item Configuration page](configuration-modbusitems).
-
-## please refer full documentation in our [Wiki](https://github.com/tobiasfaust/SolaxModbusGateway/wiki)
+## please refer full documentation and How-To´s in our [Wiki](https://github.com/tobiasfaust/SolaxModbusGateway/wiki)
