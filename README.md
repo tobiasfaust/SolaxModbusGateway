@@ -21,7 +21,7 @@ If your Solar Inverter is not listed, it´s quite simple to add it by yourself. 
 
 ### What you need
 * ESP32 NodeMCU
-* MAX485 Module TTL Switch Schalter to RS-485 Module RS485 5V Modul (this can also handle 3.3V from ESP)
+* RS-485 TTL UART Module with MAX485 Semiconductor 
 
 An ESP8266 is actually not sufficient, because Modbus communication works fail-free only with hardwareserial. ESP8266 has only one Hardwareserial port which is used by serial/debug output. ESP32 has 3 Hardewareserial ports and we use one of them. Another reason is available memory for such huge json definition or such large modbus answers.  
 Please check also the wiki page, [how to wire the circuit](https://github.com/tobiasfaust/SolaxModbusGateway/wiki/wiring-the-circuit).

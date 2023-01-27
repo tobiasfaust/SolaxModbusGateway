@@ -21,16 +21,22 @@ https://www.cupidcontrols.com/2015/10/software-serial-modbus-master-over-rs485-t
 void setup() {
 
   pinMode(RTS_pin, OUTPUT);
-  digitalWrite(RTS_pin,RS485Receive);
+  digitalWrite(RTS_pin, RS485Receive);
 
   // Start the built-in serial port, for Serial Monitor
   Serial.begin(115200);
   Serial.println("Test RS485 Connection");
-  Serial.println("Test RS485 Connection");
-  Serial.println("Test RS485 Connection");
-
+  
   // Start the Modbus serial Port
   Serial2.begin(19200, SERIAL_8N1, RX, TX);
+  delay(1000);
+  
+  while(Serial2.available())
+  {
+    Serial.print(Serial2.read(), HEX);
+    Serial.print(" ");
+  }
+  
   delay(1000);
 }
 
@@ -82,13 +88,15 @@ void loop() {
     Serial.print(Hex2String(request[i]));Serial.print(' ');
   }
   Serial.println("");
+  
   digitalWrite(RTS_pin, RS485Transmit);
   Serial2.write(request, sizeof(request));
   Serial2.flush();
-
   digitalWrite(RTS_pin,RS485Receive);
+  
   delay(100);
   Serial.println("Lese Daten ....");
+  
   while(Serial2.available())
   {
     Serial.print(Serial2.read(), HEX);
