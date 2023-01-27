@@ -124,7 +124,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "V"
 				},
 				{
-					"position": [45, 45],
+					"position": [45, 46],
 					"name": "BatCurrent",
 					"realname": "Battery Current",
 					"datatype": "float",
@@ -135,8 +135,8 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [47, 48],
 					"name": "BatPower",
 					"realname": "Battery Power",
-					"openwbtopic": "openWB/set/houseBattery/W",
 					"datatype": "integer",
+					"openwbtopic": "openWB/set/houseBattery/W",
 					"unit": "W"
 				},
 				{
@@ -147,11 +147,11 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "&deg;C"
 				},
 				{
-					"position": [56, 57],
+					"position": [59, 60],
 					"name": "BatCapacity",
 					"realname": "Battery Capacity",
-					"openwbtopic": "openWB/set/houseBattery/%Soc",
 					"datatype": "integer",
+					"openwbtopic": "openWB/set/houseBattery/%Soc",
 					"unit": "%"
 				},
 				{
@@ -159,9 +159,9 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "OutputEnergyCharge",
 					"realname": "Output Energy Charge",
 					"openwbtopic": "openWB/set/houseBattery/WhExported",
-					"datatype": "float",
-					"factor": 0.1,
-					"unit": "kWh"
+					"datatype": "integer",
+					"factor": 100,
+					"unit": "Wh"
 				},
 				{
 					"position": [64, 65],
@@ -176,9 +176,9 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "InputEnergyCharge",
 					"realname": "Input Energy Charge",
 					"openwbtopic": "openWB/set/houseBattery/WhImported",
-					"datatype": "float",
-					"factor": 0.1,
-					"unit": "kWh"
+					"datatype": "integer",
+					"factor": 100,
+					"unit": "Wh"
 				},
 				{
 					"position": [70, 71],
@@ -221,9 +221,17 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [165, 166, 167, 168],
-					"name": "EnergyTotalToGrid",
-					"realname": "Total Energy to Grid",
+					"name": "EnergyTotalToGridWh",
+					"realname": "Total Energy to Grid in Wh",
 					"openwbtopic": "openWB/set/pv/WhCounter",
+					"datatype": "integer", 
+					"factor": 100,
+					"unit": "Wh"
+				},
+				{
+					"position": [165, 166, 167, 168],
+					"name": "EnergyTotalToGridKwh",
+					"realname": "Total Energy to Grid in KWh",
 					"datatype": "float", 
 					"factor": 0.1,
 					"unit": "kWh"
@@ -432,16 +440,18 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [23, 24],
-					"name": "PowerDC1",
-					"realname": "Power DC 1",
+					"name": "PowerPv1",
+					"realname": "Power PV 1",
 					"datatype": "integer",
+					"openwbtopic": "openWB/set/pv/1/W",
 					"unit": "W"
 				},
 				{
 					"position": [25, 26],
-					"name": "PowerDC2",
-					"realname": "Power DC 2",
+					"name": "PowerPv2",
+					"realname": "Power PV 2",
 					"datatype": "integer",
+					"openwbtopic": "openWB/set/pv/2/W",
 					"unit": "W"
 				},
 				{
@@ -465,6 +475,7 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "BatPower",
 					"realname": "Battery Power",
 					"datatype": "integer",
+					"openwbtopic": "openWB/set/houseBattery/W",
 					"unit": "W"
 				},
 				{
@@ -479,15 +490,17 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "BatCapacity",
 					"realname": "Battery Capacity",
 					"datatype": "integer",
+					"openwbtopic": "openWB/set/houseBattery/%Soc",
 					"unit": "%"
 				},
 				{
 					"position": [61, 62, 63, 64],
 					"name": "OutputEnergyCharge",
 					"realname": "Output Energy Charge",
-					"datatype": "float",
-					"factor": 0.1,
-					"unit": "kWh"
+					"datatype": "integer",
+					"openwbtopic": "openWB/set/houseBattery/WhExported",
+					"factor": 100,
+					"unit": "Wh"
 				},
 				{
 					"position": [67, 68],
@@ -501,9 +514,10 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [69, 70, 71, 72],
 					"name": "InputEnergyCharge",
 					"realname": "Input Energy Charge",
-					"datatype": "float",
-					"factor": 0.1,
-					"unit": "kWh"
+					"datatype": "integer",
+					"openwbtopic": "openWB/set/houseBattery/WhImported",
+					"factor": 100,
+					"unit": "Wh"
 				},
 				{
 					"position": [73, 74],
@@ -546,11 +560,20 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [167, 168, 169, 170],
-					"name": "EnergyTotalToGrid",
-					"realname": "Total Energy to Grid",
+					"name": "EnergyTotalToGridKwh",
+					"realname": "Total Energy to Grid in KWh",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "kWh"
+				},
+				{
+					"position": [167, 168, 169, 170],
+					"name": "EnergyTotalToGridWh",
+					"realname": "Total Energy to Grid in Wh",
+					"datatype": "integer",
+					"openwbtopic": "openWB/set/pv/WhCounter",
+					"factor": 100,
+					"unit": "Wh"
 				},
 				{
 					"position": [280, 281, 282, 283],
@@ -759,7 +782,7 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [362, 363, 364, 365],
-					"name": "InputEnergyCharge",
+					"name": "InputEnergyChargeWh",
 					"realname": "Geladene Energie Speicher (Wh)",
 					"openwbtopic": "openWB/set/houseBattery/WhImported",
 					"datatype": "integer",
@@ -767,13 +790,29 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "Wh"
 				},
 				{
+					"position": [362, 363, 364, 365],
+					"name": "InputEnergyChargeKwh",
+					"realname": "Geladene Energie Speicher (KWh)",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
 					"position": [354, 355, 356, 357],
-					"name": "OutputEnergyCharge",
+					"name": "OutputEnergyChargeWh",
 					"realname": "Entladene Energie Speicher (Wh)",
 					"openwbtopic": "openWB/set/houseBattery/WhExported",
 					"datatype": "integer",
 					"factor": 100,
 					"unit": "Wh"
+				},
+				{
+					"position": [354, 355, 356, 357],
+					"name": "OutputEnergyChargeKwh",
+					"realname": "Entladene Energie Speicher (KWh)",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
 				}
 			],
 			"id": [{
