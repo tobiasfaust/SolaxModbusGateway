@@ -62,6 +62,8 @@ String Hex2String(uint8_t num) {
 
 void loop() {
   // request request the device info of Solax Mini
+  // assume, your Solax Mini has modbus SlaveID 0x0A, change it to yours at position 6 !
+  
   byte request[] = {0xAA, 0x55, 
                     0x01, 0x00,
                     0x00, 0x0A,
