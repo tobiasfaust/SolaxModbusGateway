@@ -386,7 +386,7 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [235, 236],
-					"name": "GridPower_S",
+					"name": "GridPower_T",
 					"realname": "Grid Power L3",
 					"datatype": "integer",
 					"unit": "W"
