@@ -494,7 +494,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "%"
 				},
 				{
-					"position": [61, 62, 63, 64],
+					"position": [63, 64, 61, 62],
 					"name": "OutputEnergyCharge",
 					"realname": "Output Energy Charge",
 					"datatype": "integer",
@@ -511,7 +511,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				},
 				{
-					"position": [69, 70, 71, 72],
+					"position": [71, 72, 69, 70],
 					"name": "InputEnergyCharge",
 					"realname": "Input Energy Charge",
 					"datatype": "integer",
@@ -528,14 +528,14 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [143, 144, 145, 146],
+					"position": [145, 146, 143, 144],
 					"name": "feedinPower",
 					"realname": "FeedIn Energy Power to Grid",
 					"datatype": "integer",
 					"unit": "W"
 				},
 				{
-					"position": [147, 148, 149, 150],
+					"position": [149, 150, 147, 148],
 					"name": "feedinEnergyTotal",
 					"realname": "FeedIn Energy Total",
 					"datatype": "float",
@@ -543,7 +543,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [151, 152, 153, 154],
+					"position": [153, 154, 151, 152],
 					"name": "consumedEnergyTotal",
 					"realname": "Consumed Energy Total",
 					"datatype": "float",
@@ -559,7 +559,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [167, 168, 169, 170],
+					"position": [169, 170, 167, 168],
 					"name": "EnergyTotalToGridKwh",
 					"realname": "Total Energy to Grid in KWh",
 					"datatype": "float",
@@ -567,7 +567,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [167, 168, 169, 170],
+					"position": [169, 170, 167, 168],
 					"name": "EnergyTotalToGridWh",
 					"realname": "Total Energy to Grid in Wh",
 					"datatype": "integer",
@@ -576,7 +576,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "Wh"
 				},
 				{
-					"position": [280, 281, 282, 283],
+					"position": [280, 281, 278, 279],
 					"name": "OnGridRunTime",
 					"realname": "OnGrid RunTime",
 					"datatype": "float",
@@ -584,7 +584,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "h"
 				},
 				{
-					"position": [284, 285, 286, 287],
+					"position": [284, 285, 282, 283],
 					"name": "OffGridRunTime",
 					"realname": "OffGrid RunTime",
 					"datatype": "float",
@@ -680,6 +680,62 @@ const char JSON[] PROGMEM = R"=====(
 					"realname": "FeedIn Power Phase L3",
 					"datatype": "integer",
 					"unit": "W"
+				},
+				{
+					"position": [294, 295],
+					"name": "OffGridYieldToday",
+					"realname": "OffGrid Yield Today",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
+				},
+				{
+					"position": [296, 297],
+					"name": "EChargeToday",
+					"realname": "ECharge Today",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
+				},
+				{
+					"position": [300, 301, 298, 299],
+					"name": "EChargeTotal",
+					"realname": "ECharge Total",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
+				},
+				{
+					"position": [304, 305, 302, 303],
+					"name": "SolarEnergyTotal",
+					"realname": "SolarEnergy Total",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
+				},
+				{
+					"position": [306, 307],
+					"name": "SolarEnergyToday",
+					"realname": "SolarEnergy Today",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
+				},
+				{
+					"position": [312, 313, 310, 311],
+					"name": "EnergyFeedin",
+					"realname": "EnergyFeedin Today",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "kWh"
+				},
+				{
+					"position": [316, 317, 314, 315],
+					"name": "EnergyConsum",
+					"realname": "EnergyConsum Today",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "kWh"
 				}
 			],
 			"id": [
