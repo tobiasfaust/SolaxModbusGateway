@@ -1,4 +1,5 @@
 // jsfiddle.net
+// https://jsfiddle.net/tobiasfaust/5xh2azd6/
 
 #ifndef JAVASCRIPT_H
 #define JAVASCRIPT_H
@@ -148,9 +149,21 @@ function ShowError(t){
   document.getElementById('ErrorText').innerHTML = t;
 }
 
-function onSubmit(DataForm, SubmitForm){
-  // erstelle json String
-  var formData = {};
+/*******************************
+jsontype:
+	1 = standard, 1 level
+  2 = array, each item separately
+*******************************/
+function onSubmit(DataForm, SubmitForm, jsontype){
+  //set default
+  if (!jsontype) jsontype = 1;
+  
+  // init json String
+  var formData; 
+  if (jsontype == 1) { formData =  {}; }
+  else if (jsontype == 2) { formData =  {data: []}; }
+  
+	var count = 0;
   ShowError('');
   
   var elems = document.getElementById(DataForm).elements; 
@@ -161,17 +174,42 @@ function onSubmit(DataForm, SubmitForm){
       if (elems[i].parentNode.parentNode.tagName == 'TR' && elems[i].parentNode.parentNode.style.display == 'none') {continue;}
       
       if (elems[i].type == "checkbox") {
-        formData[elems[i].name] = (elems[i].checked==true?1:0);
-      } else if (elems[i].id.match(/^Alle.*/) || elems[i].id.match(/^GpioPin.*/) || elems[i].id.match(/^AnalogPin.*/) || elems[i].type == "number") {
-        formData[elems[i].name] = parseInt(elems[i].value);
+        count++;
+        if (jsontype == 1) { formData[elems[i].name] = (elems[i].checked==true?1:0); }
+        else if (jsontype == 2) {
+        	formData.data.push({ "name" : elems[i].name,
+        											 "value": (elems[i].checked==true?1:0) });
+        }
+      } else if (elems[i].id.match(/^Alle.*/) || 
+                 elems[i].id.match(/^GpioPin.*/) || 
+                 elems[i].id.match(/^AnalogPin.*/) || 
+                 elems[i].type == "number") {
+        count++;
+        if (jsontype == 1) { formData[elems[i].name] = parseInt(elems[i].value); }
+        else if (jsontype == 2) {
+        	formData.data.push({ "name" : elems[i].name,
+        										 	 "value": parseInt(elems[i].value) });
+        }
       } else if (elems[i].type == "radio") {
-        if (elems[i].checked==true) {formData[elems[i].name] = elems[i].value;}
+        if (jsontype == 1) { if (elems[i].checked==true) {formData[elems[i].name] = elems[i].value;} }
+        else if (jsontype == 2) {
+        	if (elems[i].checked==true) {
+            count++;
+            formData.data.push({ "name" : elems[i].name,
+                                 "value": elems[i].value });
+           }
+        }
       } else {
-        formData[elems[i].name] = elems[i].value;
+        if (jsontype == 1) { formData[elems[i].name] = elems[i].value; }
+        else if (jsontype == 2) {
+          count++;
+          formData.data.push({ "name" : elems[i].name,
+                               "value": elems[i].value });
+        }
       }
     }
   } 
-  formData["count"] = document.getElementById(DataForm).getElementsByClassName('editorDemoTable')[0].rows.length -1;
+  formData["count"] = count;
   json = document.getElementById(SubmitForm).querySelectorAll("input[name='json']");
 
   if (json[0].value.length <= 3) {

@@ -871,12 +871,12 @@ void modbus::StoreJsonConfig(String* json) {
     if (!configFile) {
       if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
     } else {  
-      serializeJsonPretty(doc, Serial);
-      if (serializeJson(doc, configFile) == 0) {
-        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
+        serializeJsonPretty(doc, Serial);
+        if (serializeJson(doc, configFile) == 0) {
+          if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
       }
       configFile.close();
-  
+    
       LoadJsonConfig(false);
     }
   }
@@ -890,31 +890,20 @@ void modbus::StoreJsonItemConfig(String* json) {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  StaticJsonDocument<1024> doc;
-  DeserializationError error = deserializeJson(doc, *json);
-  
-  if (error) { 
-    if (Config->GetDebugLevel() >=1) {
-      sprintf(dbg, "Cound not store jsonItemConfig completely -> %s", error.c_str());
-      Serial.println(dbg);
-    } 
-  }
-
-  JsonObject root = doc.as<JsonObject>();
-
-  if (!root.isNull()) {
-    File configFile = SPIFFS.open("/ModbusItemConfig.json", "w");
-    if (!configFile) {
-      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
-    } else {  
-      serializeJsonPretty(doc, Serial);
-      if (serializeJson(doc, configFile) == 0) {
-        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed ItemConfig to write to file"));}
-      }
-      configFile.close();
-  
-      LoadJsonItemConfig();
+  File configFile = SPIFFS.open("/ModbusItemConfig.json", "w");
+  if (!configFile) {
+    if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
+  } else {  
+    //serializeJsonPretty(doc, Serial);
+    //StringStream stream{*json};
+    //stream.find("\"data\":[");
+    
+    if (!configFile.print(*json)) {
+        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed writing ItemConfig to file"));}
     }
+    configFile.close();
+  
+    LoadJsonItemConfig();
   }
 }
 
@@ -1012,36 +1001,45 @@ void modbus::LoadJsonItemConfig() {
     File configFile = SPIFFS.open("/ModbusItemConfig.json", "r");
     if (configFile) {
       if (Config->GetDebugLevel() >=3) Serial.println("modbus item config file is open:");
-      //size_t size = configFile.size();
 
-      StaticJsonDocument<1024> doc; // TODO Use computed size??
-      DeserializationError error = deserializeJson(doc, configFile);
-      
-      if (!error) {
-        if (Config->GetDebugLevel() >=3) { serializeJsonPretty(doc, Serial); Serial.println(); }
+      ReadBufferingStream stream{configFile, 64};
+      stream.find("\"data\":[");
+      do {
+        StaticJsonDocument<512> elem;
+        DeserializationError error = deserializeJson(elem, stream); 
 
-        // https://arduinojson.org/v6/api/jsonobject/begin_end/
-        JsonObject root = doc.as<JsonObject>();
-        for (JsonPair kv : root) {
-          itemconfig_t item = {};
+        if (!error) {
+          // Print the result
+          if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
+          if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
+        } else {
+          if (Config->GetDebugLevel() >=1) {
+            Serial.print("Failed to parse JSON Register Data: "); 
+            Serial.print(error.c_str()); 
+            Serial.println();
+          }
+        }
+
+        itemconfig_t item = {};
           
-          item.Name = kv.key().c_str();
-          item.Name = item.Name.substring(7, item.Name.length()); //Name: active_<ItemName>
-          item.active = kv.value().as<bool>();
+        item.Name = elem["name"].as<String>();
+        item.Name = item.Name.substring(7, item.Name.length()); //Name: active_<ItemName>
+        item.active = elem["value"].as<bool>();
 
-          sprintf(dbg, "item %s -> %d", item.Name.c_str(), item.active);
-          if (Config->GetDebugLevel() >=4) {Serial.println(dbg);}
-          this->ActiveItems->push_back(item);
-        } 
-      
-      } else {
-        if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus item json config, load default config");}
-      }
+        sprintf(dbg, "item %s -> %d", item.Name.c_str(), item.active);
+        if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
+        this->ActiveItems->push_back(item);
+
+
+      } while (stream.findUntil(",","]"));
+    } else {
+      if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus item json config, load default config");}
     }
   } else {
     if (Config->GetDebugLevel() >=3) {Serial.println("ModbusItemConfig.json config File not exists, all items are active as default");}
   }
 }
+
 
 /*******************************************************************************************************
  * WebContent
@@ -1247,7 +1245,7 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
   html.concat("</tbody>\n");
   html.concat("</table>\n");
   html.concat("</form>\n\n<br />\n");
-  html.concat("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
+  html.concat("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\", 2)'>\n");
   html.concat("  <input type='text' id='json' name='json' />\n");
   html.concat("  <input type='submit' value='Speichern' />\n");
   html.concat("</form>\n\n");
