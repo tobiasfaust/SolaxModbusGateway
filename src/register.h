@@ -156,34 +156,50 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [58, 59, 60, 61],
-					"name": "OutputEnergyCharge",
-					"realname": "Output Energy Charge",
+					"name": "OutputEnergyChargeWh",
+					"realname": "Output Energy Charge (Wh)",
 					"openwbtopic": "openWB/set/houseBattery/WhExported",
 					"datatype": "integer",
 					"factor": 100,
 					"unit": "Wh"
 				},
 				{
-					"position": [64, 65],
-					"name": "OutputEnergyChargeToday",
-					"realname": "Output Energy Charge Today",
+					"position": [58, 59, 60, 61],
+					"name": "OutputEnergyChargeKWh",
+					"realname": "Output Energy Charge (KWh)",
 					"datatype": "float",
 					"factor": 0.1,
-					"unit": "W"
+					"unit": "KWh"
+				},
+				{
+					"position": [64, 65],
+					"name": "OutputEnergyChargeToday",
+					"realname": "Output Energy Charge Today (KWh)",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
 				},
 				{
 					"position": [66, 67, 68, 69],
-					"name": "InputEnergyCharge",
-					"realname": "Input Energy Charge",
+					"name": "InputEnergyChargeWh",
+					"realname": "Input Energy Charge (Wh)",
 					"openwbtopic": "openWB/set/houseBattery/WhImported",
 					"datatype": "integer",
 					"factor": 100,
 					"unit": "Wh"
 				},
 				{
+					"position": [66, 67, 68, 69],
+					"name": "InputEnergyChargeKWh",
+					"realname": "Input Energy Charge (KWh)",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
 					"position": [70, 71],
 					"name": "InputEnergyChargeToday",
-					"realname": "Input Energy Charge Today",
+					"realname": "Input Energy Charge Today (KWh)",
 					"datatype": "float",
 					"factor": 0.1,
 					"unit": "kWh"
@@ -495,12 +511,20 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [63, 64, 61, 62],
-					"name": "OutputEnergyCharge",
-					"realname": "Output Energy Charge",
+					"name": "OutputEnergyChargeWh",
+					"realname": "Output Energy Charge (Wh)",
 					"datatype": "integer",
 					"openwbtopic": "openWB/set/houseBattery/WhExported",
 					"factor": 100,
 					"unit": "Wh"
+				},
+				{
+					"position": [63, 64, 61, 62],
+					"name": "OutputEnergyChargeKWh",
+					"realname": "Output Energy Charge (KWh)",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
 				},
 				{
 					"position": [67, 68],
@@ -508,16 +532,24 @@ const char JSON[] PROGMEM = R"=====(
 					"realname": "Output Energy Charge Today",
 					"datatype": "float",
 					"factor": 0.1,
-					"unit": "W"
+					"unit": "KWh"
 				},
 				{
 					"position": [71, 72, 69, 70],
-					"name": "InputEnergyCharge",
-					"realname": "Input Energy Charge",
+					"name": "InputEnergyChargeWh",
+					"realname": "Input Energy Charge (Wh)",
 					"datatype": "integer",
 					"openwbtopic": "openWB/set/houseBattery/WhImported",
 					"factor": 100,
 					"unit": "Wh"
+				},
+				{
+					"position": [71, 72, 69, 70],
+					"name": "InputEnergyChargeKWh",
+					"realname": "Input Energy Charge (KWh)",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
 				},
 				{
 					"position": [73, 74],
@@ -661,21 +693,21 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				},
 				{
-					"position": [268, 269, 270, 271],
+					"position": [268, 269, 266, 267],
 					"name": "FeedInPowerPhase_R",
 					"realname": "FeedIn Power Phase L1",
 					"datatype": "integer",
 					"unit": "W"
 				},
 				{
-					"position": [272, 273, 274, 275],
+					"position": [272, 273, 270, 271],
 					"name": "FeedInPowerPhase_S",
 					"realname": "FeedIn Power Phase L2",
 					"datatype": "integer",
 					"unit": "W"
 				},
 				{
-					"position": [276, 277, 278, 279],
+					"position": [276, 277, 274, 275],
 					"name": "FeedInPowerPhase_T",
 					"realname": "FeedIn Power Phase L3",
 					"datatype": "integer",
