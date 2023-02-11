@@ -1026,7 +1026,7 @@ void modbus::LoadJsonItemConfig() {
         item.Name = item.Name.substring(7, item.Name.length()); //Name: active_<ItemName>
         item.active = elem["value"].as<bool>();
 
-        sprintf(dbg, "item %s -> %d", item.Name.c_str(), item.active);
+        sprintf(dbg, "item %s -> %s", item.Name.c_str(), (item.active?"enabled":"disabled"));
         if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
         this->ActiveItems->push_back(item);
 
@@ -1044,140 +1044,117 @@ void modbus::LoadJsonItemConfig() {
 /*******************************************************************************************************
  * WebContent
 *******************************************************************************************************/
-void modbus::GetWebContentConfig(WM_WebServer* server) {
+void modbus::GetWebContentConfig(AsyncResponseStream *response) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
   String html = "";
 
-  html.concat("<form id='DataForm'>\n");
-  html.concat("<table id='maintable' class='editorDemoTable'>\n");
-  html.concat("<thead>\n");
-  html.concat("<tr>\n");
-  html.concat("<td style='width: 250px;'>Name</td>\n");
-  html.concat("<td style='width: 200px;'>Wert</td>\n");
-  html.concat("</tr>\n");
-  html.concat("</thead>\n");
-  html.concat("<tbody>\n");
+  response->print("<form id='DataForm'>\n");
+  response->print("<table id='maintable' class='editorDemoTable'>\n");
+  response->print("<thead>\n");
+  response->print("<tr>\n");
+  response->print("<td style='width: 250px;'>Name</td>\n");
+  response->print("<td style='width: 200px;'>Wert</td>\n");
+  response->print("</tr>\n");
+  response->print("</thead>\n");
+  response->print("<tbody>\n");
 
-  server->sendContent(html.c_str()); html = "";
+  response->print("<tr>\n");
+  response->print("<td>Modbus RX-Pin (Default: 16)</td>\n");
+  response->printf("<td><input min='0' max='255' id='GpioPin_RX'name='pin_rx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RX);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Modbus RX-Pin (Default: 16)</td>\n");
-  sprintf(buffer, "<td><input min='0' max='255' id='GpioPin_RX'name='pin_rx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RX);
-  html.concat(buffer);
-  html.concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Modbus TX-Pin (Default: 17)</td>\n");
+  response->printf("<td><input min='0' max='255' id='GpioPin_TX'name='pin_tx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_TX);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Modbus TX-Pin (Default: 17)</td>\n");
-  sprintf(buffer, "<td><input min='0' max='255' id='GpioPin_TX'name='pin_tx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_TX);
-  html.concat(buffer);
-  html.concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Modbus Direction Control RTS-Pin (Default: 18)</td>\n");
+  response->printf("<td><input min='0' max='255' id='GpioPin_RTS'name='pin_rts' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RTS);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Modbus Direction Control RTS-Pin (Default: 18)</td>\n");
-  sprintf(buffer, "<td><input min='0' max='255' id='GpioPin_RTS'name='pin_rts' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RTS);
-  html.concat(buffer);
-  html.concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Solax Modbus ClientID (in hex) (Default: 01)</td>\n");
+  response->printf("<td><input maxlength='2' name='clientid' type='text' style='width: 6em' value='%02x'/></td>\n", this->ClientID);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Solax Modbus ClientID (in hex) (Default: 01)</td>\n");
-  sprintf(buffer, "<td><input maxlength='2' name='clientid' type='text' style='width: 6em' value='%02x'/></td>\n", this->ClientID);
-  html.concat(buffer);
-  html.concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Modbus Baudrate (Default: 19200)</td>\n");
+  response->printf( "<td><input min='9600' max='115200' name='baudrate' type='number' style='width: 6em' value='%d'/></td>\n", this->Baudrate);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Modbus Baudrate (Default: 19200)</td>\n");
-  sprintf(buffer, "<td><input min='9600' max='115200' name='baudrate' type='number' style='width: 6em' value='%d'/></td>\n", this->Baudrate);
-  html.concat(buffer);
-  html.concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Interval for Live Datatransmission in sec (Default: 5)</td>\n");
+  response->printf("<td><input min='2' max='3600' name='txintervallive' type='number' style='width: 6em' value='%d'/></td>\n", this->TxIntervalLiveData);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Interval for Live Datatransmission in sec (Default: 5)</td>\n");
-  sprintf(buffer, "<td><input min='2' max='3600' name='txintervallive' type='number' style='width: 6em' value='%d'/></td>\n", this->TxIntervalLiveData);
-  html.concat(buffer);
-  html.concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Interval for ID Datatransmission in sec (Default: 3600)</td>\n");
+  response->printf("<td><input min='10' max='86400' name='txintervalid' type='number' style='width: 6em' value='%d'/></td>\n", this->TxIntervalIdData);
+  response->print("</tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Interval for ID Datatransmission in sec (Default: 3600)</td>\n");
-  sprintf(buffer, "<td><input min='10' max='86400' name='txintervalid' type='number' style='width: 6em' value='%d'/></td>\n", this->TxIntervalIdData);
-  html.concat(buffer);
-  html.concat("</tr>\n");
-
-  html.concat("<tr>\n");
-  html.concat("<td>Select Inverter Type (Default: Solax X1)</td>\n");
-  html.concat("<td> <select name='invertertype' size='1' style='width: 10em'>");
+  response->print("<tr>\n");
+  response->print("<td>Select Inverter Type (Default: Solax X1)</td>\n");
+  response->print("<td> <select name='invertertype' size='1' style='width: 10em'>");
   for (uint8_t i=0; i< AvailableInverters->size(); i++) {
-    snprintf(buffer, sizeof(buffer), "<option value='%s' %s>%s</option>\n", AvailableInverters->at(i).c_str(), (AvailableInverters->at(i)==this->InverterType?"selected":"") , AvailableInverters->at(i).c_str());
-    html.concat(buffer);
+    response->printf("<option value='%s' %s>%s</option>\n", AvailableInverters->at(i).c_str(), (AvailableInverters->at(i)==this->InverterType?"selected":"") , AvailableInverters->at(i).c_str());
   }
-  html.concat("</td></tr>\n");
+  response->print("</td></tr>\n");
 
-  server->sendContent(html.c_str()); html = "";
-  
-  html.concat("<tr>\n");
-  html.concat("<td>Enable OpenWB Compatibility</td>\n");
-  html.concat("  <td>\n");
-  html.concat("    <div class='onoffswitch'>\n");
-  sprintf(buffer, "      <input type='checkbox' name='enable_openwbtopic' class='onoffswitch-checkbox' id='enable_openwbtopic' %s>\n", (this->Conf_EnableOpenWBTopic?"checked":""));
-  html.concat(buffer);
-  html.concat("      <label class='onoffswitch-label' for='enable_openwbtopic'>\n");
-  html.concat("        <span class='onoffswitch-inner'></span>\n");
-  html.concat("        <span class='onoffswitch-switch'></span>\n");
-  html.concat("      </label>\n");
-  html.concat("    </div>\n");
-  html.concat("  </td></tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Enable OpenWB Compatibility</td>\n");
+  response->print("  <td>\n");
+  response->print("    <div class='onoffswitch'>\n");
+  response->printf("      <input type='checkbox' name='enable_openwbtopic' class='onoffswitch-checkbox' id='enable_openwbtopic' %s>\n", (this->Conf_EnableOpenWBTopic?"checked":""));
+  response->print("      <label class='onoffswitch-label' for='enable_openwbtopic'>\n");
+  response->print("        <span class='onoffswitch-inner'></span>\n");
+  response->print("        <span class='onoffswitch-switch'></span>\n");
+  response->print("      </label>\n");
+  response->print("    </div>\n");
+  response->print("  </td></tr>\n");
 
-  server->sendContent(html.c_str()); html = "";
+  response->print("<tr>\n");
+  response->print("<td>Enable Set Commands over MQTT (security issue)</td>\n");
+  response->print("  <td>\n");
+  response->print("    <div class='onoffswitch'>\n");
+  response->printf("      <input type='checkbox' name='enable_setters' class='onoffswitch-checkbox' id='enable_setters' %s>\n", (this->Conf_EnableSetters?"checked":""));
+  response->print("      <label class='onoffswitch-label' for='enable_setters'>\n");
+  response->print("        <span class='onoffswitch-inner'></span>\n");
+  response->print("        <span class='onoffswitch-switch'></span>\n");
+  response->print("      </label>\n");
+  response->print("    </div>\n");
+  response->print("  </td></tr>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>Enable Set Commands over MQTT (security issue)</td>\n");
-  html.concat("  <td>\n");
-  html.concat("    <div class='onoffswitch'>\n");
-  sprintf(buffer, "      <input type='checkbox' name='enable_setters' class='onoffswitch-checkbox' id='enable_setters' %s>\n", (this->Conf_EnableSetters?"checked":""));
-  html.concat(buffer);
-  html.concat("      <label class='onoffswitch-label' for='enable_setters'>\n");
-  html.concat("        <span class='onoffswitch-inner'></span>\n");
-  html.concat("        <span class='onoffswitch-switch'></span>\n");
-  html.concat("      </label>\n");
-  html.concat("    </div>\n");
-  html.concat("  </td></tr>\n");
+  response->print("</tbody>\n");
+  response->print("</table>\n");
 
-  html.concat("</tbody>\n");
-  html.concat("</table>\n");
-
-  server->sendContent(html.c_str()); html = "";
-
-  html.concat("</form>\n\n<br />\n");
-  html.concat("<form id='jsonform' action='StoreModbusConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
-  html.concat("  <input type='text' id='json' name='json' />\n");
-  html.concat("  <input type='submit' value='Speichern' />\n");
-  html.concat("</form>\n\n");
-
-  server->sendContent(html.c_str()); html = "";
+  response->print("</form>\n\n<br />\n");
+  response->print("<form id='jsonform' action='StoreModbusConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
+  response->print("  <input type='text' id='json' name='json' />\n");
+  response->print("  <input type='submit' value='Speichern' />\n");
+  response->print("</form>\n\n");
 }
 
-void modbus::GetWebContentItemConfig(WM_WebServer* server) {
+void modbus::GetWebContentItemConfig(AsyncResponseStream *response) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
   String html = "";
 
-  html.concat("<form id='DataForm'>\n");
-  html.concat("<table id='maintable' class='editorDemoTable'>\n");
-  html.concat("<thead>\n");
-  html.concat("<tr>\n");
-  html.concat("<td style='width: 25px;'>Active</td>\n");
-  html.concat("<td style='width: 250px;'>Name</td>\n");
-  html.concat("<td style='width: 80px;'>OpenWB</td>\n");
-  html.concat("<td style='width: 200px;'>Wert</td>\n");
-  html.concat("</tr>\n");
-  html.concat("</thead>\n");
-  html.concat("<tbody>\n");
+  response->print("<form id='DataForm'>\n");
+  response->print("<table id='maintable' class='editorDemoTable'>\n");
+  response->print("<thead>\n");
+  response->print("<tr>\n");
+  response->print("<td style='width: 25px;'>Active</td>\n");
+  response->print("<td style='width: 250px;'>Name</td>\n");
+  response->print("<td style='width: 80px;'>OpenWB</td>\n");
+  response->print("<td style='width: 200px;'>Wert</td>\n");
+  response->print("</tr>\n");
+  response->print("</thead>\n");
+  response->print("<tbody>\n");
 
-  server->sendContent(html.c_str()); html = "";
-
-  
   ProgmemStream stream{JSON};
   String streamString = "";
   streamString = "\""+ this->InverterType +"\": {";
@@ -1207,176 +1184,158 @@ void modbus::GetWebContentItemConfig(WM_WebServer* server) {
     }
 
 
-    html.concat("<tr>\n");
+    response->print("<tr>\n");
 
-    html.concat("  <td>\n");
-    html.concat("    <div class='onoffswitch'>\n");
-    sprintf(buffer, "      <input type='checkbox' name='active_%s' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_%s' %s>\n", elem["name"].as<String>().c_str(), elem["name"].as<String>().c_str(), (IsActiveItem?"checked":""));
-    html.concat(buffer);
-    sprintf(buffer, "      <label class='onoffswitch-label' for='activeswitch_%s'>\n", elem["name"].as<String>().c_str());
-    html.concat(buffer);
-    html.concat("        <span class='onoffswitch-inner'></span>\n");
-    html.concat("        <span class='onoffswitch-switch'></span>\n");
-    html.concat("      </label>\n");
-    html.concat("    </div>\n");
-    html.concat("  </td>\n");
+    response->print("  <td>\n");
+    response->print("    <div class='onoffswitch'>\n");
+    response->printf("      <input type='checkbox' name='active_%s' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_%s' %s>\n", elem["name"].as<String>().c_str(), elem["name"].as<String>().c_str(), (IsActiveItem?"checked":""));
+    response->printf("      <label class='onoffswitch-label' for='activeswitch_%s'>\n", elem["name"].as<String>().c_str());
+    response->print("        <span class='onoffswitch-inner'></span>\n");
+    response->print("        <span class='onoffswitch-switch'></span>\n");
+    response->print("      </label>\n");
+    response->print("    </div>\n");
+    response->print("  </td>\n");
 
-    sprintf(buffer, "  <td>%s</td>\n", (elem["realname"].isNull()?elem["name"].as<String>().c_str():elem["realname"].as<String>().c_str()));
-    html.concat(buffer);
+    response->printf("  <td>%s</td>\n", (elem["realname"].isNull()?elem["name"].as<String>().c_str():elem["realname"].as<String>().c_str()));
     
-    html.concat("  <td style='text-align: center'>\n");
+    response->print("  <td style='text-align: center'>\n");
     if (!elem["openwbtopic"].isNull()) {
-      html.concat("<dfn class='tooltip'>&#9989;");
-      snprintf(buffer, sizeof(buffer), "<span role='tooltip'>%s</span>", elem["openwbtopic"].as<String>().c_str());
-      html.concat(buffer);
-      html.concat("</dfn>");
+      response->print("<dfn class='tooltip'>&#9989;");
+      response->printf("<span role='tooltip'>%s</span>", elem["openwbtopic"].as<String>().c_str());
+      response->print("</dfn>");
     }
-    html.concat("  </td>\n");
+    response->print("  </td>\n");
 
-    sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", elem["name"].as<String>().c_str(), ItemValue.c_str());
-    html.concat(buffer);
-    html.concat("</tr>\n");
-
-    server->sendContent(html.c_str()); html = "";
-
+    response->printf("  <td><div id='%s'>%s</div></td>\n", elem["name"].as<String>().c_str(), ItemValue.c_str());
+    response->print("</tr>\n");
 
   } while (stream.findUntil(",","]"));    
   
-  html.concat("</tbody>\n");
-  html.concat("</table>\n");
-  html.concat("</form>\n\n<br />\n");
-  html.concat("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\", 2)'>\n");
-  html.concat("  <input type='text' id='json' name='json' />\n");
-  html.concat("  <input type='submit' value='Speichern' />\n");
-  html.concat("</form>\n\n");
-
-  server->sendContent(html.c_str()); html = "";
+  response->print("</tbody>\n");
+  response->print("</table>\n");
+  response->print("</form>\n\n<br />\n");
+  response->print("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\", 2)'>\n");
+  response->print("  <input type='text' id='json' name='json' />\n");
+  response->print("  <input type='submit' value='Speichern' />\n");
+  response->print("</form>\n\n");
 }
 
-void modbus::GetWebContentActiveLiveData(WM_WebServer* server) {
+void modbus::GetWebContentActiveLiveData(AsyncResponseStream *response) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
   String html = "";
 
-  html.concat("<table class='editorDemoTable'>\n");
-  html.concat("<thead>\n");
-  html.concat("<tr>\n");
-  html.concat("<td style='width: 250px;'>Name</td>\n");
-  html.concat("<td style='width: 200px;'>LiveData</td>\n");
-  html.concat("</tr>\n");
-  html.concat("</thead>\n");
-  html.concat("<tbody>\n");
+  response->print("<table class='editorDemoTable'>\n");
+  response->print("<thead>\n");
+  response->print("<tr>\n");
+  response->print("<td style='width: 250px;'>Name</td>\n");
+  response->print("<td style='width: 200px;'>LiveData</td>\n");
+  response->print("</tr>\n");
+  response->print("</thead>\n");
+  response->print("<tbody>\n");
 
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
     for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
       if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).active) {
           
-        html.concat("</tr>\n");
+        response->print("</tr>\n");
         sprintf(buffer, "  <td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
-        html.concat(buffer);
+        response->print(buffer);
         sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
-        html.concat(buffer);
-        html.concat("</tr>\n");
+        response->print(buffer);
+        response->print("</tr>\n");
 
-        server->sendContent(html.c_str()); html = "";
+        response->print(html); html = "";
 
         break;
       }
     }
   }
 
-  html.concat("</tbody>\n");
-  html.concat("</table>\n");
-  server->sendContent(html.c_str()); html = "";
+  response->print("</tbody>\n");
+  response->print("</table>\n");
+  response->print(html); html = "";
 }
 
-void modbus::GetWebContentRawData(WM_WebServer* server) {
+void modbus::GetWebContentRawData(AsyncResponseStream *response) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
   String html = "";
 
-  html.concat("<form id='DataForm'>\n");
-  html.concat("<table id='maintable' class='editorDemoTable'>\n");
-  html.concat("<thead>\n");
-  html.concat("<tr>\n");
-  html.concat("<td style='width: 250px;'>Typ</td>\n");
-  html.concat("<td style='width: 400px;'>Raw Data</td>\n");
-  html.concat("</tr>\n");
-  html.concat("</thead>\n");
-  html.concat("<tbody>\n");
+  response->print("<form id='DataForm'>\n");
+  response->print("<table id='maintable' class='editorDemoTable'>\n");
+  response->print("<thead>\n");
+  response->print("<tr>\n");
+  response->print("<td style='width: 250px;'>Typ</td>\n");
+  response->print("<td style='width: 400px;'>Raw Data</td>\n");
+  response->print("</tr>\n");
+  response->print("</thead>\n");
+  response->print("<tbody>\n");
 
-  html.concat("<tr>\n");
-  html.concat("<td>RawData of ID-Data</td>\n");
-  html.concat("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='id_rawdata_org' style='display: none;'>\n");
+  response->print("<tr>\n");
+  response->print("<td>RawData of ID-Data</td>\n");
+  response->print("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='id_rawdata_org' style='display: none;'>\n");
   
   for (uint16_t i = 0; i < (this->SaveIdDataframe->size()); i++) {
-    html.concat(this->PrintHex(this->SaveIdDataframe->at(i)));
-    html.concat(" ");
-    if (html.length() > 2000) { server->sendContent(html.c_str()); html = ""; }
+    response->print(this->PrintHex(this->SaveIdDataframe->at(i)));
+    response->print(" ");
   }
 
-  html.concat("</span><span id='id_rawdata'></span></td>\n");
-  html.concat("</tr>\n");
+  response->print("</span><span id='id_rawdata'></span></td>\n");
+  response->print("</tr>\n");
 
-  server->sendContent(html.c_str()); html = "";
-  
-  html.concat("<tr>\n");
-  html.concat("<td>RawData of Live-Data</td>\n");
-  html.concat("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='live_rawdata_org' style='display: none;'>\n");
+  response->print("<tr>\n");
+  response->print("<td>RawData of Live-Data</td>\n");
+  response->print("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='live_rawdata_org' style='display: none;'>\n");
   
   for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
-    html.concat(this->PrintHex(this->SaveLiveDataframe->at(i)));
-    html.concat(" ");
-    if (html.length() > 2000) { server->sendContent(html.c_str()); html = ""; }
+    response->print(this->PrintHex(this->SaveLiveDataframe->at(i)));
+    response->print(" ");
   }
 
-  html.concat("</span><span id='live_rawdata'></span></td>\n");
-  html.concat("</tr>\n");
+  response->print("</span><span id='live_rawdata'></span></td>\n");
+  response->print("</tr>\n");
 
-  server->sendContent(html.c_str()); html = "";
+  response->print("</tbody>\n");
+  response->print("</table>\n");
+
+  response->print("<p>\n");
+  response->print("<table id='maintable' class='editorDemoTable'>\n");
   
-  html.concat("</tbody>\n");
-  html.concat("</table>\n");
+  response->print("  <tr>\n");
+  response->print("    <td style='width: 250px;'>Insert your positions (comma separated) to test</td>\n");
+  response->print("    <td style='width: 400px;'><input id='positions' type='text' style='width: 12em' value='15,16,17,18'/><input  type='button' value='test it' onclick='check_rawdata()' /><span id='rawdata_result'></span></td>\n");
+  response->print("  </tr>\n");
+  response->print("  <tr>\n");
+  response->print("    <td>Options</td>\n");
+  response->print("    <td>\n");
+  response->print("      <table>\n");
+  response->print("        <tr>\n");
+  response->print("          <td>\n");
+  response->print("            <input type='radio' id='int' name='datatype' value='int' checked>\n");
+  response->print("            <label for='int'>Integer or Float</label><br>\n");
+  response->print("            <input type='radio' id='string' name='datatype' value='string'>\n");
+  response->print("            <label for='string'>String</label> \n");
+  response->print("          </td>\n");
+  response->print("          <td>\n");
+  response->print("            <input type='radio' id='id' name='rawdatatype' value='id_rawdata'>\n");
+  response->print("            <label for='id'>ID-Data</label><br>\n");
+  response->print("            <input type='radio' id='live' name='rawdatatype' value='live_rawdata' checked>\n");
+  response->print("            <label for='live'>Live-Data</label><br>\n");
+  response->print("          </td>\n");
+  response->print("        </tr>\n");
+  response->print("      </table>\n");
+  response->print("    </td>\n");
+  response->print("  </tr>\n");
 
-  html.concat("<p>\n");
-  html.concat("<table id='maintable' class='editorDemoTable'>\n");
-  
-  html.concat("  <tr>\n");
-  html.concat("    <td style='width: 250px;'>Insert your positions (comma separated) to test</td>\n");
-  html.concat("    <td style='width: 400px;'><input id='positions' type='text' style='width: 12em' value='15,16,17,18'/><input  type='button' value='test it' onclick='check_rawdata()' /><span id='rawdata_result'></span></td>\n");
-  html.concat("  </tr>\n");
-  html.concat("  <tr>\n");
-  html.concat("    <td>Options</td>\n");
-  html.concat("    <td>\n");
-  html.concat("      <table>\n");
-  html.concat("        <tr>\n");
-  html.concat("          <td>\n");
-  html.concat("            <input type='radio' id='int' name='datatype' value='int' checked>\n");
-  html.concat("            <label for='int'>Integer or Float</label><br>\n");
-  html.concat("            <input type='radio' id='string' name='datatype' value='string'>\n");
-  html.concat("            <label for='string'>String</label> \n");
-  html.concat("          </td>\n");
-  html.concat("          <td>\n");
-  html.concat("            <input type='radio' id='id' name='rawdatatype' value='id_rawdata'>\n");
-  html.concat("            <label for='id'>ID-Data</label><br>\n");
-  html.concat("            <input type='radio' id='live' name='rawdatatype' value='live_rawdata' checked>\n");
-  html.concat("            <label for='live'>Live-Data</label><br>\n");
-  html.concat("          </td>\n");
-  html.concat("        </tr>\n");
-  html.concat("      </table>\n");
-  html.concat("    </td>\n");
-  html.concat("  </tr>\n");
+  response->print("</tbody>\n");
+  response->print("</table>\n");
+  response->print("</form>\n\n<br />\n");
 
-  html.concat("</tbody>\n");
-  html.concat("</table>\n");
-  html.concat("</form>\n\n<br />\n");
-
-  html.concat("<script type = 'text/javascript'>\n");
-  html.concat("	reset_rawdata('id_rawdata');\n");
-  html.concat("	reset_rawdata('live_rawdata');\n");
-  html.concat("</script>\n");
-
-  server->sendContent(html.c_str()); html = "";
+  response->print("<script type = 'text/javascript'>\n");
+  response->print("	reset_rawdata('id_rawdata');\n");
+  response->print("	reset_rawdata('live_rawdata');\n");
+  response->print("</script>\n");
 }

@@ -11,7 +11,7 @@
 #include <ArduinoQueue.h>
 #include <HardwareSerial.h>
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -48,10 +48,10 @@ class modbus {
     const String&           GetInverterType()   const {return InverterType;}
 
     void                    enableMqtt(MQTT* object);
-    void                    GetWebContentConfig(WM_WebServer* server);
-    void                    GetWebContentItemConfig(WM_WebServer* server);
-    void                    GetWebContentRawData(WM_WebServer* server);
-    void                    GetWebContentActiveLiveData(WM_WebServer* server);
+    void                    GetWebContentConfig(AsyncResponseStream *response);
+    void                    GetWebContentItemConfig(AsyncResponseStream *response);
+    void                    GetWebContentRawData(AsyncResponseStream *response);
+    void                    GetWebContentActiveLiveData(AsyncResponseStream *response);
     String                  GetInverterSN();
     String                  GetLiveDataAsJson();
     void                    SetItemActiveStatus(String item, bool newstate);

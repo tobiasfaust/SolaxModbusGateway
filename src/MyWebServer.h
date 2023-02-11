@@ -36,36 +36,33 @@ class MyWebServer {
 
     #ifdef ESP8266
       using WM_mdns = MDNSResponder;
-      using WM_httpUpdater = ESP8266HTTPUpdateServer;
     #elif ESP32
       using WM_mdns = MDNSResponder;
-      using WM_httpUpdater = ESPHTTPUpdateServer;
     #endif
 
     WM_mdns mdns;
-    WM_WebServer* server;
-    WM_httpUpdater httpUpdater;
+    AsyncWebServer* server;
         
-    void      handleNotFound();
-    void      handleReboot();
-    void      handleReset();
-    void      handleWiFiReset();
-    void      handleCSS();
-    void      handleJS();
-    void      handleJsAjax();
-    void      handleJSParam();
-    void      handleRoot();
-    void      handleBaseConfig();
-    void      handleModbusConfig();
-    void      handleModbusItemConfig();
-    void      handleModbusRawData();
-    void      handleFavIcon();
-    void      handleAjax();
-    void      ReceiveJSONConfiguration(page_t page);
-    void      getPageHeader(String* html, page_t pageactive);
-    void      getPageFooter(String* html);
+    void      handleNotFound(AsyncWebServerRequest *request);
+    void      handleReboot(AsyncWebServerRequest *request);
+    void      handleReset(AsyncWebServerRequest *request);
+    void      handleWiFiReset(AsyncWebServerRequest *request);
+    void      handleCSS(AsyncWebServerRequest *request);
+    void      handleJS(AsyncWebServerRequest *request);
+    void      handleJsAjax(AsyncWebServerRequest *request);
+    void      handleJSParam(AsyncWebServerRequest *request);
+    void      handleRoot(AsyncWebServerRequest *request);
+    void      handleBaseConfig(AsyncWebServerRequest *request);
+    void      handleModbusConfig(AsyncWebServerRequest *request);
+    void      handleModbusItemConfig(AsyncWebServerRequest *request);
+    void      handleModbusRawData(AsyncWebServerRequest *request);
+    void      handleFavIcon(AsyncWebServerRequest *request);
+    void      handleAjax(AsyncWebServerRequest *request);
+    void      ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page);
+    void      getPageHeader(AsyncResponseStream *response, page_t pageactive);
+    void      getPageFooter(AsyncResponseStream *response);
     
-    void      getPage_Status(String* html);
+    void      getPage_Status(AsyncResponseStream *response);
   
 };
 

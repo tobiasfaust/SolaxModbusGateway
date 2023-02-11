@@ -1,10 +1,6 @@
 #ifndef BASECONFIG_H
 #define BASECONFIG_H
 
-//#if defined(ESP8266) || defined(ESP32)
-//  #define min(x,y) _min(x,y)
-//#endif
-
 #include "commonlibs.h"
 #include "ArduinoJson.h"
 
@@ -15,7 +11,7 @@ class BaseConfig {
     BaseConfig();
     void      StoreJsonConfig(String* json); 
     void      LoadJsonConfig();
-    void      GetWebContent(WM_WebServer* server);
+    void      GetWebContent(AsyncResponseStream *response);
 
     const String&   GetMqttServer()    const {return mqtt_server;}
     const uint16_t& GetMqttPort()     const {return mqtt_port;}
@@ -36,10 +32,6 @@ class BaseConfig {
     bool      mqtt_UseRandomClientID;
     uint8_t   debuglevel;
 
-    //uint8_t   clientid;
-    //uint32_t  baudrate;
-    //uint16_t  txinterval;
-    //String    inverterType;
 };
 
 extern BaseConfig* Config;

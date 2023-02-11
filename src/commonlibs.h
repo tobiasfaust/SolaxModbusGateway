@@ -17,18 +17,16 @@
   #include <ESP8266HTTPUpdateServer.h>
   #include <ESP8266mDNS.h>
   #include <ESP8266WiFi.h>
+  #include <ESPAsyncTCP.h>
 #elif ESP32
   #include "SPIFFS.h"
   #include <WiFi.h>
-  #include <esp_wifi.h>  
-  #include <Update.h>
-  #include <WebServer.h>
+  //#include <esp_wifi.h>  
+  //#include <Update.h>
   #include <ESPmDNS.h>
-  #include <ESPHTTPUpdateServer.h>
+  #include <WebServer.h>
+  //#include <ESPHTTPUpdateServer.h>
+  #include <AsyncTCP.h>
 #endif
 
-#ifdef ESP8266
-  using WM_WebServer = ESP8266WebServer;
-#elif ESP32
-  using WM_WebServer = WebServer;
-#endif
+#include <ESPAsyncWebServer.h>

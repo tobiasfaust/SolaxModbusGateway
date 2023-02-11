@@ -1,7 +1,7 @@
 #include "MyWebServer.h"
 
 MyWebServer::MyWebServer() : DoReboot(false) {
-  server = new WM_WebServer(80);
+  server = new AsyncWebServer(80);
 
   if (!MDNS.begin(Config->GetMqttRoot().c_str()))  {  
     Serial.println(F("Error setting up MDNS responder!"));  
@@ -14,173 +14,153 @@ MyWebServer::MyWebServer() : DoReboot(false) {
 
 
   //httpUpdater = new WM_httpUpdater(false);
-  httpUpdater.setup(server);
+  //httpUpdater.setup(server);
   
   server->begin(); 
 
-  server->onNotFound([this]() { this->handleNotFound(); });
-  server->on("/", [this]() {this->handleRoot(); });
-  server->on("/BaseConfig", [this]() {this->handleBaseConfig(); });
-  server->on("/ModbusConfig", [this]() {this->handleModbusConfig(); });
-  server->on("/ModbusItemConfig", [this]() {this->handleModbusItemConfig(); });
-  server->on("/ModbusRawData", [this]() {this->handleModbusRawData(); });
+  server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
+  server->on("/", HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
+  server->on("/BaseConfig", HTTP_GET, std::bind(&MyWebServer::handleBaseConfig, this, std::placeholders::_1));
+  server->on("/ModbusConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusConfig, this, std::placeholders::_1));
+  server->on("/ModbusItemConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusItemConfig, this, std::placeholders::_1));
+  server->on("/ModbusRawData", HTTP_GET, std::bind(&MyWebServer::handleModbusRawData, this, std::placeholders::_1));
   
 
-  server->on("/style.css", HTTP_GET, [this]() {this->handleCSS(); });
-  server->on("/javascript.js", HTTP_GET, [this]() {this->handleJS(); });
-  server->on("/jsajax.js", HTTP_GET, [this]() {this->handleJsAjax(); });
+  server->on("/style.css", HTTP_GET, std::bind(&MyWebServer::handleCSS, this, std::placeholders::_1));
+  server->on("/javascript.js", HTTP_GET, std::bind(&MyWebServer::handleJS, this, std::placeholders::_1));
+  server->on("/jsajax.js", HTTP_GET, std::bind(&MyWebServer::handleJsAjax, this, std::placeholders::_1));
   
-  server->on("/StoreBaseConfig", HTTP_POST, [this]()   { this->ReceiveJSONConfiguration(BASECONFIG); });
-  server->on("/StoreModbusConfig", HTTP_POST, [this]() { this->ReceiveJSONConfiguration(MODBUSCONFIG); });
-  server->on("/StoreModbusItemConfig", HTTP_POST, [this]() { this->ReceiveJSONConfiguration(MODBUSITEMCONFIG); });
+  server->on("/StoreBaseConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, BASECONFIG));
+  server->on("/StoreModbusConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSCONFIG));
+  server->on("/StoreModbusItemConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSITEMCONFIG));
   
-  server->on("/favicon.ico", HTTP_GET, [this]()        { this->handleFavIcon(); });
-  server->on("/reboot", HTTP_GET, [this]()             { this->handleReboot(); });
-  server->on("/reset", HTTP_GET, [this]()              { this->handleReset(); });
-  server->on("/wifireset", HTTP_GET, [this]()          { this->handleWiFiReset(); });
+  server->on("/favicon.ico", HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
+  server->on("/reboot", HTTP_GET, std::bind(&MyWebServer::handleReboot, this, std::placeholders::_1));
+  server->on("/reset", HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
+  server->on("/wifireset", HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
 
   
-  server->on("/ajax", [this]() {this->handleAjax(); });
+  server->on("/ajax", HTTP_GET, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   
   Serial.println(F("WebServer started..."));
 }
 
 void MyWebServer::loop() {
-  server->handleClient();
+  //server->handleClient();
   delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
   if (this->DoReboot) {ESP.restart();}
 }
 
-void MyWebServer::handleNotFound() {
-  server->send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
+  request->send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
 
-void MyWebServer::handleRoot() {
-  String html;
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server->send(200, "text/html", "");
-  this->getPageHeader(&html, ROOT);
-  this->getPage_Status(&html);
-  html.concat("<p></p>");
-  server->sendContent(html.c_str()); html = "";
-  mb->GetWebContentActiveLiveData(server);
-  this->getPageFooter(&html);
-  server->sendContent(html.c_str()); 
-  server->sendContent("");
-}
-
-void MyWebServer::handleCSS() {
-  server->send_P(200, "text/css", STYLE_CSS);
-}
-
-void MyWebServer::handleFavIcon() {
-  server->send_P(200, "image/x-icon", FAVICON, sizeof(FAVICON));
-}
-
-void MyWebServer::handleJS() {
-
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server->send(200, "text/javascript", "");
+void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response->addHeader("Pragma", "no-cache");
+  response->addHeader("Expires", "-1");
   
-  server->sendContent(JAVASCRIPT); 
+  this->getPageHeader(response, ROOT);
+  this->getPage_Status(response);
+  response->print("<p></p>");
   
-  server->sendContent("");  
+  mb->GetWebContentActiveLiveData(response);
+  this->getPageFooter(response);
+  request->send(response);
 }
 
-void MyWebServer::handleJsAjax() {
-  server->send_P(200, "text/javascript", JSAJAX);
+void MyWebServer::handleCSS(AsyncWebServerRequest *request) {
+  request->send_P(200, "text/css", STYLE_CSS);
 }
 
-void MyWebServer::handleReboot() {
-  server->sendHeader("Location","/");
-  server->send(303); 
+void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-icon", FAVICON, sizeof(FAVICON));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+void MyWebServer::handleJS(AsyncWebServerRequest *request) {
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/javascript", JAVASCRIPT);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response); 
+}
+
+void MyWebServer::handleJsAjax(AsyncWebServerRequest *request) {
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/javascript", JSAJAX);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response); 
+}
+
+void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
+  request->redirect("/");
   this->DoReboot = true;  
 }
 
-void MyWebServer::handleReset() {
+void MyWebServer::handleReset(AsyncWebServerRequest *request) {
   SPIFFS.format();
-  this->handleReboot();
+  this->handleReboot(request);
 }
 
-void MyWebServer::handleWiFiReset() {
+void MyWebServer::handleWiFiReset(AsyncWebServerRequest *request) {
   #ifdef ESP32
     WiFi.disconnect(true,true);
   #elif ESP8266  
     ESP.eraseConfig();
   #endif
   
-  this->handleReboot();
+  this->handleReboot(request);
 }
 
 
-void MyWebServer::handleBaseConfig() {
-  String html;
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server->send(200, "text/html", "");
-  this->getPageHeader(&html, BASECONFIG);
-  server->sendContent(html.c_str()); html = "";
-  Config->GetWebContent(server);
-  this->getPageFooter(&html);
-  server->sendContent(html.c_str()); 
-  server->sendContent("");
+void MyWebServer::handleBaseConfig(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Server","ESP Async Web Server");
+
+  this->getPageHeader(response, BASECONFIG);
+  Config->GetWebContent(response);
+  this->getPageFooter(response);
+  request->send(response);
 }
 
-void MyWebServer::handleModbusConfig() {
-  String html;
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server->send(200, "text/html", "");
-  this->getPageHeader(&html, MODBUSCONFIG);
-  server->sendContent(html.c_str()); html = "";
-  mb->GetWebContentConfig(server);
-  this->getPageFooter(&html);
-  server->sendContent(html.c_str()); 
-  server->sendContent("");
+void MyWebServer::handleModbusConfig(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  
+  this->getPageHeader(response, MODBUSCONFIG);
+  mb->GetWebContentConfig(response);
+  this->getPageFooter(response);
+  request->send(response);
 }
 
-void MyWebServer::handleModbusItemConfig() {
-  String html;
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server->send(200, "text/html", "");
-  this->getPageHeader(&html, MODBUSITEMCONFIG);
-  server->sendContent(html.c_str()); html = "";
-  mb->GetWebContentItemConfig(server);
-  this->getPageFooter(&html);
-  server->sendContent(html.c_str()); 
-  server->sendContent("");
+void MyWebServer::handleModbusItemConfig(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Server","ESP Async Web Server");
+  
+  this->getPageHeader(response, MODBUSITEMCONFIG);
+  mb->GetWebContentItemConfig(response);
+  this->getPageFooter(response);
+  request->send(response);
 }
 
-void MyWebServer::handleModbusRawData() {
-  String html;
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server->send(200, "text/html", "");
-  this->getPageHeader(&html, MODBUSRAWDATA);
-  server->sendContent(html.c_str()); html = "";
-  mb->GetWebContentRawData(server);
-  this->getPageFooter(&html);
-  server->sendContent(html.c_str()); 
-  server->sendContent("");
+void MyWebServer::handleModbusRawData(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Server","ESP Async Web Server");
+
+  this->getPageHeader(response, MODBUSRAWDATA);
+  mb->GetWebContentRawData(response);
+  this->getPageFooter(response);
+  request->send(response);
 }
 
-void MyWebServer::ReceiveJSONConfiguration(page_t page) {
-  String json = server->arg("json");
+void MyWebServer::ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Server","ESP Async Web Server");
+  String json = "{}";
+
+  if(request->hasArg("json")) {
+    json = request->arg("json");
+  }
+
   String targetPage = "/";
   Serial.print(F("json empfangen: "));
   Serial.println(FPSTR(json.c_str()));  
@@ -189,19 +169,23 @@ void MyWebServer::ReceiveJSONConfiguration(page_t page) {
   if (page==MODBUSCONFIG)      { mb->StoreJsonConfig(&json);     targetPage = "/ModbusConfig"; }
   if (page==MODBUSITEMCONFIG)  { mb->StoreJsonItemConfig(&json); targetPage = "/ModbusItemConfig"; }
   
-  server->sendHeader("Location", targetPage.c_str());
-  server->send(303); 
+  request->redirect(targetPage);
 }
 
-void MyWebServer::handleAjax() {
+void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   char buffer[100] = {0};
   memset(buffer, 0, sizeof(buffer));
   String ret;
   bool RaiseError = false;
   String action, item, newState; 
-  
+  String json = "{}";
+
+  if(request->hasArg("json")) {
+    json = request->arg("json");
+  }
+
   StaticJsonDocument<512> jsonGet; // TODO Use computed size??
-  DeserializationError error = deserializeJson(jsonGet, server->arg("json"));
+  DeserializationError error = deserializeJson(jsonGet, json.c_str());
 
   StaticJsonDocument<256> jsonReturn;
 
@@ -220,7 +204,7 @@ void MyWebServer::handleAjax() {
     serializeJson(jsonReturn, ret);
 
     if (Config->GetDebugLevel() >=2) {
-      snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", server->arg("json").c_str(), error.c_str());
+      snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
       Serial.println(FPSTR(buffer));
     }
     
@@ -242,158 +226,138 @@ void MyWebServer::handleAjax() {
   }
 
   if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Antwort: "); Serial.println(ret); }
-  server->send(200, "text/html", ret.c_str());
-}
-
-void MyWebServer::getPageHeader(String* html, page_t pageactive) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
   
-  html->concat("<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'/>\n");
-  html->concat("<meta charset='utf-8'>\n");
-  html->concat("<link rel='stylesheet' type='text/css' href='/style.css'>\n");
-  //html->concat("<script language='javascript' type='text/javascript' src='/parameter.js'></script>\n");
-  html->concat("<script language='javascript' type='text/javascript' src='/javascript.js'></script>\n");
-  html->concat("<script language='javascript' type='text/javascript' src='/jsajax.js'></script>\n");
-  html->concat("<title>Solax X1/X3 G4 Modbus MQTT Gateway</title></head>\n");
-  html->concat("<body>\n");
-  html->concat("<table>\n");
-  html->concat("  <tr>\n");
-  html->concat("   <td colspan='4'>\n");
-  html->concat("     <h2>Configuration</h2>\n");
-  html->concat("   </td>\n");
-
-  html->concat("   <td colspan='4' style='color:#CCCCCC;'>\n");
-  sprintf(buffer, "   <i>(%s)</i>\n", Config->GetMqttRoot().c_str());
-  html->concat(buffer);
-  html->concat("   </td>\n");
-
-  html->concat("   <td colspan='5'>\n");
-  sprintf(buffer, "     <b>Release: </b><span style='color:orange;'>%s</span><br>of %s %s", "none", __DATE__, __TIME__);
-  html->concat(buffer);
-  html->concat("   </td>\n");
-  html->concat(" </tr>\n");
-
-  html->concat(" <tr>\n");
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/'>Status</a></td>\n", (pageactive==ROOT)?"navi_active":"");
-  html->concat(buffer);
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/BaseConfig'>Basis Config</a></td>\n", (pageactive==BASECONFIG)?"navi_active":"");
-  html->concat(buffer);
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusConfig'>Modbus Config</a></td>\n", (pageactive==MODBUSCONFIG)?"navi_active":"");
-  html->concat(buffer);
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusItemConfig'>Item Config</a></td>\n", (pageactive==MODBUSITEMCONFIG)?"navi_active":"");
-  html->concat(buffer);
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  sprintf(buffer, "   <td class='navi %s' style='width: 100px'><a href='/ModbusRawData'>Raw Data</a></td>\n", (pageactive==MODBUSRAWDATA)?"navi_active":"");
-  html->concat(buffer);
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  html->concat("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");
-  html->concat("   <td class='navi' style='width: 50px'></td>\n");
-  html->concat(" </tr>\n");
-  html->concat("  <tr>\n");
-  html->concat("   <td colspan='13'>\n");
-  html->concat("   <p />\n");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", ret);
+  request->send(response);
 }
 
-void MyWebServer::getPageFooter(String* html) {
-  html->concat("</table>\n");
-  html->concat("<div id='ErrorText' class='errortext'></div>\n");
-  html->concat("</body>\n");
-  html->concat("</html>\n");
+void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive) {
+  response->print("<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'/>\n");
+  response->print("<meta charset='utf-8'>\n");
+  response->print("<link rel='stylesheet' type='text/css' href='/style.css'>\n");
+  response->print("<script language='javascript' type='text/javascript' src='/javascript.js'></script>\n");
+  response->print("<script language='javascript' type='text/javascript' src='/jsajax.js'></script>\n");
+  response->print("<title>Solax X1/X3 G4 Modbus MQTT Gateway</title></head>\n");
+  response->print("<body>\n");
+  response->print("<table>\n");
+  response->print("  <tr>\n");
+  response->print("   <td colspan='4'>\n");
+  response->print("     <h2>Configuration</h2>\n");
+  response->print("   </td>\n");
+
+  response->print("   <td colspan='4' style='color:#CCCCCC;'>\n");
+  response->printf("   <i>(%s)</i>\n", Config->GetMqttRoot().c_str());
+  response->print("   </td>\n");
+
+  response->print("   <td colspan='5'>\n");
+  response->printf("     <b>Release: </b><span style='color:orange;'>%s</span><br>of %s %s", "none", __DATE__, __TIME__);
+  response->print("   </td>\n");
+  response->print(" </tr>\n");
+
+  response->print(" <tr>\n");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->printf("   <td class='navi %s' style='width: 100px'><a href='/'>Status</a></td>\n", (pageactive==ROOT)?"navi_active":"");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->printf("   <td class='navi %s' style='width: 100px'><a href='/BaseConfig'>Basis Config</a></td>\n", (pageactive==BASECONFIG)?"navi_active":"");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->printf("   <td class='navi %s' style='width: 100px'><a href='/ModbusConfig'>Modbus Config</a></td>\n", (pageactive==MODBUSCONFIG)?"navi_active":"");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->printf("   <td class='navi %s' style='width: 100px'><a href='/ModbusItemConfig'>Item Config</a></td>\n", (pageactive==MODBUSITEMCONFIG)?"navi_active":"");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->printf("   <td class='navi %s' style='width: 100px'><a href='/ModbusRawData'>Raw Data</a></td>\n", (pageactive==MODBUSRAWDATA)?"navi_active":"");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->print("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->print(" </tr>\n");
+  response->print("  <tr>\n");
+  response->print("   <td colspan='13'>\n");
+  response->print("   <p />\n");
 }
 
-void MyWebServer::getPage_Status(String* html) {
-  char buffer[100] = {0};
-  memset(buffer, 0, sizeof(buffer));
+void MyWebServer::getPageFooter(AsyncResponseStream *response) {
+  response->print("</table>\n");
+  response->print("<div id='ErrorText' class='errortext'></div>\n");
+  response->print("</body>\n");
+  response->print("</html>\n");
+}
+
+void MyWebServer::getPage_Status(AsyncResponseStream *response) {
   uptime::calculateUptime();
   
-  html->concat("<table class='editorDemoTable'>\n");
-  html->concat("<thead>\n");
-  html->concat("<tr>\n");
-  html->concat("<td style='width: 250px;'>Name</td>\n");
-  html->concat("<td style='width: 200px;'>Wert</td>\n");
-  html->concat("</tr>\n");
-  html->concat("</thead>\n");
-  html->concat("<tbody>\n");
+  response->print("<table class='editorDemoTable'>\n");
+  response->print("<thead>\n");
+  response->print("<tr>\n");
+  response->print("<td style='width: 250px;'>Name</td>\n");
+  response->print("<td style='width: 200px;'>Wert</td>\n");
+  response->print("</tr>\n");
+  response->print("</thead>\n");
+  response->print("<tbody>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>IP-Adresse:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", WiFi.localIP().toString().c_str());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>IP-Adresse:</td>\n");
+  response->printf("<td>%s</td>\n", WiFi.localIP().toString().c_str());
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>WiFi Name:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", WiFi.SSID().c_str());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>WiFi Name:</td>\n");
+  response->printf("<td>%s</td>\n", WiFi.SSID().c_str());
+  response->print("</tr>\n");
   
-  html->concat("<tr>\n");
-  html->concat("<td>MAC:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", WiFi.macAddress().c_str());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>MAC:</td>\n");
+  response->printf("<td>%s</td>\n", WiFi.macAddress().c_str());
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>WiFi RSSI:</td>\n");
-  sprintf(buffer, "<td>%d</td>\n", WiFi.RSSI());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>WiFi RSSI:</td>\n");
+  response->printf("<td>%d</td>\n", WiFi.RSSI());
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>MQTT Status:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected"));
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>MQTT Status:</td>\n");
+  response->printf("<td>%s</td>\n", (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected"));
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>Selected Inverter:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", mb->GetInverterType().c_str());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Selected Inverter:</td>\n");
+  response->printf("<td>%s</td>\n", mb->GetInverterType().c_str());
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>Inverter SerialNumber:</td>\n");
-  sprintf(buffer, "<td>%s</td>\n", mb->GetInverterSN().c_str());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Inverter SerialNumber:</td>\n");
+  response->printf("<td>%s</td>\n", mb->GetInverterSN().c_str());
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>Uptime:</td>\n");
-  sprintf(buffer, "<td>%lu Days, %lu Hours, %lu Minutes</td>\n", uptime::getDays(), uptime::getHours(), uptime::getMinutes()); //uptime_formatter::getUptime().c_str()); //UpTime->getFormatUptime());
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Uptime:</td>\n");
+  response->printf("<td>%lu Days, %lu Hours, %lu Minutes</td>\n", uptime::getDays(), uptime::getHours(), uptime::getMinutes()); //uptime_formatter::getUptime().c_str()); //UpTime->getFormatUptime());
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("<td>Free Heap Memory:</td>\n");
-  sprintf(buffer, "<td>%d</td>\n", ESP.getFreeHeap()); //https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/heap_debug.html
-  html->concat(buffer);
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td>Free Heap Memory:</td>\n");
+  response->printf("<td>%d</td>\n", ESP.getFreeHeap()); //https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/heap_debug.html
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("  <td>Firmware Update</td>\n");
-  html->concat("  <td><form action='update'><input class='button' type='submit' value='Update' /></form></td>\n");
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("  <td>Firmware Update</td>\n");
+  response->print("  <td><form action='update'><input class='button' type='submit' value='Update' /></form></td>\n");
+  response->print("</tr>\n");
   
-  html->concat("<tr>\n");
-  html->concat("  <td>Device Reboot</td>\n");
-  html->concat("  <td><form action='reboot'><input class='button' type='submit' value='Reboot' /></form></td>\n");
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("  <td>Device Reboot</td>\n");
+  response->print("  <td><form action='reboot'><input class='button' type='submit' value='Reboot' /></form></td>\n");
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("  <td>Werkszustand herstellen (ohne WiFi)</td>\n");
-  html->concat("  <td><form action='reset'><input class='button' type='submit' value='Reset' /></form></td>\n");
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("  <td>Werkszustand herstellen (ohne WiFi)</td>\n");
+  response->print("  <td><form action='reset'><input class='button' type='submit' value='Reset' /></form></td>\n");
+  response->print("</tr>\n");
 
-  html->concat("<tr>\n");
-  html->concat("  <td>WiFi Zugangsdaten entfernen</td>\n");
-  html->concat("  <td><form action='wifireset'><input class='button' type='submit' value='WifiReset' /></form></td>\n");
-  html->concat("</tr>\n");
+  response->print("<tr>\n");
+  response->print("  <td>WiFi Zugangsdaten entfernen</td>\n");
+  response->print("  <td><form action='wifireset'><input class='button' type='submit' value='WifiReset' /></form></td>\n");
+  response->print("</tr>\n");
   
-  html->concat("</tbody>\n");
-  html->concat("</table>\n");     
+  response->print("</tbody>\n");
+  response->print("</table>\n");     
 }
