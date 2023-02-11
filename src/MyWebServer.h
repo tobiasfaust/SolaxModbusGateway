@@ -42,7 +42,10 @@ class MyWebServer {
 
     WM_mdns mdns;
     AsyncWebServer* server;
-        
+
+    void      handle_update_page(AsyncWebServerRequest *request);
+    void      handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);    
+    void      handle_update_response(AsyncWebServerRequest *request);
     void      handleNotFound(AsyncWebServerRequest *request);
     void      handleReboot(AsyncWebServerRequest *request);
     void      handleReset(AsyncWebServerRequest *request);

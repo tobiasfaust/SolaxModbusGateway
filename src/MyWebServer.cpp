@@ -12,10 +12,6 @@ MyWebServer::MyWebServer() : DoReboot(false) {
     Serial.println(F("mDNS responder started"));  
   }
 
-
-  //httpUpdater = new WM_httpUpdater(false);
-  //httpUpdater.setup(server);
-  
   server->begin(); 
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
@@ -24,7 +20,6 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->on("/ModbusConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusConfig, this, std::placeholders::_1));
   server->on("/ModbusItemConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusItemConfig, this, std::placeholders::_1));
   server->on("/ModbusRawData", HTTP_GET, std::bind(&MyWebServer::handleModbusRawData, this, std::placeholders::_1));
-  
 
   server->on("/style.css", HTTP_GET, std::bind(&MyWebServer::handleCSS, this, std::placeholders::_1));
   server->on("/javascript.js", HTTP_GET, std::bind(&MyWebServer::handleJS, this, std::placeholders::_1));
@@ -39,10 +34,53 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->on("/reset", HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
   server->on("/wifireset", HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
 
-  
   server->on("/ajax", HTTP_GET, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   
+  server->on("/update", HTTP_GET, std::bind(&MyWebServer::handle_update_page, this, std::placeholders::_1));
+
+  server->on("/update", HTTP_POST, std::bind(&MyWebServer::handle_update_response, this, std::placeholders::_1),
+                                   std::bind(&MyWebServer::handle_update_progress, this, std::placeholders::_1, 
+                                        std::placeholders::_2,
+                                        std::placeholders::_3,
+                                        std::placeholders::_4,
+                                        std::placeholders::_5,
+                                        std::placeholders::_6));
+
   Serial.println(F("WebServer started..."));
+}
+
+void MyWebServer::handle_update_page(AsyncWebServerRequest *request) {
+  request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
+}
+
+void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", this->DoReboot?"OK":"FAIL");
+  response->addHeader("Connection", "close");
+  request->send(response);
+}
+
+void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+  uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+  if(!index){
+      Serial.printf("Update Start: %s\n", filename.c_str());
+      //Update.runAsync(true);
+      if(!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)){
+        Update.printError(Serial);
+      }
+  }
+  if(!Update.hasError()){
+    if(Update.write(data, len) != len){
+        Update.printError(Serial);
+    }
+  }
+  if(final){
+    if(Update.end(true)){
+      Serial.printf("Update Success: %uB\n", index+len);
+      this->DoReboot = true;//Set flag so main loop can issue restart call
+    } else {
+      Update.printError(Serial);
+    }
+  }
 }
 
 void MyWebServer::loop() {
