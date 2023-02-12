@@ -307,7 +307,7 @@ const char JSON[] PROGMEM = R"=====(
 			"ClientIdPos": 0,
 			"LiveDataFunctionCodePos": 1,
 			"LiveDataFunctionCode": "0x04",
-			"IDDataFunctionCodePos": 1,
+			"IdDataFunctionCodePos": 1,
 			"IdDataFunctionCode": "0x03",
 			"LiveDataStartsAtPos": 3,
 			"IdDataStartsAtPos": 3,
