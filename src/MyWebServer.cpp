@@ -34,7 +34,7 @@ MyWebServer::MyWebServer() : DoReboot(false) {
   server->on("/reset", HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
   server->on("/wifireset", HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
 
-  server->on("/ajax", HTTP_GET, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
+  server->on("/ajax", HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   
   server->on("/update", HTTP_GET, std::bind(&MyWebServer::handle_update_page, this, std::placeholders::_1));
 
@@ -84,9 +84,12 @@ void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String 
 }
 
 void MyWebServer::loop() {
-  //server->handleClient();
-  delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
-  if (this->DoReboot) {ESP.restart();}
+  //delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
+  if (this->DoReboot) {
+    Serial.println("Rebooting...");
+    delay(100);
+    ESP.restart();
+  }
 }
 
 void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
@@ -131,8 +134,11 @@ void MyWebServer::handleJsAjax(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  request->redirect("/");
   this->DoReboot = true;  
+
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (this->DoReboot?"OK":"Fail"));
+  response->addHeader("Connection", "close");
+  request->send(response);
 }
 
 void MyWebServer::handleReset(AsyncWebServerRequest *request) {
@@ -218,6 +224,9 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   String action, item, newState; 
   String json = "{}";
 
+  AsyncResponseStream *response = request->beginResponseStream("text/json");
+  response->addHeader("Server","ESP Async Web Server");
+
   if(request->hasArg("json")) {
     json = request->arg("json");
   }
@@ -240,6 +249,7 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   if (RaiseError) {
     jsonReturn["error"] = buffer;
     serializeJson(jsonReturn, ret);
+    response->print(ret);
 
     if (Config->GetDebugLevel() >=2) {
       snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
@@ -247,13 +257,14 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
     }
     
   } else if (action && action == "RefreshLiveData") {
-      ret = mb->GetLiveDataAsJson();
+      mb->GetLiveDataAsJson(response);
   
   } else if (action && action == "SetActiveStatus") {
       if (strcmp(newState.c_str(),"true")==0)  mb->SetItemActiveStatus(item, true); 
       if (strcmp(newState.c_str(),"false")==0) mb->SetItemActiveStatus(item, false);    
       jsonReturn["error"] = "false";
       serializeJson(jsonReturn, ret);
+      response->print(ret);
   
   } else {
     if (Config->GetDebugLevel() >=1) {
@@ -261,11 +272,12 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
       Serial.println(buffer);
     }
     serializeJson(jsonReturn, ret);
+    response->print(ret);
   }
 
   if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Antwort: "); Serial.println(ret); }
   
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", ret);
+  
   request->send(response);
 }
 

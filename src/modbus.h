@@ -53,7 +53,7 @@ class modbus {
     void                    GetWebContentRawData(AsyncResponseStream *response);
     void                    GetWebContentActiveLiveData(AsyncResponseStream *response);
     String                  GetInverterSN();
-    String                  GetLiveDataAsJson();
+    void                    GetLiveDataAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
 

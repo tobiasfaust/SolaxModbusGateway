@@ -6,7 +6,7 @@ var myInterval = setInterval(RefreshLiveData, 5000);
 
 function ChangeActiveStatus(id) {
   obj = document.getElementById(id);
-  item = id.replace(/^.*_([0-9a-zA-Z]+)$/g, "$1");
+  item = id.replace(/^activeswitch_(.*)$/g, "$1");
   var data = {};
   data['action'] = "SetActiveStatus";
   data['newState'] = (obj.checked?"true":"false");
@@ -43,14 +43,11 @@ function ajax_send(json) {
   http.onreadystatechange = function() { //Call a function when the state changes.
       if(http.readyState == 4 && http.status == 200) {
           var res = JSON.parse(http.responseText);
-          
-          Object.entries(res).forEach((entry) => {
-            const [key, value] = entry;
-            
-            obj = document.getElementById(key);
-            obj.innerHTML = "<span class='ajaxchange'>"+value+"</span>";
-
-          });
+          for ( var i = 0; i < res["data"].length; i++ ) {
+            //alert(res["data"][i]["name"])
+            obj = document.getElementById(res["data"][i]["name"]);
+            obj.innerHTML = "<span class='ajaxchange'>" + res["data"][i]["value"] + "</span>";
+					}
       } 
     }
   http.send(params);

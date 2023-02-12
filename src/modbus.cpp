@@ -788,21 +788,29 @@ String modbus::GetInverterSN() {
 }
 
 /*******************************************************
- * Return all LiveData as json
+ * Return all LiveData as jsonArray
+ * {data: [{"name": "xx", "value": "xx"}], }
+ * {"GridVoltage_R":"0.00 V","GridCurrent_R":"0.00 A","GridPower_R":"0 W","GridFrequency_R":"0.00 Hz","GridVoltage_S":"0.90 V","GridCurrent_S":"1715.40 A","GridPower_S":"-28671 W","GridFrequency_S":"174.08 Hz","GridVoltage_T":"0.00 V","GridCurrent_T":"0.00 A","GridPower_T":"0 W","GridFrequency_T":"1.30 Hz","PvVoltage1":"259.80 V","PvVoltage2":"0.00 V","PvCurrent1":"1.00 A","PvCurrent2":"0.00 A","Temperature":"28 &deg;C","PowerPv1":"283 W","PowerPv2":"0 W","BatVoltage":"0.00 V","BatCurrent":"0.00 A","BatPower":"0 W","BatTemp":"0 &deg;C","BatCapacity":"0 %","OutputEnergyChargeWh":"0 Wh","OutputEnergyChargeKWh":"0.00 KWh","OutputEnergyChargeToday":"0.00 KWh","InputEnergyChargeWh":"0 Wh","InputEnergyChargeKWh":"0.00 KWh"}
 *******************************************************/
-String modbus::GetLiveDataAsJson() {
-  String sn;
-  StaticJsonDocument<1024> doc;
+void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
+  response->print("{\"data\": ["); 
+  
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
     for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
       if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).active) {
-        doc[this->InverterLiveData->at(i).Name] = this->InverterLiveData->at(i).value;
+        StaticJsonDocument<256> doc;
+        String s = "";
+        doc["name"]  = this->InverterLiveData->at(i).Name;
+        doc["value"] = this->InverterLiveData->at(i).value;
+        serializeJson(doc, s);
+        if(i>0) response->print(", ");
+        response->print(s);
         break;
       }
     }
   }
-  serializeJson(doc, sn);
-  return sn;  
+  
+  response->print(" ]}");
 }
 
 /*******************************************************
