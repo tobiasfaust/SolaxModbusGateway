@@ -1,6 +1,6 @@
 #include "mqtt.h"
 
-MQTT::MQTT(const char* server, uint16_t port, String basepath, String root) { 
+MQTT::MQTT(AsyncWebServer* server, DNSServer* dns, const char* MqttServer, uint16_t port, String basepath, String root): server(server), dns(dns) { 
   this->mqtt_basepath = basepath;
   this->mqtt_root = root;
   
@@ -9,18 +9,18 @@ MQTT::MQTT(const char* server, uint16_t port, String basepath, String root) {
   espClient = WiFiClient();
   WiFi.mode(WIFI_STA); 
   this->mqtt = new PubSubClient();
-  WiFiManager wifiManager;
-
   
+  AsyncWiFiManager wifiManager(server, dns);
+
   if (Config->GetDebugLevel() >=4) wifiManager.setDebugOutput(true); 
     else wifiManager.setDebugOutput(false); 
 
   wifiManager.setTimeout(300);
   Serial.println("WiFi Start");
   //wifi_station_set_hostname(mqtt_root.c_str());
-  //SetHostName(mqtt_root.c_str()); //TODO
+  WiFi.setHostname(mqtt_root.c_str()); //TODO
   
-  if (!wifiManager.autoConnect(mqtt_root.c_str())) {
+  if (!wifiManager.autoConnect(("AP_" + mqtt_root).c_str())) {
     Serial.println("failed to connect and hit timeout");
     delay(3000);
     //reset and try again, or maybe put it to deep sleep
@@ -32,9 +32,9 @@ MQTT::MQTT(const char* server, uint16_t port, String basepath, String root) {
   Serial.println(WiFi.localIP());
   //WiFi.printDiag(Serial);
 
-  Serial.print("Starting MQTT (");Serial.print(server); Serial.print(":");Serial.print(port);Serial.println(")");
+  Serial.print("Starting MQTT ("); Serial.print(MqttServer); Serial.print(":");Serial.print(port);Serial.println(")");
   this->mqtt->setClient(espClient);
-  this->mqtt->setServer(server, port);
+  this->mqtt->setServer(MqttServer, port);
   this->mqtt->setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
 }
 

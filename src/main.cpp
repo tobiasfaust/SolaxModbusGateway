@@ -15,6 +15,9 @@ _________________________________________________________________
 #include "mqtt.h"
 #include "MyWebServer.h"
 
+AsyncWebServer server(80);
+DNSServer dns;
+
 modbus* mb = NULL;
 BaseConfig* Config = NULL;
 MQTT* mqtt = NULL;
@@ -40,20 +43,20 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Start of Solax MQTT Gateway"); 
+  Serial.println("Start of Solar Inverter MQTT Gateway"); 
 
   Serial.println("Starting BaseConfig");
   Config = new BaseConfig();
   
   Serial.println("Starting Wifi and MQTT");
-  mqtt = new MQTT(Config->GetMqttServer().c_str(), Config->GetMqttPort(), Config->GetMqttBasePath().c_str(), Config->GetMqttRoot().c_str());
+  mqtt = new MQTT(&server, &dns, Config->GetMqttServer().c_str(), Config->GetMqttPort(), Config->GetMqttBasePath().c_str(), Config->GetMqttRoot().c_str());
   mqtt->setCallback(myMQTTCallBack);
 
   mb = new modbus();
   mb->enableMqtt(mqtt);
 
   Serial.println("Starting WebServer");
-  mywebserver = new MyWebServer();
+  mywebserver = new MyWebServer(&server, &dns);
 }
 
 void loop() {

@@ -26,7 +26,7 @@ class MyWebServer {
   enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA};
   
   public:
-    MyWebServer();
+    MyWebServer(AsyncWebServer *server, DNSServer* dns);
 
     void      loop();
 
@@ -34,14 +34,8 @@ class MyWebServer {
     
     bool      DoReboot;
 
-    #ifdef ESP8266
-      using WM_mdns = MDNSResponder;
-    #elif ESP32
-      using WM_mdns = MDNSResponder;
-    #endif
-
-    WM_mdns mdns;
     AsyncWebServer* server;
+    DNSServer* dns;
 
     void      handle_update_page(AsyncWebServerRequest *request);
     void      handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);    
@@ -53,7 +47,6 @@ class MyWebServer {
     void      handleCSS(AsyncWebServerRequest *request);
     void      handleJS(AsyncWebServerRequest *request);
     void      handleJsAjax(AsyncWebServerRequest *request);
-    void      handleJSParam(AsyncWebServerRequest *request);
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleBaseConfig(AsyncWebServerRequest *request);
     void      handleModbusConfig(AsyncWebServerRequest *request);

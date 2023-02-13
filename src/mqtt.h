@@ -3,7 +3,8 @@
 
 #include "commonlibs.h" 
 #include <PubSubClient.h>
-#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
+//#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
+#include <ESPAsyncWiFiManager.h>    // https://github.com/alanswx/ESPAsyncWiFiManager
 #include <vector>
 #include "baseconfig.h"
 
@@ -22,42 +23,46 @@
   #define CALLBACK_FUNCTION void (*MyCallback)(char*, uint8_t*, unsigned int)
 #endif
 
+//#define USE_EADNS   //https://github.com/alanswx/ESPAsyncWiFiManager/blob/master/src/ESPAsyncWiFiManager.h
+
 class MQTT {
 
   public:
 
-    MQTT(const char* server, uint16_t port, String basepath, String root);
-    void          loop();
-    void          Publish_Bool(const char* subtopic, bool b, bool fulltopic);
-    void          Publish_Int(const char* subtopic, int number, bool fulltopic);
-    void          Publish_Float(const char* subtopic, float number, bool fulltopic);
-    void          Publish_String(const char* subtopic, String value, bool fulltopic);
-    void          Publish_IP();
-    void          setCallback(CALLBACK_FUNCTION);
-    void          disconnect();
-    const String& GetRoot()  const {return mqtt_root;}
-    void          Subscribe(String topic);
-    void          ClearSubscriptions();
+    MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t port, String basepath, String root);
+    void              loop();
+    void              Publish_Bool(const char* subtopic, bool b, bool fulltopic);
+    void              Publish_Int(const char* subtopic, int number, bool fulltopic);
+    void              Publish_Float(const char* subtopic, float number, bool fulltopic);
+    void              Publish_String(const char* subtopic, String value, bool fulltopic);
+    void              Publish_IP();
+    void              setCallback(CALLBACK_FUNCTION);
+    void              disconnect();
+    const String&     GetRoot()  const {return mqtt_root;}
+    void              Subscribe(String topic);
+    void              ClearSubscriptions();
     
     
-    const bool&   GetConnectStatusWifi()      const {return ConnectStatusWifi;}
-    const bool&   GetConnectStatusMqtt()      const {return ConnectStatusMqtt;}
+    const bool&       GetConnectStatusWifi()      const {return ConnectStatusWifi;}
+    const bool&       GetConnectStatusMqtt()      const {return ConnectStatusMqtt;}
 
   private:
-    WiFiClient    espClient;
-    PubSubClient* mqtt;
+    AsyncWebServer*   server;
+    DNSServer*   dns;
+    WiFiClient        espClient;
+    PubSubClient*     mqtt;
     CALLBACK_FUNCTION;
-    void          reconnect();
-    void          callback(char* topic, byte* payload, unsigned int length);
+    void              reconnect();
+    void              callback(char* topic, byte* payload, unsigned int length);
     
     std::vector<String>* subscriptions = NULL;
 
-    String        mqtt_root = "";
-    String        mqtt_basepath = "";
-    unsigned long mqttreconnect_lasttry = 0;
-    unsigned long last_keepalive = 0;
-    bool          ConnectStatusWifi;
-    bool          ConnectStatusMqtt;
+    String            mqtt_root = "";
+    String            mqtt_basepath = "";
+    unsigned long     mqttreconnect_lasttry = 0;
+    unsigned long     last_keepalive = 0;
+    bool              ConnectStatusWifi;
+    bool              ConnectStatusMqtt;
   
 };
 

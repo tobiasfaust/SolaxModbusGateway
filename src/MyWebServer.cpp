@@ -1,17 +1,7 @@
 #include "MyWebServer.h"
 
-MyWebServer::MyWebServer() : DoReboot(false) {
-  server = new AsyncWebServer(80);
-
-  if (!MDNS.begin(Config->GetMqttRoot().c_str()))  {  
-    Serial.println(F("Error setting up MDNS responder!"));  
-    // Add service to MDNS-SD
-    MDNS.addService("http", "tcp", 80);
-  }
-  else {  
-    Serial.println(F("mDNS responder started"));  
-  }
-
+MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false) {
+  
   server->begin(); 
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
