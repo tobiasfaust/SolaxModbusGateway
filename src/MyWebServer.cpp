@@ -40,13 +40,15 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
 }
 
 void MyWebServer::handle_update_page(AsyncWebServerRequest *request) {
-  request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATEPAGE);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response); 
 }
 
 void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", this->DoReboot?"OK":"FAIL");
-  response->addHeader("Connection", "close");
-  request->send(response);
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response); 
 }
 
 void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
@@ -124,11 +126,11 @@ void MyWebServer::handleJsAjax(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  this->DoReboot = true;  
-
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (this->DoReboot?"OK":"Fail"));
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
   response->addHeader("Connection", "close");
   request->send(response);
+  
+  this->DoReboot = true;
 }
 
 void MyWebServer::handleReset(AsyncWebServerRequest *request) {
@@ -277,7 +279,7 @@ void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive
   response->print("<link rel='stylesheet' type='text/css' href='/style.css'>\n");
   response->print("<script language='javascript' type='text/javascript' src='/javascript.js'></script>\n");
   response->print("<script language='javascript' type='text/javascript' src='/jsajax.js'></script>\n");
-  response->print("<title>Solax X1/X3 G4 Modbus MQTT Gateway</title></head>\n");
+  response->print("<title>Solar Inverter Modbus MQTT Gateway</title></head>\n");
   response->print("<body>\n");
   response->print("<table>\n");
   response->print("  <tr>\n");

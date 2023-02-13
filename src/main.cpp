@@ -1,5 +1,5 @@
 /*
-Inverter Solax X1/X3 Version G4 Gateway to MQTT
+Solar Inverter Modbus-RTU Gateway to MQTT
 
 _________________________________________________________________
 |                                                               |
@@ -9,6 +9,7 @@ _________________________________________________________________
 _________________________________________________________________
 
 */
+
 #include "commonlibs.h"
 #include "modbus.h"
 #include "baseconfig.h"

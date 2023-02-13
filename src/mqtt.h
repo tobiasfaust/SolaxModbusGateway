@@ -23,8 +23,6 @@
   #define CALLBACK_FUNCTION void (*MyCallback)(char*, uint8_t*, unsigned int)
 #endif
 
-//#define USE_EADNS   //https://github.com/alanswx/ESPAsyncWiFiManager/blob/master/src/ESPAsyncWiFiManager.h
-
 class MQTT {
 
   public:

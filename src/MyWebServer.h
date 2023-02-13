@@ -20,6 +20,7 @@
 #include "JsAjax.h"
 #include "CSS.h"
 #include "favicon.h"
+#include "html_update.h"
 
 class MyWebServer {
 
