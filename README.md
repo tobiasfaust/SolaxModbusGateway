@@ -13,9 +13,9 @@ Sending "set" commands to inverter are basically implemented too.
 ### Supported Solar Inverters
 Basically, all Inverters with Modbus RS485 RTU communication are supported.  
 Currently the following Inverters with their special registers are integrated:
-* Solax Hybrid X1 G4 Series
-* Solax Hybrid X3 G4 Series
-* Growatt SPH
+* Solax Hybrid X1 Series
+* Solax Hybrid X3 Series
+* Growatt SPH Series
 
 If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
 
