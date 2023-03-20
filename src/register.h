@@ -816,17 +816,33 @@ const char JSON[] PROGMEM = R"=====(
 			"IdDataSuccessCode": "0x03"
 		},
 		"data": {
-			"livedata": [{
-					"position": [185, 186, 187, 188],
-					"name": "TotalEnergyPv2",
-					"realname": "Erzeugte Energie Pv2",
-					"openwbtopic": "openWB/set/pv/2/WhCounter",
-					"datatype": "integer",
-					"factor": 100,
-					"unit": "Wh"
+			"livedata": [
+				{
+					"position": [3, 4],
+					"name": "InverterRunState",
+					"realname": "Inverter run state",
+					"datatype": "integer"
 				},
 				{
 					"position": [5, 6, 7, 8],
+					"name": "InputPower",
+					"realname": "Erzeugungsleistung Gesamt",
+					"openwbtopic": "openWB/set/pv/W",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "W"
+				},
+				{
+					"position": [13, 14, 15, 16],
+					"name": "PowerPv1",
+					"realname": "Erzeugungsleistung Pv1",
+					"openwbtopic": "openWB/set/pv/1/W",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "W"
+				},
+				{
+					"position": [21, 22, 23, 24],
 					"name": "PowerPv2",
 					"realname": "Erzeugungsleistung Pv2",
 					"openwbtopic": "openWB/set/pv/2/W",
@@ -835,20 +851,56 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				},
 				{
-					"position": [272, 273],
-					"name": "BatVoltage",
-					"realname": "Battery Voltage",
-					"datatype": "float",
-					"factor": 0.1,
-					"unit": "V"
-				},
-				{
 					"position": [77, 78],
 					"name": "GridFrequency",
 					"realname": "Grid Frequency",
 					"datatype": "float",
 					"factor": 0.01,
 					"unit": "Hz"
+				},
+				{
+					"position": [125, 126, 127, 128],
+					"name": "TotalEnergyWhPv1",
+					"realname": "Erzeugte Energie Pv1 in Wh",
+					"openwbtopic": "openWB/set/pv/1/WhCounter",
+					"datatype": "integer",
+					"factor": 100,
+					"unit": "Wh"
+				},
+				{
+					"position": [125, 126, 127, 128],
+					"name": "TotalEnergyKwhPv1",
+					"realname": "Erzeugte Energie Pv1 in Kwh",
+					"openwbtopic": "openWB/set/pv/1/WhCounter",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [133, 134, 135, 136],
+					"name": "TotalEnergyWhPv2",
+					"realname": "Erzeugte Energie Pv2 in Wh",
+					"openwbtopic": "openWB/set/pv/2/WhCounter",
+					"datatype": "integer",
+					"factor": 100,
+					"unit": "Wh"
+				},
+				{
+					"position": [133, 134, 135, 136],
+					"name": "TotalEnergyKwhPv2",
+					"realname": "Erzeugte Energie Pv2 in Kwh",
+					"openwbtopic": "openWB/set/pv/2/WhCounter",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [183, 284],
+					"name": "BatVoltage",
+					"realname": "Battery Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
 				},
 				{
 					"position": [268, 269, 270, 271],
@@ -904,7 +956,7 @@ const char JSON[] PROGMEM = R"=====(
 				}
 			],
 			"id": [{
-				"position": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55],
+				"position": [49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
 				"name": "InverterSN",
 				"realname": "Inverter SerialNumber",
 				"datatype": "string"
