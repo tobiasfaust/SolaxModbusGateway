@@ -103,17 +103,21 @@ void MQTT::Publish_Float(const char* subtopic, float number, bool fulltopic) {
 }
 
 void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
-  char topic[50] = {0};
-  memset(topic, 0, sizeof(topic));
-  if (fulltopic) {
-    snprintf(topic, sizeof(topic), "%s", subtopic);
-  } else {
-    snprintf(topic, sizeof(topic), "%s/%s/%s", this->mqtt_basepath.c_str(), this->mqtt_root.c_str(), subtopic);
-  }
+  String topic = this->getTopic(String(subtopic), fulltopic);
+  
   if (this->mqtt->connected()) {
-    this->mqtt->publish((const char*)topic, value.c_str(), true);
-    if (Config->GetDebugLevel() >=3) {Serial.print(F("Publish ")); Serial.print(FPSTR(topic)); Serial.print(F(": ")); Serial.println(value);}
+    this->mqtt->publish((const char*)topic.c_str(), value.c_str(), true);
+    if (Config->GetDebugLevel() >=3) {
+      Serial.printf("Publish %s: %s \n", topic.c_str(), value.c_str());
+    }
   } else { if (Config->GetDebugLevel() >=2) {Serial.println(F("Request for MQTT Publish, but not connected to Broker")); }}
+}
+
+String MQTT::getTopic(String subtopic, bool fulltopic) {
+  if (!fulltopic) {
+      subtopic = this->mqtt_basepath + "/" + this->mqtt_root +  "/" + subtopic;
+  }
+  return subtopic;
 }
 
 void MQTT::Publish_IP() {

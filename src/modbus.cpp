@@ -1244,15 +1244,19 @@ void modbus::GetWebContentItemConfig(AsyncResponseStream *response) {
 
     response->print("  <td>\n");
     response->print("    <div class='onoffswitch'>\n");
-    response->printf("      <input type='checkbox' name='active_%s' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_%s' %s>\n", elem["name"].as<String>().c_str(), elem["name"].as<String>().c_str(), (IsActiveItem?"checked":""));
-    response->printf("      <label class='onoffswitch-label' for='activeswitch_%s'>\n", elem["name"].as<String>().c_str());
+    response->printf("        <input type='checkbox' name='active_%s' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_%s' %s>\n", elem["name"].as<String>().c_str(), elem["name"].as<String>().c_str(), (IsActiveItem?"checked":""));
+    response->printf("        <label class='onoffswitch-label' for='activeswitch_%s'>\n", elem["name"].as<String>().c_str());
     response->print("        <span class='onoffswitch-inner'></span>\n");
     response->print("        <span class='onoffswitch-switch'></span>\n");
     response->print("      </label>\n");
     response->print("    </div>\n");
     response->print("  </td>\n");
 
-    response->printf("  <td>%s</td>\n", (elem["realname"].isNull()?elem["name"].as<String>().c_str():elem["realname"].as<String>().c_str()));
+    response->print("  <td>\n");
+    response->printf("    <dfn class='tooltip_simple'>%s", (elem["realname"].isNull()?elem["name"].as<String>().c_str():elem["realname"].as<String>().c_str()));
+    response->printf("    <span role='tooltip_simple'>%s</span>", this->mqtt->getTopic(elem["name"].as<String>(), false).c_str());
+    response->print("    </dfn>");
+    response->print("  </td>\n");
     
     response->print("  <td style='text-align: center'>\n");
     if (!elem["openwbtopic"].isNull()) {
