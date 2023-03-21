@@ -19,12 +19,8 @@ class modbus {
       String Name;
       String RealName;
       String value;
-  } reg_t;
-
-  typedef struct { 
-      String Name;
       bool active;
-  } itemconfig_t;
+  } reg_t;
 
   typedef struct {
     String command = "";
@@ -37,7 +33,7 @@ class modbus {
 
   public:
     modbus();
-    void                    init();
+    void                    init(bool firstrun);
     void                    StoreJsonConfig(String* json);
     void                    StoreJsonItemConfig(String* json);
     void                    LoadJsonConfig(bool firstrun);
@@ -74,7 +70,6 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
-    std::vector<itemconfig_t>* ActiveItems;       // configured active Modbus Items
     std::vector<String>*    AvailableInverters;   // available inverters from JSON
     std::vector<subscription_t>* Setters;         // available set Options from JSON register 
 
@@ -95,7 +90,9 @@ class modbus {
     void                    LoadInverterConfigFromJson();
     void                    GenerateMqttSubscriptions();
     String                  GetMqttSetTopic(String command);
-
+    void                    ChangeRegItem(std::vector<reg_t>* vector, String name, String value);
+    void                    LoadRegItems(std::vector<reg_t>* vector, String type);
+    
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;
     ArduinoQueue<std::vector<byte>>* SetQueue;

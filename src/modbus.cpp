@@ -10,7 +10,6 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
 
   InverterLiveData    = new std::vector<reg_t>{};
   InverterIdData      = new std::vector<reg_t>{};
-  ActiveItems         = new std::vector<itemconfig_t>{};
   AvailableInverters  = new std::vector<String>{};
   Setters             = new std::vector<subscription_t>{};
 
@@ -21,16 +20,14 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
   SetQueue  = new ArduinoQueue<std::vector<byte>>(5); // max 5 set requests parallel
 
   this->LoadJsonConfig(true);
-  this->LoadJsonItemConfig();
-  this->LoadInvertersFromJson();
-  this->LoadInverterConfigFromJson();
-  this->init();
+
+  this->init(true);
 }
 
 /*******************************************************
  * initialize transmission
 *******************************************************/
-void modbus::init() {
+void modbus::init(bool firstrun) {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   if (Config->GetDebugLevel() >=3) {
@@ -42,6 +39,13 @@ void modbus::init() {
 
   // Configure Direction Control pin
   pinMode(this->pin_RTS, OUTPUT);  
+
+  this->LoadInvertersFromJson();
+  this->LoadInverterConfigFromJson();
+  this->LoadRegItems(this->InverterIdData, "id");
+  this->LoadRegItems(this->InverterLiveData, "livedata");
+  this->LoadJsonItemConfig(); // loads InverterLiveData Items too
+  
 
   // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
   RS485Serial = new HardwareSerial(1);
@@ -553,13 +557,6 @@ void modbus::ParseData() {
       RequestType = "livedata";
     }
 
-    // clear old data
-    if(RequestType == "livedata") {
-      this->InverterLiveData->clear();
-    } else if(RequestType == "id") {
-      this->InverterIdData->clear();
-    }
-
     ProgmemStream stream{JSON};
     String streamString = "";
     streamString = "\""+ this->InverterType +"\": {";
@@ -621,13 +618,6 @@ void modbus::ParseData() {
       } 
       
       // optional field
-      if(!elem["realname"].isNull()) {
-        d.RealName = elem["realname"].as<String>();
-      } else {
-        d.RealName = d.Name;
-      }
-
-      // optional field
       if(this->Conf_EnableOpenWBTopic && !elem["openwbtopic"].isNull()) {
         openwbtopic = elem["openwbtopic"].as<String>();
       } else {
@@ -639,15 +629,15 @@ void modbus::ParseData() {
         factor = elem["factor"];
       } else { factor = 1; }
       
-      // optional field
+      // optional field 
       // check, if a extra position for a negative value was defined
       if (elem["position2"].is<JsonArray>()) {
         posArray2 = elem["position2"].as<JsonArray>();
       } 
 
       // check if active item to send out via mqtt
-      for (uint16_t i=0; i < this->ActiveItems->size(); i++) {
-        if (this->ActiveItems->at(i).Name == d.Name && this->ActiveItems->at(i).active) {
+      for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
+        if (this->InverterLiveData->at(i).Name == d.Name && this->InverterLiveData->at(i).active) {
           IsActiveItem = true;
         }
       }
@@ -663,7 +653,7 @@ void modbus::ParseData() {
           this->mqtt->Publish_Float(d.Name.c_str(), val_f, false);
           if (openwbtopic.length() > 0) { this->mqtt->Publish_Float(openwbtopic.c_str(), val_f, true);}
         }
-        sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
+        sprintf(dbg, "Data: %s -> %s", d.Name.c_str(), d.value.c_str());
       
       } else if (datatype == "integer") {
         //********** handle Datatype Integer ***********//
@@ -675,7 +665,7 @@ void modbus::ParseData() {
           this->mqtt->Publish_Int(d.Name.c_str(), val_i, false);
           if (openwbtopic.length() > 0) { this->mqtt->Publish_Int(openwbtopic.c_str(), val_i, true);}
         }
-        sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
+        sprintf(dbg, "Data: %s -> %s", d.Name.c_str(), d.value.c_str());
       
       } else if (datatype == "string") {
         //********** handle Datatype String ***********//
@@ -690,7 +680,7 @@ void modbus::ParseData() {
           this->mqtt->Publish_String(d.Name.c_str(), d.value, false);
           if (openwbtopic.length() > 0) { this->mqtt->Publish_String(openwbtopic.c_str(), d.value, true); }
         }
-        sprintf(dbg, "Data: %s -> %s", d.RealName.c_str(), d.value.c_str());
+        sprintf(dbg, "Data: %s -> %s", d.Name.c_str(), d.value.c_str());
       } else {
         //****************** sonst, leer *******************//
         d.value = "";
@@ -701,9 +691,14 @@ void modbus::ParseData() {
       if (Config->GetDebugLevel() >=4) {Serial.println(dbg);}
 
       if(RequestType == "livedata") {
-        this->InverterLiveData->push_back(d);
+        this->ChangeRegItem(this->InverterLiveData, d.Name, d.value);
       } else if(RequestType == "id") {
-        this->InverterIdData->push_back(d);
+        this->ChangeRegItem(this->InverterIdData, d.Name, d.value);
+        
+        if (Config->GetDebugLevel() >=3) {
+          Serial.printf("Inverter ID Data found -> %s: %s \n", d.Name.c_str(), d.value.c_str());
+        }
+
       }
     
     } while (stream.findUntil(",","]"));
@@ -711,7 +706,7 @@ void modbus::ParseData() {
   } 
 
   // all data were process, clear Dataframe now for next query
-  // save this for WebGUI first
+  // save this for WebGUI "RAW-Data" first
   if(RequestType == "livedata") {
     this->SaveLiveDataframe->clear();
     this->SaveLiveDataframe->assign(this->DataFrame->begin(), this->DataFrame->end());
@@ -721,6 +716,18 @@ void modbus::ParseData() {
   }
 
   this->DataFrame->clear();   
+}
+
+/*******************************************************
+ * Change a Register Item with current data
+*******************************************************/
+void modbus::ChangeRegItem(std::vector<reg_t>* vector, String name, String value) {
+  for (uint16_t i=0; i<vector->size(); i++) {
+    if (vector->at(i).Name == name) {
+      vector->at(i).value = value;
+      break;
+    }
+  }
 }
 
 /*******************************************************
@@ -780,9 +787,10 @@ String modbus::PrintDataFrame(byte* frame, uint8_t len) {
 *******************************************************/
 String modbus::GetInverterSN() {
   String sn = "unknown";
+  
   for (uint16_t i=0; i < this->InverterIdData->size(); i++) {
     if (this->InverterIdData->at(i).Name == "InverterSN")
-      sn = this->InverterIdData->at(i).value;
+      return this->InverterIdData->at(i).value;
   }
   return sn;
 }
@@ -797,18 +805,15 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
   response->print("{\"data\": ["); 
   
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-    for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
-      if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).active) {
-        StaticJsonDocument<256> doc;
-        String s = "";
-        doc["name"]  = this->InverterLiveData->at(i).Name;
-        doc["value"] = this->InverterLiveData->at(i).value;
-        serializeJson(doc, s);
-        if(count>0) response->print(", ");
-        response->print(s);
-        count++;
-        break;
-      }
+    if (this->InverterLiveData->at(i).active) {
+      StaticJsonDocument<256> doc;
+      String s = "";
+      doc["name"]  = this->InverterLiveData->at(i).Name;
+      doc["value"] = this->InverterLiveData->at(i).value;
+      serializeJson(doc, s);
+      if(count>0) response->print(", ");
+      response->print(s);
+      count++;
     }
   }
   
@@ -823,13 +828,13 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
 
-  for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
-    if (this->ActiveItems->at(j).Name == item) {
+  for (uint16_t j=0; j < this->InverterLiveData->size(); j++) {
+    if (this->InverterLiveData->at(j).Name == item) {
       if (Config->GetDebugLevel() >=3) {
         sprintf(dbg, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
         Serial.println(dbg);
       }
-      this->ActiveItems->at(j).active = newstate;
+      this->InverterLiveData->at(j).active = newstate;
     }
   }
 }
@@ -904,17 +909,66 @@ void modbus::StoreJsonItemConfig(String* json) {
   if (!configFile) {
     if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
   } else {  
-    //serializeJsonPretty(doc, Serial);
-    //StringStream stream{*json};
-    //stream.find("\"data\":[");
     
     if (!configFile.print(*json)) {
         if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed writing ItemConfig to file"));}
     }
+
     configFile.close();
   
     LoadJsonItemConfig();
   }
+}
+
+/*******************************************************
+ * load initial Register Items from ProgMemStream into vector
+*******************************************************/
+void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
+  vector->clear();
+
+  ProgmemStream stream{JSON};
+  String streamString = "";
+  streamString = "\""+ this->InverterType +"\": {";
+  stream.find(streamString.c_str());
+    
+  streamString = "\"" + type + "\": [";
+  stream.find(streamString.c_str());
+  do {
+    StaticJsonDocument<512> elem;
+    DeserializationError error = deserializeJson(elem, stream); 
+      
+    if (!error) {
+      // Print the result
+      if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
+      if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
+    } else {
+      if (Config->GetDebugLevel() >=1) {
+        Serial.print("Failed to parse JSON Register Data: "); 
+        Serial.print(error.c_str()); 
+        Serial.println();
+      }
+    }
+
+    reg_t d = {};
+      
+    // mandantory field
+    if(!elem["name"].isNull()) {
+      d.Name = elem["name"].as<String>();
+    } else {
+      d.Name = String("undefined");
+    }
+
+    // optional field
+    if(!elem["realname"].isNull()) {
+      d.RealName = elem["realname"].as<String>();
+    } else {
+      d.RealName = d.Name;
+    }
+
+    d.active = false; // set initial
+    vector->push_back(d);
+
+  } while (stream.findUntil(",","]"));
 }
 
 /*******************************************************
@@ -984,14 +1038,14 @@ void modbus::LoadJsonConfig(bool firstrun) {
      (pin_TX_old   != this->pin_TX)   ||
      (pin_RTS_old  != this->pin_RTS)) ) { 
     
-    this->init();
+    this->init(false);
   }
 
   // ReInit if Invertertype was changed
   if(!firstrun && (
     InverterType_old != this->InverterType) ) { 
     
-    this->LoadInverterConfigFromJson(); 
+    this->init(false);
   }
 
 }
@@ -1003,8 +1057,6 @@ void modbus::LoadJsonItemConfig() {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  this->ActiveItems->clear();
-
   if (SPIFFS.exists("/ModbusItemConfig.json")) {
     //file exists, reading and loading
     if (Config->GetDebugLevel() >=3) Serial.println("reading modbus item config file....");
@@ -1030,16 +1082,19 @@ void modbus::LoadJsonItemConfig() {
           }
         }
 
-        itemconfig_t item = {};
-          
-        item.Name = elem["name"].as<String>();
-        item.Name = item.Name.substring(7, item.Name.length()); //Name: active_<ItemName>
-        item.active = elem["value"].as<bool>();
+        String ItemName = elem["name"].as<String>();
+        ItemName = ItemName.substring(7, ItemName.length()); //Name: active_<ItemName>
 
-        sprintf(dbg, "item %s -> %s", item.Name.c_str(), (item.active?"enabled":"disabled"));
-        if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
-        this->ActiveItems->push_back(item);
+        for(uint16_t i=0; i<this->InverterLiveData->size(); i++) {
+          if (this->InverterLiveData->at(i).Name == ItemName ) {
+            this->InverterLiveData->at(i).active = elem["value"].as<bool>();
 
+            sprintf(dbg, "item %s -> %s", ItemName.c_str(), (this->InverterLiveData->at(i).active?"enabled":"disabled"));
+            if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
+
+            break;
+          }
+        }
 
       } while (stream.findUntil(",","]"));
     } else {
@@ -1173,26 +1228,17 @@ void modbus::GetWebContentItemConfig(AsyncResponseStream *response) {
   do {
     StaticJsonDocument<512> elem;
     DeserializationError error = deserializeJson(elem, stream); 
-    uint16_t i = 0;
     bool IsActiveItem = false;
     String ItemValue = "";
 
     // lookup for the current right value from inverter
-    for (i=0; i < this->InverterLiveData->size(); i++) {
+    for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
       if (this->InverterLiveData->at(i).Name == elem["name"].as<String>()) {
         ItemValue = this->InverterLiveData->at(i).value;
+        if (this->InverterLiveData->at(i).active) IsActiveItem = true;
         break;
       }
     }
-
-    // lookup for the item if it´s active or not
-    for (i=0; i < this->ActiveItems->size(); i++) {
-      if (this->ActiveItems->at(i).Name == elem["name"].as<String>() && this->ActiveItems->at(i).active) {
-        IsActiveItem = true;
-        break;
-      }
-    }
-
 
     response->print("<tr>\n");
 
@@ -1246,20 +1292,16 @@ void modbus::GetWebContentActiveLiveData(AsyncResponseStream *response) {
   response->print("<tbody>\n");
 
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-    for (uint16_t j=0; j < this->ActiveItems->size(); j++) {
-      if (this->InverterLiveData->at(i).Name == this->ActiveItems->at(j).Name && this->ActiveItems->at(j).active) {
+    if (this->InverterLiveData->at(i).active) {
           
-        response->print("</tr>\n");
-        sprintf(buffer, "  <td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
-        response->print(buffer);
-        sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
-        response->print(buffer);
-        response->print("</tr>\n");
+      response->print("</tr>\n");
+      sprintf(buffer, "  <td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
+      response->print(buffer);
+      sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
+      response->print(buffer);
+      response->print("</tr>\n");
 
-        response->print(html); html = "";
-
-        break;
-      }
+      response->print(html); html = "";
     }
   }
 
