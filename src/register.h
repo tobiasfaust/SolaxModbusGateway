@@ -100,6 +100,13 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "&deg;C"
 				},
 				{
+					"position": [21, 22],
+					"name": "InverterStatus",
+					"realname": "Inverter Status",
+					"datatype": "integer",
+					"unit": ""
+				},
+				{
 					"position": [23, 24],
 					"name": "PowerPv1",
 					"realname": "Power PV 1",
@@ -1109,7 +1116,8 @@ const char JSON[] PROGMEM = R"=====(
 					"position": [33, 34],
 					"name": "InverterStatus",
 					"realname": "Inverter Status",
-					"datatype": "integer"
+					"datatype": "integer",
+					"unit": ""
 				},
 				{
 					"position": [35, 36],
@@ -1134,10 +1142,9 @@ const char JSON[] PROGMEM = R"=====(
 				},
 				{
 					"position": [41, 42],
-					"name": "InputPower",
-					"realname": "Erzeugungsleistung Gesamt",
+					"name": "PowerPvTotal",
+					"realname": "Erzeugungsleistung PV Gesamt",
 					"datatype": "float",
-					"factor": 0.1,
 					"unit": "W"
 				},
 				{
@@ -1146,7 +1153,6 @@ const char JSON[] PROGMEM = R"=====(
 					"realname": "Erzeugungsleistung Pv1",
 					"openwbtopic": "openWB/set/pv/1/W",
 					"datatype": "float",
-					"factor": 0.1,
 					"unit": "W"
 				},
 				{
@@ -1155,7 +1161,6 @@ const char JSON[] PROGMEM = R"=====(
 					"realname": "Erzeugungsleistung Pv2",
 					"openwbtopic": "openWB/set/pv/2/W",
 					"datatype": "float",
-					"factor": 0.1,
 					"unit": "W"
 				},
 				{
@@ -1184,7 +1189,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [123, 124, 121, 122],
+					"position": [121, 122, 119, 120],
 					"name": "GridPower",
 					"realname": "Grid Power",
 					"openwbtopic": "openWB/set/pv/W",
@@ -1192,7 +1197,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "W"
 				},
 				{
-					"position": [127, 128, 125, 126],
+					"position": [125, 126, 123, 124],
 					"name": "feedinEnergy",
 					"realname": "FeedIn Energy",
 					"datatype": "float",
@@ -1200,7 +1205,7 @@ const char JSON[] PROGMEM = R"=====(
 					"unit": "kWh"
 				},
 				{
-					"position": [131, 132, 129, 130],
+					"position": [129, 130, 127, 128],
 					"name": "ConsumeInEnergy",
 					"realname": "ConsumeIn Energy",
 					"datatype": "float",
