@@ -19,6 +19,7 @@ class modbus {
       String Name;
       String RealName;
       String value;
+      String unit;
       bool active;
   } reg_t;
 
@@ -90,8 +91,9 @@ class modbus {
     void                    LoadInverterConfigFromJson();
     void                    GenerateMqttSubscriptions();
     String                  GetMqttSetTopic(String command);
-    void                    ChangeRegItem(std::vector<reg_t>* vector, String name, String value);
+    void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
+    String                  MapItem(JsonArray map, String value);
     
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;

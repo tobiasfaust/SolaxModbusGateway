@@ -104,7 +104,7 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "InverterStatus",
 					"realname": "Inverter Status",
 					"datatype": "integer",
-					"unit": ""
+					"mapping": [[0,"WaitMode"],[1,"CheckMode"],[2,"NormalMode"],[3, "FaultMode"],[4,"PermanentFaultMode"],[5,"UpdateMode"],[6,"EPSCheckMode"],[7,"EPSMode"],[8,"SelfTest"],[9,"IdleMode"]]
 				},
 				{
 					"position": [23, 24],
@@ -460,6 +460,13 @@ const char JSON[] PROGMEM = R"=====(
 					"realname": "Temperature",
 					"datatype": "integer",
 					"unit": "&deg;C"
+				},
+				{
+					"position": [21, 22],
+					"name": "InverterStatus",
+					"realname": "Inverter Status",
+					"datatype": "integer",
+					"mapping": [[0,"WaitMode"],[1,"CheckMode"],[2,"NormalMode"],[3, "FaultMode"],[4,"PermanentFaultMode"],[5,"UpdateMode"],[6,"EPSCheckMode"],[7,"EPSMode"],[8,"SelfTest"],[9,"IdleMode"]]
 				},
 				{
 					"position": [23, 24],
@@ -827,8 +834,9 @@ const char JSON[] PROGMEM = R"=====(
 				{
 					"position": [3, 4],
 					"name": "InverterRunState",
-					"realname": "Inverter run state",
-					"datatype": "integer"
+					"realname": "Inverter Status",
+					"datatype": "integer",
+					"mapping": [[0,"WaitMode"],[1,"NormalMode"],[3,"FaultMode"]]
 				},
 				{
 					"position": [5, 6, 7, 8],
@@ -1117,7 +1125,7 @@ const char JSON[] PROGMEM = R"=====(
 					"name": "InverterStatus",
 					"realname": "Inverter Status",
 					"datatype": "integer",
-					"unit": ""
+					"mapping": [[0,"WaitMode"],[1,"CheckMode"],[2,"NormalMode"],[3,"FaultMode"],[4,"PermanentFaultMode"]]
 				},
 				{
 					"position": [35, 36],
