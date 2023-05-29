@@ -216,7 +216,7 @@ void modbus::LoadInverterConfigFromJson() {
     Serial.println(dbg);
   } else {
     if (Config->GetDebugLevel() >=4) {
-      sprintf(dbg, "Read config data for inverter %s", this->InverterType);
+      sprintf(dbg, "Read config data for inverter %s", this->InverterType.c_str());
       Serial.println(dbg);
       serializeJsonPretty(doc, Serial);
       Serial.println();
