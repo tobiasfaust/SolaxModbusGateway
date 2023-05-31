@@ -1257,6 +1257,13 @@ const char JSON[] PROGMEM = R"=====(
 		"data": {
 			"livedata": [
 				{
+					"position": [3, 4],
+					"name": "InverterStatus",
+					"realname": "Inverter Status",
+					"datatype": "integer",
+					"mapping": [[0,"WaitMode"],[1,"CheckMode"],[2,"NormalMode"],[3, "FaultMode"],[4,"PermanentFaultMode"],[5,"UpdateMode"],[6,"EPSCheckMode"],[7,"EPSMode"],[8,"SelfTest"],[9,"IdleMode"]]
+				},
+				{
 					"position": [15, 16],
 					"name": "PvVoltage1",
 					"realname": "Pv Voltage 1",
@@ -1338,13 +1345,6 @@ const char JSON[] PROGMEM = R"=====(
 					"datatype": "float",
 					"factor": 0.01,
 					"unit": "A"
-				},
-				{
-					"position": [3,4],
-					"name": "InverterStatus",
-					"realname": "Inverter Status",
-					"datatype": "integer",
-					"mapping": [[0,"WaitMode"],[1,"CheckMode"],[2,"NormalMode"],[3, "FaultMode"],[4,"PermanentFaultMode"],[5,"UpdateMode"],[6,"EPSCheckMode"],[7,"EPSMode"],[8,"SelfTest"],[9,"IdleMode"]]
 				},
 				{
 					"position": [45, 46, 47, 48],
