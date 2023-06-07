@@ -60,7 +60,8 @@ class MyWebServer {
     void      getPageFooter(AsyncResponseStream *response);
     
     void      getPage_Status(AsyncResponseStream *response);
-  
+    String    GetReleaseName();
+    
 };
 
 #endif

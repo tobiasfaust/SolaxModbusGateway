@@ -1,4 +1,5 @@
 #include "MyWebServer.h"
+#include "..\_Release.h"
 
 MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false) {
   
@@ -82,6 +83,10 @@ void MyWebServer::loop() {
     delay(100);
     ESP.restart();
   }
+}
+
+String MyWebServer::GetReleaseName() {
+  return Release;
 }
 
 void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
@@ -292,7 +297,7 @@ void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive
   response->print("   </td>\n");
 
   response->print("   <td colspan='5'>\n");
-  response->printf("     <b>Release: </b><span style='color:orange;'>%s</span><br>of %s %s", "none", __DATE__, __TIME__);
+  response->printf("     <b>Release: </b><span style='color:orange;'>%s</span><br>of %s %s", this->GetReleaseName().c_str(), __DATE__, __TIME__);
   response->print("   </td>\n");
   response->print(" </tr>\n");
 
