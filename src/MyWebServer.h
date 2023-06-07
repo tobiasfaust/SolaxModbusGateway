@@ -21,6 +21,7 @@
 #include "CSS.h"
 #include "favicon.h"
 #include "html_update.h"
+#include <..\_Release.h>
 
 class MyWebServer {
 

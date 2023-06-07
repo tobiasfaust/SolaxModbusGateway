@@ -1,5 +1,4 @@
 #include "MyWebServer.h"
-#include "..\_Release.h"
 
 MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false) {
   
