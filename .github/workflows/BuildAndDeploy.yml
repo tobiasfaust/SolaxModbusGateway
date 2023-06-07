@@ -1,0 +1,157 @@
+# https://github.com/marketplace/actions/test-compile-for-arduino
+# https://github.com/marketplace/actions/test-compile-for-arduino#multiple-boards-with-parameter-using-the-script-directly
+# https://github.com/actions/upload-release-asset/issues/17
+# https://github.com/dh1tw/remoteAudio/blob/master/.github/workflows/build.yml 
+
+name: Build&Deploy
+on:
+  push:
+    branches:
+      - master
+      - prelive
+      - development
+
+jobs:
+    
+  build:
+    name: BuildAndDeploy-${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY: ${{ github.event.repository.name }}
+
+    strategy:
+      matrix:
+        variant:
+          - firmware_ESP32
+#          - firmware_ESP8266
+
+        include:
+          - variant: firmware_ESP32
+            architecture: ESP32
+#          - variant: firmware_ESP8266
+#            architecture: ESP8266
+            
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -U platformio
+          pip install --upgrade pip
+
+      - name: Run PlatformIO
+        run: platformio run -e ${{ matrix.variant }}
+
+      - name: Display generated files
+        run: |
+          ls -R .pio/build/${{ matrix.variant }}/
+
+      - if: endsWith(github.ref, 'master')
+        name: Set Environment Variable "PRODUCTION" 
+        run: echo "ENV_STAGE=PROD" >> $GITHUB_ENV
+      - if: endsWith(github.ref, 'prelive')
+        name: Set Environment Variable "PreLive" 
+        run: echo "ENV_STAGE=PRE" >> $GITHUB_ENV
+      - if: endsWith(github.ref, 'development')
+        name: Set Environment Variable "Development" 
+        run: echo "ENV_STAGE=DEV" >> $GITHUB_ENV
+
+      # Script um JSON Datei zu erstellen
+      - name: Schreibe Json File
+        env:
+          ENV_ARCH: ${{ matrix.architecture }}
+          ENV_REPOSITORYNAME: ${{ env.REPOSITORY }}
+          ENV_BINARYPATH: .pio/build/${{ matrix.variant }}/
+          ENV_DESTPATH: "release"
+          ENV_SUBVERSION: ${{ github.run_number }}
+          ENV_RELEASEFILE: _Release.h
+        run: |
+          mkdir release 
+          chmod +x .github/workflows/generateJSON.sh
+          .github/workflows/generateJSON.sh
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@main
+        with:
+          name: "${{ matrix.variant }}.zip"
+          path: release/*.bin
+  
+      - name: Upload to AWS S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: '--acl public-read --follow-symlinks'
+        env:
+          AWS_S3_BUCKET: 'tfa-releases'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-central-1'   # optional: defaults to us-east-1
+          SOURCE_DIR: 'release'      # optional: defaults to entire repository
+          DEST_DIR: ${{ env.REPOSITORY }}     
+
+  create_Release:
+    needs: [build]
+
+    runs-on: ubuntu-latest
+    if: endsWith(github.ref, 'master_X') || endsWith(github.ref, 'prelive_X')
+    
+    env:
+      GITHUB_REPOSITORY: ${{ github.event.repository.name }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Download all Artifacts 
+        uses: actions/download-artifact@main
+        with:
+          path: ./release
+
+      - name: Display files
+        run: |
+            ls -R ./release
+    
+      - name: set Environment Variables
+        id: set_env_var
+        run: |
+                 VERSION=$(sed 's/[^0-9|.]//g' _Release.h)  # zb. 2.4.2
+                 if [ ${{ github.ref }} == 'refs/heads/master' ]; then IS_PRE='false'; else IS_PRE='true'; fi
+                 if [ ${{ github.ref }} == 'refs/heads/master' ]; then POSTFIX=''    ; else POSTFIX='PRE'; fi
+                 echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+                 echo "IS_PRERELEASE=${IS_PRE}" >> "$GITHUB_OUTPUT"
+                 echo "RELEASENAME_POSTFIX=${POSTFIX}" >> "$GITHUB_OUTPUT"
+                 RELEASEBODY=$(awk -v RS='Release ' '/'$VERSION':(.*)/ {print $0}' ChangeLog.md)
+                 echo "${RELEASEBODY}" > CHANGELOG.md
+
+            
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: v.${{ steps.set_env_var.outputs.version }}-${{ steps.set_env_var.outputs.RELEASENAME_POSTFIX }}-${{ github.run_id }}
+          release_name: Release ${{ steps.set_env_var.outputs.version }} ${{ steps.set_env_var.outputs.RELEASENAME_POSTFIX }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ steps.set_env_var.outputs.IS_PRERELEASE }}
+              
+      - name: Upload Release Assets
+        id: upload-release-assets
+        uses: dwenegar/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
+          assets_path: ./release
+
+      - name: Upload Changelog artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: CHANGELOG.md
+          path: CHANGELOG.md

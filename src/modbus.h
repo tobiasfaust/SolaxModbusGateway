@@ -11,7 +11,7 @@
 #include <ArduinoQueue.h>
 #include <HardwareSerial.h>
 
-// #define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
