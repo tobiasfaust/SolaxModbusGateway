@@ -82,17 +82,17 @@ jobs:
           name: "${{ matrix.variant }}.zip"
           path: release/*.bin
   
-      - name: Upload to AWS S3
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: '--acl public-read --follow-symlinks'
-        env:
-          AWS_S3_BUCKET: 'tfa-releases'
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'eu-central-1'   # optional: defaults to us-east-1
-          SOURCE_DIR: 'release'      # optional: defaults to entire repository
-          DEST_DIR: ${{ env.REPOSITORY }}     
+#      - name: Upload to AWS S3
+#        uses: jakejarvis/s3-sync-action@master
+#        with:
+#          args: '--acl public-read --follow-symlinks'
+#        env:
+#          AWS_S3_BUCKET: 'tfa-releases'
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          AWS_REGION: 'eu-central-1'   # optional: defaults to us-east-1
+#          SOURCE_DIR: 'release'      # optional: defaults to entire repository
+#          DEST_DIR: ${{ env.REPOSITORY }}     
 
   create_Release:
     needs: [build]
