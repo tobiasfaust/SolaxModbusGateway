@@ -1407,6 +1407,56 @@ const char JSON[] PROGMEM = R"=====(
 				}
 			]
 		}	
+	},
+	"Deye SUN": {
+		"config": {
+			"RequestLiveData": [
+				["#ClientID", "0x03", "0x01", "0xF4", "0x00", "0x77"]
+			],
+			"RequestIdData": ["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x07"],
+			"ClientIdPos": 0,
+			"LiveDataFunctionCodePos": 1,
+			"LiveDataFunctionCode": "0x03",
+			"IdDataFunctionCodePos": 1,
+			"IdDataFunctionCode": "0x04",
+			"LiveDataStartsAtPos": 3,
+			"IdDataStartsAtPos": 3,
+			"LiveDataErrorPos": 1,
+			"LiveDataErrorCode": "0x80",
+			"IdDataErrorPos": 1,
+			"IdDataErrorCode": "0x84",
+			"LiveDataSuccessPos": 1,
+			"LiveDataSuccessCode": "0x03",
+			"IdDataSuccessPos": 1,
+			"IdDataSuccessCode": "0x04"
+		},
+		"data": {
+			"livedata": [
+				{
+					"position": [2, 3],
+					"name": "InverterStatus",
+					"realname": "Inverter Status",
+					"datatype": "integer",
+					"mapping": [[0,"StandBy"],[1,"SelfCheck"],[2,"NormalMode"],[3, "Alarm"],[4,"FaultMode"]]
+				},
+				{
+					"position": [4, 5],
+					"name": "EtodayToGrid",
+					"realname": "Today Energy to Grid",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kWh"
+				}
+			],
+			"id": [
+				{
+					"position": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+					"name": "InverterSN",
+					"realname": "Inverter SerialNumber",
+					"datatype": "string"
+				}
+			]
+		}	
 	}
 }
 )=====";
