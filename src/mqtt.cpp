@@ -10,22 +10,19 @@ MQTT::MQTT(AsyncWebServer* server, DNSServer* dns, const char* MqttServer, uint1
   WiFi.mode(WIFI_STA); 
   this->mqtt = new PubSubClient();
   
-  AsyncWiFiManager wifiManager(server, dns);
+  this->wifiManager = new AsyncWiFiManager(server, dns);
 
-  if (Config->GetDebugLevel() >=4) wifiManager.setDebugOutput(true); 
-    else wifiManager.setDebugOutput(false); 
+  if (Config->GetDebugLevel() >=4) wifiManager->setDebugOutput(true); 
+    else wifiManager->setDebugOutput(false); 
 
-  wifiManager.setTimeout(300);
+  wifiManager->setConnectTimeout(60);
+  wifiManager->setConfigPortalTimeout(300);
+  WiFi.setHostname(mqtt_root.c_str());
   Serial.println("WiFi Start");
-  //wifi_station_set_hostname(mqtt_root.c_str());
-  WiFi.setHostname(mqtt_root.c_str()); //TODO
   
-  if (!wifiManager.autoConnect(("AP_" + mqtt_root).c_str())) {
-    Serial.println("failed to connect and hit timeout");
-    delay(3000);
-    //reset and try again, or maybe put it to deep sleep
-    ESP.restart();
-    delay(5000);
+  if (!wifiManager->autoConnect(("AP_" + mqtt_root).c_str(), "MbMQTTGtw") ) {
+    Serial.println("failed to connect and start configPortal");
+    wifiManager->startConfigPortal(("AP_" + mqtt_root).c_str(), "MbMQTTGtw");
   }
   
   Serial.print("WiFi connected with local IP: ");
@@ -175,7 +172,20 @@ void MQTT::loop() {
     this->mqtt_basepath = Config->GetMqttBasePath();
     if (this->mqtt->connected()) this->mqtt->disconnect();
   }
+
+  // WIFI lost, try to reconnect
+  if (WiFi.status() != WL_CONNECTED) {
+    if (Config->GetDebugLevel() > 1) {
+      Serial.println("WIFI lost, try to reconnect...");
+    }
+    wifiManager->setConfigPortalTimeout(0);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(5000);
+      WiFi.begin();        
+    }
+  }
   
+  // WIFI ok, MQTT lost
   if (!this->mqtt->connected() && WiFi.status() == WL_CONNECTED) { 
     if (millis() - mqttreconnect_lasttry > 10000) {
       espClient = WiFiClient();

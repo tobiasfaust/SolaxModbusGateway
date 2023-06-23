@@ -47,9 +47,11 @@ class MQTT {
 
   private:
     AsyncWebServer*   server;
-    DNSServer*   dns;
+    DNSServer*        dns;
     WiFiClient        espClient;
     PubSubClient*     mqtt;
+    AsyncWiFiManager* wifiManager;
+
     CALLBACK_FUNCTION;
     void              reconnect();
     void              callback(char* topic, byte* payload, unsigned int length);

@@ -1,3 +1,7 @@
+Release 3.1.1:
+  - fix auto reconnect to WIFI (issue #21)
+  - fix insecure unencrypted AccesspointMode
+
 Release 3.1.0:  
   - add Sofar-KTL Solarmax-SGA
   - bugfix: memoryleak
