@@ -25,7 +25,9 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
   server->on("/wifireset", HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
 
   server->on("/ajax", HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
-  
+  server->on("/getitems", HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
+  server->on("/getregister", HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
+
   server->on("/update", HTTP_GET, std::bind(&MyWebServer::handle_update_page, this, std::placeholders::_1));
 
   server->on("/update", HTTP_POST, std::bind(&MyWebServer::handle_update_response, this, std::placeholders::_1),
@@ -174,6 +176,7 @@ void MyWebServer::handleModbusConfig(AsyncWebServerRequest *request) {
 
 void MyWebServer::handleModbusItemConfig(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("text/html");
+  
   response->addHeader("Server","ESP Async Web Server");
   
   this->getPageHeader(response, MODBUSITEMCONFIG);
@@ -191,6 +194,22 @@ void MyWebServer::handleModbusRawData(AsyncWebServerRequest *request) {
   this->getPageFooter(response);
   request->send(response);
 }
+
+void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response->addHeader("Pragma", "no-cache");
+  response->addHeader("Expires", "-1");
+  
+  mb->GetLiveDataAsJson(response);
+
+  request->send(response);
+}
+
+void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
+
+}
+
 
 void MyWebServer::ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page) {
   AsyncResponseStream *response = request->beginResponseStream("text/html");

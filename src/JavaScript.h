@@ -332,6 +332,45 @@ function check_rawdata() {
   document.getElementById(rawdatatype).innerHTML = prettyprint_rawdata(rawdatatype, bytes, bytes_org).join(' ');
 }
 
+/*******************************
+templates anzeigen fuer ItemConfig
+*******************************/
+function FillItemConfig(json) {
+  var tbody = document.querySelector("#maintable tbody"),
+      row = document.querySelector("#NewRow"),
+      tr_tpl,cells,text,openwb_tpl;
+  
+  json.forEach(function (article) {
+    // template fuer einen Artikel "laden" (lies: klonen)
+    tr_tpl = document.importNode(row.content, true);
+		openwb_tpl = document.importNode(tr_tpl.querySelector("#openwb").content, true);
+    
+    // Zellen befuellen
+    cells = tr_tpl.querySelectorAll("td");
+    cells.forEach(function (item, index) {
+      var text = item.innerHTML;
+      text = text.replaceAll("{realname}", article.realname);
+      text = text.replaceAll("{name}", article.name);
+      text = text.replaceAll("{value}", article.value);
+      text = text.replaceAll("{mqtttopic}", article.mqtttopic);
+      text = text.replaceAll("{openwbtopic}", article.openwbtopic);
+      text = text.replaceAll("{active}", article.active);
+            
+      item.innerHTML = text;
+    });
+    
+    if (article.openwbtopic) {
+      var o = openwb_tpl.querySelector("span");
+      o.innerHTML = o.innerHTML.replaceAll("{openwbtopic}", article.openwbtopic);
+      cells[2].appendChild(openwb_tpl)
+		}    
+
+    // template einpassen
+    tbody.appendChild(tr_tpl);
+
+  });
+}
+
 )=====";
 
 #endif

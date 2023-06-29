@@ -56,6 +56,8 @@ class MyWebServer {
     void      handleModbusRawData(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleAjax(AsyncWebServerRequest *request);
+    void      handleGetItemJson(AsyncWebServerRequest *request);
+    void      handleGetRegisterJson(AsyncWebServerRequest *request);
     void      ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page);
     void      getPageHeader(AsyncResponseStream *response, page_t pageactive);
     void      getPageFooter(AsyncResponseStream *response);
