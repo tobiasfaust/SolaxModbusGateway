@@ -850,7 +850,9 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
     doc["name"]  = this->InverterLiveData->at(i).Name;
     doc["realname"]  = this->InverterLiveData->at(i).RealName;
     doc["value"] = this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit;
-    doc["active"] = (this->InverterLiveData->at(i).active?"checked":"");
+    doc["active"] = (this->InverterLiveData->at(i).active?1:0);
+    doc["mqtttopic"] = this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false);
+
     serializeJson(doc, s);
     if(count>0) response->print(", ");
     response->print(s);
@@ -858,6 +860,50 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
   }
   
   response->print(" ]}");
+}
+
+/*******************************************************
+ * Return all LiveData as jsonArray
+ * {data: [{"name": "xx", "value": "xx"}], }
+ * {"GridVoltage_R":"0.00 V","GridCurrent_R":"0.00 A","GridPower_R":"0 W","GridFrequency_R":"0.00 Hz","GridVoltage_S":"0.90 V","GridCurrent_S":"1715.40 A","GridPower_S":"-28671 W","GridFrequency_S":"174.08 Hz","GridVoltage_T":"0.00 V","GridCurrent_T":"0.00 A","GridPower_T":"0 W","GridFrequency_T":"1.30 Hz","PvVoltage1":"259.80 V","PvVoltage2":"0.00 V","PvCurrent1":"1.00 A","PvCurrent2":"0.00 A","Temperature":"28 &deg;C","PowerPv1":"283 W","PowerPv2":"0 W","BatVoltage":"0.00 V","BatCurrent":"0.00 A","BatPower":"0 W","BatTemp":"0 &deg;C","BatCapacity":"0 %","OutputEnergyChargeWh":"0 Wh","OutputEnergyChargeKWh":"0.00 KWh","OutputEnergyChargeToday":"0.00 KWh","InputEnergyChargeWh":"0 Wh","InputEnergyChargeKWh":"0.00 KWh"}
+*******************************************************/
+void modbus::GetRegisterAsJson(AsyncResponseStream *response) {
+  int count = 0;
+  response->print("{\"data\": ["); 
+  
+  ProgmemStream stream{JSON};
+  String streamString = "";
+  streamString = "\""+ this->InverterType +"\": {";
+  stream.find(streamString.c_str());
+
+  streamString = "\"livedata\": [";
+  stream.find(streamString.c_str());
+
+  do {
+    StaticJsonDocument<1024> elem;
+    DeserializationError error = deserializeJson(elem, stream); 
+      
+    if (!error) {
+      // Print the result
+      if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
+      if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
+    } else {
+      if (Config->GetDebugLevel() >=1) {
+        Serial.print("(Function GetRegisterAsJson) Failed to parse JSON Register Data: "); 
+        Serial.print(error.c_str()); 
+        Serial.println();
+      }
+    }
+  
+    String s = "";
+    serializeJson(elem, s);
+    if(count>0) response->print(", ");
+    response->print(s);
+    count++;
+
+  } while (stream.findUntil(",","]"));
+
+  response->print("]}");
 }
 
 /*******************************************************
@@ -1306,43 +1352,9 @@ void modbus::GetWebContentItemConfig(AsyncResponseStream *response) {
   response->println("  var url = '/getitems'");
   response->println("    fetch(url)");
   response->println("    .then(response => response.json())");
-  response->println("    .then(json => FillItemConfig(json.data));");
+  response->println("    .then(json => FillItemConfig('#maintable', '#NewRow', 0, json.data));");
   response->println("</script>");
 
-}
-
-void modbus::GetWebContentActiveLiveData(AsyncResponseStream *response) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
-
-  String html = "";
-
-  response->print("<table class='editorDemoTable'>\n");
-  response->print("<thead>\n");
-  response->print("<tr>\n");
-  response->print("<td style='width: 250px;'>Name</td>\n");
-  response->print("<td style='width: 200px;'>LiveData</td>\n");
-  response->print("</tr>\n");
-  response->print("</thead>\n");
-  response->print("<tbody>\n");
-
-  for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-    if (this->InverterLiveData->at(i).active) {
-          
-      response->print("</tr>\n");
-      sprintf(buffer, "  <td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
-      response->print(buffer);
-      sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
-      response->print(buffer);
-      response->print("</tr>\n");
-
-      response->print(html); html = "";
-    }
-  }
-
-  response->print("</tbody>\n");
-  response->print("</table>\n");
-  response->print(html); html = "";
 }
 
 void modbus::GetWebContentRawData(AsyncResponseStream *response) {

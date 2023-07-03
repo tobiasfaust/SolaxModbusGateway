@@ -45,8 +45,10 @@ function ajax_send(json) {
           var res = JSON.parse(http.responseText);
           for ( var i = 0; i < res["data"].length; i++ ) {
             //alert(res["data"][i]["name"])
-            obj = document.getElementById(res["data"][i]["name"]);
-            obj.innerHTML = "<span class='ajaxchange'>" + res["data"][i]["value"] + "</span>";
+            try {
+              obj = document.getElementById(res["data"][i]["name"]);
+              obj.innerHTML = "<span class='ajaxchange'>" + res["data"][i]["value"] + "</span>";
+            } catch(e) {}
 					}
       } 
     }
