@@ -21,6 +21,7 @@ class modbus {
       String value;
       String unit;
       bool active;
+      String openwb;
   } reg_t;
 
   typedef struct {

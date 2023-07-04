@@ -837,8 +837,7 @@ String modbus::GetInverterSN() {
 
 /*******************************************************
  * Return all LiveData as jsonArray
- * {data: [{"name": "xx", "value": "xx"}], }
- * {"GridVoltage_R":"0.00 V","GridCurrent_R":"0.00 A","GridPower_R":"0 W","GridFrequency_R":"0.00 Hz","GridVoltage_S":"0.90 V","GridCurrent_S":"1715.40 A","GridPower_S":"-28671 W","GridFrequency_S":"174.08 Hz","GridVoltage_T":"0.00 V","GridCurrent_T":"0.00 A","GridPower_T":"0 W","GridFrequency_T":"1.30 Hz","PvVoltage1":"259.80 V","PvVoltage2":"0.00 V","PvCurrent1":"1.00 A","PvCurrent2":"0.00 A","Temperature":"28 &deg;C","PowerPv1":"283 W","PowerPv2":"0 W","BatVoltage":"0.00 V","BatCurrent":"0.00 A","BatPower":"0 W","BatTemp":"0 &deg;C","BatCapacity":"0 %","OutputEnergyChargeWh":"0 Wh","OutputEnergyChargeKWh":"0.00 KWh","OutputEnergyChargeToday":"0.00 KWh","InputEnergyChargeWh":"0 Wh","InputEnergyChargeKWh":"0.00 KWh"}
+ * {data: [{"name": "xx", "value": "xx", ...}, ...] }
 *******************************************************/
 void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
   int count = 0;
@@ -852,6 +851,10 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
     doc["value"] = this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit;
     doc["active"] = (this->InverterLiveData->at(i).active?1:0);
     doc["mqtttopic"] = this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false);
+
+    if (this->InverterLiveData->at(i).openwb) {
+      doc["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
+    }
 
     serializeJson(doc, s);
     if(count>0) response->print(", ");
@@ -1057,6 +1060,11 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
     } else {
       d.RealName = d.Name;
     }
+
+    // optional field
+    if(!elem["openwbtopic"].isNull()) {
+      d.openwb = elem["openwbtopic"].as<String>();
+    } 
 
     d.active = false; // set initial
     vector->push_back(d);

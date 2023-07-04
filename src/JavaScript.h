@@ -347,14 +347,14 @@ function FillItemConfig(targettable, template, onylactive, json) {
       tr_tpl,cells,text,openwb_tpl;
   
   json.forEach(function (article) {
-  	// template fÃ¼r einen Artikel "laden" (lies: klonen)
+  	// template für einen Artikel "laden" (lies: klonen)
     tr_tpl = document.importNode(row.content, true);
     
 		try {
     	openwb_tpl = document.importNode(tr_tpl.querySelector("#openwb").content, true);
     } catch (e) {}
     
-    // Zellen befÃ¼llen
+    // Zellen befüllen
     cells = tr_tpl.querySelectorAll("td");
     cells.forEach(function (item, index) {
       var text = item.innerHTML;
