@@ -2,7 +2,8 @@ Release 3.1.1:
   - fix auto reconnect to WIFI (issue #21)
   - fix insecure unencrypted AccesspointMode
   - fix crash of ESP32 by using Solax-X3 settings
-
+  - add support for ESP32-S2, -S3, -C3
+  
 Release 3.1.0:  
   - add Sofar-KTL Solarmax-SGA
   - bugfix: memoryleak
