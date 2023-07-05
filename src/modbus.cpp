@@ -852,7 +852,7 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
     doc["active"] = (this->InverterLiveData->at(i).active?1:0);
     doc["mqtttopic"] = this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false);
 
-    if (this->InverterLiveData->at(i).openwb) {
+    if (this->InverterLiveData->at(i).openwb.length() > 0) {
       doc["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
     }
 
