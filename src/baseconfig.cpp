@@ -16,7 +16,7 @@ BaseConfig::BaseConfig() : debuglevel(0) {
 
 void BaseConfig::StoreJsonConfig(String* json) {
 
-  StaticJsonDocument<512> doc;
+  StaticJsonDocument<_CONFIG_JSON_DOC_SIZE> doc;
   deserializeJson(doc, *json);
   JsonObject root = doc.as<JsonObject>();
 
@@ -46,7 +46,7 @@ void BaseConfig::LoadJsonConfig() {
       Serial.println("opened config file");
       //size_t size = configFile.size();
 
-      StaticJsonDocument<512> doc; // TODO Use computed size??
+      StaticJsonDocument<_CONFIG_JSON_DOC_SIZE> doc; // TODO Use computed size??
       DeserializationError error = deserializeJson(doc, configFile);
       
       if (!error) {
@@ -60,6 +60,10 @@ void BaseConfig::LoadJsonConfig() {
         if (doc.containsKey("mqttbasepath"))     { this->mqtt_basepath = doc["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
         if (doc.containsKey("UseRandomClientID")){ if (strcmp(doc["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
         if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
+        if (doc.containsKey("WebPostURL"))         { this->webPost_URL = doc["WebPostURL"].as<String>();} else {this->webPost_URL = "";}
+        if (doc.containsKey("WebPostUser"))         { this->webPost_User = doc["WebPostUser"].as<String>();} else {this->webPost_User = "";}
+        if (doc.containsKey("WebPostPass"))         { this->webPost_Pass = doc["WebPostPass"].as<String>();} else {this->webPost_Pass = "";}
+        if (doc.containsKey("WebPostFrequency"))       { this->webPost_Frequency = _max((int)(doc["WebPostFrequency"]), 0);} else {this->webPost_Frequency = 0; }
       } else {
         if (this->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
@@ -78,6 +82,10 @@ void BaseConfig::LoadJsonConfig() {
     this->mqtt_root = "Solax";
     this->mqtt_basepath = "home/";
     this->mqtt_UseRandomClientID = true;
+    this->webPost_URL = "";
+    this->webPost_User = "";
+    this->webPost_Pass = "";
+    this->webPost_Frequency = 0;
     this->debuglevel = 0;
     
     loadDefaultConfig = false; //set back
@@ -146,6 +154,26 @@ void BaseConfig::GetWebContent(AsyncResponseStream *response) {
   response->print("<label for='sel_URCID2'>benutze dynamische MQTT ClientID</label></div>\n");
     
   response->print("  </td>\n");
+  response->print("</tr>\n");
+
+  response->print("<tr>\n");
+  response->print("<td>Web Post URL</td>\n");
+  response->printf("<td><input size='30' maxlength='512' name='WebPostURL' type='text' value='%s'/></td>\n", this->webPost_URL.c_str());
+  response->print("</tr>\n");
+
+  response->print("<tr>\n");
+  response->print("<td>Web Post Authentification: Username (optional)</td>\n");
+  response->printf("<td><input size='30' maxlength='64' name='WebPostUser' type='text' value='%s'/></td>\n", this->webPost_User.c_str());
+  response->print("</tr>\n");
+
+  response->print("<tr>\n");
+  response->print("<td>Web Post Authentification: Password (optional)</td>\n");
+  response->printf("<td><input size='30' maxlength='64' name='WebPostPass' type='text' value='%s'/></td>\n", this->webPost_Pass.c_str());
+  response->print("</tr>\n");
+
+  response->print("<tr>\n");
+  response->print("<td>Web Post Frequency (in seconds, 0 to disable)</td>\n");
+  response->printf("<td><input min='0' max='16000' name='WebPostFrequency' type='number' style='width: 6em' value='%d'/></td>\n", this->webPost_Frequency);
   response->print("</tr>\n");
 
   response->print("<tr>\n");

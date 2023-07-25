@@ -13,17 +13,17 @@
 
 //#define DEBUGMODE
 
+
+typedef struct { 
+    String Name;
+    String RealName;
+    String value;
+    String unit;
+    bool active;
+    String openwb;
+} reg_t;
+
 class modbus {
-
-  typedef struct { 
-      String Name;
-      String RealName;
-      String value;
-      String unit;
-      bool active;
-      String openwb;
-  } reg_t;
-
   typedef struct {
     String command = "";
     std::vector<byte> request; 
@@ -55,6 +55,9 @@ class modbus {
     void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
+
+    size_t                  GetInverterLiveDataSize();
+    reg_t                   GetInverterLiveData(size_t i);
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin

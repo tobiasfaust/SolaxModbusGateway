@@ -4,6 +4,7 @@
 #include "commonlibs.h"
 #include "ArduinoJson.h"
 
+#define _CONFIG_JSON_DOC_SIZE 1024
 
 class BaseConfig {
 
@@ -21,6 +22,10 @@ class BaseConfig {
     const String&   GetMqttBasePath()  const {return mqtt_basepath;}
     const bool&     UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
     const uint8_t&  GetDebugLevel()    const {return debuglevel;}
+    const String&   GetWebPostURL()    const {return webPost_URL;}
+    const String&   GetWebPostUser()    const {return webPost_User;}
+    const String&   GetWebPostPass()    const {return webPost_Pass;}
+    const uint16_t& GetWebPostFrequency()    const {return webPost_Frequency;}
      
   private:
     String    mqtt_server;
@@ -31,6 +36,10 @@ class BaseConfig {
     String    mqtt_basepath;
     bool      mqtt_UseRandomClientID;
     uint8_t   debuglevel;
+    String    webPost_URL;
+    String    webPost_User;
+    String    webPost_Pass;
+    uint16_t  webPost_Frequency;
 
 };
 

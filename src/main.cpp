@@ -15,6 +15,7 @@ _________________________________________________________________
 #include "baseconfig.h"
 #include "mqtt.h"
 #include "MyWebServer.h"
+#include "WebPost.h"
 
 AsyncWebServer server(80);
 DNSServer dns;
@@ -23,6 +24,7 @@ modbus* mb = NULL;
 BaseConfig* Config = NULL;
 MQTT* mqtt = NULL;
 MyWebServer* mywebserver = NULL;
+WEBPOST* webPost = NULL;
 
 
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
@@ -44,24 +46,29 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Start of Solar Inverter MQTT Gateway"); 
+  Serial.println(F("Start of Solar Inverter MQTT Gateway")); 
 
-  Serial.println("Starting BaseConfig");
+  Serial.println(F("Starting BaseConfig"));
   Config = new BaseConfig();
   
-  Serial.println("Starting Wifi and MQTT");
+  Serial.println(F("Starting Wifi and MQTT"));
   mqtt = new MQTT(&server, &dns, Config->GetMqttServer().c_str(), Config->GetMqttPort(), Config->GetMqttBasePath().c_str(), Config->GetMqttRoot().c_str());
   mqtt->setCallback(myMQTTCallBack);
 
+  Serial.println(F("Starting Modbus"));
   mb = new modbus();
   mb->enableMqtt(mqtt);
 
-  Serial.println("Starting WebServer");
+  Serial.println(F("Starting WebServer"));
   mywebserver = new MyWebServer(&server, &dns);
+
+  Serial.println(F("Starting WebPost"));
+  webPost = new WEBPOST(Config);
 }
 
 void loop() {
   mqtt->loop();
   mywebserver->loop();
   mb->loop(); 
+  webPost->loop();
 }
