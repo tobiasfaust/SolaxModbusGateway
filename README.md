@@ -22,7 +22,7 @@ Currently the following Inverters with their special registers are integrated:
 If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
 
 ### What you need
-* ESP32 NodeMCU
+* ESP32, ESP32-C3, ESP-S2 or ESP-S3 NodeMCU
 * RS-485 TTL UART Module with MAX485 Semiconductor 
 
 An ESP8266 is actually not sufficient, because Modbus communication works fail-free only with hardwareserial. ESP8266 has only one Hardwareserial port which is used by serial/debug output. ESP32 has 3 Hardewareserial ports and we use one of them. Another reason is available memory for such huge json definition or such large modbus answers.  
