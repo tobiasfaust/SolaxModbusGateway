@@ -216,8 +216,6 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
 
 
 void MyWebServer::ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page) {
-  AsyncResponseStream *response = request->beginResponseStream("text/html");
-  response->addHeader("Server","ESP Async Web Server");
   String json = "{}";
 
   if(request->hasArg("json")) {
