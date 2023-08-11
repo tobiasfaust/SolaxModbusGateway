@@ -1,8 +1,7 @@
 #include "mqtt.h"
 
-MQTT::MQTT(AsyncWebServer* server, DNSServer* dns, const char* MqttServer, uint16_t port, String basepath, String root): server(server), dns(dns) { 
-  this->mqtt_basepath = basepath;
-  this->mqtt_root = root;
+MQTT::MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword): 
+server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath) { 
   
   this->subscriptions = new std::vector<String>{};
 
@@ -17,21 +16,21 @@ MQTT::MQTT(AsyncWebServer* server, DNSServer* dns, const char* MqttServer, uint1
 
   wifiManager->setConnectTimeout(60);
   wifiManager->setConfigPortalTimeout(300);
-  WiFi.setHostname(mqtt_root.c_str());
+  WiFi.setHostname(this->mqtt_root.c_str());
   Serial.println("WiFi Start");
   
-  if (!wifiManager->autoConnect(("AP_" + mqtt_root).c_str(), "MbMQTTGtw") ) {
+  if (!wifiManager->autoConnect(APName, APpassword) ) {
     Serial.println("failed to connect and start configPortal");
-    wifiManager->startConfigPortal(("AP_" + mqtt_root).c_str(), "MbMQTTGtw");
+    wifiManager->startConfigPortal(APName, APpassword);
   }
   
   Serial.print("WiFi connected with local IP: ");
   Serial.println(WiFi.localIP());
   //WiFi.printDiag(Serial);
 
-  Serial.print("Starting MQTT ("); Serial.print(MqttServer); Serial.print(":");Serial.print(port);Serial.println(")");
+  Serial.print("Starting MQTT ("); Serial.print(MqttServer); Serial.print(":");Serial.print(MqttPort);Serial.println(")");
   this->mqtt->setClient(espClient);
-  this->mqtt->setServer(MqttServer, port);
+  this->mqtt->setServer(MqttServer, MqttPort);
   this->mqtt->setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
 }
 
@@ -152,6 +151,8 @@ void MQTT::ClearSubscriptions() {
       mqtt->unsubscribe(this->subscriptions->at(i).c_str()); 
     }
   }
+  this->subscriptions->clear();
+  this->subscriptions->shrink_to_fit();
 }
 
 void MQTT::loop() {

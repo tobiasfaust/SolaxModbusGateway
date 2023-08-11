@@ -58,6 +58,7 @@ const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                ];
 
 //############ DO NOT CHANGE BELOW ###################
+// https://jsfiddle.net/tobiasfaust/akyv4ju8/
 
 window.addEventListener('load', init, false);
 function init() {

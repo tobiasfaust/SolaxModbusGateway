@@ -27,7 +27,7 @@ class MQTT {
 
   public:
 
-    MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t port, String basepath, String root);
+    MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword);
     void              loop();
     void              Publish_Bool(const char* subtopic, bool b, bool fulltopic);
     void              Publish_Int(const char* subtopic, int number, bool fulltopic);
@@ -37,23 +37,24 @@ class MQTT {
     String            getTopic(String subtopic, bool fulltopic);
     void              setCallback(CALLBACK_FUNCTION);
     void              disconnect();
-    const String&     GetRoot()  const {return mqtt_root;}
+    const String&     GetRoot()  const {return mqtt_root;};
     void              Subscribe(String topic);
     void              ClearSubscriptions();
     
-    
     const bool&       GetConnectStatusWifi()      const {return ConnectStatusWifi;}
     const bool&       GetConnectStatusMqtt()      const {return ConnectStatusMqtt;}
+
+  protected:
+    PubSubClient*     mqtt;
+    void              reconnect();
 
   private:
     AsyncWebServer*   server;
     DNSServer*        dns;
     WiFiClient        espClient;
-    PubSubClient*     mqtt;
     AsyncWiFiManager* wifiManager;
 
     CALLBACK_FUNCTION;
-    void              reconnect();
     void              callback(char* topic, byte* payload, unsigned int length);
     
     std::vector<String>* subscriptions = NULL;

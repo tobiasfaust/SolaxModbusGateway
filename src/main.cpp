@@ -50,7 +50,15 @@ void setup() {
   Config = new BaseConfig();
   
   Serial.println("Starting Wifi and MQTT");
-  mqtt = new MQTT(&server, &dns, Config->GetMqttServer().c_str(), Config->GetMqttPort(), Config->GetMqttBasePath().c_str(), Config->GetMqttRoot().c_str());
+  mqtt = new MQTT(&server, &dns, 
+                    Config->GetMqttServer().c_str(), 
+                    Config->GetMqttPort(), 
+                    Config->GetMqttBasePath().c_str(), 
+                    Config->GetMqttRoot().c_str(),
+                    (char*)"AP_ModbusGateway",
+                    (char*)"MbMQTTGtw"
+                  );
+
   mqtt->setCallback(myMQTTCallBack);
 
   mb = new modbus();
