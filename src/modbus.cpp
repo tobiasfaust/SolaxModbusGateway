@@ -594,6 +594,7 @@ void modbus::ParseData() {
       String datatype = "";
       String openwbtopic = "";
       float factor = 1;
+      int valueAdd = 0;
       String unit = "";
 
       JsonArray posArray, posArray2;
@@ -638,6 +639,11 @@ void modbus::ParseData() {
       if (elem.containsKey("factor")) {
         factor = elem["factor"];
       }
+
+      // optional field
+      if (elem.containsKey("valueAdd")) {
+        valueAdd = elem["valueAdd"];
+      }
       
       // optional field
       if (elem.containsKey("unit")) {
@@ -661,13 +667,13 @@ void modbus::ParseData() {
       // ************* processing data ******************
       if (datatype == "float") {
         //********** handle Datatype FLOAT ***********//
-        val_f = (float)this->JsonPosArrayToInt(posArray, posArray2) * factor;
+        val_f = (float)(this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
         sprintf(dbg, "%.2f", val_f);
         d.value = String(dbg);
       
       } else if (datatype == "integer") {
         //********** handle Datatype Integer ***********//
-        val_i = this->JsonPosArrayToInt(posArray, posArray2) * factor;
+        val_i = (this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
         sprintf(dbg, "%d", val_i);
         d.value = String(dbg);
 

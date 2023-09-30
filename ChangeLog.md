@@ -3,6 +3,7 @@ Release 3.1.1:
   - fix insecure unencrypted AccesspointMode
   - fix crash of ESP32 by using Solax-X3 settings (issue #22)
   - add support for ESP32-S2, -S3, -C3 (issue #20)
+  - add optional register field: "valueAdd" to add/sub a static value
   
 Release 3.1.0:  
   - add Sofar-KTL Solarmax-SGA

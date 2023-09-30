@@ -43,7 +43,7 @@ void MQTT::reconnect() {
   if (Config->UseRandomMQTTClientID()) { 
     snprintf (topic, sizeof(topic), "%s-%s", this->mqtt_root.c_str(), String(random(0xffff)).c_str());
   } else {
-    snprintf (topic, sizeof(topic), "%s-%08X", this->mqtt_root.c_str(), WIFI_getChipId());
+    snprintf (topic, sizeof(topic), "%s-%08X", this->mqtt_root.c_str(), ESP_getChipId());
   }
   snprintf(LWT, sizeof(LWT), "%s/state", this->mqtt_root.c_str());
   

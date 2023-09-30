@@ -10,10 +10,10 @@
 
 #ifdef ESP8266
   //#define SetHostName(x) wifi_station_set_hostname(x);
-  #define WIFI_getChipId() ESP.getChipId() 
+  #define ESP_getChipId() ESP.getChipId() 
 #elif ESP32
   //#define SetHostName(x) WiFi.getHostname(x); --> MQTT.cpp TODO
-  #define WIFI_getChipId() (uint32_t)ESP.getEfuseMac()   // Unterschied zu ESP.getFlashChipId() ???
+  #define ESP_getChipId() (uint32_t)ESP.getEfuseMac()   // Unterschied zu ESP.getFlashChipId() ???
 #endif
 
 #if defined(ESP8266) || defined(ESP32)
