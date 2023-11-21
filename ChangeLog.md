@@ -3,7 +3,9 @@ Release 3.1.1:
   - fix insecure unencrypted AccesspointMode
   - fix crash of ESP32 by using Solax-X3 settings (issue #22)
   - add support for ESP32-S2, -S3, -C3 (issue #20)
-  - add optional register field: "valueAdd" to add/sub a static value
+  - add optional register field: "valueAdd" to add/sub a static value (issue #32)
+  - add "object_id" to jsondata of /getitems (issue #36)
+  - add registers of Deye SUN-xx-SG04LP3 (issue #32)
   
 Release 3.1.0:  
   - add Sofar-KTL Solarmax-SGA

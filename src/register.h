@@ -1408,10 +1408,11 @@ const char JSON[] PROGMEM = R"=====(
 			]
 		}	
 	},
-	"Deye SUN": {
+	"Deye SUN-xx-SG04LP3": {
 		"config": {
 			"RequestLiveData": [
-				["#ClientID", "0x03", "0x01", "0xF4", "0x00", "0x77"]
+				["#ClientID", "0x03", "0x01", "0xF4", "0x00", "0x77"],
+				["#ClientID", "0x03", "0x02", "0x6B", "0x00", "0x41"]
 			],
 			"RequestIdData": ["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x07"],
 			"ClientIdPos": 0,
@@ -1433,30 +1434,825 @@ const char JSON[] PROGMEM = R"=====(
 		"data": {
 			"livedata": [
 				{
-					"position": [2, 3],
-					"name": "InverterStatus",
-					"realname": "Inverter Status",
+					"position": [3, 4],
+					"name": "RunState",
+					"realname": "Run State",
 					"datatype": "integer",
-					"mapping": [[0,"StandBy"],[1,"SelfCheck"],[2,"NormalMode"],[3, "Alarm"],[4,"FaultMode"]]
+					"mapping": [[0,"StandBy"],[1,"Self Check"],[2,"Normal Mode"],[3, "Alarm"],[4,"Fault Mode"]]
 				},
 				{
-					"position": [4, 5],
-					"name": "EtodayToGrid",
-					"realname": "Today Energy to Grid",
+					"position": [5, 6],
+					"name": "ActivePowerGenerationOfToday ",
+					"realname": "Active Power Generation of Today",
 					"datatype": "float",
 					"factor": 0.1,
-					"unit": "kWh"
+					"unit": "KWh"
+				},
+				{
+					"position": [7, 8],
+					"name": "ReactivePowerGenerationOfToday ",
+					"realname": "Reactive Power Generation of Today",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "kVarh"
+				},
+				{
+					"position": [9, 10],
+					"name": "GridConnectionTimeOfToday ",
+					"realname": "Grid Connection Time of Today",
+					"datatype": "integer",
+					"unit": "s"
+				},
+				{
+					"position": [13,14,11, 12],
+					"name": "ActivePowerGenerationOfTotal ",
+					"realname": "Active Power Generation of Total",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [17,18,15, 16],
+					"name": "ReactivePowerGenerationOfTotal ",
+					"realname": "Reactive Power Generation of Total",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [31, 32],
+					"name": "TodayChargeBattery",
+					"realname": "Today Charge Battery",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [33, 34],
+					"name": "TodayDischargeBattery",
+					"realname": "Today Discharge Battery",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [37, 38,35,36],
+					"name": "TotalChargeOfTheBattery",
+					"realname": "Total Charge of the battery",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [41,42,39, 40],
+					"name": "TotalDischargeOfTheBattery",
+					"realname": "Total Discharge of the battery",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [43,44],
+					"name": "DayGridBuyPower",
+					"realname": "Day Grid Buy Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [45,46],
+					"name": "DayGridSellPower",
+					"realname": "Day Grid Sell Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [49,50,47,48],
+					"name": "TotalGridBuyPower",
+					"realname": "Total Grid Buy Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [53,54,51,52],
+					"name": "TotalGridSellPower",
+					"realname": "Total Grid Sell Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [55,56],
+					"name": "DayLoadPower",
+					"realname": "Day Load Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [59,60,57,58],
+					"name": "TotalLoadPower",
+					"realname": "Total Load Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [61,62],
+					"name": "DayPVPower",
+					"realname": "Day PV Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [63,64],
+					"name": "DayPV1Power",
+					"realname": "Day PV-1 Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [65,66],
+					"name": "DayPV2Power",
+					"realname": "Day PV-2 Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [67,68],
+					"name": "DayPV3Power",
+					"realname": "Day PV-3 Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [69,70],
+					"name": "DayPV4Power",
+					"realname": "Day PV-4 Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [73,74,71,72],
+					"name": "TotalPVPower",
+					"realname": "Total PV Power",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "KWh"
+				},
+				{
+					"position": [81,82],
+					"name": "GeneratorWorkingHoursPerDay",
+					"realname": "Generator Working Hours per Day",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "h"
+				},
+				{
+					"position": [83, 84],
+					"name": "DCTransformatorTemperature",
+					"realname": "DC-Transformator Temperature",
+					"datatype": "float",
+					"factor": 0.1,
+					"valueAdd": -100,
+					"unit": "°C"
+				},
+				{
+					"position": [85, 86],
+					"name": "HeatSinkTemperature",
+					"realname": "Heatsink Temperature",
+					"datatype": "float",
+					"factor": 0.1,
+					"valueAdd": -100,
+					"unit": "°C"
+				},
+				{
+					"position": [175, 176],
+					"name": "BatteryTemperature",
+					"realname": "Battery Temperature",
+					"datatype": "float",
+					"factor": 0.1,
+					"valueAdd": -100,
+					"unit": "&deg;C"
+				},
+				{
+					"position": [177, 178],
+					"name": "BatteryVoltage",
+					"realname": "Battery Voltage",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "V"
+				},
+				{
+					"position": [179, 180],
+					"name": "BatteryCapacity",
+					"realname": "Battery Capacity",
+					"datatype": "integer",
+					"unit": "%"
+				},
+				{
+					"position": [183, 184],
+					"name": "BatteryOutputPower",
+					"realname": "Battery Output Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [185, 186],
+					"name": "BatteryOutputCurrent",
+					"realname": "Battery Output Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [187, 188],
+					"name": "CorrectedAH",
+					"realname": "Corrected AH",
+					"datatype": "integer",
+					"unit": "AH"
+				},
+				{
+					"position": [199, 200],
+					"name": "GridPhaseAVoltage",
+					"realname": "Grid Phase-A Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [201, 202],
+					"name": "GridPhaseBVoltage",
+					"realname": "Grid Phase-B Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [203, 204],
+					"name": "GridPhaseCVoltage",
+					"realname": "Grid Phase-C Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [205, 206],
+					"name": "GridABVoltage",
+					"realname": "Grid AB Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [207, 208],
+					"name": "GridBCVoltage",
+					"realname": "Grid BC Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [209, 210],
+					"name": "GridCAVoltage",
+					"realname": "Grid CA Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [211, 212],
+					"name": "PhaseAPowerInnerGrid",
+					"realname": "Phase-A Power Inner Grid",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [213, 214],
+					"name": "PhaseBPowerInnerGrid",
+					"realname": "Phase-B Power Inner Grid",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [215, 216],
+					"name": "PhaseCPowerInnerGrid",
+					"realname": "Phase-C Power Inner Grid",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [217, 218],
+					"name": "ActivePowerSideToSideOfGrid",
+					"realname": "Active Power Side to Side of Grid",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [219, 220],
+					"name": "GridSideInsideTotalApparentPower",
+					"realname": "Grid Side Inside Total Apparent Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [221, 222],
+					"name": "GridSideFrequency",
+					"realname": "Grid Side Frequency",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
+				},
+				{
+					"position": [223, 224],
+					"name": "GridSideInnerCurrentA",
+					"realname": "Grid Side Inner-Current-A",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [225, 226],
+					"name": "GridSideInnerCurrentB",
+					"realname": "Grid Side Inner-Current-B",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [227, 228],
+					"name": "GridSideInnerCurrentC",
+					"realname": "Grid Side Inner-Current-C",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [229, 230],
+					"name": "OutOfGridCurrentA",
+					"realname": "Out of Grid Current-A",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [231, 232],
+					"name": "OutOfGridCurrentB",
+					"realname": "Out of Grid Current-B",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [233, 234],
+					"name": "OutOfGridCurrentC",
+					"realname": "Out of Grid Current-C",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [235, 236],
+					"name": "OutOfGridPowerA",
+					"realname": "Out of Grid Power-A",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [237, 238],
+					"name": "OutOfGridPowerB",
+					"realname": "Out of Grid Power-B",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [239, 240],
+					"name": "OutOfGridPowerC",
+					"realname": "Out of Grid Power-C",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [246, 247],
+					"name": "OutOfGridTotalPower",
+					"realname": "Out of Grid Total Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [248, 249],
+					"name": "OutOfGridTotalApparentPower",
+					"realname": "Out of Grid Total Apperant Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [250, 251],
+					"name": "GridConnectedPowerFactorPF",
+					"realname": "Grid Connected Power Factor (PF)",
+					"datatype": "float",
+					"factor": 1000,
+					"unit": ""
+				},
+				{
+					"position": [252, 253],
+					"name": "GridSidePhaseAPower",
+					"realname": "Grid Side Phase-A Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [254, 255],
+					"name": "GridSidePhaseBPower",
+					"realname": "Grid Side Phase-B Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [256, 257],
+					"name": "GridSidePhaseCPower",
+					"realname": "Grid Side Phase-C Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [258, 259],
+					"name": "GridSideTotalPower",
+					"realname": "Grid Side Total Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [262, 263],
+					"name": "InverterOutputPhaseAVoltage",
+					"realname": "Inverter Output Phase-A Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [264, 265],
+					"name": "InverterOutputPhaseBVoltage",
+					"realname": "Inverter Output Phase-B Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [266, 267],
+					"name": "InverterOutputPhaseCVoltage",
+					"realname": "Inverter Output Phase-C Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [268, 269],
+					"name": "InverterOutputPhaseACurrent",
+					"realname": "Inverter Output Phase-A Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [270, 271],
+					"name": "InverterOutputPhaseBCurrent",
+					"realname": "Inverter Output Phase-B Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [272, 273],
+					"name": "InverterOutputPhaseCCurrent",
+					"realname": "Inverter Output Phase-C Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [274, 275],
+					"name": "InverterOutputPhaseAPower",
+					"realname": "Inverter Output Phase-A Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [276, 277],
+					"name": "InverterOutputPhaseBPower",
+					"realname": "Inverter Output Phase-B Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [278, 279],
+					"name": "InverterOutputPhaseCPower",
+					"realname": "Inverter Output Phase-C Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [280, 281],
+					"name": "InverterOutputTotalPower",
+					"realname": "Inverter Output Total Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [282, 283],
+					"name": "InverterOutputTotalApparentPower",
+					"realname": "Inverter Output Total Apparent Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [284, 285],
+					"name": "InverterFrequency",
+					"realname": "Inverter Frequency",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
+				},
+				{
+					"position": [288, 289],
+					"name": "UPSLoadPowerA",
+					"realname": "UPS Load Power-A",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [290, 291],
+					"name": "UPSLoadPowerB",
+					"realname": "UPS Load Power-B",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [292, 293],
+					"name": "UPSLoadPowerC",
+					"realname": "UPS Load Power-C",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [294, 295],
+					"name": "UPSLoadTotalPower",
+					"realname": "UPS Load Total Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [296, 297],
+					"name": "LoadVoltageA",
+					"realname": "Load Voltage-A",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [298, 299],
+					"name": "LoadVoltageB",
+					"realname": "Load Voltage-B",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [300, 301],
+					"name": "LoadVoltageC",
+					"realname": "Load Voltage-C",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [302, 303],
+					"name": "LoadCurrentA",
+					"realname": "Load Current-A",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [304, 305],
+					"name": "LoadCurrentB",
+					"realname": "Load Current-B",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [306, 307],
+					"name": "LoadCurrentC",
+					"realname": "Load Current-C",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [308, 309],
+					"name": "LoadPowerA",
+					"realname": "Load Power-A",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [310, 311],
+					"name": "LoadPowerB",
+					"realname": "Load Power-B",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [312, 313],
+					"name": "LoadPowerC",
+					"realname": "Load Power-C",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [314, 315],
+					"name": "LoadTotalPower",
+					"realname": "Load Total Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [316, 317],
+					"name": "LoadTotalApparentPower",
+					"realname": "Load Total Apparent Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [318, 319],
+					"name": "LoadFrequency",
+					"realname": "Load Frequency",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "Hz"
+				},
+				{
+					"position": [330, 331],
+					"name": "GenVoltageA",
+					"realname": "Gen Voltage-A",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [332, 333],
+					"name": "GenVoltageB",
+					"realname": "Gen Voltage-B",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [334, 335],
+					"name": "GenVoltageC",
+					"realname": "Gen Voltage-C",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [336, 337],
+					"name": "GenPowerA",
+					"realname": "Gen Power-A",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [338, 339],
+					"name": "GenPowerB",
+					"realname": "Gen Power-B",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [340, 341],
+					"name": "GenPowerC",
+					"realname": "Gen Power-C",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [342, 343],
+					"name": "GenTotalPower",
+					"realname": "Gen Total Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [352, 353],
+					"name": "PV1InputPower",
+					"realname": "PV1 Input Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [354, 355],
+					"name": "PV2InputPower",
+					"realname": "PV2 Input Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [356, 357],
+					"name": "PV3InputPower",
+					"realname": "PV3 Input Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [358, 359],
+					"name": "PV4InputPower",
+					"realname": "PV4 Input Power",
+					"datatype": "integer",
+					"unit": "W"
+				},
+				{
+					"position": [360, 361],
+					"name": "PV1DCVoltage",
+					"realname": "PV1 DC Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [362, 363],
+					"name": "PV1DCCurrent",
+					"realname": "PV1 DC Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [364, 365],
+					"name": "PV2DCVoltage",
+					"realname": "PV2 DC Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [366, 367],
+					"name": "PV2DCCurrent",
+					"realname": "PV2 DC Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [368, 369],
+					"name": "PV3DCVoltage",
+					"realname": "PV3 DC Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [370, 371],
+					"name": "PV3DCCurrent",
+					"realname": "PV3 DC Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
+				},
+				{
+					"position": [372, 373],
+					"name": "PV4DCVoltage",
+					"realname": "PV4 DC Voltage",
+					"datatype": "float",
+					"factor": 0.1,
+					"unit": "V"
+				},
+				{
+					"position": [374, 375],
+					"name": "PV4DCCurrent",
+					"realname": "PV4 DC Current",
+					"datatype": "float",
+					"factor": 0.01,
+					"unit": "A"
 				}
 			],
 			"id": [
 				{
-					"position": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-					"name": "InverterSN",
-					"realname": "Inverter SerialNumber",
+					"position": [9,10,11,12,13,14,15,16],
+					"name": "SN",
+					"realname": "SerialNumber",
 					"datatype": "string"
 				}
 			]
-		}	
+		}
 	}
 }
 )=====";
