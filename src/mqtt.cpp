@@ -1,8 +1,7 @@
 #include "mqtt.h"
 
-MQTT::MQTT(AsyncWebServer* server, DNSServer* dns, const char* MqttServer, uint16_t port, String basepath, String root): server(server), dns(dns) { 
-  this->mqtt_basepath = basepath;
-  this->mqtt_root = root;
+MQTT::MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword): 
+server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath) { 
   
   this->subscriptions = new std::vector<String>{};
 
@@ -10,31 +9,28 @@ MQTT::MQTT(AsyncWebServer* server, DNSServer* dns, const char* MqttServer, uint1
   WiFi.mode(WIFI_STA); 
   this->mqtt = new PubSubClient();
   
-  AsyncWiFiManager wifiManager(server, dns);
+  this->wifiManager = new AsyncWiFiManager(server, dns);
 
-  if (Config->GetDebugLevel() >=4) wifiManager.setDebugOutput(true); 
-    else wifiManager.setDebugOutput(false); 
+  if (Config->GetDebugLevel() >=4) wifiManager->setDebugOutput(true); 
+    else wifiManager->setDebugOutput(false); 
 
-  wifiManager.setTimeout(300);
+  wifiManager->setConnectTimeout(60);
+  wifiManager->setConfigPortalTimeout(300);
+  WiFi.setHostname(this->mqtt_root.c_str());
   Serial.println("WiFi Start");
-  //wifi_station_set_hostname(mqtt_root.c_str());
-  WiFi.setHostname(mqtt_root.c_str()); //TODO
   
-  if (!wifiManager.autoConnect(("AP_" + mqtt_root).c_str())) {
-    Serial.println("failed to connect and hit timeout");
-    delay(3000);
-    //reset and try again, or maybe put it to deep sleep
-    ESP.restart();
-    delay(5000);
+  if (!wifiManager->autoConnect(APName, APpassword) ) {
+    Serial.println("failed to connect and start configPortal");
+    wifiManager->startConfigPortal(APName, APpassword);
   }
   
   Serial.print("WiFi connected with local IP: ");
   Serial.println(WiFi.localIP());
   //WiFi.printDiag(Serial);
 
-  Serial.print("Starting MQTT ("); Serial.print(MqttServer); Serial.print(":");Serial.print(port);Serial.println(")");
+  Serial.print("Starting MQTT ("); Serial.print(MqttServer); Serial.print(":");Serial.print(MqttPort);Serial.println(")");
   this->mqtt->setClient(espClient);
-  this->mqtt->setServer(MqttServer, port);
+  this->mqtt->setServer(MqttServer, MqttPort);
   this->mqtt->setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
 }
 
@@ -47,7 +43,7 @@ void MQTT::reconnect() {
   if (Config->UseRandomMQTTClientID()) { 
     snprintf (topic, sizeof(topic), "%s-%s", this->mqtt_root.c_str(), String(random(0xffff)).c_str());
   } else {
-    snprintf (topic, sizeof(topic), "%s-%08X", this->mqtt_root.c_str(), WIFI_getChipId());
+    snprintf (topic, sizeof(topic), "%s-%08X", this->mqtt_root.c_str(), ESP_getChipId());
   }
   snprintf(LWT, sizeof(LWT), "%s/state", this->mqtt_root.c_str());
   
@@ -155,6 +151,8 @@ void MQTT::ClearSubscriptions() {
       mqtt->unsubscribe(this->subscriptions->at(i).c_str()); 
     }
   }
+  this->subscriptions->clear();
+  this->subscriptions->shrink_to_fit();
 }
 
 void MQTT::loop() {
@@ -175,7 +173,20 @@ void MQTT::loop() {
     this->mqtt_basepath = Config->GetMqttBasePath();
     if (this->mqtt->connected()) this->mqtt->disconnect();
   }
+
+  // WIFI lost, try to reconnect
+  if (WiFi.status() != WL_CONNECTED) {
+    if (Config->GetDebugLevel() > 1) {
+      Serial.println("WIFI lost, try to reconnect...");
+    }
+    wifiManager->setConfigPortalTimeout(0);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(5000);
+      WiFi.begin();        
+    }
+  }
   
+  // WIFI ok, MQTT lost
   if (!this->mqtt->connected() && WiFi.status() == WL_CONNECTED) { 
     if (millis() - mqttreconnect_lasttry > 10000) {
       espClient = WiFiClient();

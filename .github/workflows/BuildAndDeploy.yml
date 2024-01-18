@@ -27,13 +27,19 @@ jobs:
       matrix:
         variant:
           - firmware_ESP32
-#          - firmware_ESP8266
+          - firmware_ESP32-S2
+          - firmware_ESP32-S3
+          - firmware_ESP32-C3
 
         include:
           - variant: firmware_ESP32
             architecture: ESP32
-#          - variant: firmware_ESP8266
-#            architecture: ESP8266
+          - variant: firmware_ESP32-S2
+            architecture: ESP32-S2
+          - variant: firmware_ESP32-S3
+            architecture: ESP32-S3
+          - variant: firmware_ESP32-C3
+            architecture: ESP32-C3
             
     steps:
       - name: checkout repository
@@ -74,7 +80,7 @@ jobs:
           ENV_BINARYPATH: .pio/build/${{ matrix.variant }}/
           ENV_DESTPATH: "release"
           ENV_SUBVERSION: ${{ github.run_number }}
-          ENV_RELEASEFILE: _Release.h
+          ENV_RELEASEFILE: src/_Release.h
         run: |
           mkdir release 
           chmod +x .github/workflows/generateJSON.sh
@@ -86,23 +92,23 @@ jobs:
           name: "${{ matrix.variant }}.zip"
           path: release/*.bin
   
-#      - name: Upload to AWS S3
-#        uses: jakejarvis/s3-sync-action@master
-#        with:
-#          args: '--acl public-read --follow-symlinks'
-#        env:
-#          AWS_S3_BUCKET: 'tfa-releases'
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_REGION: 'eu-central-1'   # optional: defaults to us-east-1
-#          SOURCE_DIR: 'release'      # optional: defaults to entire repository
-#          DEST_DIR: ${{ env.REPOSITORY }}     
+      - name: Upload to AWS S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: '--acl public-read --follow-symlinks'
+        env:
+          AWS_S3_BUCKET: 'tfa-releases'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-central-1'   # optional: defaults to us-east-1
+          SOURCE_DIR: 'release'      # optional: defaults to entire repository
+          DEST_DIR: ${{ env.REPOSITORY }}     
 
   create_Release:
     needs: [build]
 
     runs-on: ubuntu-latest
-    if: endsWith(github.ref, 'master_X') || endsWith(github.ref, 'prelive_X')
+    if: endsWith(github.ref, 'master') || endsWith(github.ref, 'prelive')
     
     env:
       GITHUB_REPOSITORY: ${{ github.event.repository.name }}

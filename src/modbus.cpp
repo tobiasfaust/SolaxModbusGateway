@@ -528,18 +528,20 @@ void modbus::ParseData() {
     //  ***********************************************
     #ifdef DEBUGMODE 
       if (Config->GetDebugLevel() >=3) {Serial.println("Start parsing in testmode, use some testdata instead real live data :)");}
+      
       // Solar-KTL 
-      byte ReadBuffer[] = {0x01, 0x03, 0x60, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x34, 0x01, 0xF3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x13, 0x86, 0x09, 0x11, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x4C, 0x00, 0x00, 0x02, 0x5F, 0x00, 0x8A, 0x01, 0x7D, 0x00, 0x28, 0x00, 0x33, 0x0E, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x60, 0x01, 0x42, 0x0A, 0x3B, 0x00, 0x0E, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x39, 0x25};
+      //byte ReadBuffer[] = {0x01, 0x03, 0x60, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x34, 0x01, 0xF3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x13, 0x86, 0x09, 0x11, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x4C, 0x00, 0x00, 0x02, 0x5F, 0x00, 0x8A, 0x01, 0x7D, 0x00, 0x28, 0x00, 0x33, 0x0E, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x60, 0x01, 0x42, 0x0A, 0x3B, 0x00, 0x0E, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x39, 0x25};
 
       // Solax MIC
       //byte ReadBuffer[] = {0x01, 0x04, 0x80, 0x12, 0x34, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x09, 0x64, 0x09, 0x67, 0x09, 0x6B, 0x13, 0x8C, 0x13, 0x8D, 0x13, 0x8B, 0x00, 0x27, 0x00, 0x28, 0x00, 0x28, 0x00, 0x2C, 0x0B, 0x54, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x70, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5B, 0xC3};
       
       //Solax X1
-      //byte ReadBuffer[] = {0x01, 0x04, 0xA6, 0x08, 0xF4, 0x00, 0x0D, 0x01, 0x0D, 0x0A, 0x26, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x13, 0x8B, 0x00, 0x1C, 0x00, 0x02, 0x01, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE6, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x09, 0x17, 0x04, 0x56};
+      byte ReadBuffer[] = {0x01, 0x04, 0xA6, 0x08, 0xF4, 0x00, 0x0D, 0x01, 0x0D, 0x0A, 0x26, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x13, 0x8B, 0x00, 0x1C, 0x00, 0x02, 0x01, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE6, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x09, 0x17, 0x04, 0x56};
       //byte ReadBuffer[] = {0x01, 0x03, 0x28, 0x48, 0x34, 0x35, 0x30, 0x32, 0x41, 0x49, 0x34, 0x34, 0x35, 0x39, 0x30, 0x30, 0x35, 0x73, 0x6F, 0x6C, 0x61, 0x78, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x4A, 0xA0};
       
       //Growatt
       //byte ReadBuffer[] = {0x01,0x04,0xEE,0x00,0x06,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x02,0x05,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x79,0x01,0x13,0x88,0x10,0x02,0x00,0x2A,0x00,0x00,0x79,0x7D,0x10,0x08,0x00,0x2B,0x00,0x00,0x00,0x00,0x0F,0xCE,0x00,0x2A,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x5B,0x00,0x00,0x05,0xE6,0x00,0x1D,0x2C,0x06,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x54,0x01,0x47,0x01,0x69,0x00,0x00,0x0A,0x02,0x1C,0x1F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x83,0x00,0x00,0x02,0xE8,0x00,0x00,0x00,0x00,0x00,0x00,0x7A,0x44};
+      
       for (uint8_t i = 0; i<sizeof(ReadBuffer); i++) {
         this->DataFrame->push_back(ReadBuffer[i]);
         if (Config->GetDebugLevel() >=4) {Serial.print(PrintHex(ReadBuffer[i])); Serial.print(" ");}
@@ -592,6 +594,7 @@ void modbus::ParseData() {
       String datatype = "";
       String openwbtopic = "";
       float factor = 1;
+      int valueAdd = 0;
       String unit = "";
 
       JsonArray posArray, posArray2;
@@ -636,6 +639,11 @@ void modbus::ParseData() {
       if (elem.containsKey("factor")) {
         factor = elem["factor"];
       }
+
+      // optional field
+      if (elem.containsKey("valueAdd")) {
+        valueAdd = elem["valueAdd"];
+      }
       
       // optional field
       if (elem.containsKey("unit")) {
@@ -659,13 +667,13 @@ void modbus::ParseData() {
       // ************* processing data ******************
       if (datatype == "float") {
         //********** handle Datatype FLOAT ***********//
-        val_f = (float)this->JsonPosArrayToInt(posArray, posArray2) * factor;
+        val_f = (float)(this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
         sprintf(dbg, "%.2f", val_f);
         d.value = String(dbg);
       
       } else if (datatype == "integer") {
         //********** handle Datatype Integer ***********//
-        val_i = this->JsonPosArrayToInt(posArray, posArray2) * factor;
+        val_i = (this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
         sprintf(dbg, "%d", val_i);
         d.value = String(dbg);
 
@@ -835,27 +843,76 @@ String modbus::GetInverterSN() {
 
 /*******************************************************
  * Return all LiveData as jsonArray
- * {data: [{"name": "xx", "value": "xx"}], }
- * {"GridVoltage_R":"0.00 V","GridCurrent_R":"0.00 A","GridPower_R":"0 W","GridFrequency_R":"0.00 Hz","GridVoltage_S":"0.90 V","GridCurrent_S":"1715.40 A","GridPower_S":"-28671 W","GridFrequency_S":"174.08 Hz","GridVoltage_T":"0.00 V","GridCurrent_T":"0.00 A","GridPower_T":"0 W","GridFrequency_T":"1.30 Hz","PvVoltage1":"259.80 V","PvVoltage2":"0.00 V","PvCurrent1":"1.00 A","PvCurrent2":"0.00 A","Temperature":"28 &deg;C","PowerPv1":"283 W","PowerPv2":"0 W","BatVoltage":"0.00 V","BatCurrent":"0.00 A","BatPower":"0 W","BatTemp":"0 &deg;C","BatCapacity":"0 %","OutputEnergyChargeWh":"0 Wh","OutputEnergyChargeKWh":"0.00 KWh","OutputEnergyChargeToday":"0.00 KWh","InputEnergyChargeWh":"0 Wh","InputEnergyChargeKWh":"0.00 KWh"}
+ * {data: [{"name": "xx", "value": "xx", ...}, ...] }
 *******************************************************/
 void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
   int count = 0;
   response->print("{\"data\": ["); 
   
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-    if (this->InverterLiveData->at(i).active) {
-      StaticJsonDocument<256> doc;
-      String s = "";
-      doc["name"]  = this->InverterLiveData->at(i).Name;
-      doc["value"] = this->InverterLiveData->at(i).value;
-      serializeJson(doc, s);
-      if(count>0) response->print(", ");
-      response->print(s);
-      count++;
+    StaticJsonDocument<512> doc;
+    String s = "";
+    doc["name"]  = this->InverterLiveData->at(i).Name;
+    doc["realname"]  = this->InverterLiveData->at(i).RealName;
+    doc["value"] = this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit;
+    doc["active"] = (this->InverterLiveData->at(i).active?1:0);
+    doc["mqtttopic"] = this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false);
+
+    if (this->InverterLiveData->at(i).openwb.length() > 0) {
+      doc["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
     }
+
+    serializeJson(doc, s);
+    if(count>0) response->print(", ");
+    response->print(s);
+    count++;
   }
   
-  response->print(" ]}");
+  response->printf(" ], \"object_id\": %s/%s}", Config->GetMqttBasePath(), Config->GetMqttRoot());
+}
+
+/*******************************************************
+ * Return all LiveData as jsonArray
+ * {data: [{"name": "xx", "value": "xx"}], }
+ * {"GridVoltage_R":"0.00 V","GridCurrent_R":"0.00 A","GridPower_R":"0 W","GridFrequency_R":"0.00 Hz","GridVoltage_S":"0.90 V","GridCurrent_S":"1715.40 A","GridPower_S":"-28671 W","GridFrequency_S":"174.08 Hz","GridVoltage_T":"0.00 V","GridCurrent_T":"0.00 A","GridPower_T":"0 W","GridFrequency_T":"1.30 Hz","PvVoltage1":"259.80 V","PvVoltage2":"0.00 V","PvCurrent1":"1.00 A","PvCurrent2":"0.00 A","Temperature":"28 &deg;C","PowerPv1":"283 W","PowerPv2":"0 W","BatVoltage":"0.00 V","BatCurrent":"0.00 A","BatPower":"0 W","BatTemp":"0 &deg;C","BatCapacity":"0 %","OutputEnergyChargeWh":"0 Wh","OutputEnergyChargeKWh":"0.00 KWh","OutputEnergyChargeToday":"0.00 KWh","InputEnergyChargeWh":"0 Wh","InputEnergyChargeKWh":"0.00 KWh"}
+*******************************************************/
+void modbus::GetRegisterAsJson(AsyncResponseStream *response) {
+  int count = 0;
+  response->print("{\"data\": ["); 
+  
+  ProgmemStream stream{JSON};
+  String streamString = "";
+  streamString = "\""+ this->InverterType +"\": {";
+  stream.find(streamString.c_str());
+
+  streamString = "\"livedata\": [";
+  stream.find(streamString.c_str());
+
+  do {
+    StaticJsonDocument<1024> elem;
+    DeserializationError error = deserializeJson(elem, stream); 
+      
+    if (!error) {
+      // Print the result
+      if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON ok"); }
+      if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
+    } else {
+      if (Config->GetDebugLevel() >=1) {
+        Serial.print("(Function GetRegisterAsJson) Failed to parse JSON Register Data: "); 
+        Serial.print(error.c_str()); 
+        Serial.println();
+      }
+    }
+  
+    String s = "";
+    serializeJson(elem, s);
+    if(count>0) response->print(", ");
+    response->print(s);
+    count++;
+
+  } while (stream.findUntil(",","]"));
+
+  response->print("]}");
 }
 
 /*******************************************************
@@ -1009,6 +1066,11 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
     } else {
       d.RealName = d.Name;
     }
+
+    // optional field
+    if(!elem["openwbtopic"].isNull()) {
+      d.openwb = elem["openwbtopic"].as<String>();
+    } 
 
     d.active = false; // set initial
     vector->push_back(d);
@@ -1253,115 +1315,60 @@ void modbus::GetWebContentConfig(AsyncResponseStream *response) {
 }
 
 void modbus::GetWebContentItemConfig(AsyncResponseStream *response) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
+  response->println("<template id='NewRow'>");
+  response->println("<tr>");
+  response->println("  <td>");
+  response->println("    <div class='onoffswitch'>");
+  response->println("        <input type='checkbox' name='active_{name}' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_{name}' {active}>");
+  response->println("        <label class='onoffswitch-label' for='activeswitch_{name}'>");
+  response->println("        <span class='onoffswitch-inner'></span>");
+  response->println("        <span class='onoffswitch-switch'></span>");
+  response->println("      </label>");
+  response->println("    </div>");
+  response->println("  </td>");
+  response->println("  <td>");
+  response->println("    <dfn class='tooltip_simple'>{realname}");
+  response->println("      <span role='tooltip_simple'>{mqtttopic}</span>");
+  response->println("    </dfn>");
+  response->println("  </td>");
+  response->println("  <td style='text-align: center'>");
+  response->println("    <template id='openwb'>");
+  response->println("      <dfn class='tooltip'>&#9989;");
+  response->println("        <span role='tooltip'>{openwbtopic}</span>");
+  response->println("      </dfn>");
+  response->println("    </template>");
+  response->println("  </td>");
+  response->println("  <td><div id='{name}'>{value}</div></td>");
+  response->println("</tr>");
+  response->println("</template>");
 
-  String html = "";
+  response->println("<form id='DataForm'>");
+  response->println("<table id='maintable' class='editorDemoTable'>");
+  response->println("<thead>");
+  response->println("<tr>");
+  response->println("<td style='width: 25px;'>Active</td>");
+  response->println("<td style='width: 250px;'>Name</td>");
+  response->println("<td style='width: 80px;'>OpenWB</td>");
+  response->println("<td style='width: 200px;'>Wert</td>");
+  response->println("</tr>");
+  response->println("</thead>");
+  response->println("<tbody>");
 
-  response->print("<form id='DataForm'>\n");
-  response->print("<table id='maintable' class='editorDemoTable'>\n");
-  response->print("<thead>\n");
-  response->print("<tr>\n");
-  response->print("<td style='width: 25px;'>Active</td>\n");
-  response->print("<td style='width: 250px;'>Name</td>\n");
-  response->print("<td style='width: 80px;'>OpenWB</td>\n");
-  response->print("<td style='width: 200px;'>Wert</td>\n");
-  response->print("</tr>\n");
-  response->print("</thead>\n");
-  response->print("<tbody>\n");
+  response->println("</tbody>");
+  response->println("</table>");
+  response->println("</form><br />");
+  response->println("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\", 2)'>");
+  response->println("  <input type='text' id='json' name='json' />");
+  response->println("  <input type='submit' value='Speichern' />");
+  response->println("</form>");
 
-  ProgmemStream stream{JSON};
-  String streamString = "";
-  streamString = "\""+ this->InverterType +"\": {";
-  stream.find(streamString.c_str());  
-  stream.find("\"livedata\": [");
-  do {
-    StaticJsonDocument<1024> elem;
-    DeserializationError error = deserializeJson(elem, stream); 
-    bool IsActiveItem = false;
-    String ItemValue = "";
+  response->println("<script language='javascript' type='text/javascript'>");
+  response->println("  var url = '/getitems'");
+  response->println("    fetch(url)");
+  response->println("    .then(response => response.json())");
+  response->println("    .then(json => FillItemConfig('#maintable', '#NewRow', 0, json.data));");
+  response->println("</script>");
 
-    // lookup for the current right value from inverter
-    for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-      if (this->InverterLiveData->at(i).Name == elem["name"].as<String>()) {
-        ItemValue = this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit;
-        if (this->InverterLiveData->at(i).active) IsActiveItem = true;
-        break;
-      }
-    }
-
-    response->print("<tr>\n");
-
-    response->print("  <td>\n");
-    response->print("    <div class='onoffswitch'>\n");
-    response->printf("        <input type='checkbox' name='active_%s' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_%s' %s>\n", elem["name"].as<String>().c_str(), elem["name"].as<String>().c_str(), (IsActiveItem?"checked":""));
-    response->printf("        <label class='onoffswitch-label' for='activeswitch_%s'>\n", elem["name"].as<String>().c_str());
-    response->print("        <span class='onoffswitch-inner'></span>\n");
-    response->print("        <span class='onoffswitch-switch'></span>\n");
-    response->print("      </label>\n");
-    response->print("    </div>\n");
-    response->print("  </td>\n");
-
-    response->print("  <td>\n");
-    response->printf("    <dfn class='tooltip_simple'>%s", (elem["realname"].isNull()?elem["name"].as<String>().c_str():elem["realname"].as<String>().c_str()));
-    response->printf("    <span role='tooltip_simple'>%s</span>", this->mqtt->getTopic(elem["name"].as<String>(), false).c_str());
-    response->print("    </dfn>");
-    response->print("  </td>\n");
-    
-    response->print("  <td style='text-align: center'>\n");
-    if (!elem["openwbtopic"].isNull()) {
-      response->print("<dfn class='tooltip'>&#9989;");
-      response->printf("<span role='tooltip'>%s</span>", elem["openwbtopic"].as<String>().c_str());
-      response->print("</dfn>");
-    }
-    response->print("  </td>\n");
-
-    response->printf("  <td><div id='%s'>%s</div></td>\n", elem["name"].as<String>().c_str(), ItemValue.c_str());
-    response->print("</tr>\n");
-
-  } while (stream.findUntil(",","]"));    
-  
-  response->print("</tbody>\n");
-  response->print("</table>\n");
-  response->print("</form>\n\n<br />\n");
-  response->print("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\", 2)'>\n");
-  response->print("  <input type='text' id='json' name='json' />\n");
-  response->print("  <input type='submit' value='Speichern' />\n");
-  response->print("</form>\n\n");
-}
-
-void modbus::GetWebContentActiveLiveData(AsyncResponseStream *response) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
-
-  String html = "";
-
-  response->print("<table class='editorDemoTable'>\n");
-  response->print("<thead>\n");
-  response->print("<tr>\n");
-  response->print("<td style='width: 250px;'>Name</td>\n");
-  response->print("<td style='width: 200px;'>LiveData</td>\n");
-  response->print("</tr>\n");
-  response->print("</thead>\n");
-  response->print("<tbody>\n");
-
-  for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-    if (this->InverterLiveData->at(i).active) {
-          
-      response->print("</tr>\n");
-      sprintf(buffer, "  <td>%s</td>\n", this->InverterLiveData->at(i).RealName.c_str());
-      response->print(buffer);
-      sprintf(buffer, "  <td><div id='%s'>%s</div></td>\n", this->InverterLiveData->at(i).Name.c_str(), this->InverterLiveData->at(i).value.c_str());
-      response->print(buffer);
-      response->print("</tr>\n");
-
-      response->print(html); html = "";
-    }
-  }
-
-  response->print("</tbody>\n");
-  response->print("</table>\n");
-  response->print(html); html = "";
 }
 
 void modbus::GetWebContentRawData(AsyncResponseStream *response) {

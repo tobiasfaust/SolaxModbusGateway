@@ -21,6 +21,7 @@ class modbus {
       String value;
       String unit;
       bool active;
+      String openwb;
   } reg_t;
 
   typedef struct {
@@ -51,6 +52,7 @@ class modbus {
     void                    GetWebContentActiveLiveData(AsyncResponseStream *response);
     String                  GetInverterSN();
     void                    GetLiveDataAsJson(AsyncResponseStream *response);
+    void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
 

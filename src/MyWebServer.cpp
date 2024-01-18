@@ -25,7 +25,9 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
   server->on("/wifireset", HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
 
   server->on("/ajax", HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
-  
+  server->on("/getitems", HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
+  server->on("/getregister", HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
+
   server->on("/update", HTTP_GET, std::bind(&MyWebServer::handle_update_page, this, std::placeholders::_1));
 
   server->on("/update", HTTP_POST, std::bind(&MyWebServer::handle_update_response, this, std::placeholders::_1),
@@ -100,9 +102,6 @@ void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
   
   this->getPageHeader(response, ROOT);
   this->getPage_Status(response);
-  response->print("<p></p>");
-  
-  mb->GetWebContentActiveLiveData(response);
   this->getPageFooter(response);
   request->send(response);
 }
@@ -174,6 +173,7 @@ void MyWebServer::handleModbusConfig(AsyncWebServerRequest *request) {
 
 void MyWebServer::handleModbusItemConfig(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("text/html");
+  
   response->addHeader("Server","ESP Async Web Server");
   
   this->getPageHeader(response, MODBUSITEMCONFIG);
@@ -192,9 +192,30 @@ void MyWebServer::handleModbusRawData(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response->addHeader("Pragma", "no-cache");
+  response->addHeader("Expires", "-1");
+  
+  mb->GetLiveDataAsJson(response);
+
+  request->send(response);
+}
+
+void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response->addHeader("Pragma", "no-cache");
+  response->addHeader("Expires", "-1");
+  
+  mb->GetRegisterAsJson(response);
+
+  request->send(response);  
+}
+
+
 void MyWebServer::ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page) {
-  AsyncResponseStream *response = request->beginResponseStream("text/html");
-  response->addHeader("Server","ESP Async Web Server");
   String json = "{}";
 
   if(request->hasArg("json")) {
@@ -405,5 +426,32 @@ void MyWebServer::getPage_Status(AsyncResponseStream *response) {
   response->print("</tr>\n");
   
   response->print("</tbody>\n");
-  response->print("</table>\n");     
+  response->print("</table>\n"); 
+
+  response->println("<p></p>");
+  response->println("<table id='statustable' class='editorDemoTable'>");
+  response->println("<thead>");
+  response->println("  <tr>");
+  response->println("    <td style='width: 250px;'>Name</td>");
+  response->println("    <td style='width: 200px;'>LiveData</td>");
+  response->println("  </tr>");
+  response->println("</thead>");
+  response->println("<tbody>");
+
+  response->println("<template id='NewRow'>");
+  response->println("  <tr>");
+  response->println("    <td>{realname}</td>");
+  response->println("    <td><div id='{name}'>{value}</div></td>");
+  response->println("  </tr>");
+  response->println("</template");
+
+  response->println("</tbody>");
+  response->println("</table>");
+
+  response->println("<script language='javascript' type='text/javascript'>");
+  response->println("  var url = '/getitems'");
+  response->println("    fetch(url)");
+  response->println("    .then(response => response.json())");
+  response->println("    .then(json => FillItemConfig('#statustable', '#NewRow', 1, json.data));");
+  response->println("</script>");
 }
