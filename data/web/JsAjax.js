@@ -1,7 +1,3 @@
-#ifndef AJAX_H
-#define AJAX_H
-
-const char JSAJAX[] PROGMEM = R"=====(
 var myInterval = setInterval(RefreshLiveData, 5000);
 
 function ChangeActiveStatus(id) {
@@ -54,8 +50,3 @@ function ajax_send(json) {
     }
   http.send(params);
 }
-
-
-)=====";
-
-#endif

@@ -2,14 +2,16 @@
 
 BaseConfig::BaseConfig() : debuglevel(0) {  
   #ifdef ESP8266
-    SPIFFS.begin();
+    LittleFS.begin();
   #elif ESP32
-    SPIFFS.begin(true); // true: format SPIFFS/NVS if mount fails
+    if (!LittleFS.begin(true)) { // true: format LittleFS/NVS if mount fails
+      Serial.println("LittleFS Mount Failed");
+    }
   #endif
   
   // Flash Write Issue
   // https://github.com/esp8266/Arduino/issues/4061#issuecomment-428007580
-  //SPIFFS.format();
+  // LittleFS.format();
   
   LoadJsonConfig();
 }
@@ -21,7 +23,7 @@ void BaseConfig::StoreJsonConfig(String* json) {
   JsonObject root = doc.as<JsonObject>();
 
   if (!root.isNull()) {
-    File configFile = SPIFFS.open("/BaseConfig.json", "w");
+    File configFile = LittleFS.open("/BaseConfig.json", "w");
     if (!configFile) {
       if (this->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
     } else {  
@@ -38,10 +40,10 @@ void BaseConfig::StoreJsonConfig(String* json) {
 
 void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
-  if (SPIFFS.exists("/BaseConfig.json")) {
+  if (LittleFS.exists("/BaseConfig.json")) {
     //file exists, reading and loading
     Serial.println("reading config file");
-    File configFile = SPIFFS.open("/BaseConfig.json", "r");
+    File configFile = LittleFS.open("/BaseConfig.json", "r");
     if (configFile) {
       Serial.println("opened config file");
       //size_t size = configFile.size();

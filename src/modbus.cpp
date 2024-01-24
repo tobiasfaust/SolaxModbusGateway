@@ -10,17 +10,19 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
 
   InverterLiveData    = new std::vector<reg_t>{};
   InverterIdData      = new std::vector<reg_t>{};
-  AvailableInverters  = new std::vector<String>{};
+  AvailableInverters  = new std::vector<regfiles_t>{};
   Setters             = new std::vector<subscription_t>{};
 
   Conf_RequestLiveData= new std::vector<std::vector<byte>>{};
   Conf_RequestIdData  = new std::vector<byte>{};
 
+  InverterType        = {};
+
   ReadQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 read requests parallel
   SetQueue  = new ArduinoQueue<std::vector<byte>>(5); // max 5 set requests parallel
 
+  this->LoadInvertersFromJson(); //needed for selecting default inverter
   this->LoadJsonConfig(true);
-
   this->init(true);
 }
 
@@ -75,15 +77,18 @@ void modbus::GenerateMqttSubscriptions() {
 
   // clear vector
   this->Setters->clear();
-  ProgmemStream stream{JSON};
+  //ProgmemStream stream(JSON);
+
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  
   String streamString = "";
-  streamString = "\""+ this->InverterType +"\": {";
-  stream.find(streamString.c_str());
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
   streamString = "\"set\": [";
-  stream.find(streamString.c_str());
+  regfile.find(streamString.c_str());
   do {
     StaticJsonDocument<512> elem;
-    DeserializationError error = deserializeJson(elem, stream); 
+    DeserializationError error = deserializeJson(elem, regfile); 
     if (!error) {
       // Print the result
       if (Config->GetDebugLevel() >=4) {Serial.println("parsing JSON for <set> data ok"); }
@@ -119,8 +124,9 @@ void modbus::GenerateMqttSubscriptions() {
         Serial.println();
       }
     }
-  } while (stream.findUntil(",","]"));
+  } while (regfile.findUntil(",","]"));
 
+  regfile.close();
 }
 
 
@@ -178,23 +184,71 @@ void modbus::LoadInvertersFromJson() {
   AvailableInverters->clear();
 
   filter["*"]["config"]["ClientIdPos"] = true;  
-  
-  DeserializationError error = deserializeJson(regjson, JSON, DeserializationOption::Filter(filter));
+  File root = LittleFS.open("/regs/");
+  File file = root.openNextFile();
+  while(file){
+    if (Config->GetDebugLevel() >=3) { Serial.printf("open register file from Filesystem: %s\n", file.name()); }
 
-  if (!error) {
-    // https://arduinojson.org/v6/api/jsonobject/begin_end/
-    JsonObject root = regjson.as<JsonObject>();
-    for (JsonPair kv : root) {
-      if (Config->GetDebugLevel() >=3) {
-        sprintf(dbg, "Inverter found: %s", kv.key().c_str());
-        Serial.println(dbg);
+    DeserializationError error = deserializeJson(regjson, file, DeserializationOption::Filter(filter));
+     if (!error && regjson.size() > 0) {
+      // https://arduinojson.org/v6/api/jsonobject/begin_end/
+      JsonObject root = regjson.as<JsonObject>();
+      for (JsonPair kv : root) {
+        if (Config->GetDebugLevel() >=3) {
+          sprintf(dbg, "Inverter found: %s", kv.key().c_str());
+          Serial.println(dbg);
+        }
+
+        regfiles_t wr = {};
+        wr.filename = file.name();
+        wr.name = kv.key().c_str();
+        AvailableInverters->push_back(wr);
       }
-
-      AvailableInverters->push_back(kv.key().c_str());
+    } else{
+      sprintf(dbg, "Error: unable to load inverters from File %s: %s", file.name(), error.c_str());
     }
-  } else{
-    sprintf(dbg, "Error: unable to load inverters form JSON: %s", error.c_str());
+    file.close();
+    file = root.openNextFile();
   }
+  root.close();
+
+  if (this->AvailableInverters->size() == 0) {
+    if (Config->GetDebugLevel() >=0) {
+      Serial.println("ALERT: No register definitions found. ESP cannot work properly");
+      Serial.println("Please flash filesystem Image!");
+    }
+  }
+}
+
+/*******************************************************
+ * write default Inverter JSON File to LittleFS to get at least 1 Inverterdata
+ * happens if user forgot flashing datapartition
+*******************************************************/
+void modbus::WriteDefaultInverterFile2FS() {
+  if (Config->GetDebugLevel() >=1) {
+    Serial.println("Writing default register file");
+  }
+  std::ofstream out("/regs/default.json");
+  out << "lorem ipsum"; //F(DefaultRegJSON);
+  out.close();
+
+  File root = LittleFS.open("/regs/");
+  File file = root.openNextFile();
+  while(file) {
+    Serial.printf("found file: /regs/%s\n", file.name());
+    file.close();
+    file = root.openNextFile();
+  }
+  root.close();
+
+  root = LittleFS.open("/");
+  file = root.openNextFile();
+  while(file) {
+    Serial.printf("found file: /%s\n", file.name());
+    file.close();
+    file = root.openNextFile();
+  }
+  root.close();
 }
 
 /*******************************************************
@@ -207,40 +261,45 @@ void modbus::LoadInverterConfigFromJson() {
   StaticJsonDocument<1224> doc;
   StaticJsonDocument<100> filter;
 
-  filter[this->InverterType]["config"] = true;
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  if (!regfile) {
+    if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
+  }
+
+  filter[this->InverterType.name]["config"] = true;
     
-  DeserializationError error = deserializeJson(doc, JSON, DeserializationOption::Filter(filter));
+  DeserializationError error = deserializeJson(doc, regfile, DeserializationOption::Filter(filter));
 
   if (error && Config->GetDebugLevel() >=1) {
-    sprintf(dbg, "Error: unable to read configdata for inverter %s: %s", this->InverterType, error.c_str());
+    sprintf(dbg, "Error: unable to read configdata for inverter %s: %s", this->InverterType.name, error.c_str());
     Serial.println(dbg);
   } else {
     if (Config->GetDebugLevel() >=4) {
-      sprintf(dbg, "Read config data for inverter %s", this->InverterType.c_str());
+      sprintf(dbg, "Read config data for inverter %s", this->InverterType.name.c_str());
       Serial.println(dbg);
       serializeJsonPretty(doc, Serial);
       Serial.println();
     }
   }
 
-  this->Conf_LiveDataFunctionCode   = this->String2Byte(doc[this->InverterType]["config"]["LiveDataFunctionCode"].as<String>());
-  this->Conf_IdDataFunctionCode     = this->String2Byte(doc[this->InverterType]["config"]["IdDataFunctionCode"].as<String>());
-  this->Conf_LiveDataErrorCode      = this->String2Byte(doc[this->InverterType]["config"]["LiveDataErrorCode"].as<String>());
-	this->Conf_IdDataErrorCode        = this->String2Byte(doc[this->InverterType]["config"]["IdDataErrorCode"].as<String>());
-	this->Conf_LiveDataSuccessCode    = this->String2Byte(doc[this->InverterType]["config"]["LiveDataSuccessCode"].as<String>());
-	this->Conf_IdDataSuccessCode      = this->String2Byte(doc[this->InverterType]["config"]["IdDataSuccessCode"].as<String>());
-  this->Conf_ClientIdPos            = int(doc[this->InverterType]["config"]["ClientIdPos"]);
-  this->Conf_LiveDataStartsAtPos    = int(doc[this->InverterType]["config"]["LiveDataStartsAtPos"]);
-	this->Conf_IdDataStartsAtPos      = int(doc[this->InverterType]["config"]["IdDataStartsAtPos"]);
-	this->Conf_LiveDataErrorPos       = int(doc[this->InverterType]["config"]["LiveDataErrorPos"]);
-	this->Conf_IdDataErrorPos         = int(doc[this->InverterType]["config"]["IdDataErrorPos"]);
-	this->Conf_LiveDataSuccessPos     = int(doc[this->InverterType]["config"]["LiveDataSuccessPos"]);
-	this->Conf_IdDataSuccessPos       = int(doc[this->InverterType]["config"]["IdDataSuccessPos"]);
-  this->Conf_IdDataFunctionCodePos  = int(doc[this->InverterType]["config"]["IdDataFunctionCodePos"]);
-  this->Conf_LiveDataFunctionCodePos= int(doc[this->InverterType]["config"]["LiveDataFunctionCodePos"]);
+  this->Conf_LiveDataFunctionCode   = this->String2Byte(doc[this->InverterType.name]["config"]["LiveDataFunctionCode"].as<String>());
+  this->Conf_IdDataFunctionCode     = this->String2Byte(doc[this->InverterType.name]["config"]["IdDataFunctionCode"].as<String>());
+  this->Conf_LiveDataErrorCode      = this->String2Byte(doc[this->InverterType.name]["config"]["LiveDataErrorCode"].as<String>());
+	this->Conf_IdDataErrorCode        = this->String2Byte(doc[this->InverterType.name]["config"]["IdDataErrorCode"].as<String>());
+	this->Conf_LiveDataSuccessCode    = this->String2Byte(doc[this->InverterType.name]["config"]["LiveDataSuccessCode"].as<String>());
+	this->Conf_IdDataSuccessCode      = this->String2Byte(doc[this->InverterType.name]["config"]["IdDataSuccessCode"].as<String>());
+  this->Conf_ClientIdPos            = int(doc[this->InverterType.name]["config"]["ClientIdPos"]);
+  this->Conf_LiveDataStartsAtPos    = int(doc[this->InverterType.name]["config"]["LiveDataStartsAtPos"]);
+	this->Conf_IdDataStartsAtPos      = int(doc[this->InverterType.name]["config"]["IdDataStartsAtPos"]);
+	this->Conf_LiveDataErrorPos       = int(doc[this->InverterType.name]["config"]["LiveDataErrorPos"]);
+	this->Conf_IdDataErrorPos         = int(doc[this->InverterType.name]["config"]["IdDataErrorPos"]);
+	this->Conf_LiveDataSuccessPos     = int(doc[this->InverterType.name]["config"]["LiveDataSuccessPos"]);
+	this->Conf_IdDataSuccessPos       = int(doc[this->InverterType.name]["config"]["IdDataSuccessPos"]);
+  this->Conf_IdDataFunctionCodePos  = int(doc[this->InverterType.name]["config"]["IdDataFunctionCodePos"]);
+  this->Conf_LiveDataFunctionCodePos= int(doc[this->InverterType.name]["config"]["LiveDataFunctionCodePos"]);
   
   Conf_RequestLiveData->clear();
-  for (JsonArray arr : doc[this->InverterType]["config"]["RequestLiveData"].as<JsonArray>()) {
+  for (JsonArray arr : doc[this->InverterType.name]["config"]["RequestLiveData"].as<JsonArray>()) {
   
     std::vector<byte> t = {};
     for (String x : arr) {
@@ -252,10 +311,12 @@ void modbus::LoadInverterConfigFromJson() {
   }
   
   Conf_RequestIdData->clear();
-  for (String elem : doc[this->InverterType]["config"]["RequestIdData"].as<JsonArray>()) {
+  for (String elem : doc[this->InverterType.name]["config"]["RequestIdData"].as<JsonArray>()) {
     byte e = this->String2Byte(elem);
     Conf_RequestIdData->push_back(e);
   }
+
+  if (regfile) { regfile.close(); }
 
 }
 
@@ -567,16 +628,19 @@ void modbus::ParseData() {
       RequestType = "livedata";
     }
 
-    ProgmemStream stream{JSON};
+    File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+    if (!regfile) {
+     if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
+    }
     String streamString = "";
-    streamString = "\""+ this->InverterType +"\": {";
-    stream.find(streamString.c_str());
+    streamString = "\""+ this->InverterType.name +"\": {";
+    regfile.find(streamString.c_str());
     
     streamString = "\""+ RequestType +"\": [";
-    stream.find(streamString.c_str());
+    regfile.find(streamString.c_str());
     do {
       StaticJsonDocument<1024> elem;
-      DeserializationError error = deserializeJson(elem, stream); 
+      DeserializationError error = deserializeJson(elem, regfile); 
       
       if (!error) {
         // Print the result
@@ -722,7 +786,9 @@ void modbus::ParseData() {
 
       }
     
-    } while (stream.findUntil(",","]"));
+    } while (regfile.findUntil(",","]"));
+
+    if (regfile) { regfile.close(); }
 
   } 
 
@@ -868,7 +934,7 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
     count++;
   }
   
-  response->printf(" ], \"object_id\": %s/%s}", Config->GetMqttBasePath(), Config->GetMqttRoot());
+  response->printf(" ], \"object_id\": \"%s/%s\"}", Config->GetMqttBasePath(), Config->GetMqttRoot());
 }
 
 /*******************************************************
@@ -880,17 +946,21 @@ void modbus::GetRegisterAsJson(AsyncResponseStream *response) {
   int count = 0;
   response->print("{\"data\": ["); 
   
-  ProgmemStream stream{JSON};
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  if (!regfile) {
+    if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
+    return;
+  }
   String streamString = "";
-  streamString = "\""+ this->InverterType +"\": {";
-  stream.find(streamString.c_str());
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
 
   streamString = "\"livedata\": [";
-  stream.find(streamString.c_str());
+  regfile.find(streamString.c_str());
 
   do {
     StaticJsonDocument<1024> elem;
-    DeserializationError error = deserializeJson(elem, stream); 
+    DeserializationError error = deserializeJson(elem, regfile); 
       
     if (!error) {
       // Print the result
@@ -910,8 +980,9 @@ void modbus::GetRegisterAsJson(AsyncResponseStream *response) {
     response->print(s);
     count++;
 
-  } while (stream.findUntil(",","]"));
+  } while (regfile.findUntil(",","]"));
 
+  if (regfile) { regfile.close(); }
   response->print("]}");
 }
 
@@ -941,19 +1012,20 @@ void modbus::loop() {
   if (millis() - this->LastTxLiveData > this->TxIntervalLiveData * 1000) {
     this->LastTxLiveData = millis();
     
-    this->QueryLiveData();
+    if (this->InverterType.filename.length() > 1) {this->QueryLiveData();}  
    }
 
   if (millis() - this->LastTxIdData > this->TxIntervalIdData * 1000) {
     this->LastTxIdData = millis();
     
-    this->QueryIdData();
+    if (this->InverterType.filename.length() > 1) {this->QueryIdData();}
   }
 
   //its allowed to send a new request every 800ms, we use recommend 1000ms
   if (millis() - this->LastTxInverter > 1000) {
     this->LastTxInverter = millis();
-    this->QueryQueueToInverter();
+
+    if (this->InverterType.filename.length() > 1) {this->QueryQueueToInverter();}
   }
 }
 
@@ -977,7 +1049,7 @@ void modbus::StoreJsonConfig(String* json) {
   JsonObject root = doc.as<JsonObject>();
 
   if (!root.isNull()) {
-    File configFile = SPIFFS.open("/ModbusConfig.json", "w");
+    File configFile = LittleFS.open("/ModbusConfig.json", "w");
     if (!configFile) {
       if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
     } else {  
@@ -1000,7 +1072,7 @@ void modbus::StoreJsonItemConfig(String* json) {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  File configFile = SPIFFS.open("/ModbusItemConfig.json", "w");
+  File configFile = LittleFS.open("/ModbusItemConfig.json", "w");
   if (!configFile) {
     if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
   } else {  
@@ -1016,7 +1088,7 @@ void modbus::StoreJsonItemConfig(String* json) {
 }
 
 /*******************************************************
- * load initial Register Items from ProgMemStream into vector
+ * load initial Register Items from file into vector
 *******************************************************/
 void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
   char dbg[100] = {0}; 
@@ -1025,20 +1097,25 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
   vector->clear();
 
   if (Config->GetDebugLevel() >=4) {
-    sprintf(dbg, "Load RegItems for Inverter %s and type <%s>", this->InverterType.c_str(), type);
+    sprintf(dbg, "Load RegItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type);
     Serial.println(dbg);
   }
 
-  ProgmemStream stream{JSON};
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  if (!regfile) {
+    if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
+    return;
+  }
+
   String streamString = "";
-  streamString = "\""+ this->InverterType +"\": {";
-  stream.find(streamString.c_str());
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
     
   streamString = "\"" + type + "\": [";
-  stream.find(streamString.c_str());
+  regfile.find(streamString.c_str());
   do {
     StaticJsonDocument<1012> elem;
-    DeserializationError error = deserializeJson(elem, stream); 
+    DeserializationError error = deserializeJson(elem, regfile); 
       
     if (!error) {
       // Print the result
@@ -1046,7 +1123,7 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
       if (Config->GetDebugLevel() >=5) {serializeJsonPretty(elem, Serial);}
     } else {
       if (Config->GetDebugLevel() >=1) {
-        sprintf(dbg, "(Function LoadRegItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.c_str(), type, error.c_str());
+        sprintf(dbg, "(Function LoadRegItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), type, error.c_str());
         Serial.println(dbg);
       }
     }
@@ -1080,7 +1157,9 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
       Serial.println(dbg);
     }
 
-  } while (stream.findUntil(",","]"));
+  } while (regfile.findUntil(",","]"));
+
+  if (regfile) { regfile.close(); }
 }
 
 /*******************************************************
@@ -1092,12 +1171,12 @@ void modbus::LoadJsonConfig(bool firstrun) {
   uint8_t pin_RX_old    = this->pin_RX;
   uint8_t pin_TX_old    = this->pin_TX;
   uint8_t pin_RTS_old   = this->pin_RTS;
-  String InverterType_old = this->InverterType;
+  regfiles_t InverterType_old = this->InverterType;
 
-  if (SPIFFS.exists("/ModbusConfig.json")) {
+  if (LittleFS.exists("/ModbusConfig.json")) {
     //file exists, reading and loading
     if (Config->GetDebugLevel() >=3) Serial.println("reading config file....");
-    File configFile = SPIFFS.open("/ModbusConfig.json", "r");
+    File configFile = LittleFS.open("/ModbusConfig.json", "r");
     if (configFile) {
       if (Config->GetDebugLevel() >=3) Serial.println("config file is open:");
       //size_t size = configFile.size();
@@ -1115,13 +1194,35 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc.containsKey("baudrate"))         { this->Baudrate = (int)(doc["baudrate"]);} else {this->Baudrate = 19200;}
         if (doc.containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
         if (doc.containsKey("txintervalid"))     { this->TxIntervalIdData = (int)(doc["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
-        if (doc.containsKey("invertertype"))     { this->InverterType = (doc["invertertype"]).as<String>();} else {this->InverterType = "Solax-X1";}
         if (doc.containsKey("enable_openwbtopic")){ this->Conf_EnableOpenWBTopic = (doc["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
         if (doc.containsKey("enable_setters"))   { this->Conf_EnableSetters = (doc["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
+
+        if (doc.containsKey("invertertype"))     { 
+          bool found = false;
+          for (uint8_t i=0; i<this->AvailableInverters->size(); i++) {
+            if (this->AvailableInverters->at(i).name == (doc["invertertype"]).as<String>()) {
+              this->InverterType = this->AvailableInverters->at(i); 
+              if (Config->GetDebugLevel() >=3) {
+                Serial.printf("Invertertyp '%s' was found in register file '%s', set it as selected active Inverter\n", this->InverterType.name.c_str(), this->InverterType.filename.c_str());
+              }
+              found = true;
+            } 
+          }
+          if (!found) { 
+            if (this->AvailableInverters->size()>0) {
+              this->InverterType = this->AvailableInverters->at(0);
+            }
+            if (Config->GetDebugLevel() >=3) {
+                Serial.printf("Invertertyp '%s' was not found, use default '%s' instead\n", (doc["invertertype"]).as<String>().c_str(), this->InverterType.name.c_str());
+            }
+          }
+        }
+
       } else {
         if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus json config, load default config");}
         loadDefaultConfig = true;
       }
+      configFile.close();
     }
   } else {
     if (Config->GetDebugLevel() >=3) {Serial.println("ModbusConfig.json config File not exists, load default config");}
@@ -1129,6 +1230,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
   }
 
   if (loadDefaultConfig) {
+    if (this->AvailableInverters->size()>0) {
+      this->InverterType = this->AvailableInverters->at(0);
+    } 
+
     this->pin_RX = 16;
     this->pin_TX = 17;
     this->pin_RTS = 18;
@@ -1136,7 +1241,6 @@ void modbus::LoadJsonConfig(bool firstrun) {
     this->Baudrate = 19200;
     this->TxIntervalLiveData = 5;
     this->TxIntervalIdData = 3600;
-    this->InverterType = "Solax-X1";
     this->Conf_EnableOpenWBTopic = false;
     this->Conf_EnableSetters = false;
 
@@ -1155,7 +1259,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
 
   // ReInit if Invertertype was changed
   if(!firstrun && (
-    InverterType_old != this->InverterType) ) { 
+    InverterType_old.name != this->InverterType.name) ) { 
     
     this->init(false);
   }
@@ -1169,10 +1273,10 @@ void modbus::LoadJsonItemConfig() {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  if (SPIFFS.exists("/ModbusItemConfig.json")) {
+  if (LittleFS.exists("/ModbusItemConfig.json")) {
     //file exists, reading and loading
     if (Config->GetDebugLevel() >=3) Serial.println("reading modbus item config file....");
-    File configFile = SPIFFS.open("/ModbusItemConfig.json", "r");
+    File configFile = LittleFS.open("/ModbusItemConfig.json", "r");
     if (configFile) {
       if (Config->GetDebugLevel() >=3) Serial.println("modbus item config file is open:");
 
@@ -1209,14 +1313,14 @@ void modbus::LoadJsonItemConfig() {
         }
 
       } while (stream.findUntil(",","]"));
+      configFile.close();
     } else {
       if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus item json config, load default config");}
     }
   } else {
-    if (Config->GetDebugLevel() >=3) {Serial.println("ModbusItemConfig.json config File not exists, all items are active as default");}
+    if (Config->GetDebugLevel() >=3) {Serial.println("ModbusItemConfig.json config File not exists, all items are inactive as default");}
   }
 }
-
 
 /*******************************************************************************************************
  * WebContent
@@ -1276,7 +1380,7 @@ void modbus::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("<td>Select Inverter Type (Default: Solax X1)</td>\n");
   response->print("<td> <select name='invertertype' size='1' style='width: 10em'>");
   for (uint8_t i=0; i< AvailableInverters->size(); i++) {
-    response->printf("<option value='%s' %s>%s</option>\n", AvailableInverters->at(i).c_str(), (AvailableInverters->at(i)==this->InverterType?"selected":"") , AvailableInverters->at(i).c_str());
+    response->printf("<option value='%s' %s>%s</option>\n", AvailableInverters->at(i).name.c_str(), (AvailableInverters->at(i).name == this->InverterType.name?"selected":"") , AvailableInverters->at(i).name.c_str());
   }
   response->print("</td></tr>\n");
 

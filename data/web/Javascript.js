@@ -1,10 +1,3 @@
-// jsfiddle.net
-// https://jsfiddle.net/tobiasfaust/5xh2azd6/
-
-#ifndef JAVASCRIPT_H
-#define JAVASCRIPT_H
-
-const char JAVASCRIPT[] PROGMEM = R"=====(
 const gpio_disabled = [];
 
 const gpio = [  {port: 2 , name:'D2'},
@@ -381,7 +374,3 @@ function FillItemConfig(targettable, template, onylactive, json) {
     
   });
 }
-
-)=====";
-
-#endif

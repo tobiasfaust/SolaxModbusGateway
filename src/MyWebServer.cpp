@@ -1,6 +1,6 @@
 #include "MyWebServer.h"
 
-MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false) {
+MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false), RequestRebootTime(0) {
   
   server->begin(); 
 
@@ -42,15 +42,11 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
 }
 
 void MyWebServer::handle_update_page(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATEPAGE);
-  response->addHeader("Server","ESP Async Web Server");
-  request->send(response); 
+  request->send(LittleFS, "/web/UpdatePage.html", "text/html");
 }
 
 void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
-  response->addHeader("Server","ESP Async Web Server");
-  request->send(response); 
+  request->send(LittleFS, "/web/UpdateResponse.html", "text/html");
 }
 
 void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
@@ -80,9 +76,14 @@ void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String 
 void MyWebServer::loop() {
   //delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
   if (this->DoReboot) {
-    Serial.println("Rebooting...");
-    delay(100);
-    ESP.restart();
+    if (this->RequestRebootTime == 0) {
+      this->RequestRebootTime = millis();
+      Serial.println("Request to Reboot, wait 5sek ...");
+    }
+    if (millis() - this->RequestRebootTime > 5000) { // wait 3sek until reboot
+      Serial.println("Rebooting...");
+      ESP.restart();
+    }
   }
 }
 
@@ -107,7 +108,7 @@ void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleCSS(AsyncWebServerRequest *request) {
-  request->send_P(200, "text/css", STYLE_CSS);
+  request->send(LittleFS, "/web/style.css", "text/css");
 }
 
 void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
@@ -117,27 +118,36 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleJS(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/javascript", JAVASCRIPT);
-  response->addHeader("Server","ESP Async Web Server");
-  request->send(response); 
+  request->send(LittleFS, "/web/Javascript.js", "text/javascript");
 }
 
 void MyWebServer::handleJsAjax(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/javascript", JSAJAX);
-  response->addHeader("Server","ESP Async Web Server");
-  request->send(response); 
+ request->send(LittleFS, "/web/JsAjax.js", "text/javascript"); 
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
-  response->addHeader("Connection", "close");
-  request->send(response);
-  
+  request->send(LittleFS, "/web/UpdateResponse.html", "text/html"); 
+
   this->DoReboot = true;
 }
 
 void MyWebServer::handleReset(AsyncWebServerRequest *request) {
-  SPIFFS.format();
+  if (Config->GetDebugLevel() >= 3) { Serial.println("deletion of all config files was requested ...."); }
+  //LittleFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
+  File root = LittleFS.open("/");
+  File file = root.openNextFile();
+  while(file){
+    String path("/"); path.concat(file.name());
+    if (path.indexOf(".json") == -1) {Serial.println("Continue"); file = root.openNextFile(); continue;}
+    file.close();
+    bool f = LittleFS.remove(path);
+    if (Config->GetDebugLevel() >= 3) {
+      Serial.printf("deletion of configuration file '%s' %s\n", file.name(), (f?"was successful":"has failed"));;
+    }
+    file = root.openNextFile();
+  }
+  root.close();
+
   this->handleReboot(request);
 }
 

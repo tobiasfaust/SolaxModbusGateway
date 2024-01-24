@@ -11,7 +11,7 @@
 #include <ArduinoQueue.h>
 #include <HardwareSerial.h>
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -29,6 +29,11 @@ class modbus {
     std::vector<byte> request; 
   } subscription_t;
 
+  // available inverter register json files
+  typedef struct {
+    String name;
+    String filename;
+  } regfiles_t;
 
   #define RS485Transmit    HIGH
   #define RS485Receive     LOW
@@ -43,7 +48,7 @@ class modbus {
 
     void                    loop();
 
-    const String&           GetInverterType()   const {return InverterType;}
+    const String&           GetInverterType()   const {return InverterType.name;}
 
     void                    enableMqtt(MQTT* object);
     void                    GetWebContentConfig(AsyncResponseStream *response);
@@ -64,7 +69,7 @@ class modbus {
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
     uint16_t                TxIntervalIdData;     // 3600
-    String                  InverterType;         //Solax-X1
+    regfiles_t              InverterType;         //Solax-X1
 
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
@@ -73,9 +78,10 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
-    std::vector<String>*    AvailableInverters;   // available inverters from JSON
+    std::vector<regfiles_t>*AvailableInverters;   // available inverters from JSON
     std::vector<subscription_t>* Setters;         // available set Options from JSON register 
 
+    
     MQTT*                   mqtt = NULL;
     
     String                  PrintHex(byte num);
@@ -91,6 +97,7 @@ class modbus {
     void                    ParseData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
+    void                    WriteDefaultInverterFile2FS();
     void                    GenerateMqttSubscriptions();
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);

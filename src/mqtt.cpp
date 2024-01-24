@@ -19,16 +19,17 @@ server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath) {
   WiFi.setHostname(this->mqtt_root.c_str());
   Serial.println("WiFi Start");
   
+//  wifiManager->startConfigPortal("OnDemandAP");
+
   if (!wifiManager->autoConnect(APName, APpassword) ) {
     Serial.println("failed to connect and start configPortal");
     wifiManager->startConfigPortal(APName, APpassword);
   }
   
-  Serial.print("WiFi connected with local IP: ");
-  Serial.println(WiFi.localIP());
+  Serial.printf("WiFi connected with local IP: %s\n", WiFi.localIP().toString().c_str());
   //WiFi.printDiag(Serial);
 
-  Serial.print("Starting MQTT ("); Serial.print(MqttServer); Serial.print(":");Serial.print(MqttPort);Serial.println(")");
+  Serial.printf("Starting MQTT (%s:%d)\n", MqttServer, MqttPort);
   this->mqtt->setClient(espClient);
   this->mqtt->setServer(MqttServer, MqttPort);
   this->mqtt->setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });

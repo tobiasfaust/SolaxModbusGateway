@@ -58,7 +58,6 @@ void setup() {
                     (char*)"AP_ModbusGateway",
                     (char*)"MbMQTTGtw"
                   );
-
   mqtt->setCallback(myMQTTCallBack);
 
   mb = new modbus();

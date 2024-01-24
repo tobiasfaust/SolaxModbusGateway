@@ -16,11 +16,7 @@
 #include "baseconfig.h"
 #include "modbus.h"
 #include "mqtt.h"
-#include "JavaScript.h"
-#include "JsAjax.h"
-#include "CSS.h"
 #include "favicon.h"
-#include "html_update.h"
 #include "_Release.h"
 
 class MyWebServer {
@@ -35,6 +31,7 @@ class MyWebServer {
   private:
     
     bool      DoReboot;
+    unsigned long RequestRebootTime;
 
     AsyncWebServer* server;
     DNSServer* dns;
