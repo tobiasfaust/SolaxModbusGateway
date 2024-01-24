@@ -56,7 +56,9 @@ jobs:
           pip install --upgrade pip
 
       - name: Run PlatformIO
-        run: platformio run -e ${{ matrix.variant }}
+        run: |
+          platformio run -e ${{ matrix.variant }}
+          platformio run --target buildfs -e ${{ matrix.variant }}
 
       - name: Display generated files
         run: |
