@@ -2,7 +2,6 @@
 #define SOLAXMODBUS_H
 
 #include "commonlibs.h"
-#include "register.h"
 #include "baseconfig.h"
 #include "mqtt.h"
 #include <vector>
