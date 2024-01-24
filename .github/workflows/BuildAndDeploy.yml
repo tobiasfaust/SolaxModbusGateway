@@ -80,7 +80,8 @@ jobs:
           ENV_ARCH: ${{ matrix.architecture }}
           ENV_REPOSITORYNAME: ${{ env.REPOSITORY }}
           ENV_BINARYPATH: .pio/build/${{ matrix.variant }}/
-          ENV_DESTPATH: "release"
+          ENV_RELEASEPATH: "release"
+          ENV_ARTIFACTPATH: "artifacts"
           ENV_SUBVERSION: ${{ github.run_number }}
           ENV_RELEASEFILE: src/_Release.h
         run: |
