@@ -84,7 +84,7 @@ jobs:
           ENV_SUBVERSION: ${{ github.run_number }}
           ENV_RELEASEFILE: src/_Release.h
         run: |
-          mkdir release 
+          mkdir -p release artifacts
           chmod +x .github/workflows/generateJSON.sh
           .github/workflows/generateJSON.sh
 
@@ -92,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: "${{ matrix.variant }}.zip"
-          path: release/*.bin
+          path: artifacts/*.bin
   
       - name: Upload to AWS S3
         uses: jakejarvis/s3-sync-action@master

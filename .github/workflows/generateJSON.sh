@@ -6,9 +6,10 @@ REPOSITORYNAME="$1"     # PumpControl
 SUBVERSION="$2"         # Unique ID -> GITHUB_RUN_NUMBER
 STAGE="$3"              # PROD|PRE|DEV
 BINARYPATH="$4"         # Path of binaryFiles
-DESTPATH="$5"           # Path of Destination, BIN and JSON Files
+RELEASEPATH="$5"        # Path of Destination, BIN and JSON Files
 RELEASEFILE="$6"        # Path of ReleaseFile, contains versionnumber
 ARCH="$7"               # Archtitcture, ESP8266|ESP32
+ARTIFACTPATH="$8"       # Path of all Artifacts
 
 readonly NC='\033[0m' # No Color
 readonly RED='\033[0;31m'
@@ -25,7 +26,8 @@ if [[ -n $ENV_STAGE ]]; then STAGE=$ENV_STAGE; fi
 if [[ -n $ENV_REPOSITORYNAME ]]; then REPOSITORYNAME=$ENV_REPOSITORYNAME; fi
 if [[ -n $ENV_RELEASEFILE ]]; then RELEASEFILE=$ENV_RELEASEFILE; fi
 if [[ -n $ENV_ARCH ]]; then ARCH=$ENV_ARCH; fi
-if [[ -n $ENV_DESTPATH ]]; then DESTPATH=$ENV_DESTPATH; fi
+if [[ -n $ENV_RELEASEPATH ]]; then RELEASEPATH=$ENV_RELEASEPATH; fi
+if [[ -n $ENV_ARTIFACTPATH ]]; then ARTIFACTPATH=$ENV_ARTIFACTPATH; fi
 
 #
 # Echo input parameter
@@ -35,9 +37,10 @@ echo REPOSITORYNAME=$REPOSITORYNAME
 echo SUBVERSION=$SUBVERSION
 echo STAGE=$STAGE
 echo BINARYPATH=$BINARYPATH
-echo DESTPATH=$DESTPATH
+echo RELEASEPATH=$RELEASEPATH
 echo ARCHITECTURE=$ARCH
 echo RELEASEFILE=$RELEASEFILE
+echo ARTIFACTPATH=$ARTIFACTPATH
 
 if [[ ! -d $BINARYPATH ]]; then
   echo -e "\n\n"$RED"Binarypath $BINARYPATH not found\n"$NC
@@ -49,8 +52,12 @@ if [[ ! -f $RELEASEFILE ]]; then
   exit
 fi
 
-if [[ ! -d $DESTPATH ]]; then
-  mkdir $DESTPATH
+if [[ ! -d $RELEASEPATH ]]; then
+  mkdir -p $RELEASEPATH
+fi
+
+if [[ ! -d $ARTIFACTPATH ]]; then
+  mkdir -p $ARTIFACTPATH
 fi
 
 VERSION=`sed 's/[^0-9|.]//g' $RELEASEFILE`  # 2.4.2
@@ -84,7 +91,18 @@ do
   echo -e "\n\n"$GREEN"Echo json string"$NC
   echo $JSON
 
-  echo $JSON > $DESTPATH/$BINARYFILENAME".json"
-  cp $FILE $DESTPATH/$BINARYFILENAME"."$FILEEXT
+  echo $JSON > $RELEASEPATH/$BINARYFILENAME".json"
+  cp $FILE $RELEASEPATH/$BINARYFILENAME"."$FILEEXT
+
+done
+
+# process the rest ob binaries into ARTIFACTPATH
+for FILE in `find $BINARYPATH/ -name *.bin` 
+do
+  FILENAME=${FILE%.*}
+  FILEEXT=${FILE/*./}
+
+  BINARYFILENAME=$(basename $FILENAME"."$ARCH".v"$VERSION"-"$SUBVERSION"."$STAGE)
+  cp $FILE $ARTIFACTPATH/$BINARYFILENAME"."$FILEEXT
 
 done
