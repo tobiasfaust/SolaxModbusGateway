@@ -129,7 +129,7 @@ jobs:
       - name: set Environment Variables
         id: set_env_var
         run: |
-                 VERSION=$(sed 's/[^0-9|.]//g' _Release.h)  # zb. 2.4.2
+                 VERSION=$(sed 's/[^0-9|.]//g' src/_Release.h)  # zb. 2.4.2
                  if [ ${{ github.ref }} == 'refs/heads/master' ]; then IS_PRE='false'; else IS_PRE='true'; fi
                  if [ ${{ github.ref }} == 'refs/heads/master' ]; then POSTFIX=''    ; else POSTFIX='PRE'; fi
                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
