@@ -2,6 +2,8 @@
 
 MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false), RequestRebootTime(0) {
   
+  fsfiles = new handleFiles();
+
   server->begin(); 
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
@@ -10,10 +12,9 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
   server->on("/ModbusConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusConfig, this, std::placeholders::_1));
   server->on("/ModbusItemConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusItemConfig, this, std::placeholders::_1));
   server->on("/ModbusRawData", HTTP_GET, std::bind(&MyWebServer::handleModbusRawData, this, std::placeholders::_1));
+  server->on("/handleFiles", HTTP_GET, std::bind(&MyWebServer::handleFSFilesWebcontent, this, std::placeholders::_1));
 
-  server->on("/style.css", HTTP_GET, std::bind(&MyWebServer::handleCSS, this, std::placeholders::_1));
-  server->on("/javascript.js", HTTP_GET, std::bind(&MyWebServer::handleJS, this, std::placeholders::_1));
-  server->on("/jsajax.js", HTTP_GET, std::bind(&MyWebServer::handleJsAjax, this, std::placeholders::_1));
+  server->on("^\/(.+)\.(css|js|html|json)$", HTTP_GET, std::bind(&MyWebServer::handleRequestFiles, this, std::placeholders::_1));
   
   server->on("/StoreBaseConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, BASECONFIG));
   server->on("/StoreModbusConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSCONFIG));
@@ -107,22 +108,35 @@ void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
-void MyWebServer::handleCSS(AsyncWebServerRequest *request) {
-  request->send(LittleFS, "/web/style.css", "text/css");
+void MyWebServer::handleRequestFiles(AsyncWebServerRequest *request) {
+  File f = LittleFS.open("/" + request->pathArg(0) + "." + request->pathArg(1));
+  
+  if (!f) {
+    if (Config->GetDebugLevel() >=0) {Serial.printf("failed to open requested file: %s.%s", request->pathArg(0), request->pathArg(1));}
+    request->send(404, "text/plain", "404: Not found"); 
+    return;
+  }
+
+  f.close();
+
+  if (request->pathArg(1) == "css") {
+    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/css");
+  } else if (request->pathArg(1) == "js") {
+    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/javascript");
+  } else if (request->pathArg(1) == "html") {
+    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/html");
+  } else if (request->pathArg(1) == "json") {
+    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/json");
+  } else {
+    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/plain");
+  }
+
 }
 
 void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
   AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-icon", FAVICON, sizeof(FAVICON));
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
-}
-
-void MyWebServer::handleJS(AsyncWebServerRequest *request) {
-  request->send(LittleFS, "/web/Javascript.js", "text/javascript");
-}
-
-void MyWebServer::handleJsAjax(AsyncWebServerRequest *request) {
- request->send(LittleFS, "/web/JsAjax.js", "text/javascript"); 
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
@@ -198,6 +212,16 @@ void MyWebServer::handleModbusRawData(AsyncWebServerRequest *request) {
 
   this->getPageHeader(response, MODBUSRAWDATA);
   mb->GetWebContentRawData(response);
+  this->getPageFooter(response);
+  request->send(response);
+}
+
+void MyWebServer::handleFSFilesWebcontent(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Server","ESP Async Web Server");
+
+  this->getPageHeader(response, FSFILES);
+  fsfiles->GetWebContentConfig(response);
   this->getPageFooter(response);
   request->send(response);
 }
@@ -311,9 +335,9 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
 void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive) {
   response->print("<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'/>\n");
   response->print("<meta charset='utf-8'>\n");
-  response->print("<link rel='stylesheet' type='text/css' href='/style.css'>\n");
-  response->print("<script language='javascript' type='text/javascript' src='/javascript.js'></script>\n");
-  response->print("<script language='javascript' type='text/javascript' src='/jsajax.js'></script>\n");
+  response->print("<link rel='stylesheet' type='text/css' href='/web/Style.css'>\n");
+  response->print("<script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>\n");
+  response->print("<script language='javascript' type='text/javascript' src='/web/JsAjax.js'></script>\n");
   response->print("<title>Solar Inverter Modbus MQTT Gateway</title></head>\n");
   response->print("<body>\n");
   response->print("<table>\n");
@@ -326,7 +350,7 @@ void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive
   response->printf("   <i>(%s)</i>\n", Config->GetMqttRoot().c_str());
   response->print("   </td>\n");
 
-  response->print("   <td colspan='5'>\n");
+  response->print("   <td colspan='7'>\n");
   response->printf("     <b>Release: </b><span style='color:orange;'>%s</span><br>of %s %s", this->GetReleaseName().c_str(), __DATE__, __TIME__);
   response->print("   </td>\n");
   response->print(" </tr>\n");
@@ -343,11 +367,13 @@ void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive
   response->print("   <td class='navi' style='width: 50px'></td>\n");
   response->printf("   <td class='navi %s' style='width: 100px'><a href='/ModbusRawData'>Raw Data</a></td>\n", (pageactive==MODBUSRAWDATA)?"navi_active":"");
   response->print("   <td class='navi' style='width: 50px'></td>\n");
+  response->printf("   <td class='navi %s' style='width: 100px'><a href='/handleFiles'>Files</a></td>\n", (pageactive==FSFILES)?"navi_active":"");
+  response->print("   <td class='navi' style='width: 50px'></td>\n");
   response->print("   <td class='navi' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>\n");
   response->print("   <td class='navi' style='width: 50px'></td>\n");
   response->print(" </tr>\n");
   response->print("  <tr>\n");
-  response->print("   <td colspan='13'>\n");
+  response->print("   <td colspan='15'>\n");
   response->print("   <p />\n");
 }
 

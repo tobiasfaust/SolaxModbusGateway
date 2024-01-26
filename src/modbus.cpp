@@ -1329,8 +1329,6 @@ void modbus::GetWebContentConfig(AsyncResponseStream *response) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
-  String html = "";
-
   response->print("<form id='DataForm'>\n");
   response->print("<table id='maintable' class='editorDemoTable'>\n");
   response->print("<thead>\n");

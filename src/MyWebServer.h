@@ -15,13 +15,14 @@
 
 #include "baseconfig.h"
 #include "modbus.h"
+#include "handleFiles.h"
 #include "mqtt.h"
 #include "favicon.h"
 #include "_Release.h"
 
 class MyWebServer {
 
-  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA};
+  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA, FSFILES};
   
   public:
     MyWebServer(AsyncWebServer *server, DNSServer* dns);
@@ -36,6 +37,8 @@ class MyWebServer {
     AsyncWebServer* server;
     DNSServer* dns;
 
+    handleFiles* fsfiles;
+
     void      handle_update_page(AsyncWebServerRequest *request);
     void      handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);    
     void      handle_update_response(AsyncWebServerRequest *request);
@@ -43,14 +46,13 @@ class MyWebServer {
     void      handleReboot(AsyncWebServerRequest *request);
     void      handleReset(AsyncWebServerRequest *request);
     void      handleWiFiReset(AsyncWebServerRequest *request);
-    void      handleCSS(AsyncWebServerRequest *request);
-    void      handleJS(AsyncWebServerRequest *request);
-    void      handleJsAjax(AsyncWebServerRequest *request);
+    void      handleRequestFiles(AsyncWebServerRequest *request);
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleBaseConfig(AsyncWebServerRequest *request);
     void      handleModbusConfig(AsyncWebServerRequest *request);
     void      handleModbusItemConfig(AsyncWebServerRequest *request);
     void      handleModbusRawData(AsyncWebServerRequest *request);
+    void      handleFSFilesWebcontent(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleAjax(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);
