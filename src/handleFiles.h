@@ -9,8 +9,10 @@ class handleFiles {
         handleFiles();
 
         void        GetWebContentConfig(AsyncResponseStream *response);
-
+        void        HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* response);
+        
     private:
+        void        getDirList(JsonArray* json, String path);
 };
 
 #endif

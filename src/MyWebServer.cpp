@@ -316,7 +316,10 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
       jsonReturn["error"] = "false";
       serializeJson(jsonReturn, ret);
       response->print(ret);
-  
+
+  } else if(action && action == "handlefiles") {
+    fsfiles->HandleAjaxRequest(jsonGet, response);
+
   } else {
     if (Config->GetDebugLevel() >=1) {
       snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s", action);

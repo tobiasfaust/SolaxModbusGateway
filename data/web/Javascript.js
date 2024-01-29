@@ -374,3 +374,6 @@ function FillItemConfig(targettable, template, onylactive, json) {
     
   });
 }
+
+// functions for handleFiles
+// https://jsfiddle.net/tobiasfaust/uc1jfpgb/
