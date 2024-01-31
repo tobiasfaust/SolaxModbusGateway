@@ -2,7 +2,7 @@
 
 MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false), RequestRebootTime(0) {
   
-  fsfiles = new handleFiles();
+  fsfiles = new handleFiles(server);
 
   server->begin(); 
 

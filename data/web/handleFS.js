@@ -2,10 +2,17 @@
 
 var DirJson;
 
-
 window.addEventListener('load', initHandleFS, false);
 function initHandleFS() {
-  requestListDir();
+  init();
+}
+
+function init() {
+	requestListDir();
+ 	obj = document.getElementById('fullpath').innerHTML = ''; // div 
+  obj = document.getElementById('filename').value = ''; // input field
+  obj = document.getElementById('content').value = '';
+  
 }
 
 // ***********************************
@@ -40,13 +47,16 @@ function requestListDir() {
 // ***********************************
 // show content of fetched file 
 // ***********************************
-function setContent(string, filename) {
-    if (filename.endsWith("json")) {
-        obj = document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
-    } else {
-        obj = document.getElementById('content').value = string;
-    }
+function setContent(string, file) {
+	obj = document.getElementById('fullpath').innerHTML = file; // div 
+  obj = document.getElementById('filename').value = basename(file); // input field
+  
+  if (file.endsWith("json")) {
+	  obj = document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
+  } else {
+  	obj = document.getElementById('content').value = string;
   }
+}
 
 // ***********************************
 // fetch file from host
@@ -98,7 +108,7 @@ function listFiles(path) {
   DirJsonLocal.content.forEach(function (file) {
   	// template "laden" (lies: klonen)
     tr_tpl = document.importNode(row.content, true);
-		cells = tr_tpl.querySelectorAll("td");
+	cells = tr_tpl.querySelectorAll("td");
     cells.forEach(function (item, index) {
       var text = item.innerHTML;
       var oc;
@@ -120,9 +130,9 @@ function listFiles(path) {
       item.innerHTML = text;
       item.setAttribute('onClick', oc);
     });
-		table.appendChild(tr_tpl);
-	})
- }
+	table.appendChild(tr_tpl);
+  })
+}
 
 listFiles('/');
 
@@ -130,11 +140,57 @@ listFiles('/');
 // returns parent path: '/regs/web' -> '/regs' 
 // ***********************************
 function getParentPath(path) {
-	var ParentPath, PathArray;
+    var ParentPath, PathArray;
   
-  PathArray = path.split('/')
-  PathArray.pop()
-  if (PathArray.length == 1) { ParentPath = '/' }
-  else { ParentPath = PathArray.join('/')}
-  return ParentPath
+    PathArray = path.split('/')
+    PathArray.pop()
+    if (PathArray.length == 1) { ParentPath = '/' }
+    else { ParentPath = PathArray.join('/')}
+    return ParentPath
+}
+
+// ***********************************
+// extract the filename from path
+// ***********************************
+function basename(str) {
+    return str.split('\\').pop().split('/').pop();
+}
+
+// ***********************************
+// return true if valid json, otherwise false
+// ***********************************
+function validateJson(json) {
+	try {
+    JSON.parse(json);
+    return true;
+  } catch {
+      return false;
+  }
+}
+
+// ***********************************
+// download content if textarea as filename on local pc
+// ***********************************
+function downloadFile() {
+	var textToSave = document.getElementById("content").value;
+  var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
+  var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
+  var fileNameToSaveAs = document.getElementById("filename").value;
+ 
+	if (fileNameToSaveAs != '') { 
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    downloadLink.innerHTML = "Download File";
+    downloadLink.href = textToSaveAsURL;
+
+     downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+	} else { alert('Filename is empty, Please define it.');}
+}
+
+function destroyClickedElement(event)
+{
+    document.body.removeChild(event.target);
 }

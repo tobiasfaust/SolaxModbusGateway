@@ -1,12 +1,14 @@
 #include "handleFiles.h"
 
-handleFiles::handleFiles() {
+handleFiles::handleFiles(AsyncWebServer *server) {
 
-//  Serial.println("Start HandleFiles");
-//  StaticJsonDocument<256> doc;
-//  JsonArray content = doc.createNestedArray();
-//  this->getDirList(&content, "/");
-//  serializeJsonPretty(content, Serial);
+  server->on("/doUpload", HTTP_POST, [](AsyncWebServerRequest *request) {},
+                                    std::bind(&handleFiles::handleUpload, this, std::placeholders::_1, 
+                                        std::placeholders::_2,
+                                        std::placeholders::_3,
+                                        std::placeholders::_4,
+                                        std::placeholders::_5,
+                                        std::placeholders::_6));
 
 }
 
@@ -73,6 +75,36 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
 }
 
 //###############################################################
+// store a file at Filesystem
+//###############################################################
+void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+  String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
+  Serial.println(logmessage);
+
+  if (!index) {
+    logmessage = "Upload Start: " + String(filename);
+    // open the file on first call and store the file handle in the request object
+    request->_tempFile = LittleFS.open("/" + filename, "w");
+    Serial.println(logmessage);
+  }
+
+  if (len) {
+    // stream the incoming chunk to the opened file
+    request->_tempFile.write(data, len);
+    logmessage = "Writing file: " + String(filename) + " index=" + String(index) + " len=" + String(len);
+    Serial.println(logmessage);
+  }
+
+  if (final) {
+    logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
+    // close the file handle as the upload is now done
+    request->_tempFile.close();
+    Serial.println(logmessage);
+    request->redirect("/handleFiles");
+  }
+}
+
+//###############################################################
 // returns the WebContent
 //###############################################################
 void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
@@ -80,6 +112,7 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   memset(buffer, 0, sizeof(buffer));
 
   response->print("<script language='javascript' type='text/javascript' src='/web/handleFS.js'></script>\n");
+  response->print("<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>\n");
   response->print("<form id='DataForm'>\n");
   response->print("<table id='maintable' class='editorDemoTable'>\n");
   response->print("<thead>\n");
@@ -89,7 +122,6 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("</tr>\n");
   response->print("</thead>\n");
   response->print("<tbody>\n");
-
   response->print("<tr>\n");
   response->print("<td style='height:1em;'>\n");
   response->print("<table>\n");
@@ -99,11 +131,12 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("</td>\n");
   response->print("<td style='border: none;'>\n");
   response->print("<div id='path'>{path}</div>\n");
+  response->print("<div hidden id='fullpath'>{fullpath}</div>\n");
   response->print("</td>\n");
   response->print("</tr>\n");
   response->print("</table>\n");
   response->print("</td>\n");
-  response->print("<td rowspan='2'><textarea id='content' cols='100' rows='20'></textarea></td>\n");
+  response->print("<td rowspan='2'><textarea id='content' cols='30' rows='10' placeholder='select a file'></textarea></td>\n");
   response->print("</tr>\n");
   response->print("<tr>\n");
   response->print("<td>\n");
@@ -114,15 +147,14 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("</template>\n");
   response->print("<table id='files'></table>\n");
   response->print("</td>\n");
-  response->print("</tr>\n");  
-
-
+  response->print("</tr>\n");
+  response->print("<tr>\n");
+  response->print("<td colspan='2'>filename: \n");
+  response->print("<input type='text' id='filename' value='{fullpath}' title='name of file to store'/>\n");
+  response->print("<input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>\n");
+  response->print("</td>\n");
+  response->print("</tr>\n");
   response->print("</tbody>\n");
   response->print("</table>\n");
 
-  response->print("</form>\n\n<br />\n");
-  response->print("<form id='jsonform' action='xxxxxxx' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
-  response->print("  <input type='text' id='json' name='json' />\n");
-  response->print("  <input type='submit' value='Speichern' />\n");
-  response->print("</form>\n\n");
 }
