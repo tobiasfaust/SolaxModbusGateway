@@ -108,7 +108,7 @@ function listFiles(path) {
   DirJsonLocal.content.forEach(function (file) {
   	// template "laden" (lies: klonen)
     tr_tpl = document.importNode(row.content, true);
-	cells = tr_tpl.querySelectorAll("td");
+		cells = tr_tpl.querySelectorAll("td");
     cells.forEach(function (item, index) {
       var text = item.innerHTML;
       var oc;
@@ -130,9 +130,9 @@ function listFiles(path) {
       item.innerHTML = text;
       item.setAttribute('onClick', oc);
     });
-	table.appendChild(tr_tpl);
-  })
-}
+		table.appendChild(tr_tpl);
+	})
+ }
 
 listFiles('/');
 
@@ -140,13 +140,13 @@ listFiles('/');
 // returns parent path: '/regs/web' -> '/regs' 
 // ***********************************
 function getParentPath(path) {
-    var ParentPath, PathArray;
+	var ParentPath, PathArray;
   
-    PathArray = path.split('/')
-    PathArray.pop()
-    if (PathArray.length == 1) { ParentPath = '/' }
-    else { ParentPath = PathArray.join('/')}
-    return ParentPath
+  PathArray = path.split('/')
+  PathArray.pop()
+  if (PathArray.length == 1) { ParentPath = '/' }
+  else { ParentPath = PathArray.join('/')}
+  return ParentPath
 }
 
 // ***********************************
@@ -169,7 +169,7 @@ function validateJson(json) {
 }
 
 // ***********************************
-// download content if textarea as filename on local pc
+// download content of textarea as filename on local pc
 // ***********************************
 function downloadFile() {
 	var textToSave = document.getElementById("content").value;
@@ -193,4 +193,33 @@ function downloadFile() {
 function destroyClickedElement(event)
 {
     document.body.removeChild(event.target);
+}
+//alert(validateJson('{"data":1}'))
+
+// ***********************************
+// store content of textarea
+// ***********************************
+function uploadFile() {
+	var textToSave = document.getElementById("content").value;
+  var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
+  var fileNameToSaveAs = document.getElementById("filename").value;
+  var pathOfFile = document.getElementById('path').innerHTML;
+  
+  if (fileNameToSaveAs != '') {
+  	const formData = new FormData();
+    formData.append(fileNameToSaveAs, textToSaveAsBlob, pathOfFile + '/' + fileNameToSaveAs);
+    
+    fetch('doUpload', {
+    	method: 'POST',
+      body: formData,
+    })
+    	.then (response => response.json())
+      .then (json =>  {
+        var r = document.getElementById("response");
+        r.innerHTML = json.text;
+        r.className = "oktext";
+        setTimeout(function() {document.getElementById("response").innerHTML=""}, 1000);
+      }); 
+  
+  } else { alert('Filename is empty, Please define it.');}
 }

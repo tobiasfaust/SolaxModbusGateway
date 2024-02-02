@@ -10,7 +10,7 @@ handleFiles::handleFiles(AsyncWebServer *server) {
                                         std::placeholders::_5,
                                         std::placeholders::_6));
 
-}
+}  
 
 //###############################################################
 // returns the complete folder structure
@@ -78,29 +78,52 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
 // store a file at Filesystem
 //###############################################################
 void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-  String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
-  Serial.println(logmessage);
+  AsyncResponseStream *response = request->beginResponseStream("text/json");
+  response->addHeader("Server","ESP Async Web Server");
+  StaticJsonDocument<256> jsonReturn;
+  String ret;
+
+  if (Config->GetDebugLevel() >=5) {
+    String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
+    Serial.println(logmessage);
+  }
 
   if (!index) {
-    logmessage = "Upload Start: " + String(filename);
     // open the file on first call and store the file handle in the request object
     request->_tempFile = LittleFS.open("/" + filename, "w");
-    Serial.println(logmessage);
+    if (Config->GetDebugLevel() >=5) {
+      String logmessage = "Upload Start: " + String(filename);
+      Serial.println(logmessage);
+    }
   }
 
   if (len) {
     // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
-    logmessage = "Writing file: " + String(filename) + " index=" + String(index) + " len=" + String(len);
-    Serial.println(logmessage);
+    if (Config->GetDebugLevel() >=5) {
+      String logmessage = "Writing file: " + String(filename) + " index=" + String(index) + " len=" + String(len);
+      Serial.println(logmessage);
+    }
   }
 
   if (final) {
-    logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
     // close the file handle as the upload is now done
     request->_tempFile.close();
-    Serial.println(logmessage);
-    request->redirect("/handleFiles");
+    if (Config->GetDebugLevel() >=5) {
+      String logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
+      Serial.println(logmessage);
+    }
+
+    jsonReturn["status"] = 1;
+    jsonReturn["text"] = "OK";
+
+    serializeJson(jsonReturn, ret);
+    response->print(ret);
+    request->send(response);
+
+    if (Config->GetDebugLevel() >=5) {
+      serializeJson(jsonReturn, Serial);
+    }
   }
 }
 
@@ -113,7 +136,6 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
 
   response->print("<script language='javascript' type='text/javascript' src='/web/handleFS.js'></script>\n");
   response->print("<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>\n");
-  response->print("<form id='DataForm'>\n");
   response->print("<table id='maintable' class='editorDemoTable'>\n");
   response->print("<thead>\n");
   response->print("<tr>\n");
@@ -152,9 +174,12 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("<td colspan='2'>filename: \n");
   response->print("<input type='text' id='filename' value='{fullpath}' title='name of file to store'/>\n");
   response->print("<input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>\n");
+  response->print("<input type='button' onclick='uploadFile()' style='font-size:18px' class='fa' value='&#xf0c7' title='store it'/>\n");
+  response->print("<span id='response'></span>\n");
   response->print("</td>\n");
   response->print("</tr>\n");
   response->print("</tbody>\n");
   response->print("</table>\n");
+
 
 }

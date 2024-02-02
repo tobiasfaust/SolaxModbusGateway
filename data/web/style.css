@@ -60,18 +60,27 @@ body {
       margin: 0 !important;
       padding: 2px 3px;
       font-size: 11px;
-  } 
+  }
+  
+  .oktext {
+    color: green;
+    font-size: 13px;
+    text-align: center;
+  }
+  
   .errortext {
     color: red;
     font-size: 13px;
     text-align: center;
   }
-   .navi {
+  
+  .navi {
     border-bottom: 3px solid #777;
     padding: 5px;
     text-align: center;
     font-size: 13px;
   }
+  
   .navi_active {
     background-color: #CCCCCC;
     border: 3px solid #777;;

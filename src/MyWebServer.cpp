@@ -51,12 +51,19 @@ void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-  uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+  
   if(!index){
       Serial.printf("Update Start: %s\n", filename.c_str());
       //Update.runAsync(true);
-      if(!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)){
-        Update.printError(Serial);
+      
+      if (filename == "filesystem") {
+        if(!Update.begin(LittleFS.totalBytes(), U_SPIFFS)) {
+          Update.printError(Serial);
+        }
+      } else {
+        if(!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)){
+          Update.printError(Serial);
+        }
       }
   }
   if(!Update.hasError()){
