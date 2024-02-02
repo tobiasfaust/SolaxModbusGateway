@@ -1,15 +1,11 @@
-// https://jsfiddle.net/tobiasfaust/uc1jfpgb/
-
-var DirJson;
-
 window.addEventListener('load', initHandleFS, false);
 function initHandleFS() {
   init();
 }
 
 function init() {
-	requestListDir();
- 	obj = document.getElementById('fullpath').innerHTML = ''; // div 
+  requestListDir();
+   obj = document.getElementById('fullpath').innerHTML = ''; // div 
   obj = document.getElementById('filename').value = ''; // input field
   obj = document.getElementById('content').value = '';
   
@@ -19,7 +15,7 @@ function init() {
 // Ajax Request to update  
 // ***********************************
 function requestListDir() {
-	var data = {};
+  var data = {};
   data['action'] = "handlefiles";
   data['subAction'] = "listDir"
   //ajax_send(JSON.stringify(data));
@@ -48,13 +44,13 @@ function requestListDir() {
 // show content of fetched file 
 // ***********************************
 function setContent(string, file) {
-	obj = document.getElementById('fullpath').innerHTML = file; // div 
+  obj = document.getElementById('fullpath').innerHTML = file; // div 
   obj = document.getElementById('filename').value = basename(file); // input field
   
   if (file.endsWith("json")) {
-	  obj = document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
+    obj = document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
   } else {
-  	obj = document.getElementById('content').value = string;
+    obj = document.getElementById('content').value = string;
   }
 }
 
@@ -62,7 +58,7 @@ function setContent(string, file) {
 // fetch file from host
 // ***********************************
 function fetchFile(file) {
-	obj = document.getElementById('content').value = "loading "+file+"...";
+  obj = document.getElementById('content').value = "loading "+file+"...";
   
   fetch(file)
   .then(response => response.text())
@@ -82,8 +78,8 @@ function listFiles(path) {
   
   // get the right part
   for(let i = 0; i < DirJson.length; i++) { 
-  	if (DirJson[i].path == path) {
-    	DirJsonLocal = DirJson[i]
+    if (DirJson[i].path == path) {
+      DirJsonLocal = DirJson[i]
     }
   }
   
@@ -102,13 +98,13 @@ function listFiles(path) {
         item.setAttribute('onClick', oc);
     });
     table.appendChild(tr_tpl);
-	}
+  }
   
   // show files
   DirJsonLocal.content.forEach(function (file) {
-  	// template "laden" (lies: klonen)
+    // template "laden" (lies: klonen)
     tr_tpl = document.importNode(row.content, true);
-		cells = tr_tpl.querySelectorAll("td");
+    cells = tr_tpl.querySelectorAll("td");
     cells.forEach(function (item, index) {
       var text = item.innerHTML;
       var oc;
@@ -117,12 +113,12 @@ function listFiles(path) {
         oc = item.getAttribute('onClick');
         var newPath = DirJsonLocal.path + "/" + file.name;
         if (newPath.startsWith("//")) {newPath = newPath.substring(1)}
-	      oc = oc.replaceAll("{fullpath}", newPath);
+        oc = oc.replaceAll("{fullpath}", newPath);
         text = text.replaceAll("{file}", file.name);
       } else if(file.isDir == 1) {
-      	var newPath = DirJsonLocal.path + "/" + file.name;
+        var newPath = DirJsonLocal.path + "/" + file.name;
         if (newPath.startsWith("//")) {newPath = newPath.substring(1)}
-      	oc = "listFiles('" + newPath + "')"
+        oc = "listFiles('" + newPath + "')"
         text = text.replaceAll("{file}", file.name + "/");
       }
       
@@ -130,8 +126,8 @@ function listFiles(path) {
       item.innerHTML = text;
       item.setAttribute('onClick', oc);
     });
-		table.appendChild(tr_tpl);
-	})
+    table.appendChild(tr_tpl);
+  })
  }
 
 listFiles('/');
@@ -140,7 +136,7 @@ listFiles('/');
 // returns parent path: '/regs/web' -> '/regs' 
 // ***********************************
 function getParentPath(path) {
-	var ParentPath, PathArray;
+  var ParentPath, PathArray;
   
   PathArray = path.split('/')
   PathArray.pop()
@@ -160,7 +156,7 @@ function basename(str) {
 // return true if valid json, otherwise false
 // ***********************************
 function validateJson(json) {
-	try {
+  try {
     JSON.parse(json);
     return true;
   } catch {
@@ -172,12 +168,12 @@ function validateJson(json) {
 // download content of textarea as filename on local pc
 // ***********************************
 function downloadFile() {
-	var textToSave = document.getElementById("content").value;
+  var textToSave = document.getElementById("content").value;
   var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
   var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
   var fileNameToSaveAs = document.getElementById("filename").value;
  
-	if (fileNameToSaveAs != '') { 
+  if (fileNameToSaveAs != '') { 
     var downloadLink = document.createElement("a");
     downloadLink.download = fileNameToSaveAs;
     downloadLink.innerHTML = "Download File";
@@ -187,39 +183,56 @@ function downloadFile() {
     downloadLink.style.display = "none";
     document.body.appendChild(downloadLink);
     downloadLink.click();
-	} else { alert('Filename is empty, Please define it.');}
+  } else { alert('Filename is empty, Please define it.');}
 }
 
 function destroyClickedElement(event)
 {
     document.body.removeChild(event.target);
 }
-//alert(validateJson('{"data":1}'))
+
+// ***********************************
+// show response
+// b => bool => true = OK; false = Error
+// s => String => text to show
+// ***********************************
+function setResponse(b, s) {
+  var r = document.getElementById("response");
+  r.innerHTML = s;
+  if (b) { r.className = "oktext"; } else {r.className = "errortext";}
+  setTimeout(function() {document.getElementById("response").innerHTML=""}, 2000);
+}
 
 // ***********************************
 // store content of textarea
 // ***********************************
 function uploadFile() {
-	var textToSave = document.getElementById("content").value;
+  var textToSave = document.getElementById("content").value;
   var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
   var fileNameToSaveAs = document.getElementById("filename").value;
   var pathOfFile = document.getElementById('path').innerHTML;
   
   if (fileNameToSaveAs != '') {
-  	const formData = new FormData();
+    if (fileNameToSaveAs.toLowerCase().endsWith('.json')) {
+      if (!validateJson(textToSave)) {
+        setResponse(false, 'Json invalid')
+        return;
+      }
+    }
+
+    setResponse(true, 'Please wait for saving ...');
+    
+    const formData = new FormData();
     formData.append(fileNameToSaveAs, textToSaveAsBlob, pathOfFile + '/' + fileNameToSaveAs);
     
     fetch('doUpload', {
-    	method: 'POST',
+      method: 'POST',
       body: formData,
     })
-    	.then (response => response.json())
+      .then (response => response.json())
       .then (json =>  {
-        var r = document.getElementById("response");
-        r.innerHTML = json.text;
-        r.className = "oktext";
-        setTimeout(function() {document.getElementById("response").innerHTML=""}, 1000);
+        setResponse(true, json.text)
       }); 
   
-  } else { alert('Filename is empty, Please define it.');}
+  } else { setResponse(false, 'Filename is empty, Please define it.');}
 }
