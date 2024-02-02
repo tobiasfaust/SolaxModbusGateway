@@ -145,7 +145,7 @@ function ShowError(t){
 
 /*******************************
 jsontype:
-	1 = standard, 1 level
+  1 = standard, 1 level
   2 = array, each item separately
 *******************************/
 function onSubmit(DataForm, SubmitForm, jsontype){
@@ -157,7 +157,7 @@ function onSubmit(DataForm, SubmitForm, jsontype){
   if (jsontype == 1) { formData =  {}; }
   else if (jsontype == 2) { formData =  {data: []}; }
   
-	var count = 0;
+  var count = 0;
   ShowError('');
   
   var elems = document.getElementById(DataForm).elements; 
@@ -171,8 +171,8 @@ function onSubmit(DataForm, SubmitForm, jsontype){
         count++;
         if (jsontype == 1) { formData[elems[i].name] = (elems[i].checked==true?1:0); }
         else if (jsontype == 2) {
-        	formData.data.push({ "name" : elems[i].name,
-        											 "value": (elems[i].checked==true?1:0) });
+          formData.data.push({ "name" : elems[i].name,
+                               "value": (elems[i].checked==true?1:0) });
         }
       } else if (elems[i].id.match(/^Alle.*/) || 
                  elems[i].id.match(/^GpioPin.*/) || 
@@ -181,13 +181,13 @@ function onSubmit(DataForm, SubmitForm, jsontype){
         count++;
         if (jsontype == 1) { formData[elems[i].name] = parseInt(elems[i].value); }
         else if (jsontype == 2) {
-        	formData.data.push({ "name" : elems[i].name,
-        										 	 "value": parseInt(elems[i].value) });
+          formData.data.push({ "name" : elems[i].name,
+                                "value": parseInt(elems[i].value) });
         }
       } else if (elems[i].type == "radio") {
         if (jsontype == 1) { if (elems[i].checked==true) {formData[elems[i].name] = elems[i].value;} }
         else if (jsontype == 2) {
-        	if (elems[i].checked==true) {
+          if (elems[i].checked==true) {
             count++;
             formData.data.push({ "name" : elems[i].name,
                                  "value": elems[i].value });
@@ -235,7 +235,7 @@ function reset_rawdata(rawdatatype) {
   const string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
   let bytes = string_rawdata.split(" ");
 
-	bytes = prettyprint_rawdata(rawdatatype, bytes, bytes);
+  bytes = prettyprint_rawdata(rawdatatype, bytes, bytes);
   document.getElementById(rawdatatype).innerHTML = bytes.join(' ');
 }
 
@@ -243,7 +243,7 @@ function reset_rawdata(rawdatatype) {
 insert Tooltips and linebreaks
 *******************************/
 function prettyprint_rawdata(rawdatatype, bytearray, bytearray_org) {
-	
+  
   for( i=0; i< bytearray.length; i++) {
     const bstr = byte2string(bytearray_org[i]);
     const bint = byte2int(bytearray_org[i]);
@@ -261,13 +261,13 @@ function prettyprint_rawdata(rawdatatype, bytearray, bytearray_org) {
 take over the clicked byte position into posTextField 
 *******************************/
 function cpRawDataPos(pos) {
-	let posarray;
+  let posarray;
   const obj = document.getElementById('positions'); 
   
   if(obj.value.trim().length > 0 ) {
-  	posarray = obj.value.trim().split(" ");
+    posarray = obj.value.trim().split(" ");
   } else {
-  	posarray = [];
+    posarray = [];
   }
   
   posarray.push(pos);
@@ -279,7 +279,7 @@ function cpRawDataPos(pos) {
 helper function
 *******************************/
 function byte2string(bytestring) {
-	//return bytestring;
+  //return bytestring;
   return String.fromCharCode(parseInt(bytestring, 16));
 }
 
@@ -287,7 +287,7 @@ function byte2string(bytestring) {
 helper function
 *******************************/
 function byte2int(bytestring) {
-	return parseInt(Number(bytestring), 10);
+  return parseInt(Number(bytestring), 10);
 }
 
 /*******************************
@@ -304,19 +304,19 @@ function check_rawdata() {
   const bytes_org = string_rawdata.split(" ");
   
   // reset all rawdata containers
-	reset_rawdata('id_rawdata');
+  reset_rawdata('id_rawdata');
   reset_rawdata('live_rawdata');
   
-	let result;
+  let result;
   if (datatype == 'int') { result = 0; }
   if (datatype == 'string') { result = "";}
   
-	for( j=0; j< pos.length; j++) {
+  for( j=0; j< pos.length; j++) {
     if (datatype == 'int') { 
-    	result = result << 8 | byte2int(bytes[Number(pos[j])]); 
+      result = result << 8 | byte2int(bytes[Number(pos[j])]); 
     }
-		if (datatype == 'string') { 
-    	result = result + byte2string(bytes[Number(pos[j])]); 
+    if (datatype == 'string') { 
+      result = result + byte2string(bytes[Number(pos[j])]); 
     }
     
    bytes[Number(pos[j])] = "<span id=\'" + rawdatatype +"_" + Number(pos[j]) + "_val\' style='color: red;'>" + bytes[Number(pos[j])] + "</span>";
@@ -341,11 +341,11 @@ function FillItemConfig(targettable, template, onylactive, json) {
       tr_tpl,cells,text,openwb_tpl;
   
   json.forEach(function (article) {
-  	// template für einen Artikel "laden" (lies: klonen)
+    // template für einen Artikel "laden" (lies: klonen)
     tr_tpl = document.importNode(row.content, true);
     
-		try {
-    	openwb_tpl = document.importNode(tr_tpl.querySelector("#openwb").content, true);
+    try {
+      openwb_tpl = document.importNode(tr_tpl.querySelector("#openwb").content, true);
     } catch (e) {}
     
     // Zellen befüllen
@@ -361,16 +361,16 @@ function FillItemConfig(targettable, template, onylactive, json) {
       item.innerHTML = text;
     });
 
-		if (article.openwbtopic && openwb_tpl) {
+    if (article.openwbtopic && openwb_tpl) {
       var o = openwb_tpl.querySelector("span");
       o.innerHTML = o.innerHTML.replaceAll("{openwbtopic}", article.openwbtopic);
       cells[2].appendChild(openwb_tpl)
-		}    
+    }    
     
     //template einpassen
     if (article.active == 1 || !onylactive) {
-    	tbody.appendChild(tr_tpl);
-		}
+      tbody.appendChild(tr_tpl);
+    }
     
   });
 }

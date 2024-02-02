@@ -45,7 +45,7 @@ function ajax_send(json) {
               obj = document.getElementById(res["data"][i]["name"]);
               obj.innerHTML = "<span class='ajaxchange'>" + res["data"][i]["value"] + "</span>";
             } catch(e) {}
-					}
+          }
       } 
     }
   http.send(params);
