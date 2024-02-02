@@ -1,3 +1,7 @@
+// https://jsfiddle.net/tobiasfaust/uc1jfpgb/
+
+var DirJson;
+
 window.addEventListener('load', initHandleFS, false);
 function initHandleFS() {
   init();
