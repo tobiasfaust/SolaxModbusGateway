@@ -158,7 +158,7 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("</tr>\n");
   response->print("</table>\n");
   response->print("</td>\n");
-  response->print"<td rowspan='2'><textarea id='content' cols='100' rows='20' placeholder='select a file'></textarea></td>\n";
+  response->print("<td rowspan='2'><textarea id='content' cols='100' rows='20' placeholder='select a file'></textarea></td>\n");
   response->print("</tr>\n");
   response->print("<tr>\n");
   response->print("<td>\n");
