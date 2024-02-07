@@ -116,6 +116,10 @@ void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleRequestFiles(AsyncWebServerRequest *request) {
+  if (Config->GetDebugLevel() >=3) {
+    Serial.printf("Request file %s", ("/" + request->pathArg(0) + "." + request->pathArg(1)).c_str()); Serial.println();
+  }  
+
   File f = LittleFS.open("/" + request->pathArg(0) + "." + request->pathArg(1));
   
   if (!f) {
@@ -389,7 +393,7 @@ void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive
 
 void MyWebServer::getPageFooter(AsyncResponseStream *response) {
   response->print("</table>\n");
-  response->print("<div id='ErrorText' class='errortext'></div>\n");
+  response->print("<span id='response'></span>\n");
   response->print("</body>\n");
   response->print("</html>\n");
 }

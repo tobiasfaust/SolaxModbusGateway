@@ -138,11 +138,6 @@ function createAnalogPortSelectionList(id, name, value) {
   return _select;
 }
 
-function ShowError(t){
-  if(t && t.length>0) { t += '<br>Breche Speichervorgang ab. Es wurde nichts gespeichert!' }
-  document.getElementById('ErrorText').innerHTML = t;
-}
-
 /*******************************
 jsontype:
   1 = standard, 1 level
@@ -158,7 +153,6 @@ function onSubmit(DataForm, SubmitForm, jsontype){
   else if (jsontype == 2) { formData =  {data: []}; }
   
   var count = 0;
-  ShowError('');
   
   var elems = document.getElementById(DataForm).elements; 
   for(var i = 0; i < elems.length; i++){ 
@@ -374,6 +368,3 @@ function FillItemConfig(targettable, template, onylactive, json) {
     
   });
 }
-
-// functions for handleFiles
-// https://jsfiddle.net/tobiasfaust/uc1jfpgb/

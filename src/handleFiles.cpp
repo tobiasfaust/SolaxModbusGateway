@@ -71,6 +71,27 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
       Serial.println();
     }
     response->print(ret);   
+  } else if (subAction == "deleteFile") {
+    String filename(""), ret("");
+    StaticJsonDocument<256> jsonReturn;
+
+    if (Config->GetDebugLevel() >=3) {
+      Serial.printf("Request to delete file %s", filename);
+    }
+    if (jsonGet.containsKey("filename"))  {filename  = jsonGet["filename"].as<String>();}
+    
+    if (LittleFS.remove(filename)) { 
+      jsonReturn["response_status"] = 1;
+      jsonReturn["response_text"] = "deletion successful";
+    } else {
+      jsonReturn["response_status"] = 0;
+      jsonReturn["response_text"] = "deletion failed";
+    }
+    if (Config->GetDebugLevel() >=3) {
+      serializeJson(jsonReturn, Serial);Serial.println();
+    } 
+    serializeJson(jsonReturn, ret);
+    response->print(ret);
   }
 }
 
@@ -109,7 +130,7 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
   if (final) {
     // close the file handle as the upload is now done
     request->_tempFile.close();
-    if (Config->GetDebugLevel() >=5) {
+    if (Config->GetDebugLevel() >=3) {
       String logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
       Serial.println(logmessage);
     }
@@ -175,6 +196,7 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   response->print("<input type='text' id='filename' value='{fullpath}' title='name of file to store'/>\n");
   response->print("<input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>\n");
   response->print("<input type='button' onclick='uploadFile()' style='font-size:18px' class='fa' value='&#xf0c7' title='store it'/>\n");
+  response->print("<input type='button' onclick='deleteFile()' style='font-size:18px' class='fa' value='&#xf014' title='delete it'/>\n");
   response->print("<span id='response'></span>\n");
   response->print("</td>\n");
   response->print("</tr>\n");

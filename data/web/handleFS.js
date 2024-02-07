@@ -4,11 +4,11 @@ var DirJson;
 
 window.addEventListener('load', initHandleFS, false);
 function initHandleFS() {
-  init();
+  init("/");
 }
 
-function init() {
-  requestListDir();
+function init(startpath) {
+  requestListDir(startpath);
    obj = document.getElementById('fullpath').innerHTML = ''; // div 
   obj = document.getElementById('filename').value = ''; // input field
   obj = document.getElementById('content').value = '';
@@ -18,7 +18,7 @@ function init() {
 // ***********************************
 // Ajax Request to update  
 // ***********************************
-function requestListDir() {
+function requestListDir(startpath) {
   var data = {};
   data['action'] = "handlefiles";
   data['subAction'] = "listDir"
@@ -38,7 +38,7 @@ function requestListDir() {
   http.onreadystatechange = function() { //Call a function when the state changes.
     if(http.readyState == 4 && http.status == 200) {
       DirJson = JSON.parse(http.responseText);
-      listFiles("/");
+      listFiles(startpath);
     } 
   }
   http.send(params);
@@ -187,7 +187,7 @@ function downloadFile() {
     downloadLink.style.display = "none";
     document.body.appendChild(downloadLink);
     downloadLink.click();
-  } else { alert('Filename is empty, Please define it.');}
+  } else { setResponse(false, 'Filename is empty, Please define it.');}
 }
 
 function destroyClickedElement(event)
@@ -238,5 +238,21 @@ function uploadFile() {
         setResponse(true, json.text)
       }); 
   
+  } else { setResponse(false, 'Filename is empty, Please define it.');}
+}
+
+function deleteFile() {
+  var pathOfFile = document.getElementById('path').innerHTML;
+  var fileName = document.getElementById("filename").value;
+  
+  if (fileName != '') {
+    var data = {};
+    data['action'] = 'handlefiles';
+    data['subAction'] = "deleteFile";
+    data['filename'] = pathOfFile + '/' + fileName;
+
+    setResponse(true, 'Please wait for deleting ...');
+    ajax_send(JSON.stringify(data));
+    init(pathOfFile);
   } else { setResponse(false, 'Filename is empty, Please define it.');}
 }

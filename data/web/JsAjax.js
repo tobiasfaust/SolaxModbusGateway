@@ -19,7 +19,7 @@ function RefreshLiveData() {
 
 function ajax_send(json) {
   var http = null;
-  ShowError("");
+  
   if (window.XMLHttpRequest)  { http =new XMLHttpRequest(); }
   else                        { http =new ActiveXObject("Microsoft.XMLHTTP"); }
   
@@ -38,15 +38,22 @@ function ajax_send(json) {
   
   http.onreadystatechange = function() { //Call a function when the state changes.
       if(http.readyState == 4 && http.status == 200) {
-          var res = JSON.parse(http.responseText);
+        var res = JSON.parse(http.responseText);
+        if ("data" in res) {
           for ( var i = 0; i < res["data"].length; i++ ) {
             //alert(res["data"][i]["name"])
             try {
               obj = document.getElementById(res["data"][i]["name"]);
               obj.innerHTML = "<span class='ajaxchange'>" + res["data"][i]["value"] + "</span>";
             } catch(e) {}
-          }
-      } 
+          } 
+        } else if ('response_status' in res && 'response_text' in res) {
+          try {
+            if (res['response_status'] == 1) {setResponse(true, res['response_text']);}
+            if (res['response_text'] == 0) {setResponse(false, res['response_text']);}
+          } catch(e) {setResponse(false, 'unknow error');}
+        }
+      } else {setResponse(false, http.status + ': unknow error');}
     }
   http.send(params);
 }
