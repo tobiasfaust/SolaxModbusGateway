@@ -2,6 +2,7 @@ Release 3.2.0:
   - move register.h from PROGMEM into seperate files at FS
   - change deprecated SPIFFS to LittleFS
   - move all webfiles (css,js,html) to FS
+  - Add Solax-X3-Pro (thanks to @MagicSven81 - #30)
   
 Release 3.1.1:
   - fix auto reconnect to WIFI (issue #21)
