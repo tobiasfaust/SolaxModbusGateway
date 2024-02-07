@@ -20,7 +20,7 @@ Currently the following Inverters with their special registers are integrated:
 * Sofar-KTL Solarmax-SGA
 * Deye Sun SG04LP3
 
-If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
+If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](https://github.com/tobiasfaust/SolaxModbusGateway/wiki/configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
 
 ### What you need
 * ESP32, ESP32-C3, ESP-S2 or ESP-S3 NodeMCU
