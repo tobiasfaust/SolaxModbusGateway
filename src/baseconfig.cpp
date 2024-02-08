@@ -61,6 +61,7 @@ void BaseConfig::LoadJsonConfig() {
         if (doc.containsKey("mqttpass"))         { this->mqtt_password = doc["mqttpass"].as<String>();} else {this->mqtt_password = "";}
         if (doc.containsKey("mqttbasepath"))     { this->mqtt_basepath = doc["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
         if (doc.containsKey("UseRandomClientID")){ if (strcmp(doc["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
+        if (doc.containsKey("SelectConnectivity")){ if (strcmp(doc["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
         if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
       } else {
         if (this->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
@@ -80,6 +81,7 @@ void BaseConfig::LoadJsonConfig() {
     this->mqtt_root = "Solax";
     this->mqtt_basepath = "home/";
     this->mqtt_UseRandomClientID = true;
+    this->useETH = false;
     this->debuglevel = 0;
     
     loadDefaultConfig = false; //set back
@@ -110,7 +112,21 @@ void BaseConfig::GetWebContent(AsyncResponseStream *response) {
   response->print("<td>Device Name</td>\n");
   response->printf("<td><input size='30' maxlength='40' name='mqttroot' type='text' value='%s'/></td>\n", this->mqtt_root.c_str());
   response->print("</tr>\n");
+
+  response->print("<tr>\n");
+  response->print("  <td colspan='2'>\n");
   
+  response->print("    <div class='inline'>");
+  response->printf("<input type='radio' id='sel_wifi' name='SelectConnectivity' value='wifi' %s />", (this->useETH)?"":"checked");
+  response->print("<label for='sel_wifi'>use WIFI</label></div>\n");
+  
+  response->print("    <div class='inline'>");
+  response->printf("<input type='radio' id='sel_eth' name='SelectConnectivity' value='eth' %s />", (this->useETH)?"checked":"");
+  response->print("<label for='sel_eth'>use wired ethernet</label></div>\n");
+    
+  response->print("  </td>\n");
+  response->print("</tr>\n");
+
   response->print("<tr>\n");
   response->print("<td>MQTT Server IP</td>\n");
   response->printf("<td><input size='30' name='mqttserver' type='text' value='%s'/></td>\n", this->mqtt_server.c_str());

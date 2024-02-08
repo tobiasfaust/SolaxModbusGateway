@@ -412,12 +412,12 @@ void MyWebServer::getPage_Status(AsyncResponseStream *response) {
 
   response->print("<tr>\n");
   response->print("<td>IP-Adresse:</td>\n");
-  response->printf("<td>%s</td>\n", WiFi.localIP().toString().c_str());
+  response->printf("<td>%s</td>\n", mqtt->GetIPAddress().toString().c_str());
   response->print("</tr>\n");
 
   response->print("<tr>\n");
   response->print("<td>WiFi Name:</td>\n");
-  response->printf("<td>%s</td>\n", WiFi.SSID().c_str());
+  response->printf("<td>%s</td>\n", (Config->GetUseETH()?"LAN":WiFi.SSID().c_str()));
   response->print("</tr>\n");
   
   response->print("<tr>\n");
@@ -427,7 +427,7 @@ void MyWebServer::getPage_Status(AsyncResponseStream *response) {
 
   response->print("<tr>\n");
   response->print("<td>WiFi RSSI:</td>\n");
-  response->printf("<td>%d</td>\n", WiFi.RSSI());
+  response->printf("<td>%d %s</td>\n", (Config->GetUseETH()?ETH.linkSpeed():WiFi.RSSI()), (Config->GetUseETH()?"Mbps":""));
   response->print("</tr>\n");
 
   response->print("<tr>\n");

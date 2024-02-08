@@ -1,3 +1,7 @@
+Release 3.3.0:
+  - add WIFI event listener
+  - add ethernet support for WT32_ETH01 (#26)
+  
 Release 3.2.0:
   - move register.h from PROGMEM into seperate files at FS
   - change deprecated SPIFFS to LittleFS

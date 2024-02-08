@@ -3,7 +3,7 @@
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0), pin_RX(16), pin_TX(17), pin_RTS(18) {
+modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0) {
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -20,6 +20,16 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
 
   ReadQueue = new ArduinoQueue<std::vector<byte>>(5); // max 5 read requests parallel
   SetQueue  = new ArduinoQueue<std::vector<byte>>(5); // max 5 set requests parallel
+
+  if (Config->GetUseETH()) {
+    this->pin_RX = this->default_pin_RX = 2;
+    this->pin_TX = this->default_pin_TX = 4;
+    this->pin_RTS = this->default_pin_RTS = 5;
+  } else {
+    this->pin_RX = this->default_pin_RX = 16;
+    this->pin_TX = this->default_pin_TX = 17;
+    this->pin_RTS = this->default_pin_RTS = 18;
+  }
 
   this->LoadInvertersFromJson(); //needed for selecting default inverter
   this->LoadJsonConfig(true);
@@ -77,8 +87,7 @@ void modbus::GenerateMqttSubscriptions() {
 
   // clear vector
   this->Setters->clear();
-  //ProgmemStream stream(JSON);
-
+  
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   
   String streamString = "";
@@ -1187,9 +1196,9 @@ void modbus::LoadJsonConfig(bool firstrun) {
       if (!error) {
         if (Config->GetDebugLevel() >=3) { serializeJsonPretty(doc, Serial); Serial.println(); }
         
-        if (doc.containsKey("pin_rx"))           { this->pin_RX = (int)(doc["pin_rx"]);} else {this->pin_RX = 16;}
-        if (doc.containsKey("pin_tx"))           { this->pin_TX = (int)(doc["pin_tx"]);} else {this->pin_TX = 17;}
-        if (doc.containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["pin_rts"]);} else {this->pin_RTS = 18;}
+        if (doc.containsKey("pin_rx"))           { this->pin_RX = (int)(doc["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
+        if (doc.containsKey("pin_tx"))           { this->pin_TX = (int)(doc["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
+        if (doc.containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
         if (doc.containsKey("clientid"))         { this->ClientID = strtoul(doc["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
         if (doc.containsKey("baudrate"))         { this->Baudrate = (int)(doc["baudrate"]);} else {this->Baudrate = 19200;}
         if (doc.containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
@@ -1234,9 +1243,9 @@ void modbus::LoadJsonConfig(bool firstrun) {
       this->InverterType = this->AvailableInverters->at(0);
     } 
 
-    this->pin_RX = 16;
-    this->pin_TX = 17;
-    this->pin_RTS = 18;
+    this->pin_RX = this->default_pin_RX;
+    this->pin_TX = this->default_pin_TX;
+    this->pin_RTS = this->default_pin_RTS;
     this->ClientID = 0x01;
     this->Baudrate = 19200;
     this->TxIntervalLiveData = 5;
