@@ -246,7 +246,7 @@ String MQTT::getTopic(String subtopic, bool fulltopic) {
 }
 
 void MQTT::Publish_IP() { 
-  char buffer[15] = {0};
+  char buffer[16] = {0};
   memset(&buffer[0], 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%s", this->ipadresse.toString().c_str());
   Publish_String("IP", buffer, false);
