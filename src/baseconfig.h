@@ -21,6 +21,7 @@ class BaseConfig {
     const String&   GetMqttBasePath()  const {return mqtt_basepath;}
     const bool&     UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
     const bool&     GetUseETH()        const { return useETH; }
+    const String&   GetLANBoard()      const {return LANBoard;}
     const uint8_t&  GetDebugLevel()    const {return debuglevel;}
      
   private:
@@ -32,6 +33,7 @@ class BaseConfig {
     String    mqtt_basepath;
     bool      mqtt_UseRandomClientID;
     bool      useETH;  // otherwise use WIFI
+    String    LANBoard;
     uint8_t   debuglevel;
 
 };

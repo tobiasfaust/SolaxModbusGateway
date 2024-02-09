@@ -1,14 +1,12 @@
-Release 3.3.0:
-  - add WIFI event listener
-  - add ethernet support for WT32_ETH01 (#26)
-  - fix cutted ipaddress (#33)
-  
 Release 3.2.0:
   - move register.h from PROGMEM into seperate files at FS
   - change deprecated SPIFFS to LittleFS
   - move all webfiles (css,js,html) to FS
   - create new Webpage to maintain the FS-files, editing json registers on-the-fly is now possible 
   - Add Solax-X3-Pro (thanks to @MagicSven81 - #30)
+  - add WIFI event listener
+  - add ethernet support for WT32_ETH01 (#26)
+  - fix cutted ipaddress (#33)
   
 Release 3.1.1:
   - fix auto reconnect to WIFI (issue #21)

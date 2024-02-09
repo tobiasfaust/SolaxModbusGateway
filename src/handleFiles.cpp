@@ -155,7 +155,7 @@ void handleFiles::GetWebContentConfig(AsyncResponseStream *response) {
   char buffer[200] = {0};
   memset(buffer, 0, sizeof(buffer));
 
-  response->print("<script language='javascript' type='text/javascript' src='/web/handleFS.js'></script>\n");
+  response->print("<script language='javascript' type='text/javascript' src='/web/PageHandleFS.js'></script>\n");
   response->print("<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>\n");
   response->print("<table id='maintable' class='editorDemoTable'>\n");
   response->print("<thead>\n");

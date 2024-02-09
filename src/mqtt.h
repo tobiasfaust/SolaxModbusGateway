@@ -23,9 +23,7 @@
   #define CALLBACK_FUNCTION void (*MyCallback)(char*, uint8_t*, unsigned int)
 #endif
 
-class MQTT {
-
-  typedef struct {
+typedef struct {
     String name; 
     uint8_t PHY_ADDR;
     int PHY_POWER; 
@@ -33,9 +31,11 @@ class MQTT {
     int PHY_MDIO; 
     eth_phy_type_t  PHY_TYPE;
     eth_clock_mode_t CLK_MODE;
-  } eth_shield_t;
+} eth_shield_t;
 
-  std::vector<eth_shield_t> lan_shields = {{"WT32_ETH01", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN}, 
+class MQTT {
+
+  std::vector<eth_shield_t> lan_shields = {{"WT32-ETH01", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN}, 
                                             {"test", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN}};
 
   public:
@@ -82,7 +82,8 @@ class MQTT {
     IPAddress         ipadresse;
   
     void              WifiOnEvent(WiFiEvent_t event);
-    void              ETH_waitForConnect();
+    void              WaitForConnect();
+    eth_shield_t*     GetEthShield(String ShieldName);
 
 };
 

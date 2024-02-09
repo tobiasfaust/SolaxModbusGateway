@@ -53,7 +53,7 @@ function ajax_send(json) {
             if (res['response_text'] == 0) {setResponse(false, res['response_text']);}
           } catch(e) {setResponse(false, 'unknow error');}
         }
-      } else {setResponse(false, http.status + ': unknow error');}
+      }
     }
   http.send(params);
 }

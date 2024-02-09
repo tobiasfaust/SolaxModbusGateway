@@ -63,6 +63,7 @@ void BaseConfig::LoadJsonConfig() {
         if (doc.containsKey("UseRandomClientID")){ if (strcmp(doc["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
         if (doc.containsKey("SelectConnectivity")){ if (strcmp(doc["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
         if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
+        if (doc.containsKey("SelectLAN"))        {this->LANBoard = doc["SelectLAN"].as<String>();} else {this->LANBoard = "";}
       } else {
         if (this->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
@@ -83,6 +84,7 @@ void BaseConfig::LoadJsonConfig() {
     this->mqtt_UseRandomClientID = true;
     this->useETH = false;
     this->debuglevel = 0;
+    this->LANBoard = "";
     
     loadDefaultConfig = false; //set back
   }
@@ -114,17 +116,24 @@ void BaseConfig::GetWebContent(AsyncResponseStream *response) {
   response->print("</tr>\n");
 
   response->print("<tr>\n");
-  response->print("  <td colspan='2'>\n");
+  response->print("<td colspan='2'>\n");
   
-  response->print("    <div class='inline'>");
-  response->printf("<input type='radio' id='sel_wifi' name='SelectConnectivity' value='wifi' %s />", (this->useETH)?"":"checked");
+  response->print("<div class='inline'>");
+  response->printf("<input type='radio' id='sel_wifi' name='SelectConnectivity' value='wifi' %s onclick=\"radioselection([''],['SelectLAN'])\"/>", (this->useETH)?"":"checked");
   response->print("<label for='sel_wifi'>use WIFI</label></div>\n");
   
-  response->print("    <div class='inline'>");
-  response->printf("<input type='radio' id='sel_eth' name='SelectConnectivity' value='eth' %s />", (this->useETH)?"checked":"");
+  response->print("<div class='inline'>");
+  response->printf("<input type='radio' id='sel_eth' name='SelectConnectivity' value='eth' %s onclick=\"radioselection(['SelectLAN'],[''])\"/>", (this->useETH)?"checked":"");
   response->print("<label for='sel_eth'>use wired ethernet</label></div>\n");
     
-  response->print("  </td>\n");
+  response->print("</td>\n");
+  response->print("</tr>\n");
+
+  response->printf("<tr id='SelectLAN' class='%s'>\n", (this->useETH?"":"hide"));
+  response->print("<td>Select LAN Board</td>\n");
+  response->print("<td><select name='SelectLAN' size='1'> \n");
+  response->printf("<option %s value='WT32-ETH01'/>WT32-ETH01</option>\n", (this->LANBoard=="WT32-ETH01"?"selected":""));
+  response->print("</select></td>\n");
   response->print("</tr>\n");
 
   response->print("<tr>\n");

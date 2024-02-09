@@ -10,19 +10,20 @@ server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath), Conn
   WiFi.onEvent(std::bind(&MQTT::WifiOnEvent, this, std::placeholders::_1));
 
   if (Config->GetDebugLevel() >=3) {
-    Serial.printf("Go into %s Mode", (Config->GetUseETH()?"ETH":"Wifi"));
+    Serial.printf("Go into %s Mode\n", (Config->GetUseETH()?"ETH":"Wifi"));
   }
 
   if (Config->GetUseETH()) {
     //ETH.begin(1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN);
-    ETH.begin(this->lan_shields[0].PHY_ADDR,
-              this->lan_shields[0].PHY_POWER,
-              this->lan_shields[0].PHY_MDC,
-              this->lan_shields[0].PHY_MDIO,
-              this->lan_shields[0].PHY_TYPE,
-              this->lan_shields[0].CLK_MODE);
+    eth_shield_t* shield = this->GetEthShield(Config->GetLANBoard());
+    ETH.begin(shield->PHY_ADDR,
+              shield->PHY_POWER,
+              shield->PHY_MDC,
+              shield->PHY_MDIO,
+              shield->PHY_TYPE,
+              shield->CLK_MODE);
 
-    this->ETH_waitForConnect();
+    this->WaitForConnect();
   } else {
 
     WiFi.mode(WIFI_STA);
@@ -157,10 +158,23 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
         default: break;
     }
 }
+/*######################################
+return LanShield parameter tuple 
+########################################*/
+eth_shield_t* MQTT::GetEthShield(String ShieldName) {
+  for(uint8_t i=0; i<this->lan_shields.size(); i++) {
+    if(this->lan_shields.at(i).name == ShieldName) {
+      return &this->lan_shields.at(i);
+      break;
+    }
+  }
+  return &this->lan_shields.at(0);
+}
 
-void MQTT::ETH_waitForConnect() {
+void MQTT::WaitForConnect() {
   while (!this->ConnectStatusWifi)
     delay(100);
+    //yield();
 }
 
 void MQTT::reconnect() {
@@ -304,14 +318,10 @@ void MQTT::loop() {
   }
 
   // WIFI lost, try to reconnect
-/*  if (!Config->GetUseETH() && !this->ConnectStatusWifi) {
+  if (!Config->GetUseETH() && !this->ConnectStatusWifi) {
     wifiManager->setConfigPortalTimeout(0);
-    while (!this->ConnectStatusWifi) {
-      delay(5000);
-      WiFi.begin();        
-    }
+    WiFi.begin();        
   }
-*/
 
   // WIFI ok, MQTT lost
   if (!this->mqtt->connected() && this->ConnectStatusWifi) { 
