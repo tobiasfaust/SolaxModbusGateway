@@ -104,6 +104,8 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
   StaticJsonDocument<256> jsonReturn;
   String ret;
 
+  rtc_wdt_feed();
+
   if (Config->GetDebugLevel() >=5) {
     String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
     Serial.println(logmessage);
@@ -113,17 +115,16 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
     // open the file on first call and store the file handle in the request object
     request->_tempFile = LittleFS.open("/" + filename, "w");
     if (Config->GetDebugLevel() >=5) {
-      String logmessage = "Upload Start: " + String(filename);
-      Serial.println(logmessage);
+      Serial.printf("Upload Start: %s\n", filename.c_str());
     }
   }
 
   if (len) {
     // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
+    rtc_wdt_feed();
     if (Config->GetDebugLevel() >=5) {
-      String logmessage = "Writing file: " + String(filename) + " index=" + String(index) + " len=" + String(len);
-      Serial.println(logmessage);
+      Serial.printf("Writing file: %s ,index=%d len=%d bytes\n", filename.c_str(), index, len);
     }
   }
 
@@ -131,8 +132,7 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
     // close the file handle as the upload is now done
     request->_tempFile.close();
     if (Config->GetDebugLevel() >=3) {
-      String logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
-      Serial.println(logmessage);
+      Serial.printf("Upload Complete: %s ,size: %d Bytes\n", filename.c_str(), (index + len));
     }
 
     jsonReturn["status"] = 1;

@@ -7,47 +7,51 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
   server->begin(); 
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
-  server->on("/", HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
-  server->on("/BaseConfig", HTTP_GET, std::bind(&MyWebServer::handleBaseConfig, this, std::placeholders::_1));
-  server->on("/ModbusConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusConfig, this, std::placeholders::_1));
-  server->on("/ModbusItemConfig", HTTP_GET, std::bind(&MyWebServer::handleModbusItemConfig, this, std::placeholders::_1));
-  server->on("/ModbusRawData", HTTP_GET, std::bind(&MyWebServer::handleModbusRawData, this, std::placeholders::_1));
-  server->on("/handleFiles", HTTP_GET, std::bind(&MyWebServer::handleFSFilesWebcontent, this, std::placeholders::_1));
+  server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
+  server->on("/BaseConfig",             HTTP_GET, std::bind(&MyWebServer::handleBaseConfig, this, std::placeholders::_1));
+  server->on("/ModbusConfig",           HTTP_GET, std::bind(&MyWebServer::handleModbusConfig, this, std::placeholders::_1));
+  server->on("/ModbusItemConfig",       HTTP_GET, std::bind(&MyWebServer::handleModbusItemConfig, this, std::placeholders::_1));
+  server->on("/ModbusRawData",          HTTP_GET, std::bind(&MyWebServer::handleModbusRawData, this, std::placeholders::_1));
+  server->on("/handleFiles",            HTTP_GET, std::bind(&MyWebServer::handleFSFilesWebcontent, this, std::placeholders::_1));
+
+  server->on("/StoreBaseConfig",        HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, BASECONFIG));
+  server->on("/StoreModbusConfig",      HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSCONFIG));
+  server->on("/StoreModbusItemConfig",  HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSITEMCONFIG));
+  
+  server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
+  server->on("/reboot",                 HTTP_GET, std::bind(&MyWebServer::handleReboot, this, std::placeholders::_1));
+  server->on("/reset",                  HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
+  server->on("/wifireset",              HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
+
+  server->on("/ajax",                   HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
+  server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
+  server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
+
+  server->on("/update",                 HTTP_GET, std::bind(&MyWebServer::handle_update_page, this, std::placeholders::_1));
+
+  server->on("/update",                 HTTP_POST, std::bind(&MyWebServer::handle_update_response, this, std::placeholders::_1),
+                                                   std::bind(&MyWebServer::handle_update_progress, this, std::placeholders::_1, 
+                                                          std::placeholders::_2,
+                                                          std::placeholders::_3,
+                                                          std::placeholders::_4,
+                                                          std::placeholders::_5,
+                                                          std::placeholders::_6));
 
   server->on("^\/(.+)\.(css|js|html|json)$", HTTP_GET, std::bind(&MyWebServer::handleRequestFiles, this, std::placeholders::_1));
   
-  server->on("/StoreBaseConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, BASECONFIG));
-  server->on("/StoreModbusConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSCONFIG));
-  server->on("/StoreModbusItemConfig", HTTP_POST, std::bind(&MyWebServer::ReceiveJSONConfiguration, this, std::placeholders::_1, MODBUSITEMCONFIG));
-  
-  server->on("/favicon.ico", HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
-  server->on("/reboot", HTTP_GET, std::bind(&MyWebServer::handleReboot, this, std::placeholders::_1));
-  server->on("/reset", HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
-  server->on("/wifireset", HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
-
-  server->on("/ajax", HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
-  server->on("/getitems", HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
-  server->on("/getregister", HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
-
-  server->on("/update", HTTP_GET, std::bind(&MyWebServer::handle_update_page, this, std::placeholders::_1));
-
-  server->on("/update", HTTP_POST, std::bind(&MyWebServer::handle_update_response, this, std::placeholders::_1),
-                                   std::bind(&MyWebServer::handle_update_progress, this, std::placeholders::_1, 
-                                        std::placeholders::_2,
-                                        std::placeholders::_3,
-                                        std::placeholders::_4,
-                                        std::placeholders::_5,
-                                        std::placeholders::_6));
-
   Serial.println(F("WebServer started..."));
 }
 
 void MyWebServer::handle_update_page(AsyncWebServerRequest *request) {
-  request->send(LittleFS, "/web/UpdatePage.html", "text/html");
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATEPAGE);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response); 
 }
 
 void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
-  request->send(LittleFS, "/web/UpdateResponse.html", "text/html");
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response); 
 }
 
 void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
