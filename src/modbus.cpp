@@ -96,7 +96,7 @@ void modbus::GenerateMqttSubscriptions() {
   streamString = "\"set\": [";
   regfile.find(streamString.c_str());
   do {
-    StaticJsonDocument<512> elem;
+    JsonDocument elem;
     DeserializationError error = deserializeJson(elem, regfile); 
     if (!error) {
       // Print the result
@@ -187,8 +187,8 @@ void modbus::LoadInvertersFromJson() {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  StaticJsonDocument<512> regjson;
-  StaticJsonDocument<128> filter;
+  JsonDocument regjson;
+  JsonDocument filter;
 
   AvailableInverters->clear();
 
@@ -267,8 +267,8 @@ void modbus::LoadInverterConfigFromJson() {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  StaticJsonDocument<1224> doc;
-  StaticJsonDocument<100> filter;
+  JsonDocument doc;
+  JsonDocument filter;
 
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
@@ -648,7 +648,7 @@ void modbus::ParseData() {
     streamString = "\""+ RequestType +"\": [";
     regfile.find(streamString.c_str());
     do {
-      StaticJsonDocument<1024> elem;
+      JsonDocument elem;
       DeserializationError error = deserializeJson(elem, regfile); 
       
       if (!error) {
@@ -922,10 +922,10 @@ String modbus::GetInverterSN() {
 *******************************************************/
 void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
   int count = 0;
-  response->print("{\"data\": ["); 
+  response->print("{\"data\": {\"items\": ["); 
   
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
-    StaticJsonDocument<512> doc;
+    JsonDocument doc;
     String s = "";
     doc["name"]  = this->InverterLiveData->at(i).Name;
     doc["realname"]  = this->InverterLiveData->at(i).RealName;
@@ -934,7 +934,8 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
     doc["mqtttopic"] = this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false);
 
     if (this->InverterLiveData->at(i).openwb.length() > 0) {
-      doc["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
+      JsonObject wb = doc["openwb"].to<JsonObject>();
+      wb["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
     }
 
     serializeJson(doc, s);
@@ -943,7 +944,7 @@ void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
     count++;
   }
   
-  response->printf(" ], \"object_id\": \"%s/%s\"}", Config->GetMqttBasePath(), Config->GetMqttRoot());
+  response->printf(" ]}, \"object_id\": \"%s/%s\"}", Config->GetMqttBasePath(), Config->GetMqttRoot());
 }
 
 /*******************************************************
@@ -968,7 +969,7 @@ void modbus::GetRegisterAsJson(AsyncResponseStream *response) {
   regfile.find(streamString.c_str());
 
   do {
-    StaticJsonDocument<1024> elem;
+    JsonDocument elem;
     DeserializationError error = deserializeJson(elem, regfile); 
       
     if (!error) {
@@ -1045,7 +1046,7 @@ void modbus::StoreJsonConfig(String* json) {
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
   
-  StaticJsonDocument<1024> doc;
+  JsonDocument doc;
   DeserializationError error = deserializeJson(doc, *json);
   
   if (error) { 
@@ -1123,7 +1124,7 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
   streamString = "\"" + type + "\": [";
   regfile.find(streamString.c_str());
   do {
-    StaticJsonDocument<1012> elem;
+    JsonDocument elem;
     DeserializationError error = deserializeJson(elem, regfile); 
       
     if (!error) {
@@ -1190,7 +1191,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
       if (Config->GetDebugLevel() >=3) Serial.println("config file is open:");
       //size_t size = configFile.size();
 
-      StaticJsonDocument<1024> doc; // TODO Use computed size??
+      JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
       
       if (!error) {
@@ -1292,7 +1293,7 @@ void modbus::LoadJsonItemConfig() {
       ReadBufferingStream stream{configFile, 64};
       stream.find("\"data\":[");
       do {
-        StaticJsonDocument<512> elem;
+        JsonDocument elem;
         DeserializationError error = deserializeJson(elem, stream); 
 
         if (!error) {

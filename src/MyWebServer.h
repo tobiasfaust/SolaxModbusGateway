@@ -61,7 +61,8 @@ class MyWebServer {
     void      ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page);
     void      getPageHeader(AsyncResponseStream *response, page_t pageactive);
     void      getPageFooter(AsyncResponseStream *response);
-    
+    void      GetInitDataStatus(AsyncResponseStream *response);
+    void      GetInitDataNavi(AsyncResponseStream *response);
     void      getPage_Status(AsyncResponseStream *response);
     String    GetReleaseName();
     

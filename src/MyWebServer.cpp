@@ -287,7 +287,7 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   memset(buffer, 0, sizeof(buffer));
   String ret;
   bool RaiseError = false;
-  String action, item, newState; 
+  String action, subaction, item, newState; 
   String json = "{}";
 
   AsyncResponseStream *response = request->beginResponseStream("text/json");
@@ -297,38 +297,51 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
     json = request->arg("json");
   }
 
-  StaticJsonDocument<512> jsonGet; // TODO Use computed size??
+  JsonDocument jsonGet; // TODO Use computed size??
   DeserializationError error = deserializeJson(jsonGet, json.c_str());
 
-  StaticJsonDocument<256> jsonReturn;
+  JsonDocument jsonReturn;
+  jsonReturn["response"].to<JsonObject>();
 
   if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Empfangen: "); }
   if (!error) {
     if (Config->GetDebugLevel() >=4) { serializeJsonPretty(jsonGet, Serial); Serial.println(); }
 
     if (jsonGet.containsKey("action"))   {action    = jsonGet["action"].as<String>();}
+    if (jsonGet.containsKey("subaction")){subaction = jsonGet["subaction"].as<String>();}
     if (jsonGet.containsKey("item"))     {item      = jsonGet["item"].as<String>();}
     if (jsonGet.containsKey("newState")) {newState  = jsonGet["newState"].as<String>();}
   
-  } else { RaiseError = true; }
+  } else { 
+    snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
+    RaiseError = true; 
+  }
 
   if (RaiseError) {
-    jsonReturn["error"] = buffer;
+    jsonReturn["response"]["status"] = 0;
+    jsonReturn["response"]["text"] = buffer;
     serializeJson(jsonReturn, ret);
     response->print(ret);
 
     if (Config->GetDebugLevel() >=2) {
-      snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
       Serial.println(FPSTR(buffer));
     }
-    
+
+  } else if(action && action == "GetInitData")  {
+    if (subaction && subaction == "status") {
+      this->GetInitDataStatus(response);
+    } else if (subaction && subaction == "navi") {
+      this->GetInitDataNavi(response);
+    }
+  
   } else if (action && action == "RefreshLiveData") {
       mb->GetLiveDataAsJson(response);
   
   } else if (action && action == "SetActiveStatus") {
       if (strcmp(newState.c_str(),"true")==0)  mb->SetItemActiveStatus(item, true); 
       if (strcmp(newState.c_str(),"false")==0) mb->SetItemActiveStatus(item, false);    
-      jsonReturn["error"] = "false";
+      jsonReturn["response"]["status"] = 1;
+      jsonReturn["response"]["text"] = "successful";
       serializeJson(jsonReturn, ret);
       response->print(ret);
 
@@ -336,18 +349,61 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
     fsfiles->HandleAjaxRequest(jsonGet, response);
 
   } else {
-    if (Config->GetDebugLevel() >=1) {
-      snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s", action);
-      Serial.println(buffer);
-    }
+    snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s %s", action, subaction);
+    jsonReturn["response"]["status"] = 0;
+    jsonReturn["response"]["text"] = buffer;
     serializeJson(jsonReturn, ret);
     response->print(ret);
+
+    if (Config->GetDebugLevel() >=1) {
+      Serial.println(buffer);
+    }
   }
 
   if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Antwort: "); Serial.println(ret); }
   
-  
   request->send(response);
+}
+
+void MyWebServer::GetInitDataNavi(AsyncResponseStream *response){
+  String ret;
+  JsonDocument json;
+  json["data"].to<JsonObject>();
+  json["data"]["hostname"] = Config->GetMqttRoot();
+  json["data"]["releasename"] = this->GetReleaseName();
+  json["data"]["releasedate"] = __DATE__;
+  json["data"]["releasetime"] = __TIME__;
+
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
+  serializeJson(json, ret);
+  response->print(ret);
+}
+
+void MyWebServer::GetInitDataStatus(AsyncResponseStream *response) {
+  String ret;
+  JsonDocument json;
+
+  json["data"].to<JsonObject>();
+  json["data"]["ipaddress"] = mqtt->GetIPAddress().toString();
+  json["data"]["wifiname"] = (Config->GetUseETH()?"LAN":WiFi.SSID());
+  json["data"]["macaddress"] = WiFi.macAddress();
+  json["data"]["rssi"] = (Config->GetUseETH()?ETH.linkSpeed():WiFi.RSSI()), (Config->GetUseETH()?"Mbps":"");
+  json["data"]["mqtt_status"] = (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected");
+  json["data"]["inverter_type"] = mb->GetInverterType();
+  json["data"]["inverter_serial"] = mb->GetInverterSN();
+  char buffer[50];
+  sprintf(buffer, "%lu Days, %lu Hours, %lu Minutes", uptime::getDays(), uptime::getHours(), uptime::getMinutes()); //uptime_formatter::getUptime().c_str()); //UpTime->getFormatUptime());;
+  json["data"]["uptime"] = buffer;
+  json["data"]["freeheapmem"] = ESP.getFreeHeap();
+
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
+
+  serializeJson(json, ret);
+  response->print(ret);
 }
 
 void MyWebServer::getPageHeader(AsyncResponseStream *response, page_t pageactive) {

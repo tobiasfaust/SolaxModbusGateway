@@ -1,3 +1,9 @@
+/*############################################################
+#
+# definition of constants
+#
+############################################################*/
+
 const gpio_disabled = [];
 
 const gpio = [  {port: 2 , name:'D2'},
@@ -50,99 +56,158 @@ const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                   {port: 26, name:'ADC2_CH9 - GPIO26'}
                ];
 
-//############ DO NOT CHANGE BELOW ###################
-// https://jsfiddle.net/tobiasfaust/akyv4ju8/
+/*############################################################
+#
+# central function to initiate data fetch
+#
+############################################################*/
 
-window.addEventListener('load', init, false);
-function init() {
-  SetConfiguredPorts();
-  SetAvailablePorts();
+function requestData(json, highlight) {
+  const data = new URLSearchParams();
+  data.append('json', json);
+
+  fetch('/ajax', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: data
+  })
+  .then (response => response.json())
+  .then (json =>  { handleJsonItems(json, highlight)}); 
 }
 
-function SetConfiguredPorts() {
-  var _parent, _select, _option, i, j, k;
-  var objects = document.querySelectorAll('input[type=number][id^=ConfiguredPorts]');
+/*############################################################
+#
+# definition of applying jsondata to html templates
+#
+############################################################*/
+
+function applyKeys(json, _tpl, counter, highlight) {
+		for (var key in json) {
+      if (typeof json[key] === 'object') {
+      	applyTemplate((json[key]), key, _tpl, highlight);
+      } else {
+      	try {
+          var _obj;
+          if (document.getElementById(_tpl.getElementById(key).id + "_" + counter)) {
+          	// exists already in DOM
+            _obj = document.getElementById(_tpl.getElementById(key).id + "_" + counter);
+          } else {
+	          _obj = _tpl.getElementById(key);
+          }
+          if (counter >= 0) { _obj.id = _obj.id + "_" + counter;}
+          if (['SPAN', 'DIV', 'TD'].includes(_obj.tagName)) {
+            if (highlight) {
+              _obj.innerHTML = "<span class='ajaxchange'>" + json[key] + "</span>";
+            } else {
+              _obj.innerHTML = json[key];
+            }
+          } else {
+            _obj.value = json[key];
+          }
+        } catch(e) {}
+      }
+    }
+}
+
+function applyTemplate(TemplateJson, templateID, doc, highlight) {
+	if (Array.isArray(TemplateJson)) {
+    for (var i=0; i < TemplateJson.length; i++) {
+      var _tpl = document.importNode(doc.getElementById(templateID).content, true);
+      var _parentObj = doc.getElementById(templateID).parentNode;
+      
+      try {
+      	_tpl.getElementById('id').id = templateID + "_" + [i];
+      } catch(e) {}
+      
+      applyKeys(TemplateJson[i], _tpl, i, highlight);
+      
+      if (document.getElementById(templateID + "_" + [i])) {
+      	// item already in DOM
+      } else { 
+	      _parentObj.appendChild(_tpl);
+      }
+      
+    }
+  } else {
+  	var _tpl = document.importNode(doc.getElementById(templateID).content, true);
+    var _parentObj = doc.getElementById(templateID).parentNode;
+
+    applyKeys(TemplateJson[i], _tpl, undefined, highlight);  
+
+    _parentObj.appendChild(_tpl);
+  }
+}
+
+function handleJsonItems(json, highlight) {
+  if ("data" in json) {
+  	applyKeys(json.data, document, undefined, highlight);
+  }
+  
+  if ('response' in json) {
+    try {
+      if (json.response.status == 1) {setResponse(true, json.response.text);}
+      if (json.response.status == 0) {setResponse(false, json.response.text);}
+    } catch(e) {setResponse(false, 'unknow error');}
+  }
+}
+
+// ***********************************
+// show response
+// b => bool => true = OK; false = Error
+// s => String => text to show
+// ***********************************
+function setResponse(b, s) {
+  try {
+    var r = document.getElementById("response");
+    r.innerHTML = s;
+    if (b) { r.className = "oktext"; } else {r.className = "errortext";}
+    setTimeout(function() {document.getElementById("response").innerHTML=""}, 2000);
+  } catch(e) {}
+}
+
+/*############################################################
+#
+# definition of creating selectionlists from input fields
+# querySelector -> select input fields to convert
+# jsonLists -> define multiple predefined lists to set as option as array
+# blacklist -> simple list of ports (numbers) to set as disabled option 
+#
+# example: 
+# CreateSelectionListFromInputField('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]', 
+#                                    [gpio, gpio_analog], gpio_disabled);
+############################################################*/
+function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) {
+	var _parent, _select, _option, i, j, k;
+  var objects = document.querySelectorAll(querySelector);
   for( j=0; j< objects.length; j++) {
     _parent = objects[j].parentNode;
     _select = document.createElement('select');
     _select.id = objects[j].id;
     _select.name = objects[j].name;
-    for ( i = 0; i < configuredPorts.length; i += 1 ) {
-        _option = document.createElement( 'option' );
-        _option.value = configuredPorts[i].port; 
-        _option.text  = configuredPorts[i].name;
-        if(objects[j].value == configuredPorts[i].port) { _option.selected = true;}
-        _select.add( _option ); 
+    for ( k = 0; k < jsonLists.length; k += 1 ) {  
+      for ( i = 0; i < jsonLists[k].length; i += 1 ) {
+          _option = document.createElement( 'option' );
+          _option.value = jsonLists[k][i].port; 
+          _option.text  = jsonLists[k][i].name;
+          if(objects[j].value == jsonLists[k][i].port) { _option.selected = true;}
+          if(blacklist && blacklist.indexOf(jsonLists[k][i].port)>=0) {
+          	_option.disabled = true;
+          }
+          _select.add( _option ); 
+      }
     }
     _parent.removeChild( objects[j] );
     _parent.appendChild( _select );
   }
 }
 
-function SetAvailablePorts() {
-  var _parent, _select, _option, i, j, k;
-  var objects = document.querySelectorAll('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]');
-  for( j=0; j< objects.length; j++) {
-    _parent = objects[j].parentNode;
-    _select = createGpioPortSelectionList(objects[j].id, objects[j].name, objects[j].value);
-    _parent.removeChild( objects[j] );
-    _parent.appendChild( _select );
-  }
-
-  var objects = document.querySelectorAll('input[type=number][id^=AnalogPin]');
-  for( j=0; j< objects.length; j++) {
-    _parent = objects[j].parentNode;
-    _select = createAnalogPortSelectionList(objects[j].id, objects[j].name, objects[j].value);
-    _parent.removeChild( objects[j] );
-    _parent.appendChild( _select );
-  }
-}
-
-function createGpioPortSelectionList(id, name, value) {
-  _select = document.createElement('select');
-  _select.id = id;
-  _select.name = name;
-  for ( i = 0; i < gpio.length; i += 1 ) {
-    // alle GPIO Pins in die Liste
-    _option = document.createElement( 'option' );
-    _option.value = gpio[i].port; 
-    if(gpio_disabled.indexOf(gpio[i].port)>=0) {_option.disabled = true;}
-    if(value == (gpio[i].port)) { _option.selected = true;}
-    _option.text  = gpio[i].name;
-    _select.add( _option ); 
-  }
-  if (id.match(/^Alle.*/)) {
-    // Alle PCF Ports in die Liste wenn ID match "Alle*"
-    for ( k = 0; k < availablePorts.length; k++ ) {
-      _option = document.createElement( 'option' );
-      _option.value = _option.text = availablePorts[k];
-      if(value == availablePorts[k]) { _option.selected = true;}
-      _select.add( _option );
-    }
-  }
-  return _select;
-}
-function createAnalogPortSelectionList(id, name, value) {
-  _select = document.createElement('select');
-  _select.id = id;
-  _select.name = name;
-  for ( i = 0; i < gpioanalog.length; i += 1 ) {
-    // alle GPIO Pins in die Liste
-    _option = document.createElement( 'option' );
-    _option.value = gpioanalog[i].port; 
-    if(value == (gpioanalog[i].port)) { _option.selected = true;}
-    _option.text  = gpioanalog[i].name;
-    _select.add( _option ); 
-  }
-  
-  return _select;
-}
-
-/*******************************
-jsontype:
-  1 = standard, 1 level
-  2 = array, each item separately
-*******************************/
+/*############################################################
+# DataForm: id of FormElement which contains all input fields
+# SubmitForm: id of FormElement which contains hidden input filed, named "json", for submit
+# jsontype:
+#   1 = standard, 1 level
+#   2 = array, each item separately
+############################################################*/
 function onSubmit(DataForm, SubmitForm, jsontype){
   //set default
   if (!jsontype) jsontype = 1;
@@ -197,7 +262,7 @@ function onSubmit(DataForm, SubmitForm, jsontype){
       }
     }
   } 
-  formData["count"] = count;
+  formData.count = count;
   json = document.getElementById(SubmitForm).querySelectorAll("input[name='json']");
 
   if (json[0].value.length <= 3) {
@@ -221,150 +286,3 @@ function radioselection(a,b) {
   }
 }
 
-/* https://jsfiddle.net/tobiasfaust/p5q9hgsL/ */
-/*******************************
-reset of rawdata views
-*******************************/
-function reset_rawdata(rawdatatype) {
-  const string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
-  let bytes = string_rawdata.split(" ");
-
-  bytes = prettyprint_rawdata(rawdatatype, bytes, bytes);
-  document.getElementById(rawdatatype).innerHTML = bytes.join(' ');
-}
-
-/*******************************
-insert Tooltips and linebreaks
-*******************************/
-function prettyprint_rawdata(rawdatatype, bytearray, bytearray_org) {
-  
-  for( i=0; i< bytearray.length; i++) {
-    const bstr = byte2string(bytearray_org[i]);
-    const bint = byte2int(bytearray_org[i]);
-    
-    bytearray[i] = "<dfn class=\'tooltip_simple\' id=\'" + rawdatatype + "_" + i + "\' onclick=\'cpRawDataPos(" + i + ")\'>" + bytearray[i] + "<span role=\'tooltip_simple\'>Position: " + i + " <hr>Integer: " + bint + "<br>String: " + bstr + "</span></dfn>";
-    if (i % 10 == 0) {
-      bytearray[i] = ' <br>' + bytearray[i];
-    }
-  }
-  
-  return bytearray;
-}
-
-/*******************************
-take over the clicked byte position into posTextField 
-*******************************/
-function cpRawDataPos(pos) {
-  let posarray;
-  const obj = document.getElementById('positions'); 
-  
-  if(obj.value.trim().length > 0 ) {
-    posarray = obj.value.trim().split(" ");
-  } else {
-    posarray = [];
-  }
-  
-  posarray.push(pos);
-  document.getElementById('positions').value = posarray.join(",");
-  
-}
-
-/*******************************
-helper function
-*******************************/
-function byte2string(bytestring) {
-  //return bytestring;
-  return String.fromCharCode(parseInt(bytestring, 16));
-}
-
-/*******************************
-helper function
-*******************************/
-function byte2int(bytestring) {
-  return parseInt(Number(bytestring), 10);
-}
-
-/*******************************
-compute result from selected positions
-*******************************/
-function check_rawdata() {
-  const datatype = document.querySelector('input[name="datatype"]:checked').value;
-  const rawdatatype = document.querySelector('input[name="rawdatatype"]:checked').value;
-  const string_positions = document.getElementById('positions').value;
-  const string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
-  
-  let   bytes = string_rawdata.split(" ");
-  const pos = string_positions.split(",");
-  const bytes_org = string_rawdata.split(" ");
-  
-  // reset all rawdata containers
-  reset_rawdata('id_rawdata');
-  reset_rawdata('live_rawdata');
-  
-  let result;
-  if (datatype == 'int') { result = 0; }
-  if (datatype == 'string') { result = "";}
-  
-  for( j=0; j< pos.length; j++) {
-    if (datatype == 'int') { 
-      result = result << 8 | byte2int(bytes[Number(pos[j])]); 
-    }
-    if (datatype == 'string') { 
-      result = result + byte2string(bytes[Number(pos[j])]); 
-    }
-    
-   bytes[Number(pos[j])] = "<span id=\'" + rawdatatype +"_" + Number(pos[j]) + "_val\' style='color: red;'>" + bytes[Number(pos[j])] + "</span>";
-  }
-  
-  document.getElementById('rawdata_result').innerHTML = "= " + result;
-  document.getElementById(rawdatatype).innerHTML = prettyprint_rawdata(rawdatatype, bytes, bytes_org).join(' ');
-}
-
-/*******************************
-templates anzeigen fuer ItemConfig
-https://jsfiddle.net/tobiasfaust/5xh2azd6/
-
-targettable -> die #id der tabelle an das das <template> an tbody angehangen werden soll
-template -> die #id des templates
-onlyactive -> nur items mit active = 1 werden angezeigt
-json -> das json der items
-*******************************/
-function FillItemConfig(targettable, template, onylactive, json) {
-  var tbody = document.querySelector(targettable + " tbody"),
-      row = document.querySelector(template),
-      tr_tpl,cells,text,openwb_tpl;
-  
-  json.forEach(function (article) {
-    // template für einen Artikel "laden" (lies: klonen)
-    tr_tpl = document.importNode(row.content, true);
-    
-    try {
-      openwb_tpl = document.importNode(tr_tpl.querySelector("#openwb").content, true);
-    } catch (e) {}
-    
-    // Zellen befüllen
-    cells = tr_tpl.querySelectorAll("td");
-    cells.forEach(function (item, index) {
-      var text = item.innerHTML;
-      text = text.replaceAll("{realname}", article.realname);
-      text = text.replaceAll("{name}", article.name);
-      text = text.replaceAll("{value}", article.value);
-      text = text.replaceAll("{mqtttopic}", article.mqtttopic);
-      text = text.replaceAll("{active}", (article.active==1?"checked":""));
-            
-      item.innerHTML = text;
-    });
-
-    if (article.openwbtopic && openwb_tpl) {
-      var o = openwb_tpl.querySelector("span");
-      o.innerHTML = o.innerHTML.replaceAll("{openwbtopic}", article.openwbtopic);
-      cells[2].appendChild(openwb_tpl)
-    }    
-    
-    //template einpassen
-    if (article.active == 1 || !onylactive) {
-      tbody.appendChild(tr_tpl);
-    }
-    
-  });
-}

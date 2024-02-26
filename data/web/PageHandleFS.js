@@ -196,18 +196,6 @@ function destroyClickedElement(event)
 }
 
 // ***********************************
-// show response
-// b => bool => true = OK; false = Error
-// s => String => text to show
-// ***********************************
-function setResponse(b, s) {
-  var r = document.getElementById("response");
-  r.innerHTML = s;
-  if (b) { r.className = "oktext"; } else {r.className = "errortext";}
-  setTimeout(function() {document.getElementById("response").innerHTML=""}, 2000);
-}
-
-// ***********************************
 // store content of textarea
 // ***********************************
 function uploadFile() {
