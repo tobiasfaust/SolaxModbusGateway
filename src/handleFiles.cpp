@@ -104,8 +104,6 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
   JsonDocument jsonReturn;
   String ret;
 
-  rtc_wdt_feed();
-
   if (Config->GetDebugLevel() >=5) {
     String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
     Serial.println(logmessage);
@@ -122,7 +120,6 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
   if (len) {
     // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
-    rtc_wdt_feed();
     if (Config->GetDebugLevel() >=5) {
       Serial.printf("Writing file: %s ,index=%d len=%d bytes\n", filename.c_str(), index, len);
     }
