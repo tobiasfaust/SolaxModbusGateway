@@ -4,22 +4,17 @@ function init() {
   GetInitData();
 }
 
-var myInterval = setInterval(RefreshLiveData, 5000);
-
 // ************************************************
 function GetInitData() {
   var data = {};
-  data['action'] = "GetInitData";
-  data['subaction'] = "status";
-  requestData(JSON.stringify(data), false);
+  data.action = "GetInitData";
+  data.subaction = "modbusconfig";
+  requestData(JSON.stringify(data), false, MyCallback);
 }
 
 // ************************************************
-function RefreshLiveData() {
-  var data = {};
-  data.action = "RefreshLiveData";
-  data.subaction = "onlyactive";
-  requestData(JSON.stringify(data), true);
+function MyCallback() {
+  CreateSelectionListFromInputField('input[type=number][id^=GpioPin]', [gpio]);
 }
 
 // ************************************************

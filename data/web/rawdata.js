@@ -1,12 +1,39 @@
 /* https://jsfiddle.net/tobiasfaust/p5q9hgsL/ */
+
+// ************************************************
+window.addEventListener('DOMContentLoaded', init, false);
+function init() {
+  GetInitData();  
+}
+
+// ************************************************
+function GetInitData() {
+  var data = {};
+  data.action = "GetInitData";
+  data.subaction = "rawdata";
+  requestData(JSON.stringify(data), false, MyCallback);
+}
+
+function MyCallback() {
+  reset_rawdata('id_rawdata')
+  reset_rawdata('live_rawdata')
+}
+
+/*******************************
+split long byte-string into array 
+*******************************/
+function chunk(str, size) {
+  return str.match(new RegExp('.{1,' + size + '}', 'g')) || [];
+}
+
 /*******************************
 reset of rawdata views
 *******************************/
 function reset_rawdata(rawdatatype) {
   const string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
-  let bytes = string_rawdata.split(" ");
-
-  bytes = prettyprint_rawdata(rawdatatype, bytes, bytes);
+  let bytes = chunk(string_rawdata,2)
+//  console.log(bytes)
+  bytes = prettyprint_rawdata(rawdatatype, bytes, bytes); 
   document.getElementById(rawdatatype).innerHTML = bytes.join(' ');
 }
 
@@ -19,7 +46,7 @@ function prettyprint_rawdata(rawdatatype, bytearray, bytearray_org) {
     const bstr = byte2string(bytearray_org[i]);
     const bint = byte2int(bytearray_org[i]);
     
-    bytearray[i] = "<dfn class=\'tooltip_simple\' id=\'" + rawdatatype + "_" + i + "\' onclick=\'cpRawDataPos(" + i + ")\'>" + bytearray[i] + "<span role=\'tooltip_simple\'>Position: " + i + " <hr>Integer: " + bint + "<br>String: " + bstr + "</span></dfn>";
+    bytearray[i] = "<dfn class=\'tooltip_simple\' id=\'" + rawdatatype + "_" + i + "\' onclick=\'cpRawDataPos(" + i + ")\'>0x" + bytearray[i] + "<span role=\'tooltip_simple\'>Position: " + i + " <hr>Integer: " + bint + "<br>String: " + bstr + "</span></dfn>";
     if (i % 10 == 0) {
       bytearray[i] = ' <br>' + bytearray[i];
     }
@@ -58,7 +85,7 @@ function byte2string(bytestring) {
 helper function
 *******************************/
 function byte2int(bytestring) {
-  return parseInt(Number(bytestring), 10);
+  return parseInt(Number(bytestring), 16);
 }
 
 /*******************************
@@ -70,9 +97,9 @@ function check_rawdata() {
   const string_positions = document.getElementById('positions').value;
   const string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
   
-  let   bytes = string_rawdata.split(" ");
+  let   bytes = chunk(string_rawdata,2);
   const pos = string_positions.split(",");
-  const bytes_org = string_rawdata.split(" ");
+  const bytes_org = chunk(string_rawdata,2);
   
   // reset all rawdata containers
   reset_rawdata('id_rawdata');
@@ -84,7 +111,7 @@ function check_rawdata() {
   
   for( j=0; j< pos.length; j++) {
     if (datatype == 'int') { 
-      result = result << 8 | byte2int(bytes[Number(pos[j])]); 
+      result = result << 8 | byte2int(bytes[Number(pos[j])]);
     }
     if (datatype == 'string') { 
       result = result + byte2string(bytes[Number(pos[j])]); 

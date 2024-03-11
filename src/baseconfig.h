@@ -11,7 +11,7 @@ class BaseConfig {
     BaseConfig();
     void      StoreJsonConfig(String* json); 
     void      LoadJsonConfig();
-    void      GetWebContent(AsyncResponseStream *response);
+    void      GetInitData(AsyncResponseStream *response);
 
     const String&   GetMqttServer()    const {return mqtt_server;}
     const uint16_t& GetMqttPort()     const {return mqtt_port;}

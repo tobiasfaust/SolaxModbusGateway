@@ -16,17 +16,17 @@ handleFiles::handleFiles(AsyncWebServer *server) {
 // returns the complete folder structure
 //###############################################################
 void handleFiles::getDirList(JsonArray* json, String path) {
-  StaticJsonDocument<128> doc;
+  JsonDocument doc;
   JsonObject jsonRoot = doc.to<JsonObject>();
 
   jsonRoot["path"] = path;
-  JsonArray content = jsonRoot.createNestedArray("content");
+  JsonArray content = jsonRoot["content"].to<JsonArray>();
 
   File FSroot = LittleFS.open(path);
   File file = FSroot.openNextFile();
 
   while (file) {
-    StaticJsonDocument<64> doc1;
+    JsonDocument doc1;
     JsonObject jsonObj = doc1.to<JsonObject>();
     String fname(file.name());
     jsonObj["name"] = fname;
@@ -52,16 +52,16 @@ void handleFiles::getDirList(JsonArray* json, String path) {
 // returns the requested data via AJAX from Webserver.cpp
 //###############################################################
 void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* response) {
-  String subAction = "";
-  if (jsonGet.containsKey("subAction"))  {subAction  = jsonGet["subAction"].as<String>();}
+  String subaction = "";
+  if (jsonGet.containsKey("subaction"))  {subaction  = jsonGet["subaction"].as<String>();}
 
   if (Config->GetDebugLevel() >= 3) {
-    Serial.printf("handle Ajax Request in handleFiles.cpp: %s\n", subAction);
+    Serial.printf("handle Ajax Request in handleFiles.cpp: %s\n", subaction);
   }
 
-  if (subAction == "listDir") {
-    StaticJsonDocument<256> doc;
-    JsonArray content = doc.createNestedArray();
+  if (subaction == "listDir") {
+    JsonDocument doc;
+    JsonArray content = doc.add<JsonArray>();
     
     this->getDirList(&content, "/");
     String ret("");
@@ -71,9 +71,9 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
       Serial.println();
     }
     response->print(ret);   
-  } else if (subAction == "deleteFile") {
+  } else if (subaction == "deleteFile") {
     String filename(""), ret("");
-    StaticJsonDocument<256> jsonReturn;
+    JsonDocument jsonReturn;
 
     if (Config->GetDebugLevel() >=3) {
       Serial.printf("Request to delete file %s", filename);
@@ -101,7 +101,7 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
 void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   AsyncResponseStream *response = request->beginResponseStream("text/json");
   response->addHeader("Server","ESP Async Web Server");
-  StaticJsonDocument<256> jsonReturn;
+  JsonDocument jsonReturn;
   String ret;
 
   rtc_wdt_feed();

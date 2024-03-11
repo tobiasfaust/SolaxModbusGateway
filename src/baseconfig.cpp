@@ -18,17 +18,21 @@ BaseConfig::BaseConfig() : debuglevel(0) {
 
 void BaseConfig::StoreJsonConfig(String* json) {
 
-  StaticJsonDocument<512> doc;
-  deserializeJson(doc, *json);
-  JsonObject root = doc.as<JsonObject>();
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, *json);
+  
+  if (error) { 
+    if (Config->GetDebugLevel() >=1) {
+      Serial.printf("Cound not store jsonConfig completely -> %s", error.c_str());
+    } 
+  } else { 
 
-  if (!root.isNull()) {
     File configFile = LittleFS.open("/BaseConfig.json", "w");
     if (!configFile) {
       if (this->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
     } else {  
-      serializeJsonPretty(doc, Serial);
-      if (serializeJson(doc, configFile) == 0) {
+      serializeJsonPretty(doc["data"], Serial);
+      if (serializeJson(doc["data"], configFile) == 0) {
         if (this->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
       }
       configFile.close();
@@ -48,7 +52,7 @@ void BaseConfig::LoadJsonConfig() {
       Serial.println("opened config file");
       //size_t size = configFile.size();
 
-      StaticJsonDocument<512> doc; // TODO Use computed size??
+      JsonDocument doc; // TODO Use computed size??
       DeserializationError error = deserializeJson(doc, configFile);
       
       if (!error) {
@@ -96,98 +100,25 @@ void BaseConfig::LoadJsonConfig() {
 
 }
 
-void BaseConfig::GetWebContent(AsyncResponseStream *response) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
+void BaseConfig::GetInitData(AsyncResponseStream *response) {
+  String ret;
+  JsonDocument json;
+  json["data"].to<JsonObject>();
+  json["data"]["mqttroot"]    = this->mqtt_root;
+  json["data"]["mqttserver"]  = this->mqtt_server;
+  json["data"]["mqttport"]    = this->mqtt_port;
+  json["data"]["mqttuser"]    = this->mqtt_username;
+  json["data"]["mqttpass"]    = this->mqtt_password;
+  json["data"]["mqttbasepath"]= this->mqtt_basepath;
+  json["data"]["debuglevel"]  = this->debuglevel;
+  json["data"]["sel_wifi"]    = ((this->useETH)?0:1);
+  json["data"]["sel_eth"]     = ((this->useETH)?1:0);
+  json["data"]["sel_URCID1"]  = ((this->mqtt_UseRandomClientID)?0:1);
+  json["data"]["sel_URCID2"]  = ((this->mqtt_UseRandomClientID)?1:0);
 
-  response->print("<form id='DataForm'>\n");
-  response->print("<table id='maintable' class='editorDemoTable'>\n");
-  response->print("<thead>\n");
-  response->print("<tr>\n");
-  response->print("<td style='width: 250px;'>Name</td>\n");
-  response->print("<td style='width: 200px;'>Wert</td>\n");
-  response->print("</tr>\n");
-  response->print("</thead>\n");
-  response->print("<tbody>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Device Name</td>\n");
-  response->printf("<td><input size='30' maxlength='40' name='mqttroot' type='text' value='%s'/></td>\n", this->mqtt_root.c_str());
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td colspan='2'>\n");
-  
-  response->print("<div class='inline'>");
-  response->printf("<input type='radio' id='sel_wifi' name='SelectConnectivity' value='wifi' %s onclick=\"radioselection([''],['SelectLAN'])\"/>", (this->useETH)?"":"checked");
-  response->print("<label for='sel_wifi'>use WIFI</label></div>\n");
-  
-  response->print("<div class='inline'>");
-  response->printf("<input type='radio' id='sel_eth' name='SelectConnectivity' value='eth' %s onclick=\"radioselection(['SelectLAN'],[''])\"/>", (this->useETH)?"checked":"");
-  response->print("<label for='sel_eth'>use wired ethernet</label></div>\n");
-    
-  response->print("</td>\n");
-  response->print("</tr>\n");
-
-  response->printf("<tr id='SelectLAN' class='%s'>\n", (this->useETH?"":"hide"));
-  response->print("<td>Select LAN Board</td>\n");
-  response->print("<td><select name='SelectLAN' size='1'> \n");
-  response->printf("<option %s value='WT32-ETH01'/>WT32-ETH01</option>\n", (this->LANBoard=="WT32-ETH01"?"selected":""));
-  response->print("</select></td>\n");
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>MQTT Server IP</td>\n");
-  response->printf("<td><input size='30' name='mqttserver' type='text' value='%s'/></td>\n", this->mqtt_server.c_str());
-  response->print("</tr>\n");
-  
-  response->print("<tr>\n");
-  response->print("<td>MQTT Server Port</td>\n");
-  response->printf("<td><input maxlength='5' name='mqttport' type='text' style='width: 6em' value='%d'/></td>\n", this->mqtt_port);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>MQTT Authentification: Username (optional)</td>\n");
-  response->printf("<td><input size='30' name='mqttuser' type='text' value='%s'/></td>\n", this->mqtt_username.c_str());
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>MQTT Authentification: Password (optional)</td>\n");
-  response->printf("<td><input size='30' name='mqttpass' type='text' value='%s'/></td>\n", this->mqtt_password.c_str());
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>MQTT Topic Base Path (example: home/inverter)</td>\n");
-  response->printf("<td><input size='30' maxlength='40' name='mqttbasepath' type='text' value='%s'/></td>\n", this->mqtt_basepath.c_str());
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("  <td colspan='2'>\n");
-  
-  response->print("    <div class='inline'>");
-  response->printf("<input type='radio' id='sel_URCID1' name='UseRandomClientID' value='none' %s />", (this->mqtt_UseRandomClientID)?"":"checked");
-  response->print("<label for='sel_URCID1'>benutze statische MQTT ClientID</label></div>\n");
-  
-  response->print("    <div class='inline'>");
-  response->printf("<input type='radio' id='sel_URCID2' name='UseRandomClientID' value='yes' %s />", (this->mqtt_UseRandomClientID)?"checked":"");
-  response->print("<label for='sel_URCID2'>benutze dynamische MQTT ClientID</label></div>\n");
-    
-  response->print("  </td>\n");
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>DebugMode (0 [off] .. 5 [max]</td>\n");
-  response->printf("<td><input min='0' max='5' name='debuglevel' type='number' style='width: 6em' value='%d'/></td>\n", this->debuglevel);
-  response->print("</tr>\n");
-
-  response->print("</tbody>\n");
-  response->print("</table>\n");
-
-
-  response->print("</form>\n\n<br />\n");
-  response->print("<form id='jsonform' action='StoreBaseConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
-  response->print("  <input type='text' id='json' name='json' />\n");
-  response->print("  <input type='submit' value='Speichern' />\n");
-  response->print("</form>\n\n");
-
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
+  serializeJson(json, ret);
+  response->print(ret);
 }

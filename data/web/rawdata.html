@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+    <meta charset='utf-8'>
+    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
+    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
+    <script language='javascript' type='text/javascript' src='/web/rawdata.js'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
+    <title>RawData</title>
+  </head>
+  <body>
+
+    <form id='DataForm'>
+      <table id='maintable' class='editorDemoTable'>
+        <thead>
+          <tr>
+            <td style='width: 250px;'>Typ</td>
+            <td style='width: 400px;'>Raw Data</td>
+          </tr>
+        </thead>
+      <tbody>
+
+        <tr>
+          <td>RawData of ID-Data</td>
+          <td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'>
+            <span id='id_rawdata_org' style='display: none;'></span>
+            <span id='id_rawdata'></span>
+          </td>
+        </tr>
+
+        <tr>
+          <td>RawData of Live-Data</td>
+          <td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'>
+            <span id='live_rawdata_org' style='display: none;'></span>
+            <span id='live_rawdata'></span>
+          </td>
+        </tr>
+
+      </tbody>
+      </table>
+
+      <p>
+      <table id='maintable' class='editorDemoTable'>
+    
+        <tr>
+          <td style='width: 250px;'>Insert your positions (comma separated) to test</td>
+          <td style='width: 400px;'><input id='positions' type='text' style='width: 12em' value='15,16,17,18'/><input  type='button' value='test it' onclick='check_rawdata()' /><span id='rawdata_result'></span></td>
+        </tr>
+        <tr>
+          <td>Options</td>
+          <td>
+            <table>
+              <tr>
+                <td>
+                  <input type='radio' id='int' name='datatype' value='int' checked>
+                  <label for='int'>Integer or Float</label><br>
+                  <input type='radio' id='string' name='datatype' value='string'>
+                  <label for='string'>String</label> 
+                </td>
+                <td>
+                  <input type='radio' id='id' name='rawdatatype' value='id_rawdata'>
+                  <label for='id'>ID-Data</label><br>
+                  <input type='radio' id='live' name='rawdatatype' value='live_rawdata' checked>
+                  <label for='live'>Live-Data</label><br>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </tbody>
+    </table>
+    </form>
+
+  </body>
+</html>

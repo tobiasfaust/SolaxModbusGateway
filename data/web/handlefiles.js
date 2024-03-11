@@ -9,7 +9,7 @@ function initHandleFS() {
 
 function init(startpath) {
   requestListDir(startpath);
-   obj = document.getElementById('fullpath').innerHTML = ''; // div 
+  obj = document.getElementById('fullpath').innerHTML = ''; // div 
   obj = document.getElementById('filename').value = ''; // input field
   obj = document.getElementById('content').value = '';
   
@@ -21,7 +21,7 @@ function init(startpath) {
 function requestListDir(startpath) {
   var data = {};
   data['action'] = "handlefiles";
-  data['subAction'] = "listDir"
+  data['subaction'] = "listDir"
   //ajax_send(JSON.stringify(data));
   
   var http = null;
@@ -30,7 +30,7 @@ function requestListDir(startpath) {
   
   if(!http){ alert("AJAX is not supported."); return; }
  
-  var url = 'ajax';
+  var url = '/ajax';
   var params = 'json=' + JSON.stringify(data);
   
   http.open('POST', url, true);
@@ -134,8 +134,6 @@ function listFiles(path) {
   })
  }
 
-listFiles('/');
-
 // ***********************************
 // returns parent path: '/regs/web' -> '/regs' 
 // ***********************************
@@ -217,7 +215,7 @@ function uploadFile() {
     const formData = new FormData();
     formData.append(fileNameToSaveAs, textToSaveAsBlob, pathOfFile + '/' + fileNameToSaveAs);
     
-    fetch('doUpload', {
+    fetch('/doUpload', {
       method: 'POST',
       body: formData,
     })
@@ -236,11 +234,11 @@ function deleteFile() {
   if (fileName != '') {
     var data = {};
     data['action'] = 'handlefiles';
-    data['subAction'] = "deleteFile";
+    data['subaction'] = "deleteFile";
     data['filename'] = pathOfFile + '/' + fileName;
 
     setResponse(true, 'Please wait for deleting ...');
-    ajax_send(JSON.stringify(data));
+    requestData(JSON.stringify(data));
     init(pathOfFile);
   } else { setResponse(false, 'Filename is empty, Please define it.');}
 }

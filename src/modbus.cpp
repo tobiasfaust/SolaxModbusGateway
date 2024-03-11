@@ -233,7 +233,7 @@ void modbus::LoadInvertersFromJson() {
  * write default Inverter JSON File to LittleFS to get at least 1 Inverterdata
  * happens if user forgot flashing datapartition
 *******************************************************/
-void modbus::WriteDefaultInverterFile2FS() {
+/*void modbus::WriteDefaultInverterFile2FS() {
   if (Config->GetDebugLevel() >=1) {
     Serial.println("Writing default register file");
   }
@@ -259,6 +259,7 @@ void modbus::WriteDefaultInverterFile2FS() {
   }
   root.close();
 }
+*/
 
 /*******************************************************
  * read config data from JSON, part "config"
@@ -920,22 +921,25 @@ String modbus::GetInverterSN() {
  * Return all LiveData as jsonArray
  * {data: [{"name": "xx", "value": "xx", ...}, ...] }
 *******************************************************/
-void modbus::GetLiveDataAsJson(AsyncResponseStream *response) {
+void modbus::GetLiveDataAsJson(AsyncResponseStream *response, String subaction) {
   int count = 0;
   response->print("{\"data\": {\"items\": ["); 
   
   for (uint16_t i=0; i < this->InverterLiveData->size(); i++) {
+    if (subaction == "onlyactive" && !this->InverterLiveData->at(i).active)  continue;
     JsonDocument doc;
     String s = "";
     doc["name"]  = this->InverterLiveData->at(i).Name;
     doc["realname"]  = this->InverterLiveData->at(i).RealName;
     doc["value"] = this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit;
-    doc["active"] = (this->InverterLiveData->at(i).active?1:0);
+    doc["active"].to<JsonObject>();
+    doc["active"]["checked"] = (this->InverterLiveData->at(i).active?1:0);
+    doc["active"]["name"] = this->InverterLiveData->at(i).Name;
     doc["mqtttopic"] = this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false);
 
     if (this->InverterLiveData->at(i).openwb.length() > 0) {
-      JsonObject wb = doc["openwb"].to<JsonObject>();
-      wb["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
+      JsonArray wb = doc["openwb"].to<JsonArray>();
+      wb[0]["openwbtopic"]  = this->InverterLiveData->at(i).openwb;
     }
 
     serializeJson(doc, s);
@@ -1043,32 +1047,25 @@ void modbus::loop() {
  * save configuration from webfrontend into json file
 *******************************************************/
 void modbus::StoreJsonConfig(String* json) {
-  char dbg[100] = {0}; 
-  memset(dbg, 0, sizeof(dbg));
-  
   JsonDocument doc;
   DeserializationError error = deserializeJson(doc, *json);
   
   if (error) { 
     if (Config->GetDebugLevel() >=1) {
-      sprintf(dbg, "Cound not store jsonConfig completely -> %s", error.c_str());
-      Serial.println(dbg);
+      Serial.printf("Cound not store jsonConfig completely -> %s", error.c_str());
     } 
-  }
+  } else { 
 
-  JsonObject root = doc.as<JsonObject>();
-
-  if (!root.isNull()) {
     File configFile = LittleFS.open("/ModbusConfig.json", "w");
     if (!configFile) {
-      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
+      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
     } else {  
-        serializeJsonPretty(doc, Serial);
-        if (serializeJson(doc, configFile) == 0) {
-          if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
+      serializeJsonPretty(doc["data"], Serial);
+      if (serializeJson(doc["data"], configFile) == 0) {
+        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
       }
       configFile.close();
-    
+  
       LoadJsonConfig(false);
     }
   }
@@ -1079,8 +1076,6 @@ void modbus::StoreJsonConfig(String* json) {
  * save Item configuration from webfrontend into json file
 *******************************************************/
 void modbus::StoreJsonItemConfig(String* json) {
-  char dbg[100] = {0}; 
-  memset(dbg, 0, sizeof(dbg));
   
   File configFile = LittleFS.open("/ModbusItemConfig.json", "w");
   if (!configFile) {
@@ -1280,8 +1275,6 @@ void modbus::LoadJsonConfig(bool firstrun) {
  * load Modbus Item configuration from file
 *******************************************************/
 void modbus::LoadJsonItemConfig() {
-  char dbg[100] = {0}; 
-  memset(dbg, 0, sizeof(dbg));
   
   if (LittleFS.exists("/ModbusItemConfig.json")) {
     //file exists, reading and loading
@@ -1309,14 +1302,15 @@ void modbus::LoadJsonItemConfig() {
         }
 
         String ItemName = elem["name"].as<String>();
-        ItemName = ItemName.substring(7, ItemName.length()); //Name: active_<ItemName>
+        //ItemName = ItemName.substring(7, ItemName.length()); //Name: active_<ItemName>
 
         for(uint16_t i=0; i<this->InverterLiveData->size(); i++) {
           if (this->InverterLiveData->at(i).Name == ItemName ) {
             this->InverterLiveData->at(i).active = elem["value"].as<bool>();
 
-            sprintf(dbg, "item %s -> %s", ItemName.c_str(), (this->InverterLiveData->at(i).active?"enabled":"disabled"));
-            if (Config->GetDebugLevel() >=3) {Serial.println(dbg);}
+            if (Config->GetDebugLevel() >=3) {
+              Serial.printf("item %s -> %s\n", ItemName.c_str(), (this->InverterLiveData->at(i).active?"enabled":"disabled"));
+            }
 
             break;
           }
@@ -1335,232 +1329,58 @@ void modbus::LoadJsonItemConfig() {
 /*******************************************************************************************************
  * WebContent
 *******************************************************************************************************/
-void modbus::GetWebContentConfig(AsyncResponseStream *response) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
-
-  response->print("<form id='DataForm'>\n");
-  response->print("<table id='maintable' class='editorDemoTable'>\n");
-  response->print("<thead>\n");
-  response->print("<tr>\n");
-  response->print("<td style='width: 250px;'>Name</td>\n");
-  response->print("<td style='width: 200px;'>Wert</td>\n");
-  response->print("</tr>\n");
-  response->print("</thead>\n");
-  response->print("<tbody>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Modbus RX-Pin (Default: 16)</td>\n");
-  response->printf("<td><input min='0' max='255' id='GpioPin_RX'name='pin_rx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RX);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Modbus TX-Pin (Default: 17)</td>\n");
-  response->printf("<td><input min='0' max='255' id='GpioPin_TX'name='pin_tx' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_TX);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Modbus Direction Control RTS-Pin (Default: 18)</td>\n");
-  response->printf("<td><input min='0' max='255' id='GpioPin_RTS'name='pin_rts' type='number' style='width: 6em' value='%d'/></td>\n", this->pin_RTS);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Solax Modbus ClientID (in hex) (Default: 01)</td>\n");
-  response->printf("<td><input maxlength='2' name='clientid' type='text' style='width: 6em' value='%02x'/></td>\n", this->ClientID);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Modbus Baudrate (Default: 19200)</td>\n");
-  response->printf( "<td><input min='9600' max='115200' name='baudrate' type='number' style='width: 6em' value='%d'/></td>\n", this->Baudrate);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Interval for Live Datatransmission in sec (Default: 5)</td>\n");
-  response->printf("<td><input min='2' max='3600' name='txintervallive' type='number' style='width: 6em' value='%d'/></td>\n", this->TxIntervalLiveData);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Interval for ID Datatransmission in sec (Default: 3600)</td>\n");
-  response->printf("<td><input min='10' max='86400' name='txintervalid' type='number' style='width: 6em' value='%d'/></td>\n", this->TxIntervalIdData);
-  response->print("</tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Select Inverter Type (Default: Solax X1)</td>\n");
-  response->print("<td> <select name='invertertype' size='1' style='width: 10em'>");
+void modbus::GetInitData(AsyncResponseStream *response) {
+  String ret;
+  JsonDocument json;
+  json["data"].to<JsonObject>();
+  json["data"]["GpioPin_RX"]          = this->pin_RX;
+  json["data"]["GpioPin_TX"]          = this->pin_TX;
+  json["data"]["GpioPin_RTS"]         = this->pin_RTS;
+  json["data"]["clientid"]            = this->ClientID;
+  json["data"]["baudrate"]            = this->Baudrate;
+  json["data"]["txintervallive"]      = this->TxIntervalLiveData;
+  json["data"]["txintervalid"]        = this->TxIntervalIdData;
+  json["data"]["enable_openwbtopic"]  = ((this->Conf_EnableOpenWBTopic)?1:0);
+  json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
+  
+  JsonArray inverters = json["data"]["inverters"].to<JsonArray>();
   for (uint8_t i=0; i< AvailableInverters->size(); i++) {
-    response->printf("<option value='%s' %s>%s</option>\n", AvailableInverters->at(i).name.c_str(), (AvailableInverters->at(i).name == this->InverterType.name?"selected":"") , AvailableInverters->at(i).name.c_str());
-  }
-  response->print("</td></tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Enable OpenWB Compatibility</td>\n");
-  response->print("  <td>\n");
-  response->print("    <div class='onoffswitch'>\n");
-  response->printf("      <input type='checkbox' name='enable_openwbtopic' class='onoffswitch-checkbox' id='enable_openwbtopic' %s>\n", (this->Conf_EnableOpenWBTopic?"checked":""));
-  response->print("      <label class='onoffswitch-label' for='enable_openwbtopic'>\n");
-  response->print("        <span class='onoffswitch-inner'></span>\n");
-  response->print("        <span class='onoffswitch-switch'></span>\n");
-  response->print("      </label>\n");
-  response->print("    </div>\n");
-  response->print("  </td></tr>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>Enable Set Commands over MQTT (security issue)</td>\n");
-  response->print("  <td>\n");
-  response->print("    <div class='onoffswitch'>\n");
-  response->printf("      <input type='checkbox' name='enable_setters' class='onoffswitch-checkbox' id='enable_setters' %s>\n", (this->Conf_EnableSetters?"checked":""));
-  response->print("      <label class='onoffswitch-label' for='enable_setters'>\n");
-  response->print("        <span class='onoffswitch-inner'></span>\n");
-  response->print("        <span class='onoffswitch-switch'></span>\n");
-  response->print("      </label>\n");
-  response->print("    </div>\n");
-  response->print("  </td></tr>\n");
-
-  response->print("</tbody>\n");
-  response->print("</table>\n");
-
-  response->print("</form>\n\n<br />\n");
-  response->print("<form id='jsonform' action='StoreModbusConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\")'>\n");
-  response->print("  <input type='text' id='json' name='json' />\n");
-  response->print("  <input type='submit' value='Speichern' />\n");
-  response->print("</form>\n\n");
-}
-
-void modbus::GetWebContentItemConfig(AsyncResponseStream *response) {
-  response->println("<template id='NewRow'>");
-  response->println("<tr>");
-  response->println("  <td>");
-  response->println("    <div class='onoffswitch'>");
-  response->println("        <input type='checkbox' name='active_{name}' class='onoffswitch-checkbox' onclick='ChangeActiveStatus(this.id)' id='activeswitch_{name}' {active}>");
-  response->println("        <label class='onoffswitch-label' for='activeswitch_{name}'>");
-  response->println("        <span class='onoffswitch-inner'></span>");
-  response->println("        <span class='onoffswitch-switch'></span>");
-  response->println("      </label>");
-  response->println("    </div>");
-  response->println("  </td>");
-  response->println("  <td>");
-  response->println("    <dfn class='tooltip_simple'>{realname}");
-  response->println("      <span role='tooltip_simple'>{mqtttopic}</span>");
-  response->println("    </dfn>");
-  response->println("  </td>");
-  response->println("  <td style='text-align: center'>");
-  response->println("    <template id='openwb'>");
-  response->println("      <dfn class='tooltip'>&#9989;");
-  response->println("        <span role='tooltip'>{openwbtopic}</span>");
-  response->println("      </dfn>");
-  response->println("    </template>");
-  response->println("  </td>");
-  response->println("  <td><div id='{name}'>{value}</div></td>");
-  response->println("</tr>");
-  response->println("</template>");
-
-  response->println("<form id='DataForm'>");
-  response->println("<table id='maintable' class='editorDemoTable'>");
-  response->println("<thead>");
-  response->println("<tr>");
-  response->println("<td style='width: 25px;'>Active</td>");
-  response->println("<td style='width: 250px;'>Name</td>");
-  response->println("<td style='width: 80px;'>OpenWB</td>");
-  response->println("<td style='width: 200px;'>Wert</td>");
-  response->println("</tr>");
-  response->println("</thead>");
-  response->println("<tbody>");
-
-  response->println("</tbody>");
-  response->println("</table>");
-  response->println("</form><br />");
-  response->println("<form id='jsonform' action='StoreModbusItemConfig' method='POST' onsubmit='return onSubmit(\"DataForm\", \"jsonform\", 2)'>");
-  response->println("  <input type='text' id='json' name='json' />");
-  response->println("  <input type='submit' value='Speichern' />");
-  response->println("</form>");
-
-  response->println("<script language='javascript' type='text/javascript'>");
-  response->println("  var url = '/getitems'");
-  response->println("    fetch(url)");
-  response->println("    .then(response => response.json())");
-  response->println("    .then(json => FillItemConfig('#maintable', '#NewRow', 0, json.data));");
-  response->println("</script>");
-
-}
-
-void modbus::GetWebContentRawData(AsyncResponseStream *response) {
-  char buffer[200] = {0};
-  memset(buffer, 0, sizeof(buffer));
-
-  String html = "";
-
-  response->print("<form id='DataForm'>\n");
-  response->print("<table id='maintable' class='editorDemoTable'>\n");
-  response->print("<thead>\n");
-  response->print("<tr>\n");
-  response->print("<td style='width: 250px;'>Typ</td>\n");
-  response->print("<td style='width: 400px;'>Raw Data</td>\n");
-  response->print("</tr>\n");
-  response->print("</thead>\n");
-  response->print("<tbody>\n");
-
-  response->print("<tr>\n");
-  response->print("<td>RawData of ID-Data</td>\n");
-  response->print("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='id_rawdata_org' style='display: none;'>\n");
-  
-  for (uint16_t i = 0; i < (this->SaveIdDataframe->size()); i++) {
-    response->print(this->PrintHex(this->SaveIdDataframe->at(i)));
-    response->print(" ");
+    json["data"]["inverters"][i]["inverter"].to<JsonObject>();
+    json["data"]["inverters"][i]["inverter"]["value"] = AvailableInverters->at(i).name;
+    json["data"]["inverters"][i]["inverter"]["selected"] = (AvailableInverters->at(i).name == this->InverterType.name?1:0);
+    json["data"]["inverters"][i]["inverter"]["text"] = AvailableInverters->at(i).name;
   }
 
-  response->print("</span><span id='id_rawdata'></span></td>\n");
-  response->print("</tr>\n");
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
+  serializeJson(json, ret);
+  response->print(ret);
+}
 
-  response->print("<tr>\n");
-  response->print("<td>RawData of Live-Data</td>\n");
-  response->print("<td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'><span id='live_rawdata_org' style='display: none;'>\n");
-  
+void modbus::GetInitRawData(AsyncResponseStream *response) {
+  String ret, id, live;
+  JsonDocument json;
+
+  id.reserve(this->SaveIdDataframe->size()  * 2);
+  live.reserve(this->SaveLiveDataframe->size() * 2);
+
+  for (uint16_t i = 0; i < this->SaveIdDataframe->size(); i++) {
+    id += (String)this->SaveIdDataframe->at(i);
+  }
+
   for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
-    response->print(this->PrintHex(this->SaveLiveDataframe->at(i)));
-    response->print(" ");
+    live += (String)this->SaveLiveDataframe->at(i);
   }
 
-  response->print("</span><span id='live_rawdata'></span></td>\n");
-  response->print("</tr>\n");
+  json["data"].to<JsonObject>();
+  json["data"]["id_rawdata_org"] = id;
+  json["data"]["live_rawdata_org"] = live;
 
-  response->print("</tbody>\n");
-  response->print("</table>\n");
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
+  serializeJson(json, ret);
 
-  response->print("<p>\n");
-  response->print("<table id='maintable' class='editorDemoTable'>\n");
-  
-  response->print("  <tr>\n");
-  response->print("    <td style='width: 250px;'>Insert your positions (comma separated) to test</td>\n");
-  response->print("    <td style='width: 400px;'><input id='positions' type='text' style='width: 12em' value='15,16,17,18'/><input  type='button' value='test it' onclick='check_rawdata()' /><span id='rawdata_result'></span></td>\n");
-  response->print("  </tr>\n");
-  response->print("  <tr>\n");
-  response->print("    <td>Options</td>\n");
-  response->print("    <td>\n");
-  response->print("      <table>\n");
-  response->print("        <tr>\n");
-  response->print("          <td>\n");
-  response->print("            <input type='radio' id='int' name='datatype' value='int' checked>\n");
-  response->print("            <label for='int'>Integer or Float</label><br>\n");
-  response->print("            <input type='radio' id='string' name='datatype' value='string'>\n");
-  response->print("            <label for='string'>String</label> \n");
-  response->print("          </td>\n");
-  response->print("          <td>\n");
-  response->print("            <input type='radio' id='id' name='rawdatatype' value='id_rawdata'>\n");
-  response->print("            <label for='id'>ID-Data</label><br>\n");
-  response->print("            <input type='radio' id='live' name='rawdatatype' value='live_rawdata' checked>\n");
-  response->print("            <label for='live'>Live-Data</label><br>\n");
-  response->print("          </td>\n");
-  response->print("        </tr>\n");
-  response->print("      </table>\n");
-  response->print("    </td>\n");
-  response->print("  </tr>\n");
-
-  response->print("</tbody>\n");
-  response->print("</table>\n");
-  response->print("</form>\n\n<br />\n");
-
-  response->print("<script type = 'text/javascript'>\n");
-  response->print("	reset_rawdata('id_rawdata');\n");
-  response->print("	reset_rawdata('live_rawdata');\n");
-  response->print("</script>\n");
+  response->print(ret);
 }

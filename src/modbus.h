@@ -50,12 +50,10 @@ class modbus {
     const String&           GetInverterType()   const {return InverterType.name;}
 
     void                    enableMqtt(MQTT* object);
-    void                    GetWebContentConfig(AsyncResponseStream *response);
-    void                    GetWebContentItemConfig(AsyncResponseStream *response);
-    void                    GetWebContentRawData(AsyncResponseStream *response);
-    void                    GetWebContentActiveLiveData(AsyncResponseStream *response);
+    void                    GetInitData(AsyncResponseStream *response);
+    void                    GetInitRawData(AsyncResponseStream *response);
     String                  GetInverterSN();
-    void                    GetLiveDataAsJson(AsyncResponseStream *response);
+    void                    GetLiveDataAsJson(AsyncResponseStream *response, String action);
     void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
@@ -99,7 +97,6 @@ class modbus {
     void                    ParseData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
-    void                    WriteDefaultInverterFile2FS();
     void                    GenerateMqttSubscriptions();
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);

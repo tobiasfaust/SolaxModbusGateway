@@ -12,6 +12,7 @@
 #include "commonlibs.h"
 #include <ArduinoJson.h>
 #include "uptime.h" // https://github.com/YiannisBourkelis/Uptime-Library/
+#include "uptime_formatter.h"
 
 #include "baseconfig.h"
 #include "modbus.h"
@@ -49,21 +50,12 @@ class MyWebServer {
     void      handleWiFiReset(AsyncWebServerRequest *request);
     void      handleRequestFiles(AsyncWebServerRequest *request);
     void      handleRoot(AsyncWebServerRequest *request);
-    void      handleBaseConfig(AsyncWebServerRequest *request);
-    void      handleModbusConfig(AsyncWebServerRequest *request);
-    void      handleModbusItemConfig(AsyncWebServerRequest *request);
-    void      handleModbusRawData(AsyncWebServerRequest *request);
-    void      handleFSFilesWebcontent(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleAjax(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);
     void      handleGetRegisterJson(AsyncWebServerRequest *request);
-    void      ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page);
-    void      getPageHeader(AsyncResponseStream *response, page_t pageactive);
-    void      getPageFooter(AsyncResponseStream *response);
     void      GetInitDataStatus(AsyncResponseStream *response);
     void      GetInitDataNavi(AsyncResponseStream *response);
-    void      getPage_Status(AsyncResponseStream *response);
     String    GetReleaseName();
     
 };

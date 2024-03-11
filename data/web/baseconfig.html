@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+    <meta charset='utf-8'>
+    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
+    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
+    <script language='javascript' type='text/javascript' src='/web/baseconfig.js'></script>
+    <title>Modbus MQTT Gateway</title>
+  </head>
+  <body>
+    <form id='DataForm'>
+      <table id='maintable' class='editorDemoTable'>
+        <thead>
+          <tr>
+            <td style='width: 250px;'>Name</td>
+            <td style='width: 200px;'>Wert</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Device Name</td>
+            <td><input size='30' maxlength='40' name='mqttroot' id='mqttroot' type='text'/></td>
+          </tr>
+
+          <tr>
+            <td colspan='2'>
+            <div class='inline'>
+              <input type='radio' id='sel_wifi' name='SelectConnectivity' value='wifi' onclick="radioselection([],['SelectLAN'])"/>
+              <label for='sel_wifi'>use WIFI</label>
+            </div>
+            
+            <div class='inline'>
+              <input type='radio' id='sel_eth' name='SelectConnectivity' value='eth' onclick="radioselection(['SelectLAN'],[])"/>
+              <label for='sel_eth'>use wired ethernet</label>
+            </div>  
+            </td>
+          </tr>
+
+          <tr id='SelectLAN' class=''>
+            <td>Select LAN Board</td>
+            <td>
+              <select name='SelectLAN' size='1'> 
+                <option value = 'WT32-ETH01'>WT32-ETH01</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td>MQTT Server IP</td>
+            <td><input size='30' name='mqttserver' id='mqttserver' type='text'/></td>
+          </tr>
+          
+          <tr>
+            <td>MQTT Server Port</td>
+            <td><input maxlength='5' name='mqttport' id='mqttport' type='text' style='width: 6em'/></td>
+          </tr>
+
+          <tr>
+            <td>MQTT Authentification: Username (optional)</td>
+            <td><input size='30' name='mqttuser' id='mqttuser' type='text'/></td>
+          </tr>
+
+          <tr>
+            <td>MQTT Authentification: Password (optional)</td>
+            <td><input size='30' name='mqttpass' id='mqttpass' type='text' /></td>
+          </tr>
+
+          <tr>
+            <td>MQTT Topic Base Path (example: home/inverter)</td>
+            <td><input size='30' maxlength='40' name='mqttbasepath' id='mqttbasepath' type='text' v/></td>
+          </tr>
+
+          <tr>
+            <td colspan='2'>
+              <div class='inline'>
+                <input type='radio' id='sel_URCID1' name='UseRandomClientID' value='none'/>
+                <label for='sel_URCID1'>benutze statische MQTT ClientID</label>
+              </div>
+              <div class='inline'>
+                <input type='radio' id='sel_URCID2' name='UseRandomClientID' value='yes'/>
+                <label for='sel_URCID2'>benutze dynamische MQTT ClientID</label>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>LogLevel (0 [off] ... 5 [max]</td>
+            <td><input min='0' max='5' name='debuglevel' id='debuglevel' type='number' style='width: 6em'/></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </form>
+    
+    <br/>
+    <input type='submit' onclick="onSubmit('DataForm')" value='Speichern' />
+    <span id='response'></span>
+  </body>
+</html>

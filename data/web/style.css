@@ -87,9 +87,13 @@ body {
     border-bottom: none;
   }
  
-  .ajaxchange {
+  .highlightOn {
     color: red;
   }
+  
+  .highlightOff {
+    color: black;
+  }  
   
  .ButtonRefresh {
     font-size: 13px;
