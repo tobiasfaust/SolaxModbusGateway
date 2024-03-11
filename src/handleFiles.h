@@ -3,7 +3,6 @@
 
 #include "commonlibs.h"
 #include "baseconfig.h"
-#include "soc/rtc_wdt.h"
 
 class handleFiles {
     public:
