@@ -1,4 +1,5 @@
-# Modbus-RTU to MQTT Gateway for Solar Inverter
+# Modbus-RTU to MQTT Gateway 
+**for Solar Inverters and other Modbus-RTU Devices**
 
 [![license](https://img.shields.io/badge/Licence-GNU%20v3.0-green)](https://github.com/desktop/desktop/blob/master/LICENSE)
 ![ESP32 Architecture](https://img.shields.io/badge/Architecture-ESP32-blue)
@@ -34,7 +35,7 @@ It´s recommend to start with one example to check wiring works correctly. Both 
 * wiring
 * baud rate
 
-The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or soomething like this.
+The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or something like this.
 
 <pre>
 request: 01 03 00 00 00 07 08 04
