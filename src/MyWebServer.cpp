@@ -28,7 +28,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
                                                           std::placeholders::_5,
                                                           std::placeholders::_6));
 
-  server->on("^\/(.+)\.(css|js|html|json)$", HTTP_GET, std::bind(&MyWebServer::handleRequestFiles, this, std::placeholders::_1));
+  server->on("^/(.+).(css|js|html|json)$", HTTP_GET, std::bind(&MyWebServer::handleRequestFiles, this, std::placeholders::_1));
   
   Serial.println(F("WebServer started..."));
 }
