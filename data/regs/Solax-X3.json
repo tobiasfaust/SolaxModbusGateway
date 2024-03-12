@@ -749,6 +749,28 @@
                     "datatype": "float",
                     "factor": 0.01,
                     "unit": "kWh"
+                },
+                {
+                    "position": [
+                        382,
+                        383
+                    ],
+                    "name": "CellVoltageHigh",
+                    "realname": "Cell Voltage High",
+                    "datatype": "float",
+                    "factor": 0.001,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        384,
+                        385
+                    ],
+                    "name": "CellVoltageLow",
+                    "realname": "Cell Voltage Low",
+                    "datatype": "float",
+                    "factor": 0.001,
+                    "unit": "V"
                 }
             ],
             "id": [
