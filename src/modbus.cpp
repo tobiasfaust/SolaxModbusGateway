@@ -430,7 +430,7 @@ void modbus::QueryQueueToInverter() {
 
     byte message[m.size() + 2] = {0x00}; // +2 Byte CRC
   
-    for (uint8_t i; i < m.size(); i++) {
+    for (uint8_t i=0; i < m.size(); i++) {
       message[i] = m.at(i);
     }
 
