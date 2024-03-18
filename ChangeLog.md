@@ -9,6 +9,7 @@ Release 3.2.0:
   - fix cutted ipaddress (#33)
   - extract html-code into separate html-files, so everyone can customize his own instance
   - interact with Web-frontend by json
+  - enable update filesystem at updatepage
   
 Release 3.1.1:
   - fix auto reconnect to WIFI (issue #21)
