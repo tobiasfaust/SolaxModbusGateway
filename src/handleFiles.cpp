@@ -99,14 +99,9 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
 // store a file at Filesystem
 //###############################################################
 void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-  AsyncResponseStream *response = request->beginResponseStream("text/json");
-  response->addHeader("Server","ESP Async Web Server");
-  JsonDocument jsonReturn;
-  String ret;
-
+  
   if (Config->GetDebugLevel() >=5) {
-    String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
-    Serial.println(logmessage);
+    Serial.printf("Client: %s %s\n", request->client()->remoteIP().toString().c_str(), request->url().c_str());;
   }
 
   if (!index) {
@@ -121,7 +116,7 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
     // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
     if (Config->GetDebugLevel() >=5) {
-      Serial.printf("Writing file: %s ,index=%d len=%d bytes\n", filename.c_str(), index, len);
+      Serial.printf("Writing file: %s ,index=%d len=%d bytes, FreeMem: %d\n", filename.c_str(), index, len, ESP.getFreeHeap());
     }
   }
 
@@ -131,6 +126,12 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
     if (Config->GetDebugLevel() >=3) {
       Serial.printf("Upload Complete: %s ,size: %d Bytes\n", filename.c_str(), (index + len));
     }
+
+    AsyncResponseStream *response = request->beginResponseStream("text/json");
+    response->addHeader("Server","ESP Async Web Server");
+
+    JsonDocument jsonReturn;
+    String ret;
 
     jsonReturn["status"] = 1;
     jsonReturn["text"] = "OK";

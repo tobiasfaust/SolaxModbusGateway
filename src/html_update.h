@@ -45,6 +45,8 @@ const char HTML_UPDATEPAGE[] PROGMEM = R"=====(
   <!--    
       ESP32 Lib kennt kein U_LITTLEFS
       https://github.com/espressif/arduino-esp32/issues/6482
+      FeatureRequest ESP32:
+      https://github.com/espressif/arduino-esp32/issues/9347
 
       <form method='POST' action='/update' enctype='multipart/form-data'>
         <input type='file' accept='.bin,.bin.gz,.image' name='filesystem'>
@@ -55,54 +57,59 @@ const char HTML_UPDATEPAGE[] PROGMEM = R"=====(
   <!--
       ESP crash
       https://github.com/me-no-dev/ESPAsyncWebServer/issues/1381
-
+-->
       <p>please select 'data' directory: 
         <input type="file" name='filesystem' onchange='UploadData(this)' webkitdirectory mozdirectory />
         </p><span id="response"></span>
 
 
         <script language='javascript' type='text/javascript'>
-        function UploadData(item) {
-            console.log("prepare "+item.files.length+" files for uploading");
-        if (item.files.length > 0) {
-            const formdata = new FormData();
-            for (const file of item.files) {
-                var filepath = file.webkitRelativePath;
+        function UploadData (item) {
+        	var files = [];
+          console.log("prepare "+item.files.length+" files for uploading");
+          if (item.files.length > 0) {
+          	UploadFile(item.files, 0);
+          }        
+        }
+        
+        function UploadFile(files, number) {
+        	var response = document.getElementById("response");
+          
+          if (number < files.length) {
+          	const formdata = new FormData();
+            var filepath = files[number].webkitRelativePath;
+            
             if (filepath.startsWith('data/')) {
-                filepath = filepath.substr(4);
-                    formdata.append(file.name, file, filepath);
-                console.debug("File accepted: " + filepath);      
+              filepath = filepath.substr(4);
+              formdata.append(files[number].name, files[number], filepath);
+              console.debug("File accepted: " + filepath); 
+              
+              fetch('/doUpload', {
+                    method: 'POST',
+                    body: formdata,
+              })
+              .then (() => {   		
+                    response.innerHTML += "upload successful of "+files[number].name+"<br>";
+                    setTimeout(UploadFile, 1000, files, number +1);
+              })
+              .catch(reason => {
+                    console.error(reason);
+                    response.innerHTML += "upload failed of " + files[number].name + ": " + reason +"<br>";
+                    UploadFile(files, number +1);
+              });
+                
             } else {
-                console.warn("File "+filepath+" not in data directory");
-            }
-            }
-            var cnt = 0;
-            var response = document.getElementById("response");
-            
-            for (const key of formdata.keys()) {
-            console.log("file "+key+" uploaded");
-            cnt++;
+              console.warn("File " + filepath + " not in data directory");
+              UploadFile(files, number +1);
             }
             
-            if (cnt > 0) {
-            fetch('/doUpload', {
-                method: 'POST',
-                body: formdata,
-            })
-            .then (() => {   		
-                response.innerHTML="upload successful of "+cnt+" files";
-            })
-            .catch(reason => {
-                console.error(reason);
-                response.innerHTML="upload failed: "+reason;
-            });
-            } else { response.innerHTML = "not the 'data' directory selected"; }
-            }              
+          } else {
+          	response.innerHTML += "<br>Upload finished.....<br>"
+          }
         }
         </script>
-    -->
-
-    </body></html>
+    </body>
+</html>
 
 )=====";
 
