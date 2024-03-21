@@ -316,7 +316,8 @@ void modbus::LoadInverterConfigFromJson() {
       byte e = this->String2Byte(x);
       t.push_back(e);
     }
-    Serial.println();
+    t.push_back(DATAISLIVE); // new Deimel, last byte is datatype
+    Serial.println(); // Deimel ???
     Conf_RequestLiveData->push_back(t);
   }
   
@@ -325,6 +326,7 @@ void modbus::LoadInverterConfigFromJson() {
     byte e = this->String2Byte(elem);
     Conf_RequestIdData->push_back(e);
   }
+  Conf_RequestIdData->push_back(DATAISID); // new Deimel, last byte is datatype
 
   if (regfile) { regfile.close(); }
 
@@ -409,6 +411,7 @@ void modbus::QueryQueueToInverter() {
   enum rwtype_t {READ, WRITE, NUL};
   rwtype_t rwtype;
   std::vector<byte> m = {};
+  byte rememberdatatype = 0;
 
   if (!this->SetQueue->isEmpty()) {
     rwtype = WRITE;
@@ -417,6 +420,8 @@ void modbus::QueryQueueToInverter() {
   else if (!this->ReadQueue->isEmpty()) {
     rwtype = READ;
     m = this->ReadQueue->dequeue();
+    rememberdatatype = m[m.size()-1];  // new Deimel, store current datatype
+    m.pop_back();                      // shorten queue item to original size
   }
   else { rwtype = NUL; }
 
@@ -429,8 +434,10 @@ void modbus::QueryQueueToInverter() {
     }
 
     byte message[m.size() + 2] = {0x00}; // +2 Byte CRC
-  
-    for (uint8_t i=0; i < m.size(); i++) {
+
+//    Deimel:  
+//    for (uint8_t i; i < m.size(); i++) {
+    for (uint8_t i = 0; i < m.size(); i++) {
       message[i] = m.at(i);
     }
 
@@ -456,10 +463,10 @@ void modbus::QueryQueueToInverter() {
     else if (rwtype == READ) { 
       this->ReceiveReadData();
       if (this->ReadQueue->isEmpty()) {
+        this->DataFrame->push_back(rememberdatatype);  // new Deimel, add datatype at the end of the received frame
         this->ParseData();
       }
     }
-
   }
 }
 
@@ -585,7 +592,11 @@ void modbus::ParseData() {
   String RequestType = "";
   char dbg[100] = {0}; 
   memset(dbg, 0, sizeof(dbg));
-  
+  byte tempbyte;
+
+  tempbyte=this->DataFrame->at(this->DataFrame->size()-1);
+  this->DataFrame->pop_back();   // new Deimel, shorten to original size
+
   if (Config->GetDebugLevel() >=3) {
     sprintf(dbg, "Parse %d Bytes of data", this->DataFrame->size());
     Serial.println(dbg);
@@ -632,12 +643,22 @@ void modbus::ParseData() {
   if (this->DataFrame->size() > 0) {
     
     // setup RequestType
+    /*
     if (this->DataFrame->at(this->Conf_IdDataFunctionCodePos) == this->Conf_IdDataFunctionCode) {
       RequestType = "id";
     } else if (this->DataFrame->at(this->Conf_LiveDataFunctionCodePos) == this->Conf_LiveDataFunctionCode) {
       RequestType = "livedata";
     }
+    */
 
+   // Deimel modified datatyp recognition
+    if (tempbyte == DATAISID) {
+      RequestType = "id";
+    }
+    else if (tempbyte == DATAISLIVE) {
+      RequestType = "livedata";
+    }
+    
     File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
     if (!regfile) {
      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusConfig.json file for writing");}
@@ -1052,7 +1073,7 @@ void modbus::StoreJsonConfig(String* json) {
   
   if (error) { 
     if (Config->GetDebugLevel() >=1) {
-      Serial.printf("Cound not store jsonConfig completely -> %s", error.c_str());
+      Serial.printf("Could not store JsonConfig completely -> %s", error.c_str());
     } 
   } else { 
 
@@ -1074,21 +1095,31 @@ void modbus::StoreJsonConfig(String* json) {
 
 /*******************************************************
  * save Item configuration from webfrontend into json file
+ * Deimel mod deserializeJson...
 *******************************************************/
 void modbus::StoreJsonItemConfig(String* json) {
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, *json);
   
-  File configFile = LittleFS.open("/ModbusItemConfig.json", "w");
-  if (!configFile) {
-    if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
-  } else {  
-    
-    if (!configFile.print(*json)) {
-        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed writing ItemConfig to file"));}
-    }
+  if (error) { 
+    if (Config->GetDebugLevel() >=1) {
+      Serial.printf("Could not store JsonItemConfig completely -> %s", error.c_str());
+    } 
+  } else {
 
-    configFile.close();
+    File configFile = LittleFS.open("/ModbusItemConfig.json", "w");
+    if (!configFile) {
+      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
+    } else {  
+
+      serializeJsonPretty(doc["data"], Serial);
+      if (serializeJson(doc["data"], configFile) == 0) {
+        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
+      }
+      configFile.close();
   
-    LoadJsonItemConfig();
+      LoadJsonConfig(false);
+    }
   }
 }
 

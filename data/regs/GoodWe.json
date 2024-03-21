@@ -1,0 +1,343 @@
+{
+  "Goodwe": {
+    "config": {
+      "RequestLiveData": [
+        ["#ClientID", "0x03", "0x89", "0x1c", "0x00", "0x79"]
+      ],
+      "RequestIdData":   ["#ClientID", "0x03", "0x88", "0xb8", "0x00", "0x45"],
+      "ClientIdPos": 0,
+      "LiveDataFunctionCodePos": 1,
+      "LiveDataFunctionCode": "0x03",
+      "IdDataFunctionCodePos": 1,
+      "IdDataFunctionCode": "0x03",
+      "LiveDataStartsAtPos": 3,
+      "IdDataStartsAtPos": 3,
+      "LiveDataErrorPos": 1,
+      "LiveDataErrorCode": "0x83",
+      "IdDataErrorPos": 1,
+      "IdDataErrorCode": "0x83",
+      "LiveDataSuccessPos": 1,
+      "LiveDataSuccessCode": "0x03",
+      "IdDataSuccessPos": 1,
+      "IdDataSuccessCode": "0x03"
+    },
+    "data": {
+      "livedata": [
+        {
+          "position": [  9, 10],
+          "name": "Vpv1",
+          "realname": "PV1 voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [ 11, 12],
+          "name": "Ipv1",
+          "realname": "PV1 current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [ 13, 14, 15, 16],
+          "name": "Ppv1",
+          "realname": "PV1 power",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "W"
+        },
+        {
+          "position": [  17, 18],
+          "name": "Vpv2",
+          "realname": "PV2 voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [ 19, 20],
+          "name": "Ipv2",
+          "realname": "PV2 current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [ 21, 22, 23, 24],
+          "name": "Ppv2",
+          "realname": "PV2 power",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "W"
+        },
+        {
+          "position": [  25, 26],
+          "name": "Vpv3",
+          "realname": "PV3 voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [ 27, 28],
+          "name": "Ipv3",
+          "realname": "PV3 current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [ 29, 30, 31, 32],
+          "name": "Ppv3",
+          "realname": "PV3 power",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "W"
+        },
+        {
+          "position": [  33, 34],
+          "name": "Vpv4",
+          "realname": "PV4 voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [ 35, 36],
+          "name": "Ipv4",
+          "realname": "PV4 current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [ 37, 38, 39, 40],
+          "name": "Ppv4",
+          "realname": "PV4 power",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "W"
+        },
+        {
+          "position": [ 41, 42, 43, 44],
+          "name": "PV Mode",
+          "realname": "PV Module work mode",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": ""
+        },
+        {
+          "position": [45, 46],
+          "name": "Vgrid_R",
+          "realname": "R phase Grid voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [47, 48],
+          "name": "Igrid_R",
+          "realname": "R phase Grid current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [49, 50],
+          "name": "Fgrid_R",
+          "realname": "R phase Grid Frequency",
+          "datatype": "float",
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "position": [53, 54],
+          "name": "Pgrid_R",
+          "realname": "R phase Grid Power",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "W"
+        },
+        {
+          "position": [55, 56],
+          "name": "Vgrid_S",
+          "realname": "S phase Grid voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [57, 58],
+          "name": "Igrid_S",
+          "realname": "S phase Grid current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [59, 60],
+          "name": "Fgrid_S",
+          "realname": "S phase Grid Frequency",
+          "datatype": "float",
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "position": [63, 64],
+          "name": "Pgrid_S",
+          "realname": "S phase Grid Power",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "W"
+        },
+        {
+          "position": [65, 66],
+          "name": "Vgrid_T",
+          "realname": "T phase Grid voltage",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [67, 68],
+          "name": "Igrid_T",
+          "realname": "T phase Grid current",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [69, 70],
+          "name": "Fgrid_T",
+          "realname": "T phase Grid Frequency",
+          "datatype": "float",
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "position": [73, 74],
+          "name": "Pgrid_T",
+          "realname": "T phase Grid Power",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "W"
+        },
+        {
+          "position": [75, 76],
+          "name": "Grid Mode",
+          "realname": "Grid mode",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": ""
+        },
+        {
+          "position": [79, 80],
+          "name": "Total INV Power",
+          "realname": "Total Power of Inverter",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "W"
+        },
+        {
+          "position": [83, 84],
+          "name": "AC ActivePower",
+          "realname": "AC ActivePower",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "W"
+        },
+        {
+          "position": [87, 88],
+          "name": "AC ReactivePower",
+          "realname": "AC ReactivePower",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "VAR"
+        },
+        {
+          "position": [91, 92],
+          "name": "AC ApparentPower",
+          "realname": "AC ApparentPower",
+          "datatype": "integer",
+          "factor": 1,
+          "unit": "VA"
+        }
+      ],
+      "id": [
+        {
+          "position": [  3,  4],
+          "name": "Modbus protocol version",
+          "realname": "Modbus protocol version",
+          "datatype": "integer"
+        },
+        {
+          "position": [  5,  6],
+          "name": "Rated power",
+          "realname": "Rated power",
+          "datatype": "integer"
+        },
+        {
+          "position": [  7,  8],
+          "name": "AC output type",
+          "realname": "AC output type",
+          "datatype": "integer"
+        },
+        {
+          "position": [ 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+          "name": "InverterSN",
+          "realname": "Inverter SerialNumber",
+          "datatype": "string"
+        },
+        {
+          "position": [ 25, 26, 27, 28, 29, 30, 31, 32, 33, 34],
+          "name": "Device type",
+          "realname": "Device type",
+          "datatype": "string"
+        },
+        {
+          "position": [ 35, 36],
+          "name": "DSP1 software version",
+          "realname": "DSP1 software version",
+          "datatype": "integer"
+        },
+        {
+          "position": [ 37, 38],
+          "name": "DSP2 software version",
+          "realname": "DSP2 software version",
+          "datatype": "integer"
+        },
+        {
+          "position": [ 39, 40],
+          "name": "DSP SVN version",
+          "realname": "DSP SVN version",
+          "datatype": "integer"
+        },
+        {
+          "position": [ 41, 42],
+          "name": "ARM software version",
+          "realname": "ARM software version",
+          "datatype": "integer"
+        },
+        {
+          "position": [ 43, 44],
+          "name": "ARM SVN version",
+          "realname": "ARM SVN version",
+          "datatype": "integer"
+        },
+        {
+          "position": [ 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56],
+          "name": "DSP Internal Firmware Ver.",
+          "realname": "DSP Internal Firmware Ver.",
+          "datatype": "string"
+        },
+        {
+          "position": [ 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68],
+          "name": "ARM Internal Firmware Ver.",
+          "realname": "ARM Internal Firmware Ver.",
+          "datatype": "string"
+        }
+      ]
+    }
+  }
+}

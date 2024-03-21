@@ -36,6 +36,8 @@ class modbus {
 
   #define RS485Transmit    HIGH
   #define RS485Receive     LOW
+  #define DATAISID   (byte) 0x01 // new by Deimel
+  #define DATAISLIVE (byte) 0x02 // new by Deimel
 
   public:
     modbus();
