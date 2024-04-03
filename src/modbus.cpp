@@ -1366,11 +1366,19 @@ void modbus::GetInitRawData(AsyncResponseStream *response) {
   live.reserve(this->SaveLiveDataframe->size() * 2);
 
   for (uint16_t i = 0; i < this->SaveIdDataframe->size(); i++) {
-    id += (String)this->SaveIdDataframe->at(i);
+    String s="";
+    if (this->SaveIdDataframe->at(i) <= 16) {s += "0";}
+    s += String(this->SaveIdDataframe->at(i), HEX);
+    s.toUpperCase();
+    id += s;
   }
 
   for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
-    live += (String)this->SaveLiveDataframe->at(i);
+    String s="";
+    if (this->SaveLiveDataframe->at(i) <= 16) {s += "0";}
+    s += String(this->SaveLiveDataframe->at(i), HEX);
+    s.toUpperCase();
+    live += s;
   }
 
   json["data"].to<JsonObject>();
