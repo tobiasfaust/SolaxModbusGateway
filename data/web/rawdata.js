@@ -85,7 +85,7 @@ function byte2string(bytestring) {
 helper function
 *******************************/
 function byte2int(bytestring) {
-  return parseInt(Number(bytestring), 16);
+  return parseInt(bytestring, 16);
 }
 
 /*******************************
