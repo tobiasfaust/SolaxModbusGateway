@@ -447,7 +447,7 @@ void modbus::QueryQueueToInverter() {
     RS485Serial->flush();
     digitalWrite(this->pin_RTS, RS485Receive); 
 
-    unsigned long timeout=millis()+450;
+    unsigned long timeout=millis()+110;
     while (millis()<=timeout) { yield(); }
 
     if (rwtype == WRITE) {
