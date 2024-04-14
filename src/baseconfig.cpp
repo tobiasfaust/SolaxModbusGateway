@@ -16,58 +16,31 @@ BaseConfig::BaseConfig() : debuglevel(0) {
   LoadJsonConfig();
 }
 
-void BaseConfig::StoreJsonConfig(String* json) {
-
-  JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, *json);
-  
-  if (error) { 
-    if (Config->GetDebugLevel() >=1) {
-      Serial.printf("Cound not store jsonConfig completely -> %s", error.c_str());
-    } 
-  } else { 
-
-    File configFile = LittleFS.open("/BaseConfig.json", "w");
-    if (!configFile) {
-      if (this->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
-    } else {  
-      serializeJsonPretty(doc["data"], Serial);
-      if (serializeJson(doc["data"], configFile) == 0) {
-        if (this->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
-      }
-      configFile.close();
-  
-      LoadJsonConfig();
-    }
-  }
-}
-
 void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
-  if (LittleFS.exists("/BaseConfig.json")) {
+  if (LittleFS.exists("/baseconfig.json")) {
     //file exists, reading and loading
     Serial.println("reading config file");
-    File configFile = LittleFS.open("/BaseConfig.json", "r");
+    File configFile = LittleFS.open("/baseconfig.json", "r");
     if (configFile) {
       Serial.println("opened config file");
-      //size_t size = configFile.size();
-
-      JsonDocument doc; // TODO Use computed size??
+      
+      JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
       
-      if (!error) {
+      if (!error && doc.containsKey("data")) {
         serializeJsonPretty(doc, Serial);
         
-        if (doc.containsKey("mqttroot"))         { this->mqtt_root = doc["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
-        if (doc.containsKey("mqttserver"))       { this->mqtt_server = doc["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
-        if (doc.containsKey("mqttport"))         { this->mqtt_port = (int)(doc["mqttport"]);} else {this->mqtt_port = 1883;}
-        if (doc.containsKey("mqttuser"))         { this->mqtt_username = doc["mqttuser"].as<String>();} else {this->mqtt_username = "";}
-        if (doc.containsKey("mqttpass"))         { this->mqtt_password = doc["mqttpass"].as<String>();} else {this->mqtt_password = "";}
-        if (doc.containsKey("mqttbasepath"))     { this->mqtt_basepath = doc["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
-        if (doc.containsKey("UseRandomClientID")){ if (strcmp(doc["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
-        if (doc.containsKey("SelectConnectivity")){ if (strcmp(doc["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
-        if (doc.containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["debuglevel"]), 0);} else {this->debuglevel = 0; }
-        if (doc.containsKey("SelectLAN"))        {this->LANBoard = doc["SelectLAN"].as<String>();} else {this->LANBoard = "";}
+        if (doc["data"].containsKey("mqttroot"))         { this->mqtt_root = doc["data"]["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
+        if (doc["data"].containsKey("mqttserver"))       { this->mqtt_server = doc["data"]["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
+        if (doc["data"].containsKey("mqttport"))         { this->mqtt_port = (int)(doc["data"]["mqttport"]);} else {this->mqtt_port = 1883;}
+        if (doc["data"].containsKey("mqttuser"))         { this->mqtt_username = doc["data"]["mqttuser"].as<String>();} else {this->mqtt_username = "";}
+        if (doc["data"].containsKey("mqttpass"))         { this->mqtt_password = doc["data"]["mqttpass"].as<String>();} else {this->mqtt_password = "";}
+        if (doc["data"].containsKey("mqttbasepath"))     { this->mqtt_basepath = doc["data"]["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
+        if (doc["data"].containsKey("UseRandomClientID")){ if (strcmp(doc["data"]["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
+        if (doc["data"].containsKey("SelectConnectivity")){if (strcmp(doc["data"]["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
+        if (doc["data"].containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["data"]["debuglevel"]), 0);} else {this->debuglevel = 0; }
+        if (doc["data"].containsKey("SelectLAN"))        {this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
       } else {
         if (this->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
         loadDefaultConfig = true;

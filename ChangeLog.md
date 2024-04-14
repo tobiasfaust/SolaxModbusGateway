@@ -10,6 +10,7 @@ Release 3.2.0:
   - extract html-code into separate html-files, so everyone can customize his own instance
   - interact with Web-frontend by json
   - enable update filesystem at updatepage
+  - saving configs by global upload function, no extra saveconfigfile functions anymore (#57)
   
 Release 3.1.1:
   - fix auto reconnect to WIFI (issue #21)

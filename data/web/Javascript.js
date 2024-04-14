@@ -302,9 +302,9 @@ function onSubmit(DataForm, jsontype){
   if (!jsontype) jsontype = 1;
   
   // init json String
-  var formData; 
-  if (jsontype == 1) { formData =  {data: {}}; }
-  else if (jsontype == 2) { formData =  {data: []}; }
+  var JsonData; 
+  if (jsontype == 1) { JsonData =  {data: {}}; }
+  else if (jsontype == 2) { JsonData =  {data: []}; }
   
   var count = 0;
   
@@ -315,9 +315,9 @@ function onSubmit(DataForm, jsontype){
       
       if (elems[i].type == "checkbox") {
         count++;
-        if (jsontype == 1) { formData.data[elems[i].name] = (elems[i].checked==true?1:0); }
+        if (jsontype == 1) { JsonData.data[elems[i].name] = (elems[i].checked==true?1:0); }
         else if (jsontype == 2) {
-          formData.data.push({ "name" : elems[i].name,
+          JsonData.data.push({ "name" : elems[i].name,
                                "value": (elems[i].checked==true?1:0) });
         }
       } else if (elems[i].id.match(/^Alle.*/) || 
@@ -325,39 +325,57 @@ function onSubmit(DataForm, jsontype){
                  elems[i].id.match(/^AnalogPin.*/) || 
                  elems[i].type == "number") {
         count++;
-        if (jsontype == 1) { formData.data[elems[i].name] = parseInt(elems[i].value); }
+        if (jsontype == 1) { JsonData.data[elems[i].name] = parseInt(elems[i].value); }
         else if (jsontype == 2) {
-          formData.data.push({ "name" : elems[i].name,
+          JsonData.data.push({ "name" : elems[i].name,
                                 "value": parseInt(elems[i].value) });
         }
       } else if (elems[i].type == "radio") {
-        if (jsontype == 1) { if (elems[i].checked==true) {formData.data[elems[i].name] = elems[i].value;} }
+        if (jsontype == 1) { if (elems[i].checked==true) {JsonData.data[elems[i].name] = elems[i].value;} }
         else if (jsontype == 2) {
           if (elems[i].checked==true) {
             count++;
-            formData.data.push({ "name" : elems[i].name,
+            JsonData.data.push({ "name" : elems[i].name,
                                  "value": elems[i].value });
            }
         }
       } else {
-        if (jsontype == 1) { formData.data[elems[i].name] = elems[i].value; }
+        if (jsontype == 1) { JsonData.data[elems[i].name] = elems[i].value; }
         else if (jsontype == 2) {
           count++;
-          formData.data.push({ "name" : elems[i].name,
+          JsonData.data.push({ "name" : elems[i].name,
                                "value": elems[i].value });
         }
       }
     }
   } 
 
-  var filename = document.location.pathname.replace(/^.*[\\/]/, '')
-  filename = filename.substring(0, filename.lastIndexOf('.')) || filename
-  
-  formData.action = "saveconfig";
-  formData.subaction = filename; 
-  requestData(JSON.stringify(formData))
-  
   setResponse(true, "save ...")
+
+  var filename = document.location.pathname.replace(/^.*[\\/]/, '')
+  filename = filename.substring(0, filename.lastIndexOf('.')) || filename // without extension
+  
+  var textToSaveAsBlob = new Blob([JSON.stringify(JsonData)], {type:"text/plain"});
+  
+  const formData = new FormData();
+  formData.append(filename + ".json", textToSaveAsBlob, '/' + filename + ".json");
+    
+    fetch('/doUpload', {
+      method: 'POST',
+      body: formData,
+    })
+      .then (response => response.json())
+      .then (json =>  {
+        setResponse(true, json.text)
+      })
+      .then (() => {  
+        var data = {};
+        data['action'] = "ReloadConfig";
+        data['subaction'] = filename;
+        requestData(JSON.stringify(data), false);
+      }); 
+
+  
 }
 
 

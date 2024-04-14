@@ -255,6 +255,20 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
       mb->GetInitRawData(response);
     }
   
+  } else if(action && action == "ReloadConfig")  {
+    if (subaction && subaction == "baseconfig") {
+      Config->LoadJsonConfig();
+    } else if (subaction && subaction == "modbusconfig") {
+      mb->LoadJsonConfig(false);
+    } else if (subaction && subaction == "modbusitemconfig") {
+      mb->LoadJsonItemConfig();
+    }
+  
+    jsonReturn["response"]["status"] = 1;
+    jsonReturn["response"]["text"] = "new config reloaded sucessfully";
+    serializeJson(jsonReturn, ret);
+    response->print(ret);
+  
   } else if (action && action == "RefreshLiveData") {
       mb->GetLiveDataAsJson(response, subaction);
   
@@ -266,20 +280,6 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
       jsonReturn["response"]["text"] = "successful";
       serializeJson(jsonReturn, ret);
       response->print(ret);
-
-  } else if(action && action == "saveconfig" && jsonGet.containsKey("data")) {
-      if (subaction && subaction == "baseconfig") {
-        Config->StoreJsonConfig(&json);
-      } else if (subaction && subaction == "modbusconfig") {
-        mb->StoreJsonConfig(&json);
-      } else if (subaction && subaction == "modbusitemconfig") {
-        mb->StoreJsonItemConfig(&json);
-      }
-
-    jsonReturn["response"]["status"] = 1;
-    jsonReturn["response"]["text"] = "successful saved.";
-    serializeJson(jsonReturn, ret);
-    response->print(ret);
 
   } else if(action && action == "handlefiles") {
     fsfiles->HandleAjaxRequest(jsonGet, response);

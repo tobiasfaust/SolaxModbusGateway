@@ -230,38 +230,6 @@ void modbus::LoadInvertersFromJson() {
 }
 
 /*******************************************************
- * write default Inverter JSON File to LittleFS to get at least 1 Inverterdata
- * happens if user forgot flashing datapartition
-*******************************************************/
-/*void modbus::WriteDefaultInverterFile2FS() {
-  if (Config->GetDebugLevel() >=1) {
-    Serial.println("Writing default register file");
-  }
-  std::ofstream out("/regs/default.json");
-  out << "lorem ipsum"; //F(DefaultRegJSON);
-  out.close();
-
-  File root = LittleFS.open("/regs/");
-  File file = root.openNextFile();
-  while(file) {
-    Serial.printf("found file: /regs/%s\n", file.name());
-    file.close();
-    file = root.openNextFile();
-  }
-  root.close();
-
-  root = LittleFS.open("/");
-  file = root.openNextFile();
-  while(file) {
-    Serial.printf("found file: /%s\n", file.name());
-    file.close();
-    file = root.openNextFile();
-  }
-  root.close();
-}
-*/
-
-/*******************************************************
  * read config data from JSON, part "config"
 *******************************************************/
 void modbus::LoadInverterConfigFromJson() {
@@ -1044,55 +1012,6 @@ void modbus::loop() {
 }
 
 /*******************************************************
- * save configuration from webfrontend into json file
-*******************************************************/
-void modbus::StoreJsonConfig(String* json) {
-  JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, *json);
-  
-  if (error) { 
-    if (Config->GetDebugLevel() >=1) {
-      Serial.printf("Cound not store jsonConfig completely -> %s", error.c_str());
-    } 
-  } else { 
-
-    File configFile = LittleFS.open("/ModbusConfig.json", "w");
-    if (!configFile) {
-      if (Config->GetDebugLevel() >=0) {Serial.println("failed to open BaseConfig.json file for writing");}
-    } else {  
-      serializeJsonPretty(doc["data"], Serial);
-      if (serializeJson(doc["data"], configFile) == 0) {
-        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed to write to file"));}
-      }
-      configFile.close();
-  
-      LoadJsonConfig(false);
-    }
-  }
-}
-
-
-/*******************************************************
- * save Item configuration from webfrontend into json file
-*******************************************************/
-void modbus::StoreJsonItemConfig(String* json) {
-  
-  File configFile = LittleFS.open("/ModbusItemConfig.json", "w");
-  if (!configFile) {
-    if (Config->GetDebugLevel() >=0) {Serial.println("failed to open ModbusItemConfig.json file for writing");}
-  } else {  
-    
-    if (!configFile.print(*json)) {
-        if (Config->GetDebugLevel() >=0) {Serial.println(F("Failed writing ItemConfig to file"));}
-    }
-
-    configFile.close();
-  
-    LoadJsonItemConfig();
-  }
-}
-
-/*******************************************************
  * load initial Register Items from file into vector
 *******************************************************/
 void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
@@ -1178,10 +1097,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
   uint8_t pin_RTS_old   = this->pin_RTS;
   regfiles_t InverterType_old = this->InverterType;
 
-  if (LittleFS.exists("/ModbusConfig.json")) {
+  if (LittleFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
     if (Config->GetDebugLevel() >=3) Serial.println("reading config file....");
-    File configFile = LittleFS.open("/ModbusConfig.json", "r");
+    File configFile = LittleFS.open("/modbusconfig.json", "r");
     if (configFile) {
       if (Config->GetDebugLevel() >=3) Serial.println("config file is open:");
       //size_t size = configFile.size();
@@ -1189,23 +1108,23 @@ void modbus::LoadJsonConfig(bool firstrun) {
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
       
-      if (!error) {
+      if (!error && doc.containsKey("data")) {
         if (Config->GetDebugLevel() >=3) { serializeJsonPretty(doc, Serial); Serial.println(); }
         
-        if (doc.containsKey("pin_rx"))           { this->pin_RX = (int)(doc["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
-        if (doc.containsKey("pin_tx"))           { this->pin_TX = (int)(doc["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
-        if (doc.containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
-        if (doc.containsKey("clientid"))         { this->ClientID = strtoul(doc["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
-        if (doc.containsKey("baudrate"))         { this->Baudrate = (int)(doc["baudrate"]);} else {this->Baudrate = 19200;}
-        if (doc.containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
-        if (doc.containsKey("txintervalid"))     { this->TxIntervalIdData = (int)(doc["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
-        if (doc.containsKey("enable_openwbtopic")){ this->Conf_EnableOpenWBTopic = (doc["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
-        if (doc.containsKey("enable_setters"))   { this->Conf_EnableSetters = (doc["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
+        if (doc["data"].containsKey("pin_rx"))           { this->pin_RX = (int)(doc["data"]["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
+        if (doc["data"].containsKey("pin_tx"))           { this->pin_TX = (int)(doc["data"]["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
+        if (doc["data"].containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["data"]["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
+        if (doc["data"].containsKey("clientid"))         { this->ClientID = strtoul(doc["data"]["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
+        if (doc["data"].containsKey("baudrate"))         { this->Baudrate = (int)(doc["data"]["baudrate"]);} else {this->Baudrate = 19200;}
+        if (doc["data"].containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["data"]["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
+        if (doc["data"].containsKey("txintervalid"))     { this->TxIntervalIdData = (int)(doc["data"]["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
+        if (doc["data"].containsKey("enable_openwbtopic")){ this->Conf_EnableOpenWBTopic = (doc["data"]["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
+        if (doc["data"].containsKey("enable_setters"))   { this->Conf_EnableSetters = (doc["data"]["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
 
-        if (doc.containsKey("invertertype"))     { 
+        if (doc["data"].containsKey("invertertype"))     { 
           bool found = false;
           for (uint8_t i=0; i<this->AvailableInverters->size(); i++) {
-            if (this->AvailableInverters->at(i).name == (doc["invertertype"]).as<String>()) {
+            if (this->AvailableInverters->at(i).name == (doc["data"]["invertertype"]).as<String>()) {
               this->InverterType = this->AvailableInverters->at(i); 
               if (Config->GetDebugLevel() >=3) {
                 Serial.printf("Invertertyp '%s' was found in register file '%s', set it as selected active Inverter\n", this->InverterType.name.c_str(), this->InverterType.filename.c_str());
@@ -1218,7 +1137,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
               this->InverterType = this->AvailableInverters->at(0);
             }
             if (Config->GetDebugLevel() >=3) {
-                Serial.printf("Invertertyp '%s' was not found, use default '%s' instead\n", (doc["invertertype"]).as<String>().c_str(), this->InverterType.name.c_str());
+                Serial.printf("Invertertyp '%s' was not found, use default '%s' instead\n", (doc["data"]["invertertype"]).as<String>().c_str(), this->InverterType.name.c_str());
             }
           }
         }
@@ -1230,7 +1149,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
       configFile.close();
     }
   } else {
-    if (Config->GetDebugLevel() >=3) {Serial.println("ModbusConfig.json config File not exists, load default config");}
+    if (Config->GetDebugLevel() >=3) {Serial.println("modbusconfig.json config File not exists, load default config");}
     loadDefaultConfig = true;
   }
 
@@ -1276,10 +1195,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
 *******************************************************/
 void modbus::LoadJsonItemConfig() {
   
-  if (LittleFS.exists("/ModbusItemConfig.json")) {
+  if (LittleFS.exists("/modbusitemconfig.json")) {
     //file exists, reading and loading
     if (Config->GetDebugLevel() >=3) Serial.println("reading modbus item config file....");
-    File configFile = LittleFS.open("/ModbusItemConfig.json", "r");
+    File configFile = LittleFS.open("/modbusitemconfig.json", "r");
     if (configFile) {
       if (Config->GetDebugLevel() >=3) Serial.println("modbus item config file is open:");
 
@@ -1359,7 +1278,7 @@ void modbus::GetInitData(AsyncResponseStream *response) {
 }
 
 void modbus::GetInitRawData(AsyncResponseStream *response) {
-  String ret, id, live;
+  String ret, id, live = "";
   JsonDocument json;
 
   id.reserve(this->SaveIdDataframe->size()  * 2);
@@ -1367,18 +1286,18 @@ void modbus::GetInitRawData(AsyncResponseStream *response) {
 
   for (uint16_t i = 0; i < this->SaveIdDataframe->size(); i++) {
     String s="";
-    if (this->SaveIdDataframe->at(i) <= 16) {s += "0";}
+    if (this->SaveIdDataframe->at(i) <= 16) {s = "0";}
     s += String(this->SaveIdDataframe->at(i), HEX);
     s.toUpperCase();
     id += s;
   }
 
   for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
-    String s="";
-    if (this->SaveLiveDataframe->at(i) <= 16) {s += "0";}
-    s += String(this->SaveLiveDataframe->at(i), HEX);
-    s.toUpperCase();
-    live += s;
+    String t="";
+    if (this->SaveLiveDataframe->at(i) <= 16) {t = "0";}
+    t += String(this->SaveLiveDataframe->at(i), HEX);
+    t.toUpperCase();
+    live += t;
   }
 
   json["data"].to<JsonObject>();

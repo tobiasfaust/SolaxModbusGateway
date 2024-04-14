@@ -9,7 +9,6 @@ class BaseConfig {
 
   public:
     BaseConfig();
-    void      StoreJsonConfig(String* json); 
     void      LoadJsonConfig();
     void      GetInitData(AsyncResponseStream *response);
 

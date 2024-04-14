@@ -40,8 +40,6 @@ class modbus {
   public:
     modbus();
     void                    init(bool firstrun);
-    void                    StoreJsonConfig(String* json);
-    void                    StoreJsonItemConfig(String* json);
     void                    LoadJsonConfig(bool firstrun);
     void                    LoadJsonItemConfig();
 

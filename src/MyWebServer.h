@@ -24,7 +24,7 @@
 
 class MyWebServer {
 
-  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA, FSFILES};
+  //enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA, FSFILES};
   
   public:
     MyWebServer(AsyncWebServer *server, DNSServer* dns);
