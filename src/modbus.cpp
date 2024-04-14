@@ -1278,31 +1278,24 @@ void modbus::GetInitData(AsyncResponseStream *response) {
 }
 
 void modbus::GetInitRawData(AsyncResponseStream *response) {
-  String ret, id, live = "";
+  String ret = "";
+  std::ostringstream id, live;
   JsonDocument json;
 
-  id.reserve(this->SaveIdDataframe->size()  * 2);
-  live.reserve(this->SaveLiveDataframe->size() * 2);
+  live << std::hex << std::uppercase;
+  id << std::hex << std::uppercase;
 
   for (uint16_t i = 0; i < this->SaveIdDataframe->size(); i++) {
-    String s="";
-    if (this->SaveIdDataframe->at(i) <= 16) {s = "0";}
-    s += String(this->SaveIdDataframe->at(i), HEX);
-    s.toUpperCase();
-    id += s;
+    id << std::setw(2) << std::setfill('0') << (int)this->SaveIdDataframe->at(i);
   }
 
   for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
-    String t="";
-    if (this->SaveLiveDataframe->at(i) <= 16) {t = "0";}
-    t += String(this->SaveLiveDataframe->at(i), HEX);
-    t.toUpperCase();
-    live += t;
+    live << std::setw(2) << std::setfill('0') << (int)this->SaveLiveDataframe->at(i);
   }
 
   json["data"].to<JsonObject>();
-  json["data"]["id_rawdata_org"] = id;
-  json["data"]["live_rawdata_org"] = live;
+  json["data"]["id_rawdata_org"] = id.str();
+  json["data"]["live_rawdata_org"] = live.str();
 
   json["response"].to<JsonObject>();
   json["response"]["status"] = 1;

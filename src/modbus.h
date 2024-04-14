@@ -9,6 +9,7 @@
 #include <StreamUtils.h>
 #include <ArduinoQueue.h>
 #include <HardwareSerial.h>
+#include <iomanip>
 
 //#define DEBUGMODE
 
