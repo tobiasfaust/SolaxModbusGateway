@@ -106,7 +106,7 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
 
   if (!index) {
     // open the file on first call and store the file handle in the request object
-    request->_tempFile = LittleFS.open("/" + filename, "w");
+    request->_tempFile = LittleFS.open(filename, "w");
     if (Config->GetDebugLevel() >=5) {
       Serial.printf("Upload Start: %s\n", filename.c_str());
     }
