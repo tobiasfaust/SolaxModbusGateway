@@ -11,6 +11,7 @@ Release 3.2.0:
   - interact with Web-frontend by json
   - enable update filesystem at updatepage
   - saving configs by global upload function, no extra saveconfigfile functions anymore (#57)
+  - data partition is now larger
   
 Release 3.1.1:
   - fix auto reconnect to WIFI (issue #21)
