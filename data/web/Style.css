@@ -27,7 +27,7 @@ body {
       border-radius: 4px;
       border: none;
   }
-  input[type="submit"]:hover { background: #369; }
+  input[type="submit"]:hover { background: #336699; }
   
   input, select, textarea {
       margin: 4px;
@@ -38,7 +38,7 @@ body {
       border-width: 1px;
       border-color: gray;
   }
-  input:hover, select:hover, textarea:hover { background-color: #ccc; }
+  input:hover, select:hover, textarea:hover { background-color: #cccccc; }
   
   .editorDemoTable {
       border-spacing: 0;
@@ -201,3 +201,11 @@ body {
      border-radius: 0.2em;
    font-style: normal;
  }
+
+.texthover {
+  background-color: transparent;
+}
+
+.texthover:hover {
+  background-color: #cccccc;
+}
