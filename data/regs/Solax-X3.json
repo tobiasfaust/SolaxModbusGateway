@@ -8,7 +8,7 @@
                     "0x00",
                     "0x00",
                     "0x00",
-                    "0x77"
+                    "0x78"
                 ],
                 [
                     "#ClientID",
@@ -557,8 +557,8 @@
                 },
                 {
                     "position": [
-                        248,
-                        249
+                        250,
+                        251
                     ],
                     "name": "OffGridPowerActive_R",
                     "realname": "Off Grid Power L1",
@@ -567,8 +567,8 @@
                 },
                 {
                     "position": [
-                        252,
-                        253
+                        254,
+                        255
                     ],
                     "name": "OffGridVoltage_S",
                     "realname": "Off Grid Voltage L2",
@@ -578,8 +578,8 @@
                 },
                 {
                     "position": [
-                        254,
-                        255
+                        256,
+                        257
                     ],
                     "name": "OffGridCurrent_S",
                     "realname": "Off Grid Current L2",
@@ -589,8 +589,8 @@
                 },
                 {
                     "position": [
-                        256,
-                        257
+                        258,
+                        259
                     ],
                     "name": "OffGridPowerActive_S",
                     "realname": "Off Grid Power L2",
@@ -599,8 +599,8 @@
                 },
                 {
                     "position": [
-                        260,
-                        261
+                        262,
+                        263
                     ],
                     "name": "OffGridVoltage_T",
                     "realname": "Off Grid Voltage L3",
@@ -610,8 +610,8 @@
                 },
                 {
                     "position": [
-                        262,
-                        263
+                        264,
+                        265
                     ],
                     "name": "OffGridCurrent_T",
                     "realname": "Off Grid Current L3",
@@ -621,8 +621,8 @@
                 },
                 {
                     "position": [
-                        264,
-                        265
+                        266,
+                        267
                     ],
                     "name": "OffGridPowerActive_T",
                     "realname": "Off Grid Power L3",
@@ -631,10 +631,10 @@
                 },
                 {
                     "position": [
+                        270,
+                        271,
                         268,
-                        269,
-                        266,
-                        267
+                        269
                     ],
                     "name": "FeedInPowerPhase_R",
                     "realname": "FeedIn Power Phase L1",
@@ -643,10 +643,10 @@
                 },
                 {
                     "position": [
+                        274,
+                        275,
                         272,
-                        273,
-                        270,
-                        271
+                        273
                     ],
                     "name": "FeedInPowerPhase_S",
                     "realname": "FeedIn Power Phase L2",
@@ -655,10 +655,10 @@
                 },
                 {
                     "position": [
+                        278,
+                        279,
                         276,
-                        277,
-                        274,
-                        275
+                        277
                     ],
                     "name": "FeedInPowerPhase_T",
                     "realname": "FeedIn Power Phase L3",
@@ -667,8 +667,8 @@
                 },
                 {
                     "position": [
-                        294,
-                        295
+                        296,
+                        297
                     ],
                     "name": "OffGridYieldToday",
                     "realname": "OffGrid Yield Today",
@@ -678,8 +678,8 @@
                 },
                 {
                     "position": [
-                        296,
-                        297
+                        298,
+                        299
                     ],
                     "name": "EChargeToday",
                     "realname": "ECharge Today",
@@ -689,10 +689,10 @@
                 },
                 {
                     "position": [
+                        302,
+                        303,
                         300,
-                        301,
-                        298,
-                        299
+                        301
                     ],
                     "name": "EChargeTotal",
                     "realname": "ECharge Total",
@@ -702,10 +702,10 @@
                 },
                 {
                     "position": [
+                        306,
+                        307,
                         304,
-                        305,
-                        302,
-                        303
+                        305
                     ],
                     "name": "SolarEnergyTotal",
                     "realname": "SolarEnergy Total",
@@ -715,8 +715,8 @@
                 },
                 {
                     "position": [
-                        306,
-                        307
+                        308,
+                        309
                     ],
                     "name": "SolarEnergyToday",
                     "realname": "SolarEnergy Today",
@@ -726,10 +726,10 @@
                 },
                 {
                     "position": [
+                        314,
+                        315,
                         312,
-                        313,
-                        310,
-                        311
+                        313
                     ],
                     "name": "EnergyFeedin",
                     "realname": "EnergyFeedin Today",
@@ -739,10 +739,10 @@
                 },
                 {
                     "position": [
+                        318,
+                        319,
                         316,
-                        317,
-                        314,
-                        315
+                        317
                     ],
                     "name": "EnergyConsum",
                     "realname": "EnergyConsum Today",
@@ -752,8 +752,8 @@
                 },
                 {
                     "position": [
-                        382,
-                        383
+                        384,
+                        385
                     ],
                     "name": "CellVoltageHigh",
                     "realname": "Cell Voltage High",
@@ -763,8 +763,8 @@
                 },
                 {
                     "position": [
-                        384,
-                        385
+                        386,
+                        387
                     ],
                     "name": "CellVoltageLow",
                     "realname": "Cell Voltage Low",
