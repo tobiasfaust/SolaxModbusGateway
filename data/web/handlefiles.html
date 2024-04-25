@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+    <meta charset='utf-8'>
+    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
+    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
+     <script language='javascript' type='text/javascript' src='/web/handlefiles.js'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
+    <title>HandleFiles</title>
+  </head>
+  <body>
+    <table id='maintable' class='editorDemoTable'>
+      <thead>
+        <tr>
+          <td style='width: 200px;'>Dateien</td>
+          <td style='width: 400px;'>Inhalt</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style='height:1em;'>
+            <table>
+              <tr>
+                <td style='border: none;'>
+                  <b>path:</b>
+                </td>
+                <td style='border: none;'>
+                  <div id='path'>{path}</div>
+                  <div hidden id='fullpath'>{fullpath}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td rowspan='2'><textarea id='content' cols='100' rows='20' placeholder='select a file'></textarea></td>
+        </tr>
+        <tr>
+          <td>
+            <template id='NewRow'>
+              <tr>
+                <td class='texthover' style='border: none;' onClick='fetchFile("{fullpath}")'>{file}</td>
+              </tr>
+            </template>
+            <table id='files'></table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan='2'>filename:
+            <input type='text' id='filename' value='{fullpath}' title='name of file to store'/>
+            <input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>
+            <input type='button' onclick='uploadFile()' style='font-size:18px' class='fa' value='&#xf0c7' title='store it'/>
+            <input type='button' onclick='deleteFile()' style='font-size:18px' class='fa' value='&#xf014' title='delete it'/>
+            <span id='response'></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

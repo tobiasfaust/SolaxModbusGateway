@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+    <meta charset='utf-8'>
+    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
+    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
+    <script language='javascript' type='text/javascript' src='/web/modbusitemconfig.js'></script>
+    <title>status</title>
+  </head>
+  <body>
+    <form id='DataForm'>
+      <table id='maintable' class='editorDemoTable'>
+        <thead>
+          <tr>
+            <td style='width: 25px;'>Active</td>
+            <td style='width: 250px;'>Name</td>
+            <td style='width: 80px;'>OpenWB</td>
+            <td style='width: 200px;'>Wert</td>
+          </tr>
+        </thead>
+        <tbody>
+          <template id='items'>
+          <tr>
+            <td>
+              <input type='checkbox' onclick='ChangeActiveStatus(this.id)' id='active'>
+            </td>
+            <td>
+              <dfn class='tooltip_simple'><span id='realname'></span>
+                <span id='mqtttopic' role='tooltip_simple'></span>
+              </dfn>
+            </td>
+            <td style='text-align: center'>
+              <template id='openwb'>
+                <dfn class='tooltip'>&#9989;
+                  <span id='openwbtopic' role='tooltip'></span>
+                </dfn>
+              </template>
+            </td>
+            <td><div class='ajaxchange' id='value'></div></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </form>
+    <br />
+    <br/>
+    <input type='submit' onclick="onSubmit('DataForm', 2)" value='Speichern' />
+    <span id='response'></span>
+  </body>
+</html>

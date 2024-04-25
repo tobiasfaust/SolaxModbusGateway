@@ -9,9 +9,8 @@ class BaseConfig {
 
   public:
     BaseConfig();
-    void      StoreJsonConfig(String* json); 
     void      LoadJsonConfig();
-    void      GetWebContent(AsyncResponseStream *response);
+    void      GetInitData(AsyncResponseStream *response);
 
     const String&   GetMqttServer()    const {return mqtt_server;}
     const uint16_t& GetMqttPort()     const {return mqtt_port;}
@@ -20,6 +19,8 @@ class BaseConfig {
     const String&   GetMqttRoot()      const {return mqtt_root;}
     const String&   GetMqttBasePath()  const {return mqtt_basepath;}
     const bool&     UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
+    const bool&     GetUseETH()        const { return useETH; }
+    const String&   GetLANBoard()      const {return LANBoard;}
     const uint8_t&  GetDebugLevel()    const {return debuglevel;}
      
   private:
@@ -30,6 +31,8 @@ class BaseConfig {
     String    mqtt_root;
     String    mqtt_basepath;
     bool      mqtt_UseRandomClientID;
+    bool      useETH;  // otherwise use WIFI
+    String    LANBoard;
     uint8_t   debuglevel;
 
 };

@@ -3,10 +3,10 @@
 
 #include "commonlibs.h" 
 #include <PubSubClient.h>
-//#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
 #include <ESPAsyncWiFiManager.h>    // https://github.com/alanswx/ESPAsyncWiFiManager
 #include <vector>
 #include "baseconfig.h"
+#include <ETH.h>
 
 #ifdef ESP8266
   //#define SetHostName(x) wifi_station_set_hostname(x);
@@ -23,7 +23,20 @@
   #define CALLBACK_FUNCTION void (*MyCallback)(char*, uint8_t*, unsigned int)
 #endif
 
+typedef struct {
+    String name; 
+    uint8_t PHY_ADDR;
+    int PHY_POWER; 
+    int PHY_MDC;
+    int PHY_MDIO; 
+    eth_phy_type_t  PHY_TYPE;
+    eth_clock_mode_t CLK_MODE;
+} eth_shield_t;
+
 class MQTT {
+
+  std::vector<eth_shield_t> lan_shields = {{"WT32-ETH01", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN}, 
+                                            {"test", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN}};
 
   public:
 
@@ -43,6 +56,7 @@ class MQTT {
     
     const bool&       GetConnectStatusWifi()      const {return ConnectStatusWifi;}
     const bool&       GetConnectStatusMqtt()      const {return ConnectStatusMqtt;}
+    const IPAddress&  GetIPAddress()              const {return ipadresse;}
 
   protected:
     PubSubClient*     mqtt;
@@ -65,7 +79,12 @@ class MQTT {
     unsigned long     last_keepalive = 0;
     bool              ConnectStatusWifi;
     bool              ConnectStatusMqtt;
+    IPAddress         ipadresse;
   
+    void              WifiOnEvent(WiFiEvent_t event);
+    void              WaitForConnect();
+    eth_shield_t*     GetEthShield(String ShieldName);
+
 };
 
 extern MQTT* mqtt;

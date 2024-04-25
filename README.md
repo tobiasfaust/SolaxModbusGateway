@@ -1,4 +1,5 @@
-# Modbus-RTU to MQTT Gateway for Solar Inverter
+# Modbus-RTU to MQTT Gateway 
+**for Solar Inverters and other Modbus-RTU Devices**
 
 [![license](https://img.shields.io/badge/Licence-GNU%20v3.0-green)](https://github.com/desktop/desktop/blob/master/LICENSE)
 ![ESP32 Architecture](https://img.shields.io/badge/Architecture-ESP32-blue)
@@ -19,8 +20,9 @@ Currently the following Inverters with their special registers are integrated:
 * Growatt SPH
 * Sofar-KTL Solarmax-SGA
 * Deye Sun SG04LP3
+* QVolt-HYP-G3-3P
 
-If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
+If your Solar Inverter is not listed, it´s quite simple to add it by yourself. Feel free to add the special registers, please check the [wiki page](https://github.com/tobiasfaust/SolaxModbusGateway/wiki/configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
 
 ### What you need
 * ESP32, ESP32-C3, ESP-S2 or ESP-S3 NodeMCU
@@ -34,7 +36,7 @@ It´s recommend to start with one example to check wiring works correctly. Both 
 * wiring
 * baud rate
 
-The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or soomething like this.
+The example requests the inverter SerialNumber and if wiring is correct, the inverter will answer with his number or something like this.
 
 <pre>
 request: 01 03 00 00 00 07 08 04

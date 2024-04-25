@@ -2,7 +2,6 @@
 #define SOLAXMODBUS_H
 
 #include "commonlibs.h"
-#include "register.h"
 #include "baseconfig.h"
 #include "mqtt.h"
 #include <vector>
@@ -10,6 +9,7 @@
 #include <StreamUtils.h>
 #include <ArduinoQueue.h>
 #include <HardwareSerial.h>
+#include <iomanip>
 
 //#define DEBUGMODE
 
@@ -29,6 +29,11 @@ class modbus {
     std::vector<byte> request; 
   } subscription_t;
 
+  // available inverter register json files
+  typedef struct {
+    String name;
+    String filename;
+  } regfiles_t;
 
   #define RS485Transmit    HIGH
   #define RS485Receive     LOW
@@ -36,22 +41,18 @@ class modbus {
   public:
     modbus();
     void                    init(bool firstrun);
-    void                    StoreJsonConfig(String* json);
-    void                    StoreJsonItemConfig(String* json);
     void                    LoadJsonConfig(bool firstrun);
     void                    LoadJsonItemConfig();
 
     void                    loop();
 
-    const String&           GetInverterType()   const {return InverterType;}
+    const String&           GetInverterType()   const {return InverterType.name;}
 
     void                    enableMqtt(MQTT* object);
-    void                    GetWebContentConfig(AsyncResponseStream *response);
-    void                    GetWebContentItemConfig(AsyncResponseStream *response);
-    void                    GetWebContentRawData(AsyncResponseStream *response);
-    void                    GetWebContentActiveLiveData(AsyncResponseStream *response);
+    void                    GetInitData(AsyncResponseStream *response);
+    void                    GetInitRawData(AsyncResponseStream *response);
     String                  GetInverterSN();
-    void                    GetLiveDataAsJson(AsyncResponseStream *response);
+    void                    GetLiveDataAsJson(AsyncResponseStream *response, String action);
     void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
@@ -60,11 +61,14 @@ class modbus {
     uint8_t                 pin_RX;               // Serial Receive pin
     uint8_t                 pin_TX;               // Serial Transmit pin
     uint8_t                 pin_RTS;              // Direction control pin
+    uint8_t                 default_pin_RX;       // Serial Receive pin
+    uint8_t                 default_pin_TX;       // Serial Transmit pin
+    uint8_t                 default_pin_RTS;      // Direction control pin
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
     uint16_t                TxIntervalIdData;     // 3600
-    String                  InverterType;         //Solax-X1
+    regfiles_t              InverterType;         //Solax-X1
 
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
@@ -73,9 +77,10 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
-    std::vector<String>*    AvailableInverters;   // available inverters from JSON
+    std::vector<regfiles_t>*AvailableInverters;   // available inverters from JSON
     std::vector<subscription_t>* Setters;         // available set Options from JSON register 
 
+    
     MQTT*                   mqtt = NULL;
     
     String                  PrintHex(byte num);

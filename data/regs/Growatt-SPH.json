@@ -1,0 +1,175 @@
+{
+    "Growatt-SPH": {
+        "config": {
+            "RequestLiveData": [
+                ["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
+                ["#ClientID", "0x04", "0x03", "0xE8", "0x00", "0x77"]
+            ],
+            "RequestIdData": ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x14"],
+            "ClientIdPos": 0,
+            "LiveDataFunctionCodePos": 1,
+            "LiveDataFunctionCode": "0x04",
+            "IdDataFunctionCodePos": 1,
+            "IdDataFunctionCode": "0x03",
+            "LiveDataStartsAtPos": 3,
+            "IdDataStartsAtPos": 3,
+            "LiveDataErrorPos": 1,
+            "LiveDataErrorCode": "0x84",
+            "IdDataErrorPos": 1,
+            "IdDataErrorCode": "0x83",
+            "LiveDataSuccessPos": 1,
+            "LiveDataSuccessCode": "0x04",
+            "IdDataSuccessPos": 1,
+            "IdDataSuccessCode": "0x03"
+        },
+        "data": {
+            "livedata": [
+                {
+                    "position": [3, 4],
+                    "name": "InverterRunState",
+                    "realname": "Inverter Status",
+                    "datatype": "integer",
+                    "mapping": [[0,"WaitMode"],[1,"NormalMode"],[3,"FaultMode"]]
+                },
+                {
+                    "position": [5, 6, 7, 8],
+                    "name": "InputPower",
+                    "realname": "Erzeugungsleistung Gesamt",
+                    "openwbtopic": "openWB/set/pv/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [13, 14, 15, 16],
+                    "name": "PowerPv1",
+                    "realname": "Erzeugungsleistung Pv1",
+                    "openwbtopic": "openWB/set/pv/1/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [21, 22, 23, 24],
+                    "name": "PowerPv2",
+                    "realname": "Erzeugungsleistung Pv2",
+                    "openwbtopic": "openWB/set/pv/2/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [77, 78],
+                    "name": "GridFrequency",
+                    "realname": "Grid Frequency",
+                    "datatype": "float",
+                    "factor": 0.01,
+                    "unit": "Hz"
+                },
+                {
+                    "position": [125, 126, 127, 128],
+                    "name": "TotalEnergyWhPv1",
+                    "realname": "Erzeugte Energie Pv1 in Wh",
+                    "openwbtopic": "openWB/set/pv/1/WhCounter",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [125, 126, 127, 128],
+                    "name": "TotalEnergyKwhPv1",
+                    "realname": "Erzeugte Energie Pv1 in Kwh",
+                    "openwbtopic": "openWB/set/pv/1/WhCounter",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [133, 134, 135, 136],
+                    "name": "TotalEnergyWhPv2",
+                    "realname": "Erzeugte Energie Pv2 in Wh",
+                    "openwbtopic": "openWB/set/pv/2/WhCounter",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [133, 134, 135, 136],
+                    "name": "TotalEnergyKwhPv2",
+                    "realname": "Erzeugte Energie Pv2 in Kwh",
+                    "openwbtopic": "openWB/set/pv/2/WhCounter",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [183, 284],
+                    "name": "BatVoltage",
+                    "realname": "Battery Voltage",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [268, 269, 270, 271],
+                    "position2": [264, 265, 266, 267],
+                    "name": "BatChargingPower",
+                    "realname": "Battery Charging Power",
+                    "openwbtopic": "openWB/set/houseBattery/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [274, 275],
+                    "name": "BatCapacity",
+                    "realname": "Battery Capacity (SOC)",
+                    "openwbtopic": "openWB/set/houseBattery/%Soc",
+                    "datatype": "integer",
+                    "unit": "%"
+                },
+                {
+                    "position": [362, 363, 364, 365],
+                    "name": "InputEnergyChargeWh",
+                    "realname": "Geladene Energie Speicher (Wh)",
+                    "openwbtopic": "openWB/set/houseBattery/WhImported",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [362, 363, 364, 365],
+                    "name": "InputEnergyChargeKwh",
+                    "realname": "Geladene Energie Speicher (KWh)",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [354, 355, 356, 357],
+                    "name": "OutputEnergyChargeWh",
+                    "realname": "Entladene Energie Speicher (Wh)",
+                    "openwbtopic": "openWB/set/houseBattery/WhExported",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [354, 355, 356, 357],
+                    "name": "OutputEnergyChargeKwh",
+                    "realname": "Entladene Energie Speicher (KWh)",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                }
+            ],
+            "id": [
+            {
+                "position": [49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
+                "name": "InverterSN",
+                "realname": "Inverter SerialNumber",
+                "datatype": "string"
+            }]
+        }
+    }
+}

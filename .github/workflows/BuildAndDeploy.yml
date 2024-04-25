@@ -56,7 +56,9 @@ jobs:
           pip install --upgrade pip
 
       - name: Run PlatformIO
-        run: platformio run -e ${{ matrix.variant }}
+        run: |
+          platformio run -e ${{ matrix.variant }}
+          platformio run --target buildfs -e ${{ matrix.variant }}
 
       - name: Display generated files
         run: |
@@ -78,11 +80,12 @@ jobs:
           ENV_ARCH: ${{ matrix.architecture }}
           ENV_REPOSITORYNAME: ${{ env.REPOSITORY }}
           ENV_BINARYPATH: .pio/build/${{ matrix.variant }}/
-          ENV_DESTPATH: "release"
+          ENV_RELEASEPATH: "release"
+          ENV_ARTIFACTPATH: "artifacts"
           ENV_SUBVERSION: ${{ github.run_number }}
           ENV_RELEASEFILE: src/_Release.h
         run: |
-          mkdir release 
+          mkdir -p release artifacts
           chmod +x .github/workflows/generateJSON.sh
           .github/workflows/generateJSON.sh
 
@@ -90,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: "${{ matrix.variant }}.zip"
-          path: release/*.bin
+          path: artifacts/*.bin
   
       - name: Upload to AWS S3
         uses: jakejarvis/s3-sync-action@master

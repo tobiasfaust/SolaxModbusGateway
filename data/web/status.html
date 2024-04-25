@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+    <meta charset='utf-8'>
+    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
+    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
+    <script language='javascript' type='text/javascript' src='/web/status.js'></script>
+    <title>status</title>
+  </head>
+  <body>
+    <table class='editorDemoTable'>
+      <thead>
+        <tr>
+          <td style='width: 250px;'>Name</td>
+          <td style='width: 200px;'>Wert</td>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>IP-Adresse:</td>
+          <td><span id='ipaddress'></span></td>
+        </tr>
+
+        <tr>
+          <td>WiFi Name:</td>
+          <td><span id='wifiname'></span></td>
+        </tr>
+        
+        <tr>
+          <td>MAC:</td>
+          <td><span id='macaddress'></span></td>
+        </tr>
+
+        <tr>
+          <td>WiFi RSSI:</td>
+          <td><span id='rssi'></span></td>
+        </tr>
+
+        <tr>
+          <td>MQTT Status:</td>
+          <td><span id='mqtt_status'></span></td>
+        </tr>
+
+        <tr>
+          <td>Selected Inverter:</td>
+          <td><span id='inverter_type'></span></td>
+        </tr>
+
+        <tr>
+          <td>Inverter SerialNumber:</td>
+          <td><span id='inverter_serial'></span></td>
+        </tr>
+
+        <tr>
+          <td>Uptime:</td>
+          <td><span id='uptime'></span></td>
+        </tr>
+
+        <tr>
+          <td>Free Heap Memory:</td>
+          <td><span id='freeheapmem'></span></td>
+        </tr>
+
+        <tr>
+          <td>Firmware Update</td>
+          <td><form action='/update'><input class='button' type='submit' value='Update' /></form></td>
+        </tr>
+        
+        <tr>
+          <td>Device Reboot</td>
+          <td><form action='/reboot'><input class='button' type='submit' value='Reboot' /></form></td>
+        </tr>
+
+        <tr>
+          <td>Werkszustand herstellen (ohne WiFi)</td>
+          <td><form action='/reset'><input class='button' type='submit' value='Reset' /></form></td>
+        </tr>
+
+        <tr>
+          <td>WiFi Zugangsdaten entfernen</td>
+          <td><form action='/wifireset'><input class='button' type='submit' value='WifiReset' /></form></td>
+        </tr>
+      </tbody>
+    </table> 
+
+    <p></p>
+    <table id='statustable' class='editorDemoTable'>
+      <thead>
+        <tr>
+          <td style='width: 250px;'>Name</td>
+          <td style='width: 300px;'>LiveData</td>
+        </tr>
+      </thead>
+      <tbody>
+        <template id='items'>
+          <tr>
+            <td id="realname"></td>
+            <td class="ajaxchange" id="value"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </body>
+</html>

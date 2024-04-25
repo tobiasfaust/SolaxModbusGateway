@@ -12,20 +12,19 @@
 #include "commonlibs.h"
 #include <ArduinoJson.h>
 #include "uptime.h" // https://github.com/YiannisBourkelis/Uptime-Library/
+#include "uptime_formatter.h"
 
 #include "baseconfig.h"
 #include "modbus.h"
+#include "handleFiles.h"
 #include "mqtt.h"
-#include "JavaScript.h"
-#include "JsAjax.h"
-#include "CSS.h"
 #include "favicon.h"
 #include "html_update.h"
 #include "_Release.h"
 
 class MyWebServer {
 
-  enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA};
+  //enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA, FSFILES};
   
   public:
     MyWebServer(AsyncWebServer *server, DNSServer* dns);
@@ -35,9 +34,12 @@ class MyWebServer {
   private:
     
     bool      DoReboot;
+    unsigned long RequestRebootTime;
 
     AsyncWebServer* server;
     DNSServer* dns;
+
+    handleFiles* fsfiles;
 
     void      handle_update_page(AsyncWebServerRequest *request);
     void      handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);    
@@ -46,23 +48,14 @@ class MyWebServer {
     void      handleReboot(AsyncWebServerRequest *request);
     void      handleReset(AsyncWebServerRequest *request);
     void      handleWiFiReset(AsyncWebServerRequest *request);
-    void      handleCSS(AsyncWebServerRequest *request);
-    void      handleJS(AsyncWebServerRequest *request);
-    void      handleJsAjax(AsyncWebServerRequest *request);
+    void      handleRequestFiles(AsyncWebServerRequest *request);
     void      handleRoot(AsyncWebServerRequest *request);
-    void      handleBaseConfig(AsyncWebServerRequest *request);
-    void      handleModbusConfig(AsyncWebServerRequest *request);
-    void      handleModbusItemConfig(AsyncWebServerRequest *request);
-    void      handleModbusRawData(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleAjax(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);
     void      handleGetRegisterJson(AsyncWebServerRequest *request);
-    void      ReceiveJSONConfiguration(AsyncWebServerRequest *request, page_t page);
-    void      getPageHeader(AsyncResponseStream *response, page_t pageactive);
-    void      getPageFooter(AsyncResponseStream *response);
-    
-    void      getPage_Status(AsyncResponseStream *response);
+    void      GetInitDataStatus(AsyncResponseStream *response);
+    void      GetInitDataNavi(AsyncResponseStream *response);
     String    GetReleaseName();
     
 };
