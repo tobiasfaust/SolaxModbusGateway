@@ -1,3 +1,6 @@
+Release 3.3.0:
+  - add modbusprotocoll doc for Solax-X1/X3 G4 (incl. write register) (thanks to @lattemacchiato) (#64)
+
 Release 3.2.0:
   - move register.h from PROGMEM into seperate files at FS
   - change deprecated SPIFFS to LittleFS
