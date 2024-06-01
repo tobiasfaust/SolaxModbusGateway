@@ -23,7 +23,8 @@ modbus* mb = NULL;
 BaseConfig* Config = NULL;
 MQTT* mqtt = NULL;
 MyWebServer* mywebserver = NULL;
-
+pinMode(pin_Relais1, INPUT);
+pinMode(pin_Relais2, INPUT);
 
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   String msg;
