@@ -28,7 +28,9 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
   } else {
     this->pin_RX = this->default_pin_RX = 16;
     this->pin_TX = this->default_pin_TX = 17;
-    this->pin_RTS = this->default_pin_RTS = 18;
+    this->pin_RTS = this->default_pin_RTS = 5;
+    this->pin_Relais1 = 18;
+    this->pin_Relais1 = 19;
   }
 
   this->LoadInvertersFromJson(); //needed for selecting default inverter
