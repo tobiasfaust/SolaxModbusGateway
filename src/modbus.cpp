@@ -30,7 +30,7 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
     this->pin_TX = this->default_pin_TX = 17;
     this->pin_RTS = this->default_pin_RTS = 5;
     this->pin_Relais1 = 18;
-    this->pin_Relais1 = 19;
+    this->pin_Relais2 = 19;
   }
 
   this->LoadInvertersFromJson(); //needed for selecting default inverter
@@ -52,7 +52,9 @@ void modbus::init(bool firstrun) {
   }
 
   // Configure Direction Control pin
-  pinMode(this->pin_RTS, OUTPUT);  
+  pinMode(this->pin_RTS, OUTPUT);
+  pinMode(pin_Relais1, INPUT);
+  pinMode(pin_Relais2, INPUT);
 
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
