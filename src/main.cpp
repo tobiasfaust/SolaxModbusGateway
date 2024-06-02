@@ -15,13 +15,6 @@ _________________________________________________________________
 #include "baseconfig.h"
 #include "mqtt.h"
 #include "MyWebServer.h"
-#include <ArduinoQueue.h>
-#include <ArduinoJson.h>
-#include <iomanip>
-#include <HardwareSerial.h>
-#include <StreamUtils.h>
-#include <HardwareSerial.h>
-#include <vector>
 
 AsyncWebServer server(80);
 DNSServer dns;
