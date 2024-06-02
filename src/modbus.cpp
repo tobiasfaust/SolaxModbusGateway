@@ -1,5 +1,4 @@
 #include "modbus.h"
-#include "mqtt.h"
 
 /*******************************************************
  * Constructor
@@ -1003,14 +1002,14 @@ void modbus::loop() {
     if (this->InverterType.filename.length() > 1) {
       this->QueryLiveData();
       if (digitalRead(pin_Relais1) = 1) {
-      	this->Publish_String("relais1","true", false);
+      	this->mqtt->Publish_String("relais1","true", false);
       } else {
-        this->Publish_String("relais1", "false", false);
+        this->mqtt->Publish_String("relais1", "false", false);
       }
       if (digitalRead(pin_Relais2) = 1) {
-        this->Publish_String("relais2","true", false);
+        this->mqtt->Publish_String("relais2","true", false);
       } else {
-        this->Publish_String("relais2", "false", false);
+        this->mqtt->Publish_String("relais2", "false", false);
       }
      }  
    }
