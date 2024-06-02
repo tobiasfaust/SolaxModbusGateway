@@ -21,6 +21,7 @@ _________________________________________________________________
 #include <HardwareSerial.h>
 #include <StreamUtils.h>
 #include <HardwareSerial.h>
+#include <vector>
 
 AsyncWebServer server(80);
 DNSServer dns;
