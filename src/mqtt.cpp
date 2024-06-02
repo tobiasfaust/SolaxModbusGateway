@@ -3,9 +3,6 @@
 MQTT::MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword): 
 server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath), ConnectStatusWifi(false), ConnectStatusMqtt(false) { 
 
-  this->pin_Relais1 = this->default_pin_Relais1 = 18;
-  this->pin_Relais2 = this->default_pin_Relais2 = 19;
-  
   this->subscriptions = new std::vector<String>{};
  
   this->mqtt = new PubSubClient();
