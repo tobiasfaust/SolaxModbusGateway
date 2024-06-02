@@ -336,16 +336,6 @@ void MQTT::loop() {
 
   if (this->mqtt->connected()) {
     this->ConnectStatusMqtt = true;
-    if (digitalRead(pin_Relais1) = 1) {
-      this->Publish_String("relais1","true", false);
-    } else {
-      this->Publish_String("relais1", "false", false);
-    }
-    if (digitalRead(pin_Relais2) = 1) {
-      this->Publish_String("relais2","true", false);
-    } else {
-      this->Publish_String("relais2", "false", false);
-    }
   } else {
     this->ConnectStatusMqtt = false;
   }
