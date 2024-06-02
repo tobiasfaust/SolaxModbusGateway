@@ -24,9 +24,6 @@ BaseConfig* Config = NULL;
 MQTT* mqtt = NULL;
 MyWebServer* mywebserver = NULL;
 
-pinMode(this->pin_Relais1, INPUT);
-pinMode(this->pin_Relais2, INPUT);
-
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   String msg;
   if (Config->GetDebugLevel() >=3) {
