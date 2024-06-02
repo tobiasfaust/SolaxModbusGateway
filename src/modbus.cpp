@@ -1,4 +1,5 @@
 #include "modbus.h"
+#include "mqtt.h"
 
 /*******************************************************
  * Constructor
