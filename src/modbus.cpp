@@ -999,7 +999,19 @@ void modbus::loop() {
   if (millis() - this->LastTxLiveData > this->TxIntervalLiveData * 1000) {
     this->LastTxLiveData = millis();
     
-    if (this->InverterType.filename.length() > 1) {this->QueryLiveData();}  
+    if (this->InverterType.filename.length() > 1) {
+      this->QueryLiveData();
+      if (digitalRead(pin_Relais1) = 1) {
+      	this->Publish_String("relais1","true", false);
+      } else {
+        this->Publish_String("relais1", "false", false);
+      }
+      if (digitalRead(pin_Relais2) = 1) {
+        this->Publish_String("relais2","true", false);
+      } else {
+        this->Publish_String("relais2", "false", false);
+      }
+     }  
    }
 
   if (millis() - this->LastTxIdData > this->TxIntervalIdData * 1000) {
