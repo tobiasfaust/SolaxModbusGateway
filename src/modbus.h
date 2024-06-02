@@ -64,6 +64,10 @@ class modbus {
     uint8_t                 default_pin_RX;       // Serial Receive pin
     uint8_t                 default_pin_TX;       // Serial Transmit pin
     uint8_t                 default_pin_RTS;      // Direction control pin
+    uint8_t          	    pin_Relais1;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    pin_Relais2;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relais1;  // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relais2;  // Pin zum Abfragen des ersten Potetialfreien Kontakts
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
