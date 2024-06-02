@@ -18,6 +18,7 @@ _________________________________________________________________
 #include <ArduinoQueue.h>
 #include <ArduinoJson.h>
 #include <iomanip>
+#include <HardwareSerial.h>
 
 AsyncWebServer server(80);
 DNSServer dns;
