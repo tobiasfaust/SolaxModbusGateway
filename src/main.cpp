@@ -20,6 +20,7 @@ _________________________________________________________________
 #include <iomanip>
 #include <HardwareSerial.h>
 #include <StreamUtils.h>
+#include <HardwareSerial.h>
 
 AsyncWebServer server(80);
 DNSServer dns;
