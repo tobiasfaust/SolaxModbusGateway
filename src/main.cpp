@@ -24,6 +24,7 @@ BaseConfig* Config = NULL;
 MQTT* mqtt = NULL;
 MyWebServer* mywebserver = NULL;
 
+
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   String msg;
   if (Config->GetDebugLevel() >=3) {
