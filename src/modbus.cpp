@@ -1135,8 +1135,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"].containsKey("pin_rx"))           { this->pin_RX = (int)(doc["data"]["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
         if (doc["data"].containsKey("pin_tx"))           { this->pin_TX = (int)(doc["data"]["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
         if (doc["data"].containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["data"]["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
-	if (doc["data"].containsKey("pin_Relay1"))      { this->pin_Relay1= (int)(doc["data"]["pin_Relay1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
-        if (doc["data"].containsKey("pin_Relay2"))      { this->pin_Relay2 = (int)(doc["data"]["pin_Relay2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
+	if (doc["data"].containsKey("pin_RELAY1"))      { this->pin_Relay1= (int)(doc["data"]["pin_RELAY1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
+        if (doc["data"].containsKey("pin_RELAY2"))      { this->pin_Relay2 = (int)(doc["data"]["pin_RELAY2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
         if (doc["data"].containsKey("clientid"))         { this->ClientID = strtoul(doc["data"]["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
         if (doc["data"].containsKey("baudrate"))         { this->Baudrate = (int)(doc["data"]["baudrate"]);} else {this->Baudrate = 19200;}
         if (doc["data"].containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["data"]["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
@@ -1286,8 +1286,8 @@ void modbus::GetInitData(AsyncResponseStream *response) {
   json["data"]["baudrate"]            = this->Baudrate;
   json["data"]["txintervallive"]      = this->TxIntervalLiveData;
   json["data"]["txintervalid"]        = this->TxIntervalIdData;
-  json["data"]["GpioPin_Relay1"]     = this->pin_Relay1;
-  json["data"]["GpioPin_Relay2"]     = this->pin_Relay2;
+  json["data"]["GpioPin_Relay1"]      = this->pin_Relay1;
+  json["data"]["GpioPin_Relay2"]      = this->pin_Relay2;
   json["data"]["enable_openwbtopic"]  = ((this->Conf_EnableOpenWBTopic)?1:0);
   json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
   
