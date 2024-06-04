@@ -55,7 +55,7 @@ void modbus::init(bool firstrun) {
   pinMode(this->pin_RTS, OUTPUT);
 
   pinMode(this->pin_Relay1, INPUT_PULLDOWN);
-  pinMode(this->pin_Relay2, INPUT);
+  pinMode(this->pin_Relay2, INPUT_PULLDOWN);
 
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
