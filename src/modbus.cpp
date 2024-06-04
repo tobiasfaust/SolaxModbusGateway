@@ -29,8 +29,8 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
     this->pin_RX = this->default_pin_RX = 16;
     this->pin_TX = this->default_pin_TX = 17;
     this->pin_RTS = this->default_pin_RTS = 5;
-    this->pin_Relais1 = this->default_pin_Relais1 = 18;
-    this->pin_Relais2 = this->default_pin_Relais2 = 19;
+    this->pin_Relay1 = this->default_pin_Relay1 = 18;
+    this->pin_Relay2 = this->default_pin_Relay2 = 19;
   }
 
   this->LoadInvertersFromJson(); //needed for selecting default inverter
@@ -54,8 +54,8 @@ void modbus::init(bool firstrun) {
   // Configure Direction Control pin
   pinMode(this->pin_RTS, OUTPUT);
 
-  pinMode(this->pin_Relais1, INPUT);
-  pinMode(this->pin_Relais2, INPUT);
+  pinMode(this->pin_Relay1, INPUT);
+  pinMode(this->pin_Relay2, INPUT);
 
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
@@ -1001,17 +1001,17 @@ void modbus::loop() {
     
     if (this->InverterType.filename.length() > 1) {
       this->QueryLiveData();
-      state_Relais1 = digitalRead(pin_Relais1);
-      if (state_Relais1 = 1) {
-      	this->mqtt->Publish_String("relais1","true", false);
+      state_Relay1 = digitalRead(pin_Relay1);
+      if (state_Relay1 = 1) {
+      	this->mqtt->Publish_String("Relay1","true", false);
       } else {
-        this->mqtt->Publish_String("relais1", "false", false);
+        this->mqtt->Publish_String("Relay1", "false", false);
       }
-      state_Relais2 = digitalRead(pin_Relais2);    
-      if (state_Relais2 = 1) {
-        this->mqtt->Publish_String("relais2","true", false);
+      state_Relay2 = digitalRead(pin_Relay2);    
+      if (state_Relay2 = 1) {
+        this->mqtt->Publish_String("Relay2","true", false);
       } else {
-        this->mqtt->Publish_String("relais2", "false", false);
+        this->mqtt->Publish_String("Relay2", "false", false);
       }
      }  
    }
@@ -1115,8 +1115,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
   uint8_t pin_TX_old    = this->pin_TX;
   uint8_t pin_RTS_old   = this->pin_RTS;
   regfiles_t InverterType_old = this->InverterType;
-  uint8_t pin_Relais1_old   = this->pin_Relais1;
-  uint8_t pin_Relais2_old   = this->pin_Relais2;
+  uint8_t pin_Relay1_old   = this->pin_Relay1;
+  uint8_t pin_Relay2_old   = this->pin_Relay2;
 
   if (LittleFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
@@ -1135,8 +1135,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"].containsKey("pin_rx"))           { this->pin_RX = (int)(doc["data"]["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
         if (doc["data"].containsKey("pin_tx"))           { this->pin_TX = (int)(doc["data"]["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
         if (doc["data"].containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["data"]["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
-	if (doc["data"].containsKey("pin_RELAIS1"))      { this->pin_Relais1= (int)(doc["data"]["pin_RELAIS1"]);} else {this->pin_Relais1 = this->default_pin_Relais1;}
-        if (doc["data"].containsKey("pin_RELAIS2"))      { this->pin_Relais2 = (int)(doc["data"]["pin_RELAIS2"]);} else {this->pin_Relais2 = this->default_pin_Relais2;}
+	if (doc["data"].containsKey("pin_Relay1"))      { this->pin_Relay1= (int)(doc["data"]["pin_Relay1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
+        if (doc["data"].containsKey("pin_Relay2"))      { this->pin_Relay2 = (int)(doc["data"]["pin_Relay2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
         if (doc["data"].containsKey("clientid"))         { this->ClientID = strtoul(doc["data"]["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
         if (doc["data"].containsKey("baudrate"))         { this->Baudrate = (int)(doc["data"]["baudrate"]);} else {this->Baudrate = 19200;}
         if (doc["data"].containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["data"]["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
@@ -1188,8 +1188,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
     this->Baudrate = 19200;
     this->TxIntervalLiveData = 5;
     this->TxIntervalIdData = 3600;
-    this->pin_Relais1 = this->default_pin_Relais1;
-    this->pin_Relais2 = this->default_pin_Relais2;
+    this->pin_Relay1 = this->default_pin_Relay1;
+    this->pin_Relay2 = this->default_pin_Relay2;
     this->Conf_EnableOpenWBTopic = false;
     this->Conf_EnableSetters = false;
 
@@ -1202,8 +1202,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
      (pin_RX_old   != this->pin_RX)   ||
      (pin_TX_old   != this->pin_TX)   ||
      (pin_RTS_old  != this->pin_RTS)  ||
-     (pin_Relais1_old  != this->pin_Relais1)  ||
-     (pin_Relais2_old  != this->pin_Relais2))) { 
+     (pin_Relay1_old  != this->pin_Relay1)  ||
+     (pin_Relay2_old  != this->pin_Relay2))) { 
     
     this->init(false);
   }
@@ -1286,8 +1286,8 @@ void modbus::GetInitData(AsyncResponseStream *response) {
   json["data"]["baudrate"]            = this->Baudrate;
   json["data"]["txintervallive"]      = this->TxIntervalLiveData;
   json["data"]["txintervalid"]        = this->TxIntervalIdData;
-  json["data"]["GpioPin_Relais1"]     = this->pin_Relais1;
-  json["data"]["GpioPin_Relais2"]     = this->pin_Relais2;
+  json["data"]["GpioPin_Relay1"]     = this->pin_Relay1;
+  json["data"]["GpioPin_Relay2"]     = this->pin_Relay2;
   json["data"]["enable_openwbtopic"]  = ((this->Conf_EnableOpenWBTopic)?1:0);
   json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
   
