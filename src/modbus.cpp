@@ -1115,6 +1115,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
   uint8_t pin_TX_old    = this->pin_TX;
   uint8_t pin_RTS_old   = this->pin_RTS;
   regfiles_t InverterType_old = this->InverterType;
+  uint8_t pin_Relais1_old   = this->pin_Relais1;
+  uint8_t pin_Relais2_old   = this->pin_Relais2;
 
   if (LittleFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
@@ -1181,11 +1183,13 @@ void modbus::LoadJsonConfig(bool firstrun) {
 
     this->pin_RX = this->default_pin_RX;
     this->pin_TX = this->default_pin_TX;
-    this->pin_RTS = this->default_pin_RTS;
+    this->pin_RTS = this->default_pin_RTS;  
     this->ClientID = 0x01;
     this->Baudrate = 19200;
     this->TxIntervalLiveData = 5;
     this->TxIntervalIdData = 3600;
+    this->pin_Relais1 = this->default_pin_Relais1;
+    this->pin_Relais2 = this->default_pin_Relais2;
     this->Conf_EnableOpenWBTopic = false;
     this->Conf_EnableSetters = false;
 
@@ -1197,7 +1201,9 @@ void modbus::LoadJsonConfig(bool firstrun) {
      (Baudrate_old != this->Baudrate) ||
      (pin_RX_old   != this->pin_RX)   ||
      (pin_TX_old   != this->pin_TX)   ||
-     (pin_RTS_old  != this->pin_RTS)) ) { 
+     (pin_RTS_old  != this->pin_RTS)  ||
+     (pin_Relais1_old  != this->pin_Relais1)  ||
+     (pin_Relais2_old  != this->pin_Relais2))) { 
     
     this->init(false);
   }
@@ -1280,6 +1286,8 @@ void modbus::GetInitData(AsyncResponseStream *response) {
   json["data"]["baudrate"]            = this->Baudrate;
   json["data"]["txintervallive"]      = this->TxIntervalLiveData;
   json["data"]["txintervalid"]        = this->TxIntervalIdData;
+  json["data"]["GpioPin_RELAIS1"]     = this->pin_Relais1;
+  json["data"]["GpioPin_RELAIS2"]     = this->pin_Relais2;
   json["data"]["enable_openwbtopic"]  = ((this->Conf_EnableOpenWBTopic)?1:0);
   json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
   
