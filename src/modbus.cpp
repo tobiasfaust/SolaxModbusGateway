@@ -1286,8 +1286,8 @@ void modbus::GetInitData(AsyncResponseStream *response) {
   json["data"]["baudrate"]            = this->Baudrate;
   json["data"]["txintervallive"]      = this->TxIntervalLiveData;
   json["data"]["txintervalid"]        = this->TxIntervalIdData;
-  json["data"]["GpioPin_RELAIS1"]     = this->pin_Relais1;
-  json["data"]["GpioPin_RELAIS2"]     = this->pin_Relais2;
+  json["data"]["GpioPin_Relais1"]     = this->pin_Relais1;
+  json["data"]["GpioPin_Relais2"]     = this->pin_Relais2;
   json["data"]["enable_openwbtopic"]  = ((this->Conf_EnableOpenWBTopic)?1:0);
   json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
   
