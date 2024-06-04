@@ -54,7 +54,7 @@ void modbus::init(bool firstrun) {
   // Configure Direction Control pin
   pinMode(this->pin_RTS, OUTPUT);
 
-  pinMode(this->pin_Relay1, INPUT);
+  pinMode(this->pin_Relay1, INPUT_PULLDOWN);
   pinMode(this->pin_Relay2, INPUT);
 
   this->LoadInvertersFromJson();
@@ -1003,15 +1003,15 @@ void modbus::loop() {
       this->QueryLiveData();
       state_Relay1 = digitalRead(pin_Relay1);
       if (state_Relay1 = 1) {
-      	this->mqtt->Publish_String("Relay1","true", false);
+      	this->mqtt->Publish_String("relay1","true", false);
       } else {
-        this->mqtt->Publish_String("Relay1", "false", false);
+        this->mqtt->Publish_String("relay1", "false", false);
       }
       state_Relay2 = digitalRead(pin_Relay2);    
       if (state_Relay2 = 1) {
-        this->mqtt->Publish_String("Relay2","true", false);
+        this->mqtt->Publish_String("relay2","true", false);
       } else {
-        this->mqtt->Publish_String("Relay2", "false", false);
+        this->mqtt->Publish_String("relay2", "false", false);
       }
      }  
    }
