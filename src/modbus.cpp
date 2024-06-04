@@ -1133,8 +1133,8 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"].containsKey("pin_rx"))           { this->pin_RX = (int)(doc["data"]["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
         if (doc["data"].containsKey("pin_tx"))           { this->pin_TX = (int)(doc["data"]["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
         if (doc["data"].containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["data"]["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
-	if (doc["data"].containsKey("pin_RELAIS1"))      { this->pin_RELAIS1= (int)(doc["data"]["pin_RELAIS1"]);} else {this->pin_Relais1 = this->default_pin_Relais1;}
-        if (doc["data"].containsKey("pin_RELAIS2"))      { this->pin_RELAIS2 = (int)(doc["data"]["pin_RELAIS2"]);} else {this->pin_Relais2 = this->default_pin_Relais2;}
+	if (doc["data"].containsKey("pin_RELAIS1"))      { this->pin_Relais1= (int)(doc["data"]["pin_RELAIS1"]);} else {this->pin_Relais1 = this->default_pin_Relais1;}
+        if (doc["data"].containsKey("pin_RELAIS2"))      { this->pin_Relais2 = (int)(doc["data"]["pin_RELAIS2"]);} else {this->pin_Relais2 = this->default_pin_Relais2;}
         if (doc["data"].containsKey("clientid"))         { this->ClientID = strtoul(doc["data"]["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
         if (doc["data"].containsKey("baudrate"))         { this->Baudrate = (int)(doc["data"]["baudrate"]);} else {this->Baudrate = 19200;}
         if (doc["data"].containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["data"]["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
