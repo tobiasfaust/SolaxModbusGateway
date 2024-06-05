@@ -1001,14 +1001,14 @@ void modbus::loop() {
     
     if (this->InverterType.filename.length() > 1) {
       this->QueryLiveData();
-      uint8_t state_Relay1 = digitalRead(pin_Relay1);
-      if (state_Relay1 = 1) {
+      this->state_Relay1 = digitalRead(pin_Relay1);
+      if (this->state_Relay1 = 1) {
       	this->mqtt->Publish_String("relay1","true", false);
       } else {
         this->mqtt->Publish_String("relay1", "false", false);
       }
-      uint8_t state_Relay2 = digitalRead(pin_Relay2);    
-      if (state_Relay2 = 1) {
+      this->state_Relay2 = digitalRead(pin_Relay2);    
+      if (this->state_Relay2 = 1) {
         this->mqtt->Publish_String("relay2","true", false);
       } else {
         this->mqtt->Publish_String("relay2", "false", false);
