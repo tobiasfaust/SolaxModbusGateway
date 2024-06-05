@@ -1003,9 +1003,9 @@ void modbus::loop() {
       this->QueryLiveData();
       this->state_Relay1 = digitalRead(pin_Relay1);
       if (this->state_Relay1 = 1) {
-      	this->mqtt->Publish_String("relay1","true", false);
+      	this->mqtt->Publish_String("relay1",digitalRead(pin_Relay1), false);
       } else {
-        this->mqtt->Publish_String("relay1", "false", false);
+        this->mqtt->Publish_String("relay1", digitalRead(pin_Relay1), false);
       }
       this->state_Relay2 = digitalRead(pin_Relay2);    
       if (this->state_Relay2 = 1) {
