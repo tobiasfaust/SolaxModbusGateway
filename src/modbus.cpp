@@ -25,6 +25,8 @@ modbus::modbus() : Baudrate(19200), LastTxLiveData(0), LastTxIdData(0), LastTxIn
     this->pin_RX = this->default_pin_RX = 2;
     this->pin_TX = this->default_pin_TX = 4;
     this->pin_RTS = this->default_pin_RTS = 5;
+    this->pin_Relay1 = this->default_pin_Relay1 = 12;
+    this->pin_Relay2 = this->default_pin_Relay2 = 14;
   } else {
     this->pin_RX = this->default_pin_RX = 16;
     this->pin_TX = this->default_pin_TX = 17;
