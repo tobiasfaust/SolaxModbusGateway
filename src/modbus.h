@@ -68,8 +68,8 @@ class modbus {
     uint8_t           	    pin_Relay2;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
     uint8_t           	    default_pin_Relay1;  // Pin zum Abfragen des ersten Potetialfreien Kontakts
     uint8_t           	    default_pin_Relay2;  // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    String           	    state_Relay1;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    String           	    state_Relay2;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    state_Relay1;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t          	    state_Relay2;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
