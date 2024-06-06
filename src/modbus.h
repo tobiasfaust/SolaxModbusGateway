@@ -64,12 +64,14 @@ class modbus {
     uint8_t                 default_pin_RX;       // Serial Receive pin
     uint8_t                 default_pin_TX;       // Serial Transmit pin
     uint8_t                 default_pin_RTS;      // Direction control pin
-    uint8_t          	    pin_Relay1;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    uint8_t           	    pin_Relay2;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    uint8_t           	    default_pin_Relay1;  // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    uint8_t           	    default_pin_Relay2;  // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    uint8_t           	    state_Relay1;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
-    uint8_t          	    state_Relay2;          // Pin zum Abfragen des ersten Potetialfreien Kontakts
+
+    uint8_t          	    pin_Relay1;           // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relay1;   // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    pin_Relay2;           // Pin zum Abfragen des zweiten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relay2;   // Pin zum Abfragen des zweiten Potetialfreien Kontakts
+    uint8_t           	    state_Relay1;         // Status des ersten Potetialfreien Kontakts
+    uint8_t          	    state_Relay2;         // Status des zweiten Potetialfreien Kontakts
+
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
@@ -114,17 +116,17 @@ class modbus {
 
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<byte>*      Conf_RequestIdData;
-		uint8_t                 Conf_ClientIdPos;
+    uint8_t                 Conf_ClientIdPos;
     uint8_t                 Conf_LiveDataStartsAtPos;
-		uint8_t                 Conf_IdDataStartsAtPos;
-		uint8_t                 Conf_LiveDataErrorPos;
-		byte                    Conf_LiveDataErrorCode;
-		uint8_t                 Conf_IdDataErrorPos;
-		byte                    Conf_IdDataErrorCode;
-		uint8_t                 Conf_LiveDataSuccessPos;
-		byte                    Conf_LiveDataSuccessCode;
-		uint8_t                 Conf_IdDataSuccessPos;
-		byte                    Conf_IdDataSuccessCode;
+    uint8_t                 Conf_IdDataStartsAtPos;
+    uint8_t                 Conf_LiveDataErrorPos;
+    byte                    Conf_LiveDataErrorCode;
+    uint8_t                 Conf_IdDataErrorPos;
+    byte                    Conf_IdDataErrorCode;
+    uint8_t                 Conf_LiveDataSuccessPos;
+    byte                    Conf_LiveDataSuccessCode;
+    uint8_t                 Conf_IdDataSuccessPos;
+    byte                    Conf_IdDataSuccessCode;
     byte                    Conf_LiveDataFunctionCode;
     byte                    Conf_IdDataFunctionCode;
     uint8_t                 Conf_LiveDataFunctionCodePos;
