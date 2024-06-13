@@ -1003,7 +1003,7 @@ void modbus::loop() {
     
     if (this->InverterType.filename.length() > 1) {
       this->QueryLiveData();
-      if (this->InverterType.name.c_str() == "Solax-X1" || this->InverterType.name.c_str() == "Solax-X3" || this->InverterType.name.c_str() == "Solax-X3-PRO") {    
+      if (this->InverterType.name == "Solax-X1" || this->InverterType.name == "Solax-X3" || this->InverterType.name == "Solax-X3-PRO") {    
         this->state_Relay1 = digitalRead(this->pin_Relay1);    
         if (this->state_Relay1 == 1) {
           this->mqtt->Publish_String("relay1","true", false);
