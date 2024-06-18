@@ -333,7 +333,7 @@ void MyWebServer::GetInitDataStatus(AsyncResponseStream *response) {
   json["data"]["inverter_serial"] = mb->GetInverterSN();
   json["data"]["uptime"] = uptime_formatter::getUptime();
   json["data"]["freeheapmem"] = ESP.getFreeHeap();
-
+  
   json["response"].to<JsonObject>();
   json["response"]["status"] = 1;
   json["response"]["text"] = "successful";
