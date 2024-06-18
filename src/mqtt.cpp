@@ -352,8 +352,6 @@ void MQTT::loop() {
 
       snprintf(buffer, sizeof(buffer), "%d", WiFi.RSSI());
       this->Publish_String("rssi", buffer, false);
-
-      this->Publish_String("uptime", this->uptime,false);
     }
   }
   
