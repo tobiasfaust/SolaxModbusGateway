@@ -352,10 +352,6 @@ void MQTT::loop() {
 
       snprintf(buffer, sizeof(buffer), "%d", WiFi.RSSI());
       this->Publish_String("rssi", buffer, false);
-      
-      uint64_t uptimeMicroSeconds = esp_timer_get_time();
-      uint64_t uptimeSeconds = uptimeMicroSeconds / 1000000;
-      this->Publish_Int("uptime",uptimeSeconds,false);
     }
   }
   
