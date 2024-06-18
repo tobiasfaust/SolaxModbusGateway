@@ -7,8 +7,6 @@
 #include <vector>
 #include "baseconfig.h"
 #include <ETH.h>
-#include "uptime.h" // https://github.com/YiannisBourkelis/Uptime-Library/
-#include "uptime_formatter.h"
 
 #ifdef ESP8266
   //#define SetHostName(x) wifi_station_set_hostname(x);
