@@ -71,5 +71,4 @@ void loop() {
   mqtt->loop();
   mywebserver->loop();
   mb->loop();
-  mqtt->Publish_String("uptime",uptime_formatter::getUptime(),false);
 }
