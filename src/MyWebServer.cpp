@@ -334,8 +334,6 @@ void MyWebServer::GetInitDataStatus(AsyncResponseStream *response) {
   json["data"]["uptime"] = uptime_formatter::getUptime();
   json["data"]["freeheapmem"] = ESP.getFreeHeap();
   
-  this->mqtt->Publish_String("uptime",uptime_formatter::getUptime(),false);
-  
   json["response"].to<JsonObject>();
   json["response"]["status"] = 1;
   json["response"]["text"] = "successful";
