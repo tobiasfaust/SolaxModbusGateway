@@ -290,65 +290,57 @@ function isVisible(_obj) {
   return ret;
 }
 
-/*############################################################
-# DataForm: id of FormElement which contains all input fields
-# SubmitForm: id of FormElement which contains hidden input filed, named "json", for submit
-# jsontype:
-#   1 = standard, 1 level
-#   2 = array, each item separately
-############################################################*/
-function onSubmit(DataForm, jsontype){
-  //set default
-  if (!jsontype) jsontype = 1;
+/*******************************
+separator: 
+regex of item ID to identify first element in row
+  - if set, returned json is an array, all elements per row, example: "^myonoffswitch.*"
+  - if emty, all elements at one level together, ONLY for small json´s (->memory issue)
+*******************************/
+function onSubmit(DataForm, separator='') {
+  // init json Objects
+  var JsonData, tempData; 
   
-  // init json String
-  var JsonData; 
-  if (jsontype == 1) { JsonData =  {data: {}}; }
-  else if (jsontype == 2) { JsonData =  {data: []}; }
-  
-  var count = 0;
+  if (separator.length == 0) { JsonData =  {data: {}}; }
+  else { JsonData =  {data: []};}
+  tempData = {};
   
   var elems = document.getElementById(DataForm).elements; 
   for(var i = 0; i < elems.length; i++){ 
     if(elems[i].name && elems[i].value) {
-			if (!isVisible(elems[i])) continue;
+      if (!isVisible(elems[i])) { continue; }
+      
+      // tempData -> JsonData if new row (first named element (-> match) in row)
+      if (separator.length > 0 && elems[i].id.match(separator) && Object.keys(tempData).length > 0) {
+      	JsonData.data.push(tempData);
+        tempData = {};
+      } else if (separator.length == 0 && Object.keys(tempData).length > 0) {
+        JsonData.data[Object.keys(tempData)[0]] = tempData[Object.keys(tempData)[0]];
+        tempData = {};
+      }
       
       if (elems[i].type == "checkbox") {
-        count++;
-        if (jsontype == 1) { JsonData.data[elems[i].name] = (elems[i].checked==true?1:0); }
-        else if (jsontype == 2) {
-          JsonData.data.push({ "name" : elems[i].name,
-                               "value": (elems[i].checked==true?1:0) });
-        }
+        tempData[elems[i].name] = (elems[i].checked==true?1:0);
       } else if (elems[i].id.match(/^Alle.*/) || 
                  elems[i].id.match(/^GpioPin.*/) || 
                  elems[i].id.match(/^AnalogPin.*/) || 
                  elems[i].type == "number") {
-        count++;
-        if (jsontype == 1) { JsonData.data[elems[i].name] = parseInt(elems[i].value); }
-        else if (jsontype == 2) {
-          JsonData.data.push({ "name" : elems[i].name,
-                                "value": parseInt(elems[i].value) });
-        }
+        tempData[elems[i].name] = parseInt(elems[i].value); 
       } else if (elems[i].type == "radio") {
-        if (jsontype == 1) { if (elems[i].checked==true) {JsonData.data[elems[i].name] = elems[i].value;} }
-        else if (jsontype == 2) {
-          if (elems[i].checked==true) {
-            count++;
-            JsonData.data.push({ "name" : elems[i].name,
-                                 "value": elems[i].value });
-           }
-        }
+        if (elems[i].checked==true) {tempData[elems[i].name] = elems[i].value;}
       } else {
-        if (jsontype == 1) { JsonData.data[elems[i].name] = elems[i].value; }
-        else if (jsontype == 2) {
-          count++;
-          JsonData.data.push({ "name" : elems[i].name,
-                               "value": elems[i].value });
-        }
+        tempData[elems[i].name] = elems[i].value;
       }
     }
   } 
+  
+  // ende elements
+  if (separator.length > 0 && Object.keys(tempData).length > 0) {
+    JsonData.data.push(tempData);
+    tempData = {};
+  } else if (separator.length == 0 && Object.keys(tempData).length > 0) {
+    JsonData.data[Object.keys(tempData)[0]] = tempData[Object.keys(tempData)[0]];
+    tempData = {};
+  }  
 
   setResponse(true, "save ...")
 
@@ -374,10 +366,7 @@ function onSubmit(DataForm, jsontype){
         data['subaction'] = filename;
         requestData(JSON.stringify(data), false);
       }); 
-
-  
 }
-
 
 
 /*******************************
