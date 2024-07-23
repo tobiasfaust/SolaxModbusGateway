@@ -1,0 +1,716 @@
+{
+    "Growatt-MOD_4000_TL3-XH": {
+        "config": {
+            "author": "Gustavw82",
+            "RequestLiveData": [
+                [
+                    "#ClientID",
+                    "0x04",
+                    "0x00",
+                    "0x00",
+                    "0x00",
+                    "0x77"
+                ],
+                [
+                    "#ClientID",
+                    "0x04",
+                    "0x0C",
+                    "0x1C",
+                    "0x00",
+                    "0x77"
+                ]
+            ],
+            "RequestIdData": [
+                "#ClientID",
+                "0x03",
+                "0x00",
+                "0x78",
+                "0x00",
+                "0x77"
+            ],
+            "ClientIdPos": 0,
+            "LiveDataFunctionCodePos": 1,
+            "LiveDataFunctionCode": "0x04",
+            "IdDataFunctionCodePos": 1,
+            "IdDataFunctionCode": "0x03",
+            "LiveDataStartsAtPos": 3,
+            "IdDataStartsAtPos": 3,
+            "LiveDataErrorPos": 1,
+            "LiveDataErrorCode": "0x84",
+            "IdDataErrorPos": 1,
+            "IdDataErrorCode": "0x83",
+            "LiveDataSuccessPos": 1,
+            "LiveDataSuccessCode": "0x04",
+            "IdDataSuccessPos": 1,
+            "IdDataSuccessCode": "0x03"
+        },
+        "data": {
+            "livedata": [
+                {
+                    "position": [
+                        3,
+                        4
+                    ],
+                    "name": "InverterRunState",
+                    "realname": "Inverter Status",
+                    "datatype": "integer",
+                    "mapping": [
+                        [
+                            0,
+                            "WaitMode"
+                        ],
+                        [
+                            1,
+                            "NormalMode"
+                        ],
+                        [
+                            3,
+                            "FaultMode"
+                        ]
+                    ]
+                },
+                {
+                    "position": [
+                        5,
+                        6,
+                        7,
+                        8
+                    ],
+                    "name": "InputPower",
+                    "realname": "Erzeugungsleistung Gesamt",
+                    "openwbtopic": "openWB/set/pv/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [
+                        13,
+                        14,
+                        15,
+                        16
+                    ],
+                    "name": "PowerPv1",
+                    "realname": "Erzeugungsleistung Pv1",
+                    "openwbtopic": "openWB/set/pv/1/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [
+                        17,
+                        18
+                    ],
+                    "name": "Spannung PV2",
+                    "realname": "Spannung PV2",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        19,
+                        20
+                    ],
+                    "name": "Strom PV2",
+                    "realname": "Strom PV2",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "A"
+                },
+                {
+                    "position": [
+                        21,
+                        22,
+                        23,
+                        24
+                    ],
+                    "name": "PowerPv2",
+                    "realname": "Erzeugungsleistung Pv2",
+                    "openwbtopic": "openWB/set/pv/2/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [
+                        73,
+                        74,
+                        75,
+                        76
+                    ],
+                    "name": "Output Power",
+                    "realname": "Ausgangsleistung",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [
+                        77,
+                        78
+                    ],
+                    "name": "GridFrequency",
+                    "realname": "Netzfrequenz",
+                    "datatype": "float",
+                    "factor": 0.01,
+                    "unit": "Hz"
+                },
+                {
+                    "position": [
+                        79,
+                        80
+                    ],
+                    "name": "SpannungL1",
+                    "realname": "Spannung L1",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        81,
+                        82
+                    ],
+                    "name": "Strom L1",
+                    "realname": "Strom L1",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "A"
+                },
+                {
+                    "position": [
+                        83,
+                        84,
+                        85,
+                        86
+                    ],
+                    "name": "Leistung L1",
+                    "realname": "Leistung L1",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "VA"
+                },
+                {
+                    "position": [
+                        87,
+                        88
+                    ],
+                    "name": "SpannungL2",
+                    "realname": "Spannung L2",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        89,
+                        90
+                    ],
+                    "name": "Strom L2",
+                    "realname": "Strom L2",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "A"
+                },
+                {
+                    "position": [
+                        91,
+                        92,
+                        93,
+                        94
+                    ],
+                    "name": "Leistung L2",
+                    "realname": "Leistung L2",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "VA"
+                },
+                {
+                    "position": [
+                        95,
+                        96
+                    ],
+                    "name": "SpannungL3",
+                    "realname": "Spannung L3",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        97,
+                        98
+                    ],
+                    "name": "Strom L3",
+                    "realname": "Strom L3",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "A"
+                },
+                {
+                    "position": [
+                        99,
+                        100,
+                        101,
+                        102
+                    ],
+                    "name": "Leistung L3",
+                    "realname": "Leistung L3",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "VA"
+                },
+                {
+                    "position": [
+                        103,
+                        104
+                    ],
+                    "name": "SpannungL1L2",
+                    "realname": "Spannung L1 L2",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        105,
+                        106
+                    ],
+                    "name": "SpannungL2L3",
+                    "realname": "Spannung L2 L3",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        107,
+                        108
+                    ],
+                    "name": "SpannungL3L1",
+                    "realname": "Spannung L3 L1",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        109,
+                        110,
+                        111,
+                        112
+                    ],
+                    "name": "Energy generated today",
+                    "realname": "Erzeugte Energie heute",
+                    "datatype": "integer",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        113,
+                        114,
+                        115,
+                        116
+                    ],
+                    "name": "Total Energy generated",
+                    "realname": "Erzeugte Energie Gesamt",
+                    "datatype": "integer",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        117,
+                        118,
+                        119,
+                        120
+                    ],
+                    "name": "Worktime total",
+                    "realname": "Arbeitszeit Gesamt",
+                    "datatype": "integer",
+                    "factor": 0.5,
+                    "unit": "s"
+                },
+                {
+                    "position": [
+                        121,
+                        122,
+                        123,
+                        124
+                    ],
+                    "name": "TodayEnergyKWhPv1",
+                    "realname": "Erzeugte Energie Pv1 heute",
+                    "openwbtopic": "openWB/set/pv/1/WhCounter",
+                    "datatype": "integer",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        125,
+                        126,
+                        127,
+                        128
+                    ],
+                    "name": "TotalEnergyWhPv1",
+                    "realname": "Erzeugte Energie Pv1 in Wh",
+                    "openwbtopic": "openWB/set/pv/1/WhCounter",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [
+                        129,
+                        130,
+                        131,
+                        132
+                    ],
+                    "name": "TodayEnergyKWhPv2",
+                    "realname": "Erzeugte Energie Pv2 heute",
+                    "openwbtopic": "openWB/set/pv/2/WhCounter",
+                    "datatype": "integer",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        133,
+                        134,
+                        135,
+                        136
+                    ],
+                    "name": "TotalEnergyWhPv2",
+                    "realname": "Erzeugte Energie Pv2 in Wh",
+                    "openwbtopic": "openWB/set/pv/2/WhCounter",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [
+                        133,
+                        134,
+                        135,
+                        136
+                    ],
+                    "name": "TotalEnergyKwhPv2",
+                    "realname": "Erzeugte Energie Pv2 in Kwh",
+                    "openwbtopic": "openWB/set/pv/2/WhCounter",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        189,
+                        190
+                    ],
+                    "name": "InverterTemperature",
+                    "realname": "Inverter Temperatur",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "°C"
+                },
+                {
+                    "position": [
+                        384,
+                        385
+                    ],
+                    "name": "BatVoltage",
+                    "realname": "Battery Voltage",
+                    "datatype": "float",
+                    "factor": 0.01,
+                    "unit": "V"
+                },
+                {
+                    "position": [
+                        408,
+                        409
+                    ],
+                    "name": "BatChargingPower",
+                    "realname": "Battery Charging Power",
+                    "openwbtopic": "openWB/set/houseBattery/W",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [
+                        213,
+                        214
+                    ],
+                    "name": "Faultcode",
+                    "realname": "Inverter Fehlercode",
+                    "datatype": "integer"
+                },
+                {
+                    "position": [
+                        213,
+                        214
+                    ],
+                    "name": "Faultmessage",
+                    "realname": "Inverter Fehlermeldung",
+                    "datatype": "integer",
+                    "mapping": [
+                        [
+                            0,
+                            "Kein Fehler"
+                        ],
+                        [
+                            1,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            2,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            3,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            4,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            5,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            6,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            7,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            8,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            9,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            10,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            11,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            12,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            13,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            14,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            15,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            16,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            17,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            18,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            19,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            20,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            21,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            22,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            23,
+                            "Fehler:99+X"
+                        ],
+                        [
+                            24,
+                            "Auto Test fehlgeschlagen"
+                        ],
+                        [
+                            25,
+                            "Keine Netzverbindung"
+                        ],
+                        [
+                            26,
+                            "PV Isolation schlecht"
+                        ],
+                        [
+                            27,
+                            "Residual I High"
+                        ],
+                        [
+                            28,
+                            "Output High DCI"
+                        ],
+                        [
+                            29,
+                            "PV Spannung Hoch"
+                        ],
+                        [
+                            30,
+                            "Netzspannung außer Toleranz"
+                        ],
+                        [
+                            31,
+                            "Netzfrequenz außer Toleranz"
+                        ],
+                        [
+                            32,
+                            "Temperatur zu hoch"
+                        ]
+                    ]
+                },
+                {
+                    "position": [
+                        305,
+                        306
+                    ],
+                    "name": "PAC to Grid",
+                    "realname": "Leistung AC ins Netz",
+                    "datatype": "integer",
+                    "unit": "Kwh"
+                },
+                {
+                    "position": [
+                        388,
+                        389
+                    ],
+                    "name": "BatCapacity",
+                    "realname": "Battery Capacity (SOC)",
+                    "openwbtopic": "openWB/set/houseBattery/%Soc",
+                    "datatype": "integer",
+                    "unit": "%"
+                },
+                {
+                    "position": [
+                        414,
+                        415,
+                        416,
+                        417
+                    ],
+                    "name": "InputEnergyChargeWh",
+                    "realname": "Geladene Energie Speicher (Wh)",
+                    "openwbtopic": "openWB/set/houseBattery/WhImported",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [
+                        414,
+                        415,
+                        416,
+                        417
+                    ],
+                    "name": "InputEnergyChargeKwh",
+                    "realname": "Geladene Energie Speicher (KWh)",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        410,
+                        411,
+                        412,
+                        413
+                    ],
+                    "name": "OutputEnergyChargeWh",
+                    "realname": "Entladene Energie Speicher (Wh)",
+                    "openwbtopic": "openWB/set/houseBattery/WhExported",
+                    "datatype": "integer",
+                    "factor": 100,
+                    "unit": "Wh"
+                },
+                {
+                    "position": [
+                        410,
+                        411,
+                        412,
+                        413
+                    ],
+                    "name": "OutputEnergyChargeKwh",
+                    "realname": "Entladene Energie Speicher (KWh)",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        571,
+                        572,
+                        573,
+                        574
+                    ],
+                    "name": "Energiebezug Netz gesamt",
+                    "realname": "Energiebezug Netz (KWh)",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                },
+                {
+                    "position": [
+                        575,
+                        576,
+                        577,
+                        578
+                    ],
+                    "name": "Einspeisung Netz gesamt",
+                    "realname": "Einspeisung Netz (KWh)",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "KWh"
+                }
+            ],
+            "id": [
+                {
+                    "position": [
+                        181,
+                        182,
+                        183,
+                        184,
+                        185,
+                        186,
+                        187,
+                        188,
+                        189,
+                        190
+                    ],
+                    "name": "InverterSN",
+                    "realname": "Inverter SerialNumber",
+                    "datatype": "string"
+                }
+            ]
+        }
+    }
+}
