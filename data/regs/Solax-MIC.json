@@ -1,6 +1,7 @@
 {
     "Solax-Mic": {
     "config": {
+      "author": "gerdluthe",
       "RequestLiveData": [
         ["#ClientID", "0x04", "0x04", "0x00", "0x00", "0x40"]
       ],

@@ -1,6 +1,7 @@
 {
   "Solax-X1": {
       "config": {
+        "author": "tobiasfaust",
           "RequestLiveData": [
               [
                   "#ClientID",

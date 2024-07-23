@@ -1,6 +1,7 @@
 {
     "Growatt-SPH": {
         "config": {
+            "author": "thomas-99",
             "RequestLiveData": [
                 ["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
                 ["#ClientID", "0x04", "0x03", "0xE8", "0x00", "0x77"]

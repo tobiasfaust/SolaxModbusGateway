@@ -1,6 +1,7 @@
 {
   "QVolt-HYP-G3-3P": {
     "config": {
+      "author": "effix58",
       "RequestLiveData": [
         [
           "#ClientID",

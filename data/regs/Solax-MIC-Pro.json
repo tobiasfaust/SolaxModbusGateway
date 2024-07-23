@@ -1,6 +1,7 @@
 {
   "Solax-Mic-Pro": {
     "config": {
+      "author": "michacee",
       "RequestLiveData": [
         [
           "#ClientID",

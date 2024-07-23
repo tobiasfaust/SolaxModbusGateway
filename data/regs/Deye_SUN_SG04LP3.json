@@ -1,6 +1,7 @@
 {
     "Deye SUN-xx-SG04LP3": {
         "config": {
+            "author": "",
             "RequestLiveData": [
                 [
                     "#ClientID",
