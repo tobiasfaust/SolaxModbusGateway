@@ -15,8 +15,11 @@ function GetInitData() {
 }
 
 function MyCallback() {
-  reset_rawdata('id_rawdata')
-  reset_rawdata('live_rawdata')
+  reset_rawdata('id_rawdata');
+  reset_rawdata('live_rawdata');
+
+  document.querySelector("#loader").style.visibility = "hidden";
+  document.querySelector("body").style.visibility = "visible";
 }
 
 /*******************************

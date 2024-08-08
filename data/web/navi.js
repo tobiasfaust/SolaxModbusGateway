@@ -24,6 +24,10 @@ function highlightNavi(item) {
     }
 
   }
+
+  top.frames["frame_main"].document.querySelector("#loader").style.visibility = "visible";  
+  top.frames["frame_main"].document.querySelector("body").style.visibility = "hidden";
+  
 }
 
 // ************************************************
