@@ -9,6 +9,7 @@
     <title>status</title>
   </head>
   <body>
+    <div id="loader"></div>
     <form id='DataForm'>
       <table id='maintable' class='editorDemoTable'>
         <thead>
@@ -45,7 +46,7 @@
     </form>
     <br />
     <br/>
-    <input type='submit' onclick="onSubmit('DataForm', 2)" value='Speichern' />
+    <input type='submit' onclick="onSubmit('DataForm', '.*')" value='Speichern' />
     <span id='response'></span>
   </body>
 </html>

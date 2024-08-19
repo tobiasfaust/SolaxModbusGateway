@@ -5,6 +5,8 @@ var DirJson;
 window.addEventListener('load', initHandleFS, false);
 function initHandleFS() {
   init("/");
+  document.querySelector("#loader").style.visibility = "hidden";
+  document.querySelector("body").style.visibility = "visible";
 }
 
 function init(startpath) {
@@ -12,7 +14,6 @@ function init(startpath) {
   obj = document.getElementById('fullpath').innerHTML = ''; // div 
   obj = document.getElementById('filename').value = ''; // input field
   obj = document.getElementById('content').value = '';
-  
 }
 
 // ***********************************

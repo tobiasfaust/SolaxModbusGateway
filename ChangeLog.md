@@ -1,3 +1,10 @@
+Release 3.2.1:
+  - add modbusprotocoll doc for Solax-X1/X3 G4 (incl. write register) (thanks to @lattemacchiato) (#64)
+  - fix bug in solax-x1.json at EnergyTotalToGrid
+  - add Solax-Mic-Pro configuration, thanks to michacee (#35)
+  - add support for Growatt-MOD_4000_TL3-XH, thanks to Gustavw82 (#70).
+  - add page loading visualization
+  
 Release 3.2.0:
   - move register.h from PROGMEM into seperate files at FS
   - change deprecated SPIFFS to LittleFS

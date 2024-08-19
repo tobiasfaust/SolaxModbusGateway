@@ -1,6 +1,7 @@
 {
     "Deye SUN-xx-SG04LP3": {
         "config": {
+            "author": "MagicSven81",
             "RequestLiveData": [
                 [
                     "#ClientID",
@@ -1141,7 +1142,7 @@
                     "name": "PV1DCCurrent",
                     "realname": "PV1 DC Current",
                     "datatype": "float",
-                    "factor": 0.01,
+                    "factor": 0.1,
                     "unit": "A"
                 },
                 {
@@ -1163,7 +1164,7 @@
                     "name": "PV2DCCurrent",
                     "realname": "PV2 DC Current",
                     "datatype": "float",
-                    "factor": 0.01,
+                    "factor": 0.1,
                     "unit": "A"
                 },
                 {
@@ -1185,7 +1186,7 @@
                     "name": "PV3DCCurrent",
                     "realname": "PV3 DC Current",
                     "datatype": "float",
-                    "factor": 0.01,
+                    "factor": 0.1,
                     "unit": "A"
                 },
                 {
@@ -1207,7 +1208,7 @@
                     "name": "PV4DCCurrent",
                     "realname": "PV4 DC Current",
                     "datatype": "float",
-                    "factor": 0.01,
+                    "factor": 0.1,
                     "unit": "A"
                 }
             ],

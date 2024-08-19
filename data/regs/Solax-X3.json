@@ -1,6 +1,7 @@
 {
     "Solax-X3": {
         "config": {
+            "author": "",
             "RequestLiveData": [
                 [
                     "#ClientID",
@@ -840,6 +841,7 @@
     },
     "Solax-X3-PRO": {
         "config": {
+            "author": "MagicSven81",
             "RequestLiveData": [
                 [
                     "#ClientID",

@@ -1,11 +1,25 @@
 {
-    "Solax-Mic": {
+  "Solax-Mic-Pro": {
     "config": {
-      "author": "gerdluthe",
+      "author": "michacee",
       "RequestLiveData": [
-        ["#ClientID", "0x04", "0x04", "0x00", "0x00", "0x40"]
+        [
+          "#ClientID",
+          "0x04",
+          "0x04",
+          "0x00",
+          "0x00",
+          "0x35"
+        ]
       ],
-      "RequestIdData": ["#ClientID", "0x03", "0x03", "0x00", "0x00", "0x14"],
+      "RequestIdData": [
+        "#ClientID",
+        "0x03",
+        "0x03",
+        "0x00",
+        "0x00",
+        "0x07"
+      ],
       "ClientIdPos": 0,
       "LiveDataFunctionCodePos": 1,
       "LiveDataFunctionCode": "0x04",
@@ -25,7 +39,10 @@
     "data": {
       "livedata": [
         {
-          "position": [3, 4],
+          "position": [
+            3,
+            4
+          ],
           "name": "PvVoltage1",
           "realname": "Pv Voltage 1",
           "datatype": "float",
@@ -33,7 +50,10 @@
           "unit": "V"
         },
         {
-          "position": [5, 6],
+          "position": [
+            5,
+            6
+          ],
           "name": "PvVoltage2",
           "realname": "Pv Voltage 2",
           "datatype": "float",
@@ -41,7 +61,10 @@
           "unit": "V"
         },
         {
-          "position": [7, 8],
+          "position": [
+            7,
+            8
+          ],
           "name": "PvCurrent1",
           "realname": "Pv Current 1",
           "datatype": "float",
@@ -49,7 +72,10 @@
           "unit": "A"
         },
         {
-          "position": [9, 10],
+          "position": [
+            9,
+            10
+          ],
           "name": "PvCurrent2",
           "realname": "Pv Current 2",
           "datatype": "float",
@@ -57,7 +83,10 @@
           "unit": "A"
         },
         {
-          "position": [11, 12],
+          "position": [
+            11,
+            12
+          ],
           "name": "GridVoltage_R",
           "realname": "Grid Voltage L1",
           "datatype": "float",
@@ -65,7 +94,10 @@
           "unit": "V"
         },
         {
-          "position": [13, 14],
+          "position": [
+            13,
+            14
+          ],
           "name": "GridVoltage_S",
           "realname": "Grid Voltage L2",
           "datatype": "float",
@@ -73,7 +105,10 @@
           "unit": "V"
         },
         {
-          "position": [15, 16],
+          "position": [
+            15,
+            16
+          ],
           "name": "GridVoltage_T",
           "realname": "Grid Voltage L3",
           "datatype": "float",
@@ -81,7 +116,10 @@
           "unit": "V"
         },
         {
-          "position": [17, 18],
+          "position": [
+            17,
+            18
+          ],
           "name": "GridFrequency_R",
           "realname": "Grid Frequency L1",
           "datatype": "float",
@@ -89,7 +127,10 @@
           "unit": "Hz"
         },
         {
-          "position": [19, 20],
+          "position": [
+            19,
+            20
+          ],
           "name": "GridFrequency_S",
           "realname": "Grid Frequency L2",
           "datatype": "float",
@@ -97,7 +138,10 @@
           "unit": "Hz"
         },
         {
-          "position": [21, 22],
+          "position": [
+            21,
+            22
+          ],
           "name": "GridFrequency_T",
           "realname": "Grid Frequency L3",
           "datatype": "float",
@@ -105,7 +149,10 @@
           "unit": "Hz"
         },
         {
-          "position": [23, 24],
+          "position": [
+            23,
+            24
+          ],
           "name": "GridCurrent_R",
           "realname": "Grid Current L1",
           "datatype": "float",
@@ -113,7 +160,10 @@
           "unit": "A"
         },
         {
-          "position": [25, 26],
+          "position": [
+            25,
+            26
+          ],
           "name": "GridCurrent_S",
           "realname": "Grid Current L2",
           "datatype": "float",
@@ -121,7 +171,10 @@
           "unit": "A"
         },
         {
-          "position": [27, 28],
+          "position": [
+            27,
+            28
+          ],
           "name": "GridCurrent_T",
           "realname": "Grid Current L3",
           "datatype": "float",
@@ -129,56 +182,101 @@
           "unit": "A"
         },
         {
-          "position": [29, 30],
+          "position": [
+            29,
+            30
+          ],
           "name": "Temperature",
           "realname": "Temperature",
           "datatype": "integer",
           "unit": "&deg;C"
         },
         {
-          "position": [31, 32],
+          "position": [
+            31,
+            32
+          ],
           "name": "OutputPower",
           "realname": "Output Power",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [33, 34],
+          "position": [
+            33,
+            34
+          ],
           "name": "InverterStatus",
           "realname": "Inverter Status",
           "datatype": "integer",
-          "mapping": [[0,"WaitMode"],[1,"CheckMode"],[2,"NormalMode"],[3,"FaultMode"],[4,"PermanentFaultMode"]]
+          "mapping": [
+            [
+              0,
+              "WaitMode"
+            ],
+            [
+              1,
+              "CheckMode"
+            ],
+            [
+              2,
+              "NormalMode"
+            ],
+            [
+              3,
+              "FaultMode"
+            ],
+            [
+              4,
+              "PermanentFaultMode"
+            ]
+          ]
         },
         {
-          "position": [35, 36],
+          "position": [
+            35,
+            36
+          ],
           "name": "GridPower_R",
           "realname": "Grid Power L1",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [37, 38],
+          "position": [
+            37,
+            38
+          ],
           "name": "GridPower_S",
           "realname": "Grid Power L2",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [39, 40],
+          "position": [
+            39,
+            40
+          ],
           "name": "GridPower_T",
           "realname": "Grid Power L3",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [41, 42],
+          "position": [
+            41,
+            42
+          ],
           "name": "PowerPvTotal",
           "realname": "Erzeugungsleistung PV Gesamt",
           "datatype": "float",
           "unit": "W"
         },
         {
-          "position": [43, 44],
+          "position": [
+            43,
+            44
+          ],
           "name": "PowerPv1",
           "realname": "Erzeugungsleistung Pv1",
           "openwbtopic": "openWB/set/pv/1/W",
@@ -186,7 +284,10 @@
           "unit": "W"
         },
         {
-          "position": [45, 46],
+          "position": [
+            45,
+            46
+          ],
           "name": "PowerPv2",
           "realname": "Erzeugungsleistung Pv2",
           "openwbtopic": "openWB/set/pv/2/W",
@@ -194,32 +295,52 @@
           "unit": "W"
         },
         {
-          "position": [75, 76, 73, 74],
+          "position": [
+            75,
+            76,
+            73,
+            74
+          ],
           "name": "EnergyTotalToGridWh",
           "realname": "Total Energy to Grid in Wh",
           "openwbtopic": "openWB/set/pv/WhCounter",
-          "datatype": "integer", 
+          "datatype": "integer",
           "factor": 100,
           "unit": "Wh"
         },
         {
-          "position": [75, 76, 73, 74],
+          "position": [
+            75,
+            76,
+            73,
+            74
+          ],
           "name": "EnergyTotalToGridKwh",
           "realname": "Total Energy to Grid in KWh",
-          "datatype": "float", 
-          "factor": 0.1,
+          "datatype": "float",
+          "factor": 0.001,
           "unit": "kWh"
         },
         {
-          "position": [79, 80, 77, 78],
+          "position": [
+            79,
+            80,
+            77,
+            78
+          ],
           "name": "EtodayToGrid",
           "realname": "Today Energy to Grid",
           "datatype": "float",
-          "factor": 0.1,
+          "factor": 0.001,
           "unit": "kWh"
         },
         {
-          "position": [121, 122, 119, 120],
+          "position": [
+            243,
+            242,
+            245,
+            244
+          ],
           "name": "GridPower",
           "realname": "Grid Power",
           "openwbtopic": "openWB/set/pv/W",
@@ -227,7 +348,12 @@
           "unit": "W"
         },
         {
-          "position": [125, 126, 123, 124],
+          "position": [
+            126,
+            127,
+            129,
+            128
+          ],
           "name": "feedinEnergy",
           "realname": "FeedIn Energy",
           "datatype": "float",
@@ -235,7 +361,12 @@
           "unit": "kWh"
         },
         {
-          "position": [129, 130, 127, 128],
+          "position": [
+            131,
+            130,
+            133,
+            132
+          ],
           "name": "ConsumeInEnergy",
           "realname": "ConsumeIn Energy",
           "datatype": "float",
@@ -245,12 +376,27 @@
       ],
       "id": [
         {
-          "position": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+          "position": [
+            4,
+            3,
+            6,
+            5,
+            8,
+            7,
+            10,
+            9,
+            12,
+            11,
+            14,
+            13,
+            16,
+            15
+          ],
           "name": "InverterSN",
           "realname": "Inverter SerialNumber",
           "datatype": "string"
-          }
-        ]
+        }
+      ]
     }
-  }    
+  }
 }

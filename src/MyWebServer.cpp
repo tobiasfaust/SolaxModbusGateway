@@ -138,7 +138,9 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  request->send(LittleFS, "/web/UpdateResponse.html", "text/html"); 
+  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
+  response->addHeader("Server","ESP Async Web Server");
+  request->send(response);
 
   this->DoReboot = true;
 }

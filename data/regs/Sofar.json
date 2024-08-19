@@ -1,6 +1,7 @@
 {
     "Sofar-KTL Solarmax-SGA": {
     "config": {
+      "author": "Dobie007",
       "RequestLiveData": [
         ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x30"]
       ],

@@ -415,6 +415,7 @@ void modbus::QueryQueueToInverter() {
     RS485Serial->flush();
     digitalWrite(this->pin_RTS, RS485Receive); 
 
+    // wait 100ms to get response
     unsigned long timeout=millis()+100;
     while (millis()<=timeout) { yield(); }
 
@@ -515,7 +516,7 @@ int modbus::JsonPosArrayToInt(JsonArray posArray, JsonArray posArray2) {
     for(uint16_t v : posArray) {
       if (v < this->DataFrame->size()) { 
         val_i = (val_i << 8) | this->DataFrame->at(v); 
-                val_max = (val_max << 8) | 0xFF;
+        val_max = (val_max << 8) | 0xFF;
       }
     }
   }
@@ -1220,28 +1221,32 @@ void modbus::LoadJsonItemConfig() {
           }
         }
 
-        String ItemName = elem["name"].as<String>();
-        //ItemName = ItemName.substring(7, ItemName.length()); //Name: active_<ItemName>
+        for (JsonPair kv : elem.as<JsonObject>()) {
+          const char* ItemName = kv.key().c_str();
 
-        for(uint16_t i=0; i<this->InverterLiveData->size(); i++) {
-          if (this->InverterLiveData->at(i).Name == ItemName ) {
-            this->InverterLiveData->at(i).active = elem["value"].as<bool>();
+          //Serial.println(kv.key().c_str());
+          //Serial.println(kv.value().as<const char*>());
 
-            if (Config->GetDebugLevel() >=3) {
-              Serial.printf("item %s -> %s\n", ItemName.c_str(), (this->InverterLiveData->at(i).active?"enabled":"disabled"));
+          for(uint16_t i=0; i<this->InverterLiveData->size(); i++) {
+            if (this->InverterLiveData->at(i).Name == ItemName ) {
+              this->InverterLiveData->at(i).active = kv.value().as<bool>();
+
+              if (Config->GetDebugLevel() >=3) {
+                Serial.printf("item %s -> %s\n", ItemName, (this->InverterLiveData->at(i).active?"enabled":"disabled"));
+              }
+
+              break;
             }
-
-            break;
           }
         }
 
       } while (stream.findUntil(",","]"));
       configFile.close();
     } else {
-      if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbus item json config, load default config");}
+      if (Config->GetDebugLevel() >=1) {Serial.println("failed to load modbusitemconfig.json, load default item config");}
     }
   } else {
-    if (Config->GetDebugLevel() >=3) {Serial.println("ModbusItemConfig.json config File not exists, all items are inactive as default");}
+    if (Config->GetDebugLevel() >=3) {Serial.println("modbusitemconfig.json config File not exists, all items are inactive as default");}
   }
 }
 
