@@ -74,7 +74,7 @@ void BaseConfig::LoadJsonConfig() {
 }
 
 const String BaseConfig::GetReleaseName() {
-  return Release;
+  return String(Release) + "(@" + GIT_BRANCH + ")"; 
 }
 
 void BaseConfig::GetInitData(AsyncResponseStream *response) {
