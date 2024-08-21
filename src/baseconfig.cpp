@@ -73,6 +73,10 @@ void BaseConfig::LoadJsonConfig() {
 
 }
 
+const String BaseConfig::GetReleaseName() {
+  return Release;
+}
+
 void BaseConfig::GetInitData(AsyncResponseStream *response) {
   String ret;
   JsonDocument json;

@@ -83,7 +83,7 @@ jobs:
           ENV_RELEASEPATH: "release"
           ENV_ARTIFACTPATH: "artifacts"
           ENV_SUBVERSION: ${{ github.run_number }}
-          ENV_RELEASEFILE: src/_Release.h
+          ENV_RELEASEFILE: include/_Release.h
         run: |
           mkdir -p release artifacts
           chmod +x .github/workflows/generateJSON.sh
@@ -132,7 +132,7 @@ jobs:
       - name: set Environment Variables
         id: set_env_var
         run: |
-                 VERSION=$(sed 's/[^0-9|.]//g' src/_Release.h)  # zb. 2.4.2
+                 VERSION=$(sed 's/[^0-9|.]//g' include/_Release.h)  # zb. 2.4.2
                  if [ ${{ github.ref }} == 'refs/heads/master' ]; then IS_PRE='false'; else IS_PRE='true'; fi
                  if [ ${{ github.ref }} == 'refs/heads/master' ]; then POSTFIX=''    ; else POSTFIX='PRE'; fi
                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"

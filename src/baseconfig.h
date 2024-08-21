@@ -23,7 +23,7 @@ class BaseConfig {
     const bool&     GetUseETH()        const { return useETH; }
     const String&   GetLANBoard()      const {return LANBoard;}
     const uint8_t&  GetDebugLevel()    const {return debuglevel;}
-    const String&   GetReleaseName()   const {return Release;}; 
+    const String    GetReleaseName(); 
   private:
     String    mqtt_server;
     String    mqtt_username;
