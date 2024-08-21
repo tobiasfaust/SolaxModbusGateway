@@ -1,3 +1,6 @@
+Release 3.2.2:
+  - ...
+
 Release 3.2.1:
   - add modbusprotocoll doc for Solax-X1/X3 G4 (incl. write register) (thanks to @lattemacchiato) (#64)
   - fix bug in solax-x1.json at EnergyTotalToGrid
