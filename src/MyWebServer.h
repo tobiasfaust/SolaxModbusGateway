@@ -56,7 +56,6 @@ class MyWebServer {
     void      handleGetRegisterJson(AsyncWebServerRequest *request);
     void      GetInitDataStatus(AsyncResponseStream *response);
     void      GetInitDataNavi(AsyncResponseStream *response);
-    String    GetReleaseName();
     
 };
 

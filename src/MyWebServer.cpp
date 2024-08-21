@@ -90,10 +90,6 @@ void MyWebServer::loop() {
   }
 }
 
-String MyWebServer::GetReleaseName() {
-  return Release;
-}
-
 void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
   request->send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
@@ -308,7 +304,7 @@ void MyWebServer::GetInitDataNavi(AsyncResponseStream *response){
   JsonDocument json;
   json["data"].to<JsonObject>();
   json["data"]["hostname"] = Config->GetMqttRoot();
-  json["data"]["releasename"] = this->GetReleaseName();
+  json["data"]["releasename"] = Config->GetReleaseName();
   json["data"]["releasedate"] = __DATE__;
   json["data"]["releasetime"] = __TIME__;
 
