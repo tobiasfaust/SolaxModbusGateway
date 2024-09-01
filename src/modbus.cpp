@@ -3,7 +3,7 @@
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus() : Baudrate(19200), enableCrcCheck(true), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0) {
+modbus::modbus() : Baudrate(19200), enableRelays(false), enableCrcCheck(true), enableLengthCheck(true), LastTxLiveData(0), LastTxIdData(0), LastTxInverter(0) {
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -25,10 +25,14 @@ modbus::modbus() : Baudrate(19200), enableCrcCheck(true), LastTxLiveData(0), Las
     this->pin_RX = this->default_pin_RX = 2;
     this->pin_TX = this->default_pin_TX = 4;
     this->pin_RTS = this->default_pin_RTS = 5;
+    this->pin_Relay1 = this->default_pin_Relay1 = 12;
+    this->pin_Relay2 = this->default_pin_Relay2 = 14;
   } else {
     this->pin_RX = this->default_pin_RX = 16;
     this->pin_TX = this->default_pin_TX = 17;
-    this->pin_RTS = this->default_pin_RTS = 18;
+    this->pin_RTS = this->default_pin_RTS = 5;
+    this->pin_Relay1 = this->default_pin_Relay1 = 18;
+    this->pin_Relay2 = this->default_pin_Relay2 = 19;
   }
 
   this->LoadInvertersFromJson(); //needed for selecting default inverter
@@ -51,6 +55,10 @@ void modbus::init(bool firstrun) {
 
   // Configure Direction Control pin
   pinMode(this->pin_RTS, OUTPUT);  
+  if (this->enableRelays) {
+    pinMode(this->pin_Relay1, INPUT);
+    pinMode(this->pin_Relay2, INPUT);
+  }
 
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
@@ -65,6 +73,17 @@ void modbus::init(bool firstrun) {
 
   //at first read ID Data
   this->QueryIdData();
+}
+
+/*******************************************************
+ * Read configured pin states
+*******************************************************/
+void modbus::ReadRelays() {
+  this->state_Relay1 = digitalRead(this->pin_Relay1);    
+  this->mqtt->Publish_Int("relay1", this->state_Relay1, false);
+  
+  this->state_Relay2 = digitalRead(this->pin_Relay2);    
+  this->mqtt->Publish_Int("relay2", this->state_Relay2, false);
 }
 
 /*******************************************************
@@ -514,8 +533,14 @@ void modbus::ReceiveReadData() {
           valid = false;
           if (Config->GetDebugLevel() >=2) Serial.println("CRC check  failed!");
         }
+      }
 
+      if (this->enableLengthCheck) {
         // Check datalength
+        if (Config->GetDebugLevel() >=4) {
+          Serial.printf("Dataframe length should be: 0x%d, is: 0x%d\n", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
+        }
+
         if (this->DataFrame->at(dataFrameStartPos+2) != this->DataFrame->size()-dataFrameStartPos-5) {
           valid = false;
           if (Config->GetDebugLevel() >=2) Serial.printf("data length check failed, should be %d but is %d\n", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
@@ -1058,7 +1083,10 @@ void modbus::loop() {
   if (millis() - this->LastTxLiveData > this->TxIntervalLiveData * 1000) {
     this->LastTxLiveData = millis();
     
-    if (this->InverterType.filename.length() > 1) {this->QueryLiveData();}  
+    if (this->InverterType.filename.length() > 1) {
+      this->QueryLiveData();
+      if (this->enableRelays) this->ReadRelays();
+    }  
    }
 
   if (millis() - this->LastTxIdData > this->TxIntervalIdData * 1000) {
@@ -1160,6 +1188,9 @@ void modbus::LoadJsonConfig(bool firstrun) {
   uint8_t pin_TX_old    = this->pin_TX;
   uint8_t pin_RTS_old   = this->pin_RTS;
   regfiles_t InverterType_old = this->InverterType;
+  uint8_t pin_Relay1_old   = this->pin_Relay1;
+  uint8_t pin_Relay2_old   = this->pin_Relay2;
+  bool enableRelays_old  = this->enableRelays;
 
   if (LittleFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
@@ -1185,6 +1216,11 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"].containsKey("enable_openwbtopic")){ this->Conf_EnableOpenWBTopic = (doc["data"]["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
         if (doc["data"].containsKey("enable_setters"))   { this->Conf_EnableSetters = (doc["data"]["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
         if (doc["data"].containsKey("enableCrcCheck"))   { this->enableCrcCheck = (doc["data"]["enableCrcCheck"]).as<bool>();} else { this->enableCrcCheck = true; }
+        if (doc["data"].containsKey("enableLengthCheck")){ this->enableLengthCheck = (doc["data"]["enableLengthCheck"]).as<bool>();} else { this->enableLengthCheck = true; }
+        if (doc["data"].containsKey("pin_RELAY1"))       { this->pin_Relay1= (int)(doc["data"]["pin_RELAY1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
+        if (doc["data"].containsKey("pin_RELAY2"))       { this->pin_Relay2 = (int)(doc["data"]["pin_RELAY2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
+        if (doc["data"].containsKey("EnableRelays"))     { this->enableRelays = (doc["data"]["EnableRelays"]).as<bool>();} else { this->enableRelays = false; }
+        
 
         if (doc["data"].containsKey("invertertype"))     { 
           bool found = false;
@@ -1230,6 +1266,9 @@ void modbus::LoadJsonConfig(bool firstrun) {
     this->Baudrate = 19200;
     this->TxIntervalLiveData = 5;
     this->TxIntervalIdData = 3600;
+    this->pin_Relay1 = this->default_pin_Relay1;
+    this->pin_Relay2 = this->default_pin_Relay2;
+    this->enableRelays = false;
     this->Conf_EnableOpenWBTopic = false;
     this->Conf_EnableSetters = false;
 
@@ -1241,7 +1280,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
      (Baudrate_old != this->Baudrate) ||
      (pin_RX_old   != this->pin_RX)   ||
      (pin_TX_old   != this->pin_TX)   ||
-     (pin_RTS_old  != this->pin_RTS)) ) { 
+     (pin_RTS_old  != this->pin_RTS)  ||
+     (enableRelays_old != this->enableRelays) ||
+     (pin_Relay1_old  != this->pin_Relay1)  ||
+     (pin_Relay2_old  != this->pin_Relay2))) { 
     
     this->init(false);
   }
@@ -1328,8 +1370,14 @@ void modbus::GetInitData(AsyncResponseStream *response) {
   json["data"]["baudrate"]            = this->Baudrate;
   json["data"]["txintervallive"]      = this->TxIntervalLiveData;
   json["data"]["txintervalid"]        = this->TxIntervalIdData;
+  json["data"]["GpioPin_Relay1"]      = this->pin_Relay1;
+  json["data"]["GpioPin_Relay2"]      = this->pin_Relay2;
+  json["data"]["EnableRelays_On"]     = ((this->enableRelays)?1:0);
+  json["data"]["EnableRelays_Off"]    = ((this->enableRelays)?0:1);
+
   json["data"]["enable_openwbtopic"]  = ((this->Conf_EnableOpenWBTopic)?1:0);
   json["data"]["enableCrcCheck"]      = ((this->enableCrcCheck)?1:0);
+  json["data"]["enableLengthCheck"]      = ((this->enableLengthCheck)?1:0);
   json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
   
   JsonArray inverters = json["data"]["inverters"].to<JsonArray>();

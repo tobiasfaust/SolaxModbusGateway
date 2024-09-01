@@ -66,12 +66,22 @@ class modbus {
     uint8_t                 default_pin_RX;       // Serial Receive pin
     uint8_t                 default_pin_TX;       // Serial Transmit pin
     uint8_t                 default_pin_RTS;      // Direction control pin
+    
+    uint8_t          	      pin_Relay1;           // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relay1;   // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    pin_Relay2;           // Pin zum Abfragen des zweiten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relay2;   // Pin zum Abfragen des zweiten Potetialfreien Kontakts
+    uint8_t           	    state_Relay1;         // Status des ersten Potetialfreien Kontakts
+    uint8_t          	      state_Relay2;         // Status des zweiten Potetialfreien Kontakts
+    bool                    enableRelays;         // enable reading Relays
+
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
     uint16_t                TxIntervalIdData;     // 3600
     regfiles_t              InverterType;         //Solax-X1
     bool                    enableCrcCheck;       //check CRC of invertr answer
+    bool                    enableLengthCheck;    // check correct datframe length
 
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
@@ -105,7 +115,8 @@ class modbus {
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
     String                  MapItem(JsonArray map, String value);
-    
+    void                    ReadRelays();
+
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;
     ArduinoQueue<std::vector<byte>>* SetQueue;

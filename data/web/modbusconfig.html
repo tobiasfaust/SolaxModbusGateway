@@ -66,6 +66,30 @@
         </tr>
 
         <tr>
+          <td colspan='2'>
+          <div class='inline'>
+            <input type='radio' id='EnableRelays_On' name='EnableRelays' value='1' onclick="radioselection(['EnableRelays_1','EnableRelays_2'],[])"/>
+            <label for='EnableRelays_On'>enable reading inverter relay</label>
+          </div>
+          
+          <div class='inline'>
+            <input type='radio' id='EnableRelays_Off' name='EnableRelays' value='0' onclick="radioselection([],['EnableRelays_1','EnableRelays_2'])"/>
+            <label for='EnableRelays_Off'>disable reading inverter relay</label>
+          </div>  
+          </td>
+        </tr>
+
+        <tr id='EnableRelays_1'>
+          <td>Select connected Pin to read Relay 1</td>
+           <td><input min='0' max='255' id='GpioPin_Relay1' name='pin_RELAY1' type='number' style='width: 6em'/></td>
+         </tr>
+ 
+         <tr id='EnableRelays_2'>
+          <td>Select connected Pin to read Relay 2</td>
+           <td><input min='0' max='255' id='GpioPin_Relay2' name='pin_RELAY2' type='number' style='width: 6em'/></td>
+         </tr>
+
+        <tr>
           <td>Enable OpenWB Compatibility</td>
           <td>
             <div class='onoffswitch'>
@@ -79,11 +103,24 @@
         </tr>
           
         <tr>
-          <td>Enable CRC Check</td>
+          <td>Enable Dataframe CRC Check</td>
           <td>
             <div class='onoffswitch'>
               <input type='checkbox' name='enableCrcCheck' class='onoffswitch-checkbox' id='enableCrcCheck'>
               <label class='onoffswitch-label' for='enableCrcCheck'>
+                <span class='onoffswitch-inner'></span>
+                <span class='onoffswitch-switch'></span>
+              </label>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Enable Dataframe Length Check</td>
+          <td>
+            <div class='onoffswitch'>
+              <input type='checkbox' name='enableLengthCheck' class='onoffswitch-checkbox' id='enableLengthCheck'>
+              <label class='onoffswitch-label' for='enableLengthCheck'>
                 <span class='onoffswitch-inner'></span>
                 <span class='onoffswitch-switch'></span>
               </label>
