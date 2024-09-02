@@ -538,12 +538,12 @@ void modbus::ReceiveReadData() {
       if (this->enableLengthCheck) {
         // Check datalength
         if (Config->GetDebugLevel() >=4) {
-          Serial.printf("Dataframe length should be: 0x%d, is: 0x%d\n", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
+          Serial.printf("Dataframe length should be: %d, is: %d bytes\n", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
         }
 
         if (this->DataFrame->at(dataFrameStartPos+2) != this->DataFrame->size()-dataFrameStartPos-5) {
           valid = false;
-          if (Config->GetDebugLevel() >=2) Serial.printf("data length check failed, should be %d but is %d\n", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
+          if (Config->GetDebugLevel() >=2) Serial.printf("data length check failed, should be %d but is %d bytes\n", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
         }
       } 
     } else { valid = false; } 
@@ -1219,7 +1219,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"].containsKey("enableLengthCheck")){ this->enableLengthCheck = (doc["data"]["enableLengthCheck"]).as<bool>();} else { this->enableLengthCheck = true; }
         if (doc["data"].containsKey("pin_RELAY1"))       { this->pin_Relay1= (int)(doc["data"]["pin_RELAY1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
         if (doc["data"].containsKey("pin_RELAY2"))       { this->pin_Relay2 = (int)(doc["data"]["pin_RELAY2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
-        if (doc["data"].containsKey("EnableRelays"))     { this->enableRelays = (doc["data"]["EnableRelays"]).as<bool>();} else { this->enableRelays = false; }
+        if (doc["data"].containsKey("EnableRelays"))     { if (doc["data"]["EnableRelays"].as<String>()=="1") this->enableRelays = true; else this->enableRelays = false;} else { this->enableRelays = false; }
         
 
         if (doc["data"].containsKey("invertertype"))     { 
