@@ -3,6 +3,7 @@
 
 #include "commonlibs.h"
 #include "ArduinoJson.h"
+#include "_Release.h"
 
 
 class BaseConfig {
@@ -22,7 +23,7 @@ class BaseConfig {
     const bool&     GetUseETH()        const { return useETH; }
     const String&   GetLANBoard()      const {return LANBoard;}
     const uint8_t&  GetDebugLevel()    const {return debuglevel;}
-     
+    const String    GetReleaseName(); 
   private:
     String    mqtt_server;
     String    mqtt_username;

@@ -37,6 +37,8 @@ class modbus {
 
   #define RS485Transmit    HIGH
   #define RS485Receive     LOW
+  #define DATAISID   (byte) 0x01
+  #define DATAISLIVE (byte) 0x02
 
   public:
     modbus();
@@ -64,11 +66,22 @@ class modbus {
     uint8_t                 default_pin_RX;       // Serial Receive pin
     uint8_t                 default_pin_TX;       // Serial Transmit pin
     uint8_t                 default_pin_RTS;      // Direction control pin
+    
+    uint8_t          	      pin_Relay1;           // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relay1;   // Pin zum Abfragen des ersten Potetialfreien Kontakts
+    uint8_t           	    pin_Relay2;           // Pin zum Abfragen des zweiten Potetialfreien Kontakts
+    uint8_t           	    default_pin_Relay2;   // Pin zum Abfragen des zweiten Potetialfreien Kontakts
+    uint8_t           	    state_Relay1;         // Status des ersten Potetialfreien Kontakts
+    uint8_t          	      state_Relay2;         // Status des zweiten Potetialfreien Kontakts
+    bool                    enableRelays;         // enable reading Relays
+
     uint8_t                 ClientID;             // 0x01
     uint32_t                Baudrate;             // 19200
     uint16_t                TxIntervalLiveData;   // 5
     uint16_t                TxIntervalIdData;     // 3600
     regfiles_t              InverterType;         //Solax-X1
+    bool                    enableCrcCheck;       //check CRC of invertr answer
+    bool                    enableLengthCheck;    // check correct datframe length
 
     unsigned long           LastTxLiveData = 0;
     unsigned long           LastTxIdData = 0;
@@ -87,6 +100,7 @@ class modbus {
     String                  PrintDataFrame(std::vector<byte>* frame);
     String                  PrintDataFrame(byte* frame, uint8_t len);
     uint16_t                Calc_CRC(uint8_t* message, uint8_t len);
+    uint16_t                Calc_CRC(std::vector<byte>* message, uint16_t startpos, uint16_t endpos);
     int                     JsonPosArrayToInt(JsonArray posArray, JsonArray posArray2);
     void                    QueryLiveData();
     void                    QueryIdData();
@@ -101,7 +115,8 @@ class modbus {
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
     String                  MapItem(JsonArray map, String value);
-    
+    void                    ReadRelays();
+
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;
     ArduinoQueue<std::vector<byte>>* SetQueue;
@@ -109,20 +124,20 @@ class modbus {
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<byte>*      Conf_RequestIdData;
 		uint8_t                 Conf_ClientIdPos;
-    uint8_t                 Conf_LiveDataStartsAtPos;
-		uint8_t                 Conf_IdDataStartsAtPos;
+    //uint8_t                 Conf_LiveDataStartsAtPos;
+		//uint8_t                 Conf_IdDataStartsAtPos;
 		uint8_t                 Conf_LiveDataErrorPos;
 		byte                    Conf_LiveDataErrorCode;
 		uint8_t                 Conf_IdDataErrorPos;
 		byte                    Conf_IdDataErrorCode;
-		uint8_t                 Conf_LiveDataSuccessPos;
-		byte                    Conf_LiveDataSuccessCode;
-		uint8_t                 Conf_IdDataSuccessPos;
-		byte                    Conf_IdDataSuccessCode;
-    byte                    Conf_LiveDataFunctionCode;
-    byte                    Conf_IdDataFunctionCode;
-    uint8_t                 Conf_LiveDataFunctionCodePos;
-    uint8_t                 Conf_IdDataFunctionCodePos;
+		//uint8_t                 Conf_LiveDataSuccessPos;
+		//byte                    Conf_LiveDataSuccessCode;
+		//uint8_t                 Conf_IdDataSuccessPos;
+		//byte                    Conf_IdDataSuccessCode;
+    //byte                    Conf_LiveDataFunctionCode;
+    //byte                    Conf_IdDataFunctionCode;
+    //uint8_t                 Conf_LiveDataFunctionCodePos;
+    //uint8_t                 Conf_IdDataFunctionCodePos;
 
     bool                    Conf_EnableOpenWBTopic;
     bool                    Conf_EnableSetters;
