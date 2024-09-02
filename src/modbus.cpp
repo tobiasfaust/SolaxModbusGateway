@@ -56,8 +56,8 @@ void modbus::init(bool firstrun) {
   // Configure Direction Control pin
   pinMode(this->pin_RTS, OUTPUT);  
   if (this->enableRelays) {
-    pinMode(this->pin_Relay1, INPUT);
-    pinMode(this->pin_Relay2, INPUT);
+    pinMode(this->pin_Relay1, INPUT_PULLUP);
+    pinMode(this->pin_Relay2, INPUT_PULLUP);
   }
 
   this->LoadInvertersFromJson();
