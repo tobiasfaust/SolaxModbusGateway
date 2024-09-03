@@ -24,8 +24,8 @@ void setup() {
   digitalWrite(RTS_pin, RS485Receive);
 
   // Start the built-in serial port, for Serial Monitor
-  Serial.begin(115200);
-  Serial.println("Test RS485 Connection");
+  dbg.begin(115200);
+  dbg.println("Test RS485 Connection");
   
   // Start the Modbus serial Port
   Serial2.begin(19200, SERIAL_8N1, RX, TX);
@@ -33,8 +33,8 @@ void setup() {
   
   while(Serial2.available())
   {
-    Serial.print(Serial2.read(), HEX);
-    Serial.print(" ");
+    dbg.print(Serial2.read(), HEX);
+    dbg.print(" ");
   }
   
   delay(1000);
@@ -83,11 +83,11 @@ void loop() {
   request[sizeof(request)-1] = highByte(crc);
   request[sizeof(request)-2] = lowByte(crc);
 
-  Serial.println("Schreibe Daten ....");
+  dbg.println("Schreibe Daten ....");
   for(uint8_t i=0; i<sizeof(request); i++){
-    Serial.print(Hex2String(request[i]));Serial.print(' ');
+    dbg.print(Hex2String(request[i]));Serial.print(' ');
   }
-  Serial.println("");
+  dbg.println("");
   
   digitalWrite(RTS_pin, RS485Transmit);
   Serial2.write(request, sizeof(request));
@@ -95,13 +95,13 @@ void loop() {
   digitalWrite(RTS_pin,RS485Receive);
   
   delay(100);
-  Serial.println("Lese Daten ....");
+  dbg.println("Lese Daten ....");
   
   while(Serial2.available())
   {
-    Serial.print(Serial2.read(), HEX);
-    Serial.print(" ");
+    dbg.print(Serial2.read(), HEX);
+    dbg.print(" ");
   }
-  Serial.println("");
+  dbg.println("");
   delay(2000);
 }

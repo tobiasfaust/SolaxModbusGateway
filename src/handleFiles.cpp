@@ -56,7 +56,7 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
   if (jsonGet.containsKey("subaction"))  {subaction  = jsonGet["subaction"].as<String>();}
 
   if (Config->GetDebugLevel() >= 3) {
-    Serial.printf("handle Ajax Request in handleFiles.cpp: %s\n", subaction);
+    dbg.printf("handle Ajax Request in handleFiles.cpp: %s\n", subaction.c_str());
   }
 
   if (subaction == "listDir") {
@@ -67,8 +67,8 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
     String ret("");
     serializeJson(content, ret);
     if (Config->GetDebugLevel() >= 5) {
-      serializeJsonPretty(content, Serial);
-      Serial.println();
+      serializeJsonPretty(content, dbg);
+      dbg.println();
     }
     response->print(ret);   
   } else if (subaction == "deleteFile") {
@@ -76,7 +76,7 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
     JsonDocument jsonReturn;
 
     if (Config->GetDebugLevel() >=3) {
-      Serial.printf("Request to delete file %s", filename);
+      dbg.printf("Request to delete file %s", filename.c_str());
     }
     if (jsonGet.containsKey("filename"))  {filename  = jsonGet["filename"].as<String>();}
     
@@ -88,7 +88,7 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
       jsonReturn["response_text"] = "deletion failed";
     }
     if (Config->GetDebugLevel() >=3) {
-      serializeJson(jsonReturn, Serial);Serial.println();
+      serializeJson(jsonReturn, Serial);dbg.println();
     } 
     serializeJson(jsonReturn, ret);
     response->print(ret);
@@ -101,14 +101,14 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
 void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   
   if (Config->GetDebugLevel() >=5) {
-    Serial.printf("Client: %s %s\n", request->client()->remoteIP().toString().c_str(), request->url().c_str());;
+    dbg.printf("Client: %s %s\n", request->client()->remoteIP().toString().c_str(), request->url().c_str());;
   }
 
   if (!index) {
     // open the file on first call and store the file handle in the request object
     request->_tempFile = LittleFS.open(filename, "w");
     if (Config->GetDebugLevel() >=5) {
-      Serial.printf("Upload Start: %s\n", filename.c_str());
+      dbg.printf("Upload Start: %s\n", filename.c_str());
     }
   }
 
@@ -116,7 +116,7 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
     // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
     if (Config->GetDebugLevel() >=5) {
-      Serial.printf("Writing file: %s ,index=%d len=%d bytes, FreeMem: %d\n", filename.c_str(), index, len, ESP.getFreeHeap());
+      dbg.printf("Writing file: %s ,index=%d len=%d bytes, FreeMem: %d\n", filename.c_str(), index, len, ESP.getFreeHeap());
     }
   }
 
@@ -124,7 +124,7 @@ void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
     // close the file handle as the upload is now done
     request->_tempFile.close();
     if (Config->GetDebugLevel() >=3) {
-      Serial.printf("Upload Complete: %s ,size: %d Bytes\n", filename.c_str(), (index + len));
+      dbg.printf("Upload Complete: %s ,size: %d Bytes\n", filename.c_str(), (index + len));
     }
 
     AsyncResponseStream *response = request->beginResponseStream("text/json");

@@ -5,7 +5,7 @@ BaseConfig::BaseConfig() : debuglevel(0) {
     LittleFS.begin();
   #elif ESP32
     if (!LittleFS.begin(true)) { // true: format LittleFS/NVS if mount fails
-      Serial.println("LittleFS Mount Failed");
+      dbg.println("LittleFS Mount Failed");
     }
   #endif
   
@@ -20,16 +20,16 @@ void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
   if (LittleFS.exists("/baseconfig.json")) {
     //file exists, reading and loading
-    Serial.println("reading config file");
+    dbg.println("reading config file");
     File configFile = LittleFS.open("/baseconfig.json", "r");
     if (configFile) {
-      Serial.println("opened config file");
+      dbg.println("opened config file");
       
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
       
       if (!error && doc.containsKey("data")) {
-        serializeJsonPretty(doc, Serial);
+        serializeJsonPretty(doc, dbg);
         
         if (doc["data"].containsKey("mqttroot"))         { this->mqtt_root = doc["data"]["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
         if (doc["data"].containsKey("mqttserver"))       { this->mqtt_server = doc["data"]["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
@@ -42,12 +42,12 @@ void BaseConfig::LoadJsonConfig() {
         if (doc["data"].containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["data"]["debuglevel"]), 0);} else {this->debuglevel = 0; }
         if (doc["data"].containsKey("SelectLAN"))        {this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
       } else {
-        if (this->GetDebugLevel() >=1) {Serial.println("failed to load json config, load default config");}
+        if (this->GetDebugLevel() >=1) {dbg.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
       }
     }
   } else {
-    if (this->GetDebugLevel() >=3) {Serial.println("BaseConfig.json config File not exists, load default config");}
+    if (this->GetDebugLevel() >=3) {dbg.println("BaseConfig.json config File not exists, load default config");}
     loadDefaultConfig = true;
   }
 

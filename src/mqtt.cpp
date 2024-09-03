@@ -10,7 +10,7 @@ server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath), Conn
   WiFi.onEvent(std::bind(&MQTT::WifiOnEvent, this, std::placeholders::_1));
 
   if (Config->GetDebugLevel() >=3) {
-    Serial.printf("Go into %s Mode\n", (Config->GetUseETH()?"ETH":"Wifi"));
+    dbg.printf("Go into %s Mode\n", (Config->GetUseETH()?"ETH":"Wifi"));
   }
 
   if (Config->GetUseETH()) {
@@ -34,19 +34,19 @@ server(server), dns(dns), mqtt_root(MqttRoot), mqtt_basepath(MqttBasepath), Conn
 
     wifiManager->setConnectTimeout(60);
     wifiManager->setConfigPortalTimeout(300);
-    Serial.println("WiFi Start");
+    dbg.println("WiFi Start");
     
   //  wifiManager->startConfigPortal("OnDemandAP");
 
     if (!wifiManager->autoConnect(APName, APpassword) ) {
-      Serial.println("failed to connect and start configPortal");
+      dbg.println("failed to connect and start configPortal");
       wifiManager->startConfigPortal(APName, APpassword);
     }
   }
   
   //WiFi.printDiag(Serial);
 
-  Serial.printf("Starting MQTT (%s:%d)\n", MqttServer, MqttPort);
+  dbg.printf("Starting MQTT (%s:%d)\n", MqttServer, MqttPort);
   espClient = WiFiClient();
   
   this->mqtt->setClient(espClient);
@@ -59,93 +59,93 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
 
     switch (event) {
         case ARDUINO_EVENT_WIFI_READY: 
-            Serial.println("WiFi interface ready");
+            dbg.println("WiFi interface ready");
             break;
         case ARDUINO_EVENT_WIFI_SCAN_DONE:
-            Serial.println("Completed scan for access points");
+            dbg.println("Completed scan for access points");
             break;
         case ARDUINO_EVENT_WIFI_STA_START:
-            Serial.println("WiFi client started");
+            dbg.println("WiFi client started");
             break;
         case ARDUINO_EVENT_WIFI_STA_STOP:
-            Serial.println("WiFi clients stopped");
+            dbg.println("WiFi clients stopped");
             break;
         case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-            Serial.println("Connected to access point");
+            dbg.println("Connected to access point");
             break;
         case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-            Serial.println("Disconnected from WiFi access point");
+            dbg.println("Disconnected from WiFi access point");
             this->ConnectStatusWifi = false;
             break;
         case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE:
-            Serial.println("Authentication mode of access point has changed");
+            dbg.println("Authentication mode of access point has changed");
             break;
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-            Serial.printf("WiFi connected with local IP: %s\n", WiFi.localIP().toString().c_str());
+            dbg.printf("WiFi connected with local IP: %s\n", WiFi.localIP().toString().c_str());
             this->ipadresse = WiFi.localIP();
             this->ConnectStatusWifi = true;
             break;
         case ARDUINO_EVENT_WIFI_STA_LOST_IP:
-            Serial.println("Lost IP address and IP address is reset to 0");
+            dbg.println("Lost IP address and IP address is reset to 0");
             this->ConnectStatusWifi = false;
             this->ipadresse = (0,0,0,0);
             break;
         case ARDUINO_EVENT_WPS_ER_SUCCESS:
-            Serial.println("WiFi Protected Setup (WPS): succeeded in enrollee mode");
+            dbg.println("WiFi Protected Setup (WPS): succeeded in enrollee mode");
             break;
         case ARDUINO_EVENT_WPS_ER_FAILED:
-            Serial.println("WiFi Protected Setup (WPS): failed in enrollee mode");
+            dbg.println("WiFi Protected Setup (WPS): failed in enrollee mode");
             break;
         case ARDUINO_EVENT_WPS_ER_TIMEOUT:
-            Serial.println("WiFi Protected Setup (WPS): timeout in enrollee mode");
+            dbg.println("WiFi Protected Setup (WPS): timeout in enrollee mode");
             break;
         case ARDUINO_EVENT_WPS_ER_PIN:
-            Serial.println("WiFi Protected Setup (WPS): pin code in enrollee mode");
+            dbg.println("WiFi Protected Setup (WPS): pin code in enrollee mode");
             break;
         case ARDUINO_EVENT_WIFI_AP_START:
-            Serial.println("WiFi access point started");
+            dbg.println("WiFi access point started");
             break;
         case ARDUINO_EVENT_WIFI_AP_STOP:
-            Serial.println("WiFi access point  stopped");
+            dbg.println("WiFi access point  stopped");
             break;
         case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
-            Serial.println("Client connected");
+            dbg.println("Client connected");
             break;
         case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
-            Serial.println("Client disconnected");
+            dbg.println("Client disconnected");
             break;
         case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
-            Serial.println("Assigned IP address to client");
+            dbg.println("Assigned IP address to client");
             break;
         case ARDUINO_EVENT_WIFI_AP_PROBEREQRECVED:
-            Serial.println("Received probe request");
+            dbg.println("Received probe request");
             break;
         case ARDUINO_EVENT_WIFI_AP_GOT_IP6:
-            Serial.println("AP IPv6 is preferred");
+            dbg.println("AP IPv6 is preferred");
             break;
         case ARDUINO_EVENT_WIFI_STA_GOT_IP6:
-            Serial.println("STA IPv6 is preferred");
+            dbg.println("STA IPv6 is preferred");
             break;
         case ARDUINO_EVENT_ETH_GOT_IP6:
-            Serial.println("Ethernet IPv6 is preferred");
+            dbg.println("Ethernet IPv6 is preferred");
             break;
         case ARDUINO_EVENT_ETH_START:
-            Serial.println("Ethernet started");
+            dbg.println("Ethernet started");
             break;
         case ARDUINO_EVENT_ETH_STOP:
-            Serial.println("Ethernet stopped");
+            dbg.println("Ethernet stopped");
             break;
         case ARDUINO_EVENT_ETH_CONNECTED:
-            Serial.println("Ethernet connected");
+            dbg.println("Ethernet connected");
             break;
         case ARDUINO_EVENT_ETH_DISCONNECTED:
-            Serial.println("Ethernet disconnected");
+            dbg.println("Ethernet disconnected");
             this->ConnectStatusWifi = false;
             this->ipadresse = (0,0,0,0);
             break;
         case ARDUINO_EVENT_ETH_GOT_IP:
             if (!this->ConnectStatusWifi) {
-              Serial.printf("ETH MAC: %s, IPv4: %s, %s, Mbps: %d\n", 
+              dbg.printf("ETH MAC: %s, IPv4: %s, %s, Mbps: %d\n", 
                 ETH.macAddress().c_str(), 
                 ETH.localIP().toString().c_str(),
                 (ETH.fullDuplex()?"FULL_DUPLEX":"HALF_DUPLEX"),
@@ -190,10 +190,10 @@ void MQTT::reconnect() {
   }
   snprintf(LWT, sizeof(LWT), "%s/state", this->mqtt_root.c_str());
   
-  Serial.printf("Attempting MQTT connection as %s \n", topic);
+  dbg.printf("Attempting MQTT connection as %s \n", topic);
   
   if (this->mqtt->connect(topic, Config->GetMqttUsername().c_str(), Config->GetMqttPassword().c_str(), LWT, true, false, "Offline")) {
-    Serial.println("connected... ");
+    dbg.println("connected... ");
     // Once connected, publish basics ...
     this->Publish_IP();
     this->Publish_String("version", Config->GetReleaseName(), false);
@@ -202,13 +202,13 @@ void MQTT::reconnect() {
     // ... and resubscribe if needed
     for (uint8_t i=0; i< this->subscriptions->size(); i++) {
       this->mqtt->subscribe(this->subscriptions->at(i).c_str()); 
-      Serial.print("MQTT Subscribed to: "); Serial.println(this->subscriptions->at(i).c_str());
+      dbg.print("MQTT Subscribed to: "); dbg.println(this->subscriptions->at(i).c_str());
     }
 
   } else {
-    Serial.print(F("failed, rc="));
-    Serial.print(this->mqtt->state());
-    Serial.println(F(" try again in few seconds"));
+    dbg.print(F("failed, rc="));
+    dbg.print(this->mqtt->state());
+    dbg.println(F(" try again in few seconds"));
   }
 }
 
@@ -248,9 +248,9 @@ void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
   if (this->mqtt->connected()) {
     this->mqtt->publish((const char*)topic.c_str(), value.c_str(), true);
     if (Config->GetDebugLevel() >=3) {
-      Serial.printf("Publish %s: %s \n", topic.c_str(), value.c_str());
+      dbg.printf("Publish %s: %s \n", topic.c_str(), value.c_str());
     }
-  } else { if (Config->GetDebugLevel() >=2) {Serial.println(F("Request for MQTT Publish, but not connected to Broker")); }}
+  } else { if (Config->GetDebugLevel() >=2) {dbg.println(F("Request for MQTT Publish, but not connected to Broker")); }}
 }
 
 String MQTT::getTopic(String subtopic, bool fulltopic) {
@@ -283,8 +283,8 @@ void MQTT::Subscribe(String topic) {
   if (this->mqtt->connected()) {
     this->mqtt->subscribe(buffer);
     if (Config->GetDebugLevel() >=3) {
-      Serial.print(F("MQTT now subscribed to: ")); 
-      Serial.println(buffer);
+      dbg.print(F("MQTT now subscribed to: ")); 
+      dbg.println(buffer);
     }
   }
 }
@@ -302,8 +302,8 @@ void MQTT::ClearSubscriptions() {
 void MQTT::loop() { 
   if (this->mqtt_root != Config->GetMqttRoot()) {
     if (Config->GetDebugLevel() >=3) {
-      Serial.printf("MQTT DeviceName has changed via Web Configuration from %s to %s \n", this->mqtt_root.c_str(), Config->GetMqttRoot().c_str());
-      Serial.println(F("Initiate Reconnect"));
+      dbg.printf("MQTT DeviceName has changed via Web Configuration from %s to %s \n", this->mqtt_root.c_str(), Config->GetMqttRoot().c_str());
+      dbg.println(F("Initiate Reconnect"));
     }
     this->mqtt_root = Config->GetMqttRoot();
     if (this->mqtt->connected()) this->mqtt->disconnect();
@@ -311,8 +311,8 @@ void MQTT::loop() {
 
   if (this->mqtt_basepath != Config->GetMqttBasePath()) {
     if (Config->GetDebugLevel() > 3) {
-      Serial.printf("MQTT Basepath has changed via Web Configuration from %s to %s \n", this->mqtt_basepath.c_str(), Config->GetMqttBasePath().c_str());
-      Serial.println(F("Initiate Reconnect"));
+      dbg.printf("MQTT Basepath has changed via Web Configuration from %s to %s \n", this->mqtt_basepath.c_str(), Config->GetMqttBasePath().c_str());
+      dbg.println(F("Initiate Reconnect"));
     }
     this->mqtt_basepath = Config->GetMqttBasePath();
     if (this->mqtt->connected()) this->mqtt->disconnect();

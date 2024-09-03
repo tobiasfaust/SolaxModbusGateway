@@ -13,6 +13,13 @@
 #include <FS.h>
 #include <LittleFS.h>
 
+#ifdef USE_WEBSERIAL
+  #include <WebSerial.h>
+  #define dbg WebSerial
+#else
+  #define dbg Serial
+#endif
+
 #ifdef ESP8266
   extern "C" {
       #include "user_interface.h"

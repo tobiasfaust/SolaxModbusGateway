@@ -1,3 +1,6 @@
+Release 3.2.3:
+  - add WebSerial as remote serial output as its own variant (#74)
+
 Release 3.2.2:
   - add GoodWe Support, by TigerGrey (#58)
   - add support for id and livedate on same functioncode, by TigerGrey (#58)

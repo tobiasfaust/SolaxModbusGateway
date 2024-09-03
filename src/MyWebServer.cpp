@@ -1,6 +1,6 @@
 #include "MyWebServer.h"
 
-MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server), dns(dns), DoReboot(false), RequestRebootTime(0) {
+MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false), RequestRebootTime(0), server(server), dns(dns) {
   
   fsfiles = new handleFiles(server);
 
@@ -30,17 +30,17 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): server(server)
 
   server->on("^/(.+).(css|js|html|json)$", HTTP_GET, std::bind(&MyWebServer::handleRequestFiles, this, std::placeholders::_1));
   
-  Serial.println(F("WebServer started..."));
+  dbg.println(F("WebServer started..."));
 }
 
 void MyWebServer::handle_update_page(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATEPAGE);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", HTML_UPDATEPAGE);
   response->addHeader("Server","ESP Async Web Server");
   request->send(response); 
 }
 
 void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", HTML_UPDATERESPONSE);
   response->addHeader("Server","ESP Async Web Server");
   request->send(response); 
 }
@@ -48,7 +48,7 @@ void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
 void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   
   if(!index){
-      Serial.printf("Update Start: %s\n", filename.c_str());
+      dbg.printf("Update Start: %s\n", filename.c_str());
       //Update.runAsync(true);
       
       if (filename == "filesystem") {
@@ -68,7 +68,7 @@ void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String 
   }
   if(final){
     if(Update.end(true)){
-      Serial.printf("Update Success: %uB\n", index+len);
+      dbg.printf("Update Success: %uB\n", index+len);
       this->DoReboot = true;//Set flag so main loop can issue restart call
     } else {
       Update.printError(Serial);
@@ -81,10 +81,10 @@ void MyWebServer::loop() {
   if (this->DoReboot) {
     if (this->RequestRebootTime == 0) {
       this->RequestRebootTime = millis();
-      Serial.println("Request to Reboot, wait 5sek ...");
+      dbg.println("Request to Reboot, wait 5sek ...");
     }
     if (millis() - this->RequestRebootTime > 5000) { // wait 3sek until reboot
-      Serial.println("Rebooting...");
+      dbg.println("Rebooting...");
       ESP.restart();
     }
   }
@@ -100,13 +100,13 @@ void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
 
 void MyWebServer::handleRequestFiles(AsyncWebServerRequest *request) {
   if (Config->GetDebugLevel() >=3) {
-    Serial.printf("Request file %s", ("/" + request->pathArg(0) + "." + request->pathArg(1)).c_str()); Serial.println();
+    dbg.printf("Request file %s", ("/" + request->pathArg(0) + "." + request->pathArg(1)).c_str()); dbg.println();
   }  
 
   File f = LittleFS.open("/" + request->pathArg(0) + "." + request->pathArg(1));
   
   if (!f) {
-    if (Config->GetDebugLevel() >=0) {Serial.printf("failed to open requested file: %s.%s", request->pathArg(0), request->pathArg(1));}
+    Serial.printf("failed to open requested file: %s.%s", request->pathArg(0).c_str(), request->pathArg(1).c_str());
     request->send(404, "text/plain", "404: Not found"); 
     return;
   }
@@ -134,7 +134,7 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_UPDATERESPONSE);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", HTML_UPDATERESPONSE);
   response->addHeader("Server","ESP Async Web Server");
   request->send(response);
 
@@ -142,17 +142,17 @@ void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleReset(AsyncWebServerRequest *request) {
-  if (Config->GetDebugLevel() >= 3) { Serial.println("deletion of all config files was requested ...."); }
+  if (Config->GetDebugLevel() >= 3) { dbg.println("deletion of all config files was requested ...."); }
   //LittleFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
   File root = LittleFS.open("/");
   File file = root.openNextFile();
   while(file){
     String path("/"); path.concat(file.name());
-    if (path.indexOf(".json") == -1) {Serial.println("Continue"); file = root.openNextFile(); continue;}
+    if (path.indexOf(".json") == -1) {dbg.println("Continue"); file = root.openNextFile(); continue;}
     file.close();
     bool f = LittleFS.remove(path);
     if (Config->GetDebugLevel() >= 3) {
-      Serial.printf("deletion of configuration file '%s' %s\n", file.name(), (f?"was successful":"has failed"));;
+      dbg.printf("deletion of configuration file '%s' %s\n", file.name(), (f?"was successful":"has failed"));;
     }
     file = root.openNextFile();
   }
@@ -214,9 +214,9 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   JsonDocument jsonReturn;
   jsonReturn["response"].to<JsonObject>();
 
-  if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Empfangen: "); }
+  if (Config->GetDebugLevel() >=4) { dbg.print("Ajax Json Empfangen: "); }
   if (!error) {
-    if (Config->GetDebugLevel() >=4) { serializeJsonPretty(jsonGet, Serial); Serial.println(); }
+    if (Config->GetDebugLevel() >=4) { serializeJsonPretty(jsonGet, dbg); dbg.println(); }
 
     if (jsonGet.containsKey("action"))   {action    = jsonGet["action"].as<String>();}
     if (jsonGet.containsKey("subaction")){subaction = jsonGet["subaction"].as<String>();}
@@ -235,7 +235,7 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
     response->print(ret);
 
     if (Config->GetDebugLevel() >=2) {
-      Serial.println(FPSTR(buffer));
+      dbg.println(FPSTR(buffer));
     }
 
     return;
@@ -283,18 +283,18 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
     fsfiles->HandleAjaxRequest(jsonGet, response);
 
   } else {
-    snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s - %s", action, subaction);
+    snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s - %s", action.c_str(), subaction.c_str());
     jsonReturn["response"]["status"] = 0;
     jsonReturn["response"]["text"] = buffer;
     serializeJson(jsonReturn, ret);
     response->print(ret);
 
     if (Config->GetDebugLevel() >=1) {
-      Serial.println(buffer);
+      dbg.println(buffer);
     }
   }
 
-  if (Config->GetDebugLevel() >=4) { Serial.print("Ajax Json Antwort: "); Serial.println(ret); }
+  if (Config->GetDebugLevel() >=4) { dbg.print("Ajax Json Antwort: "); dbg.println(ret); }
   
   request->send(response);
 }
@@ -329,6 +329,10 @@ void MyWebServer::GetInitDataStatus(AsyncResponseStream *response) {
   json["data"]["inverter_serial"] = mb->GetInverterSN();
   json["data"]["uptime"] = uptime_formatter::getUptime();
   json["data"]["freeheapmem"] = ESP.getFreeHeap();
+
+  #ifndef USE_WEBSERIAL
+    json["data"]["tr_webserial"]["className"] = "hide";
+  #endif
 
   json["response"].to<JsonObject>();
   json["response"]["status"] = 1;

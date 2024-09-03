@@ -28,7 +28,7 @@ MyWebServer* mywebserver = NULL;
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   String msg;
   if (Config->GetDebugLevel() >=3) {
-    Serial.print("Message arrived ["); Serial.print(topic); Serial.print("] ");
+    dbg.print("Message arrived ["); dbg.print(topic); dbg.print("] ");
   }
 
   for (unsigned int i = 0; i < length; i++) {
@@ -36,7 +36,7 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   }
 
   if (Config->GetDebugLevel() >=3) {
-    Serial.print("Message: "); Serial.println(msg.c_str());
+    dbg.print("Message: "); dbg.println(msg.c_str());
   }
 
   mb->ReceiveMQTT(topic, atoi(msg.c_str()));
@@ -44,12 +44,18 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Start of Solar Inverter MQTT Gateway"); 
 
-  Serial.println("Starting BaseConfig");
+  #ifdef USE_WEBSERIAL
+    WebSerial.onMessage([](const String& msg) { Serial.println(msg); });
+    WebSerial.begin(&server);
+    WebSerial.setBuffer(100);
+  #endif
+
+  dbg.println("Start of Solar Inverter MQTT Gateway"); 
+  dbg.println("Starting BaseConfig");
   Config = new BaseConfig();
   
-  Serial.println("Starting Wifi and MQTT");
+  dbg.println("Starting Wifi and MQTT");
   mqtt = new MQTT(&server, &dns, 
                     Config->GetMqttServer().c_str(), 
                     Config->GetMqttPort(), 
@@ -63,7 +69,7 @@ void setup() {
   mb = new modbus();
   mb->enableMqtt(mqtt);
 
-  Serial.println("Starting WebServer");
+  dbg.println("Starting WebServer");
   mywebserver = new MyWebServer(&server, &dns);
 }
 
@@ -71,4 +77,8 @@ void loop() {
   mqtt->loop();
   mywebserver->loop();
   mb->loop(); 
+  
+  #ifdef USE_WEBSERIAL
+    WebSerial.loop();
+  #endif
 }

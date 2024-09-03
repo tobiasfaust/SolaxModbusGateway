@@ -30,6 +30,7 @@ jobs:
           - firmware_ESP32-S2
           - firmware_ESP32-S3
           - firmware_ESP32-C3
+          - firmware_ESP32_WebSerial
 
         include:
           - variant: firmware_ESP32
@@ -40,6 +41,8 @@ jobs:
             architecture: ESP32-S3
           - variant: firmware_ESP32-C3
             architecture: ESP32-C3
+          - variant: firmware_ESP32_WebSerial
+            architecture: ESP32_dbg
             
     steps:
       - name: checkout repository
