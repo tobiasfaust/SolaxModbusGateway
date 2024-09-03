@@ -2,17 +2,17 @@ Release 3.2.3:
   - add WebSerial as remote serial output as its own variant (#74)
 
 Release 3.2.2:
-  - add GoodWe Support, by TigerGrey (#58)
-  - add support for id and livedate on same functioncode, by TigerGrey (#58)
+  - add GoodWe Support, by @TigerGrey (#58)
+  - add support for id and livedate on same functioncode, by @TigerGrey (#58)
   - add CRC Check to validate response (#43), enabling in Modbusconfig
   - add data length check to validate response (#43), enabling in Modbusconfig
-  - add reading of potential-free Relays on Inverter (#67), enabling in Modbusconfig
+  - add reading of potential-free Relays on Inverter (#67), enabling in Modbusconfig, thanks to @Lazgar
   
 Release 3.2.1:
   - add modbusprotocoll doc for Solax-X1/X3 G4 (incl. write register) (thanks to @lattemacchiato) (#64)
   - fix bug in solax-x1.json at EnergyTotalToGrid
-  - add Solax-Mic-Pro configuration, thanks to michacee (#35)
-  - add support for Growatt-MOD_4000_TL3-XH, thanks to Gustavw82 (#70).
+  - add Solax-Mic-Pro configuration, thanks to @michacee (#35)
+  - add support for Growatt-MOD_4000_TL3-XH, thanks to @Gustavw82 (#70).
   - add page loading visualization
   
 Release 3.2.0:
