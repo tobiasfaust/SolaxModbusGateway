@@ -529,6 +529,8 @@
                 },
                 {
                     "position": [
+                        282,
+                        283,
                         280,
                         281
                     ],
@@ -540,10 +542,10 @@
                 },
                 {
                     "position": [
+                        286,
+                        287,
                         284,
-                        285,
-                        282,
-                        283
+                        285
                     ],
                     "name": "OffGridRunTime",
                     "realname": "OffGrid RunTime",
@@ -682,6 +684,19 @@
                     "realname": "FeedIn Power Phase L3",
                     "datatype": "integer",
                     "unit": "W"
+                },
+                {
+                    "position": [
+                        294,
+                        295,
+                        292,
+                        293
+                    ],
+                    "name": "OffGridYieldTotal",
+                    "realname": "OffGrid Yield Total",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "kWh"
                 },
                 {
                     "position": [
