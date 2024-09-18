@@ -347,6 +347,25 @@
                 },
                 {
                     "position": [
+                        55,
+                        56
+                    ],
+                    "name": "GridStatus",
+                    "realname": "Grid Status",
+                    "datatype": "integer",
+                    "mapping": [
+                        [
+                            0,
+                            "OnGrid"
+                        ],
+                        [
+                            1,
+                            "OffGrid"
+                        ]
+                    ]
+                },
+                {
+                    "position": [
                         59,
                         60
                     ],
@@ -511,9 +530,7 @@
                 {
                     "position": [
                         280,
-                        281,
-                        278,
-                        279
+                        281
                     ],
                     "name": "OnGridRunTime",
                     "realname": "OnGrid RunTime",
