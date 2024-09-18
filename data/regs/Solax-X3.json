@@ -347,6 +347,25 @@
                 },
                 {
                     "position": [
+                        55,
+                        56
+                    ],
+                    "name": "GridStatus",
+                    "realname": "Grid Status",
+                    "datatype": "integer",
+                    "mapping": [
+                        [
+                            0,
+                            "OnGrid"
+                        ],
+                        [
+                            1,
+                            "OffGrid"
+                        ]
+                    ]
+                },
+                {
+                    "position": [
                         59,
                         60
                     ],
@@ -510,10 +529,10 @@
                 },
                 {
                     "position": [
+                        282,
+                        283,
                         280,
-                        281,
-                        278,
-                        279
+                        281
                     ],
                     "name": "OnGridRunTime",
                     "realname": "OnGrid RunTime",
@@ -523,10 +542,10 @@
                 },
                 {
                     "position": [
+                        286,
+                        287,
                         284,
-                        285,
-                        282,
-                        283
+                        285
                     ],
                     "name": "OffGridRunTime",
                     "realname": "OffGrid RunTime",
@@ -665,6 +684,19 @@
                     "realname": "FeedIn Power Phase L3",
                     "datatype": "integer",
                     "unit": "W"
+                },
+                {
+                    "position": [
+                        294,
+                        295,
+                        292,
+                        293
+                    ],
+                    "name": "OffGridYieldTotal",
+                    "realname": "OffGrid Yield Total",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "kWh"
                 },
                 {
                     "position": [
