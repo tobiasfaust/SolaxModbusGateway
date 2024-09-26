@@ -28,7 +28,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
                                                           std::placeholders::_5,
                                                           std::placeholders::_6));
 
-  server->on("^/(.+).(css|js|html|json)$", HTTP_GET, std::bind(&MyWebServer::handleRequestFiles, this, std::placeholders::_1));
+  server->serveStatic("/", LittleFS, "/", "max-age=3600").setDefaultFile("/web/index.html");
   
   dbg.println(F("WebServer started..."));
 }
@@ -96,35 +96,6 @@ void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
 
 void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
   request->redirect("/web/index.html");
-}
-
-void MyWebServer::handleRequestFiles(AsyncWebServerRequest *request) {
-  if (Config->GetDebugLevel() >=3) {
-    dbg.printf("Request file %s", ("/" + request->pathArg(0) + "." + request->pathArg(1)).c_str()); dbg.println();
-  }  
-
-  File f = LittleFS.open("/" + request->pathArg(0) + "." + request->pathArg(1));
-  
-  if (!f) {
-    Serial.printf("failed to open requested file: %s.%s", request->pathArg(0).c_str(), request->pathArg(1).c_str());
-    request->send(404, "text/plain", "404: Not found"); 
-    return;
-  }
-
-  f.close();
-
-  if (request->pathArg(1) == "css") {
-    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/css");
-  } else if (request->pathArg(1) == "js") {
-    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/javascript");
-  } else if (request->pathArg(1) == "html") {
-    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/html");
-  } else if (request->pathArg(1) == "json") {
-    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/json");
-  } else {
-    request->send(LittleFS, "/" + request->pathArg(0) + "." + request->pathArg(1), "text/plain");
-  }
-
 }
 
 void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {

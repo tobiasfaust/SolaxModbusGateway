@@ -48,7 +48,6 @@ class MyWebServer {
     void      handleReboot(AsyncWebServerRequest *request);
     void      handleReset(AsyncWebServerRequest *request);
     void      handleWiFiReset(AsyncWebServerRequest *request);
-    void      handleRequestFiles(AsyncWebServerRequest *request);
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleAjax(AsyncWebServerRequest *request);
