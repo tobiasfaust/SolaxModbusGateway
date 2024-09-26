@@ -45,15 +45,21 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
 void setup() {
   Serial.begin(115200);
 
+  dbg.println("Start of Solar Inverter MQTT Gateway"); 
+  dbg.println("Starting BaseConfig");
+  Config = new BaseConfig();
+
+  #ifndef USE_WEBSERIAL
+    dbg.begin(115200, SERIAL_8N1, Config->GetSerialRx(), Config->GetSerialTx()); // RX, TX, zb.: 33, 32
+    dbg.println("");
+    dbg.println("ready");
+  #endif
+
   #ifdef USE_WEBSERIAL
     WebSerial.onMessage([](const String& msg) { Serial.println(msg); });
     WebSerial.begin(&server);
     WebSerial.setBuffer(100);
   #endif
-
-  dbg.println("Start of Solar Inverter MQTT Gateway"); 
-  dbg.println("Starting BaseConfig");
-  Config = new BaseConfig();
   
   dbg.println("Starting Wifi and MQTT");
   mqtt = new MQTT(&server, &dns, 

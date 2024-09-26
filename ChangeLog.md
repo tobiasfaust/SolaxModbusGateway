@@ -1,5 +1,6 @@
 Release 3.2.3:
   - add WebSerial as remote serial output as its own variant (#74)
+  - add: configurable serial output pins
 
 Release 3.2.2:
   - add GoodWe Support, by @TigerGrey (#58)

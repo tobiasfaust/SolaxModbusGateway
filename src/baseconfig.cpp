@@ -1,6 +1,6 @@
 #include "baseconfig.h"
 
-BaseConfig::BaseConfig() : debuglevel(0) {  
+BaseConfig::BaseConfig() : debuglevel(0), serial_rx(3), serial_tx(1) {  
   #ifdef ESP8266
     LittleFS.begin();
   #elif ESP32
@@ -41,6 +41,8 @@ void BaseConfig::LoadJsonConfig() {
         if (doc["data"].containsKey("SelectConnectivity")){if (strcmp(doc["data"]["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
         if (doc["data"].containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["data"]["debuglevel"]), 0);} else {this->debuglevel = 0; }
         if (doc["data"].containsKey("SelectLAN"))        {this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
+        if (doc.containsKey("serial_rx"))                { this->serial_rx = (doc["serial_rx"].as<int>());}
+        if (doc.containsKey("serial_tx"))                { this->serial_tx = (doc["serial_tx"].as<int>());}
       } else {
         if (this->GetDebugLevel() >=1) {dbg.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
@@ -92,6 +94,14 @@ void BaseConfig::GetInitData(AsyncResponseStream *response) {
   json["data"]["sel_eth"]     = ((this->useETH)?1:0);
   json["data"]["sel_URCID1"]  = ((this->mqtt_UseRandomClientID)?0:1);
   json["data"]["sel_URCID2"]  = ((this->mqtt_UseRandomClientID)?1:0);
+
+  #ifdef USE_WEBSERIAL
+    json["data"]["tr_serial_rx"]["className"] = "hide";
+    json["data"]["tr_serial_tx"]["className"] = "hide";
+  #else
+    json["data"]["GpioPin_serial_rx"] = this->serial_rx;
+    json["data"]["GpioPin_serial_tx"] = this->serial_tx;
+  #endif
 
   json["response"].to<JsonObject>();
   json["response"]["status"] = 1;
