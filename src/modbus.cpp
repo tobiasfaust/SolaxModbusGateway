@@ -716,17 +716,17 @@ void modbus::ParseData() {
       }
       
       // optional field
-      if (elem.containsKey("factor")) {
+      if (elem["factor"]) {
         factor = elem["factor"];
       }
 
       // optional field
-      if (elem.containsKey("valueAdd")) {
+      if (elem["valueAdd"]) {
         valueAdd = elem["valueAdd"];
       }
       
       // optional field
-      if (elem.containsKey("unit")) {
+      if (elem["unit"]) {
         unit = elem["unit"].as<String>();
       }
       d.unit = unit;
@@ -1156,26 +1156,26 @@ void modbus::LoadJsonConfig(bool firstrun) {
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
       
-      if (!error && doc.containsKey("data")) {
+      if (!error && doc["data"]) {
         if (Config->GetDebugLevel() >=3) { serializeJsonPretty(doc, dbg); dbg.println(); }
         
-        if (doc["data"].containsKey("pin_rx"))           { this->pin_RX = (int)(doc["data"]["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
-        if (doc["data"].containsKey("pin_tx"))           { this->pin_TX = (int)(doc["data"]["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
-        if (doc["data"].containsKey("pin_rts"))          { this->pin_RTS = (int)(doc["data"]["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
-        if (doc["data"].containsKey("clientid"))         { this->ClientID = strtoul(doc["data"]["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
-        if (doc["data"].containsKey("baudrate"))         { this->Baudrate = (int)(doc["data"]["baudrate"]);} else {this->Baudrate = 19200;}
-        if (doc["data"].containsKey("txintervallive"))   { this->TxIntervalLiveData = (int)(doc["data"]["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
-        if (doc["data"].containsKey("txintervalid"))     { this->TxIntervalIdData = (int)(doc["data"]["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
-        if (doc["data"].containsKey("enable_openwbtopic")){ this->Conf_EnableOpenWBTopic = (doc["data"]["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
-        if (doc["data"].containsKey("enable_setters"))   { this->Conf_EnableSetters = (doc["data"]["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
-        if (doc["data"].containsKey("enableCrcCheck"))   { this->enableCrcCheck = (doc["data"]["enableCrcCheck"]).as<bool>();} else { this->enableCrcCheck = true; }
-        if (doc["data"].containsKey("enableLengthCheck")){ this->enableLengthCheck = (doc["data"]["enableLengthCheck"]).as<bool>();} else { this->enableLengthCheck = true; }
-        if (doc["data"].containsKey("pin_RELAY1"))       { this->pin_Relay1= (int)(doc["data"]["pin_RELAY1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
-        if (doc["data"].containsKey("pin_RELAY2"))       { this->pin_Relay2 = (int)(doc["data"]["pin_RELAY2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
-        if (doc["data"].containsKey("EnableRelays"))     { if (doc["data"]["EnableRelays"].as<String>()=="1") this->enableRelays = true; else this->enableRelays = false;} else { this->enableRelays = false; }
+        if (doc["data"]["pin_rx"])           { this->pin_RX = (int)(doc["data"]["pin_rx"]);} else {this->pin_RX = this->default_pin_RX;}
+        if (doc["data"]["pin_tx"])           { this->pin_TX = (int)(doc["data"]["pin_tx"]);} else {this->pin_TX = this->default_pin_TX;}
+        if (doc["data"]["pin_rts"])          { this->pin_RTS = (int)(doc["data"]["pin_rts"]);} else {this->pin_RTS = this->default_pin_RTS;}
+        if (doc["data"]["clientid"])         { this->ClientID = strtoul(doc["data"]["clientid"], NULL, 16);} else {this->ClientID = 0x01;} // hex convert to dec
+        if (doc["data"]["baudrate"])         { this->Baudrate = (int)(doc["data"]["baudrate"]);} else {this->Baudrate = 19200;}
+        if (doc["data"]["txintervallive"])   { this->TxIntervalLiveData = (int)(doc["data"]["txintervallive"]);} else {this->TxIntervalLiveData = 5;}
+        if (doc["data"]["txintervalid"])     { this->TxIntervalIdData = (int)(doc["data"]["txintervalid"]);} else {this->TxIntervalIdData = 3600;}
+        if (doc["data"]["enable_openwbtopic"]){ this->Conf_EnableOpenWBTopic = (doc["data"]["enable_openwbtopic"]).as<bool>();} else { this->Conf_EnableOpenWBTopic = false; }
+        if (doc["data"]["enable_setters"])   { this->Conf_EnableSetters = (doc["data"]["enable_setters"]).as<bool>();} else { this->Conf_EnableSetters = false; }
+        if (doc["data"]["enableCrcCheck"])   { this->enableCrcCheck = (doc["data"]["enableCrcCheck"]).as<bool>();} else { this->enableCrcCheck = true; }
+        if (doc["data"]["enableLengthCheck"]){ this->enableLengthCheck = (doc["data"]["enableLengthCheck"]).as<bool>();} else { this->enableLengthCheck = true; }
+        if (doc["data"]["pin_RELAY1"])       { this->pin_Relay1= (int)(doc["data"]["pin_RELAY1"]);} else {this->pin_Relay1 = this->default_pin_Relay1;}
+        if (doc["data"]["pin_RELAY2"])       { this->pin_Relay2 = (int)(doc["data"]["pin_RELAY2"]);} else {this->pin_Relay2 = this->default_pin_Relay2;}
+        if (doc["data"]["EnableRelays"])     { if (doc["data"]["EnableRelays"].as<String>()=="1") this->enableRelays = true; else this->enableRelays = false;} else { this->enableRelays = false; }
         
 
-        if (doc["data"].containsKey("invertertype"))     { 
+        if (doc["data"]["invertertype"])     { 
           bool found = false;
           for (uint8_t i=0; i<this->AvailableInverters->size(); i++) {
             if (this->AvailableInverters->at(i).name == (doc["data"]["invertertype"]).as<String>()) {

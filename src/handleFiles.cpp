@@ -53,7 +53,7 @@ void handleFiles::getDirList(JsonArray* json, String path) {
 //###############################################################
 void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* response) {
   String subaction = "";
-  if (jsonGet.containsKey("subaction"))  {subaction  = jsonGet["subaction"].as<String>();}
+  if (jsonGet["subaction"])  {subaction  = jsonGet["subaction"].as<String>();}
 
   if (Config->GetDebugLevel() >= 3) {
     dbg.printf("handle Ajax Request in handleFiles.cpp: %s\n", subaction.c_str());
@@ -78,7 +78,7 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
     if (Config->GetDebugLevel() >=3) {
       dbg.printf("Request to delete file %s", filename.c_str());
     }
-    if (jsonGet.containsKey("filename"))  {filename  = jsonGet["filename"].as<String>();}
+    if (jsonGet["filename"])  {filename  = jsonGet["filename"].as<String>();}
     
     if (LittleFS.remove(filename)) { 
       jsonReturn["response_status"] = 1;

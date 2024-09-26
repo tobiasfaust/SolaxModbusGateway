@@ -28,21 +28,21 @@ void BaseConfig::LoadJsonConfig() {
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
       
-      if (!error && doc.containsKey("data")) {
+      if (!error && doc["data"]) {
         serializeJsonPretty(doc, dbg);
         
-        if (doc["data"].containsKey("mqttroot"))         { this->mqtt_root = doc["data"]["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
-        if (doc["data"].containsKey("mqttserver"))       { this->mqtt_server = doc["data"]["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
-        if (doc["data"].containsKey("mqttport"))         { this->mqtt_port = (int)(doc["data"]["mqttport"]);} else {this->mqtt_port = 1883;}
-        if (doc["data"].containsKey("mqttuser"))         { this->mqtt_username = doc["data"]["mqttuser"].as<String>();} else {this->mqtt_username = "";}
-        if (doc["data"].containsKey("mqttpass"))         { this->mqtt_password = doc["data"]["mqttpass"].as<String>();} else {this->mqtt_password = "";}
-        if (doc["data"].containsKey("mqttbasepath"))     { this->mqtt_basepath = doc["data"]["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
-        if (doc["data"].containsKey("UseRandomClientID")){ if (strcmp(doc["data"]["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
-        if (doc["data"].containsKey("SelectConnectivity")){if (strcmp(doc["data"]["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
-        if (doc["data"].containsKey("debuglevel"))       { this->debuglevel = _max((int)(doc["data"]["debuglevel"]), 0);} else {this->debuglevel = 0; }
-        if (doc["data"].containsKey("SelectLAN"))        {this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
-        if (doc.containsKey("serial_rx"))                { this->serial_rx = (doc["serial_rx"].as<int>());}
-        if (doc.containsKey("serial_tx"))                { this->serial_tx = (doc["serial_tx"].as<int>());}
+        if (doc["data"]["mqttroot"])         { this->mqtt_root = doc["data"]["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
+        if (doc["data"]["mqttserver"])       { this->mqtt_server = doc["data"]["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
+        if (doc["data"]["mqttport"])         { this->mqtt_port = (int)(doc["data"]["mqttport"]);} else {this->mqtt_port = 1883;}
+        if (doc["data"]["mqttuser"])         { this->mqtt_username = doc["data"]["mqttuser"].as<String>();} else {this->mqtt_username = "";}
+        if (doc["data"]["mqttpass"])         { this->mqtt_password = doc["data"]["mqttpass"].as<String>();} else {this->mqtt_password = "";}
+        if (doc["data"]["mqttbasepath"])     { this->mqtt_basepath = doc["data"]["mqttbasepath"].as<String>();} else {this->mqtt_basepath = "home/";}
+        if (doc["data"]["UseRandomClientID"]){ if (strcmp(doc["data"]["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
+        if (doc["data"]["SelectConnectivity"]){if (strcmp(doc["data"]["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
+        if (doc["data"]["debuglevel"])       { this->debuglevel = _max((int)(doc["data"]["debuglevel"]), 0);} else {this->debuglevel = 0; }
+        if (doc["data"]["SelectLAN"])        {this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
+        if (doc["data"]["serial_rx"])        { this->serial_rx = (doc["serial_rx"].as<int>());}
+        if (doc["data"]["serial_tx"])        { this->serial_tx = (doc["serial_tx"].as<int>());}
       } else {
         if (this->GetDebugLevel() >=1) {dbg.println("failed to load json config, load default config");}
         loadDefaultConfig = true;

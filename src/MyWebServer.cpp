@@ -218,10 +218,10 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   if (!error) {
     if (Config->GetDebugLevel() >=4) { serializeJsonPretty(jsonGet, dbg); dbg.println(); }
 
-    if (jsonGet.containsKey("action"))   {action    = jsonGet["action"].as<String>();}
-    if (jsonGet.containsKey("subaction")){subaction = jsonGet["subaction"].as<String>();}
-    if (jsonGet.containsKey("item"))     {item      = jsonGet["item"].as<String>();}
-    if (jsonGet.containsKey("newState")) {newState  = jsonGet["newState"].as<String>();}
+    if (jsonGet["action"])   {action    = jsonGet["action"].as<String>();}
+    if (jsonGet["subaction"]){subaction = jsonGet["subaction"].as<String>();}
+    if (jsonGet["item"])     {item      = jsonGet["item"].as<String>();}
+    if (jsonGet["newState"]) {newState  = jsonGet["newState"].as<String>();}
   
   } else { 
     snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
