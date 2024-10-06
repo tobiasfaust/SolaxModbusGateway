@@ -96,6 +96,30 @@
           </tr>
 
           <tr>
+            <td colspan='2'>
+            <div class='inline'>
+              <input type='radio' id='sel_auth_on' name='sel_auth' value='on' onclick="radioselection(['tr_auth_user','tr_auth_pass'],[])"/>
+              <label for='sel_auth_on'>use Authentification for WebUI</label>
+            </div>
+            
+            <div class='inline'>
+              <input type='radio' id='sel_auth_off' name='sel_auth' value='off' onclick="radioselection([],['tr_auth_user','tr_auth_pass'])"/>
+              <label for='sel_auth_off'>no Authentification for WebUI</label>
+            </div>  
+            </td>
+          </tr>
+
+          <tr id="tr_auth_user">
+            <td>select username for Authentification</td>
+            <td><input size='30' maxlength='40' name='auth_user' id='auth_user' placeholder="admin" type='text'/></td>
+          </tr>
+
+          <tr id="tr_auth_pass">
+            <td>select password for Authentification</td>
+            <td><input size='30' maxlength='40' name='auth_pass' id='auth_pass' placeholder="password" type='text'/></td>
+          </tr>
+
+          <tr>
             <td>LogLevel (0 [off] ... 5 [max]</td>
             <td><input min='0' max='5' name='debuglevel' id='debuglevel' type='number' style='width: 6em'/></td>
           </tr>

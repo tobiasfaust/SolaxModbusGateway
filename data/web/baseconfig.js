@@ -14,6 +14,7 @@ function GetInitData() {
 
 // ************************************************
 function MyCallback() {
+  CreateSelectionListFromInputField('input[type=number][id^=GpioPin]', [gpio]);
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
 }

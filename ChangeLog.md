@@ -3,6 +3,7 @@ Release 3.2.3:
   - add: configurable serial output pins
   - replace deprecated arduinojson library "containsKey"
   - use serveStatic function instead of custom handling
+  - add Authorization/authentication on the web (#80)
 
 Release 3.2.2:
   - add GoodWe Support, by @TigerGrey (#58)

@@ -1,6 +1,6 @@
 #include "baseconfig.h"
 
-BaseConfig::BaseConfig() : debuglevel(0), serial_rx(3), serial_tx(1) {  
+BaseConfig::BaseConfig() : debuglevel(0), serial_rx(3), serial_tx(1), useAuth(false) {  
   #ifdef ESP8266
     LittleFS.begin();
   #elif ESP32
@@ -40,9 +40,13 @@ void BaseConfig::LoadJsonConfig() {
         if (doc["data"]["UseRandomClientID"]){ if (strcmp(doc["data"]["UseRandomClientID"], "none")==0) { this->mqtt_UseRandomClientID=false;} else {this->mqtt_UseRandomClientID=true;}} else {this->mqtt_UseRandomClientID = true;}
         if (doc["data"]["SelectConnectivity"]){if (strcmp(doc["data"]["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
         if (doc["data"]["debuglevel"])       { this->debuglevel = _max((int)(doc["data"]["debuglevel"]), 0);} else {this->debuglevel = 0; }
-        if (doc["data"]["SelectLAN"])        {this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
+        if (doc["data"]["SelectLAN"])        { this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
         if (doc["data"]["serial_rx"])        { this->serial_rx = (doc["serial_rx"].as<int>());}
         if (doc["data"]["serial_tx"])        { this->serial_tx = (doc["serial_tx"].as<int>());}
+        if (doc["data"]["sel_auth"])         { if (strcmp(doc["data"]["sel_auth"], "off")==0) { this->useAuth=false;} else {this->useAuth=true;}} else {this->useAuth = false;}
+        if (doc["data"]["auth_user"])        { this->auth_user = doc["data"]["auth_user"].as<String>();} else {this->auth_user = "admin";}
+        if (doc["data"]["auth_pass"])        { this->auth_pass = doc["data"]["auth_pass"].as<String>();} else {this->auth_pass = "password";}
+        
       } else {
         if (this->GetDebugLevel() >=1) {dbg.println("failed to load json config, load default config");}
         loadDefaultConfig = true;
@@ -94,6 +98,11 @@ void BaseConfig::GetInitData(AsyncResponseStream *response) {
   json["data"]["sel_eth"]     = ((this->useETH)?1:0);
   json["data"]["sel_URCID1"]  = ((this->mqtt_UseRandomClientID)?0:1);
   json["data"]["sel_URCID2"]  = ((this->mqtt_UseRandomClientID)?1:0);
+  json["data"]["sel_auth_off"]= ((this->useAuth)?0:1);
+  json["data"]["sel_auth_on"] = ((this->useAuth)?1:0);
+  json["data"]["auth_user"]   = this->auth_user;
+  json["data"]["auth_pass"]   = this->auth_pass;
+
 
   #ifdef USE_WEBSERIAL
     json["data"]["tr_serial_rx"]["className"] = "hide";

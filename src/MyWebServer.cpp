@@ -28,7 +28,14 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
                                                           std::placeholders::_5,
                                                           std::placeholders::_6));
 
-  server->serveStatic("/", LittleFS, "/", "max-age=3600").setDefaultFile("/web/index.html");
+  if (Config->GetUseAuth()) {
+    server->serveStatic("/", LittleFS, "/", "max-age=3600")
+          .setDefaultFile("/web/index.html")
+          .setAuthentication(Config->GetAuthUser().c_str(), Config->GetAuthPass().c_str());
+  } else {
+    server->serveStatic("/", LittleFS, "/", "max-age=3600")
+          .setDefaultFile("/web/index.html");
+  }
   
   dbg.println(F("WebServer started..."));
 }
