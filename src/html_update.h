@@ -1,31 +1,6 @@
 #ifndef HTMLUPDATE_H
 #define HTMLUPDATE_H
 
-const char HTML_UPDATERESPONSE[] PROGMEM = R"=====(
-
-<!doctype html>
-<html lang="en">
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="utf-8">
-  <link rel="stylesheet" type="text/css" href="/web/Style.css">
-  <script language="javascript" type="text/javascript">
-    setTimeout(GoBack, 10000);
-    function GoBack() {
-        window.location.href="/";
-    }
-  </script>
-  <title>Solar Inverter Modbus MQTT Gateway</title></head>
-  <body>
-    Success! Rebooting...
-    <p/>
-    <input class='button' type='button' value='Go Back' onclick="window.location.href='/';" />
-  </body>
-</html>
-
-)=====";
-
-
 // https://jsfiddle.net/tobiasfaust/Lc1earnz/
 const char HTML_UPDATEPAGE[] PROGMEM = R"=====(
 

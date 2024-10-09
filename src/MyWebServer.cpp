@@ -47,9 +47,7 @@ void MyWebServer::handle_update_page(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handle_update_response(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", HTML_UPDATERESPONSE);
-  response->addHeader("Server","ESP Async Web Server");
-  request->send(response); 
+  request->send(LittleFS, "/web/reboot.html", "text/html");
 }
 
 void MyWebServer::handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
@@ -112,10 +110,7 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", HTML_UPDATERESPONSE);
-  response->addHeader("Server","ESP Async Web Server");
-  request->send(response);
-
+  request->send(LittleFS, "/web/reboot.html", "text/html");
   this->DoReboot = true;
 }
 
