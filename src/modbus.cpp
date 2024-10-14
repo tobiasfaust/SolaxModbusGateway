@@ -1173,7 +1173,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
         this->Conf_EnableSetters      = doc["data"]["enable_setters"].as<bool>();
         this->enableCrcCheck          = doc["data"]["enableCrcCheck"].as<bool>();
         this->enableLengthCheck       = doc["data"]["enableLengthCheck"].as<bool>();
-        this->enableRelays            = doc["data"]["EnableRelays"].as<bool>();
+        this->enableRelays            = (bool)(doc["data"]["EnableRelays"]).as<int>();
 
         if (doc["data"]["invertertype"])     { 
           bool found = false;
