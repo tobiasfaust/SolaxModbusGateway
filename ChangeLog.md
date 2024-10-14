@@ -1,16 +1,16 @@
 Release 3.2.3:
-  - add WebSerial as remote serial output as its own variant (#74)
-  - add: configurable serial output pins
-  - replace deprecated arduinojson library "containsKey"
-  - use serveStatic function instead of custom handling
-  - add Authorization/authentication on the web (#80)
+  - new feature: WebSerial as remote serial output (#74)
+  - new feature: configurable serial output pins
+  - replace deprecated arduinojson library function "containsKey"
+  - improvement: use serveStatic function with cache-control instead of custom handling
+  - new feature: Authorization/authentication on the web (#80)
 
 Release 3.2.2:
-  - add GoodWe Support, by @TigerGrey (#58)
-  - add support for id and livedate on same functioncode, by @TigerGrey (#58)
-  - add CRC Check to validate response (#43), enabling in Modbusconfig
-  - add data length check to validate response (#43), enabling in Modbusconfig
-  - add reading of potential-free Relays on Inverter (#67), enabling in Modbusconfig, thanks to @Lazgar
+  - new feature: GoodWe Support, by @TigerGrey (#58)
+  - new feature: support for id and livedate on same functioncode, by @TigerGrey (#58)
+  - new feature: CRC Check to validate response (#43), enabling in Modbusconfig
+  - new feature: data length check to validate response (#43), enabling in Modbusconfig
+  - new feature: reading of potential-free Relays on Inverter (#67), enabling in Modbusconfig, thanks to @Lazgar
   
 Release 3.2.1:
   - add modbusprotocoll doc for Solax-X1/X3 G4 (incl. write register) (thanks to @lattemacchiato) (#64)
