@@ -291,12 +291,14 @@ void MyWebServer::GetInitDataNavi(AsyncResponseStream *response){
 void MyWebServer::GetInitDataStatus(AsyncResponseStream *response) {
   String ret;
   JsonDocument json;
-  
+  String rssi = (String)(Config->GetUseETH()?ETH.linkSpeed():WiFi.RSSI());
+  if (Config->GetUseETH()) rssi.concat(" Mbps");
+
   json["data"].to<JsonObject>();
   json["data"]["ipaddress"] = mqtt->GetIPAddress().toString();
-  json["data"]["wifiname"] = (Config->GetUseETH()?"LAN":WiFi.SSID());
+  json["data"]["wifiname"] = (Config->GetUseETH()?"wired LAN":WiFi.SSID());
   json["data"]["macaddress"] = WiFi.macAddress();
-  json["data"]["rssi"] = (Config->GetUseETH()?ETH.linkSpeed():WiFi.RSSI()), (Config->GetUseETH()?"Mbps":"");
+  json["data"]["rssi"] = rssi;
   json["data"]["mqtt_status"] = (mqtt->GetConnectStatusMqtt()?"Connected":"Not Connected");
   json["data"]["inverter_type"] = mb->GetInverterType();
   json["data"]["inverter_serial"] = mb->GetInverterSN();
