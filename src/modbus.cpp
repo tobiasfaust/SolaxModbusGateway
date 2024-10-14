@@ -486,7 +486,7 @@ void modbus::ReceiveReadData() {
         this->DataFrame->at(dataFrameStartPos+this->Conf_IdDataErrorPos) != this->Conf_IdDataErrorCode && 
         this->DataFrame->at(dataFrameStartPos+this->Conf_LiveDataErrorPos) != this->Conf_LiveDataErrorCode) {
 
-      if (Config->GetDebugLevel() >=4) dbg.print("ErrorCode passed, OK");
+      if (Config->GetDebugLevel() >=4) dbg.println("ErrorCode passed, OK");
       
       if (this->enableCrcCheck) {
         //CRC Check
