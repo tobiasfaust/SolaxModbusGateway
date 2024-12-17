@@ -1,14 +1,10 @@
 [
     {
-        "manifest": "firmware/v3.3.0-75-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.0-75-development/filesAll.json",
+        "name": "SolaxModbusGateway (v3.3.0-development)",
         "version": "v3.3.0",
         "stage": "development",
-        "variant": "webSerial",
         "build": 75,
-        "chipFamilies": [
-            "ESP32"
-        ],
+        "variant": "webSerial",
         "builds": [
             {
                 "chipFamily": "ESP32",
@@ -38,18 +34,11 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.0-75-development/manifestAll-standard.json",
-        "files": "firmware/v3.3.0-75-development/filesAll.json",
+        "name": "SolaxModbusGateway (v3.3.0-development)",
         "version": "v3.3.0",
         "stage": "development",
-        "variant": "standard",
         "build": 75,
-        "chipFamilies": [
-            "ESP32-S2",
-            "ESP32-C3",
-            "ESP32",
-            "ESP32-S3"
-        ],
+        "variant": "standard",
         "builds": [
             {
                 "chipFamily": "ESP32-S2",
@@ -152,86 +141,5 @@
                 ]
             }
         ]
-    },
-    {
-        "manifest": "firmware/v3.3.0-71-development/manifestAll-Standard.json",
-        "files": "firmware/v3.3.0-71-development/filesAll.json",
-        "version": "v3.3.0",
-        "stage": "development",
-        "variant": "Standard",
-        "build": 71,
-        "chipFamilies": [
-            "ESP32-S2",
-            "ESP32-C3",
-            "ESP32",
-            "ESP32-S3"
-        ],
-        "builds": []
-    },
-    {
-        "manifest": "firmware/v3.3.0-71-development/manifestAll-WebSerial.json",
-        "files": "firmware/v3.3.0-71-development/filesAll.json",
-        "version": "v3.3.0",
-        "stage": "development",
-        "variant": "WebSerial",
-        "build": 71,
-        "chipFamilies": [
-            "ESP32"
-        ],
-        "builds": []
-    },
-    {
-        "manifest": "firmware/v3.3.0-70-development/manifestAll-Standard.json",
-        "files": "firmware/v3.3.0-70-development/filesAll.json",
-        "version": "v3.3.0",
-        "stage": "development",
-        "variant": "Standard",
-        "build": 70,
-        "chipFamilies": [
-            "ESP32-S2",
-            "ESP32-C3",
-            "ESP32",
-            "ESP32-S3"
-        ],
-        "builds": []
-    },
-    {
-        "manifest": "firmware/v3.3.0-70-development/manifestAll-WebSerial.json",
-        "files": "firmware/v3.3.0-70-development/filesAll.json",
-        "version": "v3.3.0",
-        "stage": "development",
-        "variant": "WebSerial",
-        "build": 70,
-        "chipFamilies": [
-            "ESP32"
-        ],
-        "builds": []
-    },
-    {
-        "manifest": "firmware/v3.2.3-69-development/manifestAll-Standard.json",
-        "files": "firmware/v3.2.3-69-development/filesAll.json",
-        "version": "v3.2.3",
-        "stage": "development",
-        "variant": "Standard",
-        "build": 69,
-        "chipFamilies": [
-            "ESP32-S2",
-            "ESP32-C3",
-            "ESP32",
-            "ESP32-S3"
-        ],
-        "builds": []
-    },
-    {
-        "manifest": "firmware/v3.2.3-69-development/manifestAll-WebSerial.json",
-        "files": "firmware/v3.2.3-69-development/filesAll.json",
-        "version": "v3.2.3",
-        "stage": "development",
-        "variant": "WebSerial",
-        "build": 69,
-        "chipFamilies": [
-            "ESP32"
-        ],
-        "builds": []
     }
 ]
