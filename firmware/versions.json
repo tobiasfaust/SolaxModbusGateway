@@ -1,0 +1,44 @@
+[
+    {
+        "path": "firmware/v3.3.0-71-development/manifestAll-Standard.json",
+        "version": "v3.3.0",
+        "stage": "development",
+        "variant": "Standard",
+        "build": 71
+    },
+    {
+        "path": "firmware/v3.3.0-71-development/manifestAll-WebSerial.json",
+        "version": "v3.3.0",
+        "stage": "development",
+        "variant": "WebSerial",
+        "build": 71
+    },
+    {
+        "path": "firmware/v3.3.0-70-development/manifestAll-Standard.json",
+        "version": "v3.3.0",
+        "stage": "development",
+        "variant": "Standard",
+        "build": 70
+    },
+    {
+        "path": "firmware/v3.3.0-70-development/manifestAll-WebSerial.json",
+        "version": "v3.3.0",
+        "stage": "development",
+        "variant": "WebSerial",
+        "build": 70
+    },
+    {
+        "path": "firmware/v3.2.3-69-development/manifestAll-Standard.json",
+        "version": "v3.2.3",
+        "stage": "development",
+        "variant": "Standard",
+        "build": 69
+    },
+    {
+        "path": "firmware/v3.2.3-69-development/manifestAll-WebSerial.json",
+        "version": "v3.2.3",
+        "stage": "development",
+        "variant": "WebSerial",
+        "build": 69
+    }
+]

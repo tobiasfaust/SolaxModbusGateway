@@ -1,0 +1,45 @@
+{
+    "name": "SolaxModbusGateway (v3.3.0-development)",
+    "version": "v3.3.0",
+    "stage": "development",
+    "build": 71,
+    "variant": "Standard",
+    "builds": [
+        {
+            "chipFamily": "ESP32-S2",
+            "parts": [
+                {
+                    "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-71-development/firmware_ESP32-S2/merged-firmware.ESP32-S2.v3.3.0-71.Standard.development.bin",
+                    "offset": 0
+                }
+            ]
+        },
+        {
+            "chipFamily": "ESP32-S3",
+            "parts": [
+                {
+                    "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-71-development/firmware_ESP32-S3/merged-firmware.ESP32-S3.v3.3.0-71.Standard.development.bin",
+                    "offset": 0
+                }
+            ]
+        },
+        {
+            "chipFamily": "ESP32-C3",
+            "parts": [
+                {
+                    "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-71-development/firmware_ESP32-C3/merged-firmware.ESP32-C3.v3.3.0-71.Standard.development.bin",
+                    "offset": 0
+                }
+            ]
+        },
+        {
+            "chipFamily": "ESP32",
+            "parts": [
+                {
+                    "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-71-development/firmware_ESP32/merged-firmware.ESP32.v3.3.0-71.Standard.development.bin",
+                    "offset": 0
+                }
+            ]
+        }
+    ]
+}
