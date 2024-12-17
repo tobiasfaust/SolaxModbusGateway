@@ -23,7 +23,7 @@
       </ol>
       <br><br>
       
-      <select id="versions" class="btn" onchange="resetCheckboxes();">
+      <select id="versions" class="btn" onchange="resetCheckboxes(setManifest);">
 
       </select>
       <br>
@@ -45,7 +45,15 @@
           <button class="btn" slot="activate">Install</button>
         </esp-web-install-button>
       <br>
+    </div>
 
+    <div class="footer container">
+      <form class="container" action="https://www.paypal.com/donate" method="post" target="_top">
+        <input type="hidden" name="hosted_button_id" value="RYUQVSNNTP3N6" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+        <img alt="" border="0" src="https://www.paypal.com/en_DE/i/scr/pixel.gif" width="1" height="1" />
+      </form>
+      If you think the project is great, I would be happy about a donation to be able to integrate paid extensions. I want to integrate the professional WebSerial and professional ElegantOTA Edition but each of them costs 250€.
     </div>
 
     <div class="footer">
