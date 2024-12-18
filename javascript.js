@@ -84,8 +84,9 @@ function checkSupported() {
  */
 function unsupported() {
     
-    document.getElementById('flasher').innerHTML = `Sorry, your browser is not yet supported!<br>
-    Please try on Desktop Chrome or Edge.<br>
+    document.getElementById('flasher').innerHTML = `Sorry, your browser is not yet supported!<p/>
+    Please try <b>Chrome</b>, <b>Edge</b> or <b>Opera</b>.
+    <p/>
     Find binary files here:<br>
     <a href="https://github.com/tobiasfaust/` + getRepositoryName() + `/releases" target="_blank">
     <button class="btn" slot="activate">GitHub Releases</button>
