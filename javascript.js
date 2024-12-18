@@ -29,7 +29,7 @@ function init() {
     .then(([versions, releases]) => {
         window.versions = versions;
         window.releases = releases;
-        GenerateSelectList(versions, releases, true, true);
+        GenerateSelectList(versions, releases, false, true);
         checkSupported(); 
         resetCheckboxes(setManifest);
     })
@@ -141,7 +141,7 @@ function resetCheckboxes(onClickEvent) {
     const radioButtonsContainer = document.getElementById('variants');
     radioButtonsContainer.innerHTML = ''; // Clear existing radio buttons
 
-    const variants = getAvailableVariants(versions, releases, document.getElementById('versions').value);
+    const variants = getAvailableVariants(versions, [], document.getElementById('versions').value);
 
     // Create radio buttons for each variant if > 1
     if (variants.size > 1) {
@@ -284,21 +284,10 @@ function setManifest() {
 
     let manifestPath;
 
-    // Search in releases
-    for (const release of releases) {
-        if (release.build == build && (!variant || release.variant == variant)) {
-            manifestPath = release.manifest;
+    for (const version of versions) {
+        if (version.build == build && (!variant || version.variant == variant)) {
+            manifestPath = version.manifest;
             break;
-        }
-    }
-
-    // If not found in releases, search in versions
-    if (!manifestPath) {
-        for (const version of versions) {
-            if (version.build == build && (!variant || version.variant == variant)) {
-                manifestPath = version.manifest;
-                break;
-            }
         }
     }
 
