@@ -1,10 +1,10 @@
 [
     {
-        "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/manifestAll-webSerial.json",
+        "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/manifestAll-webSerial.json",
         "version": "v3.3.0",
         "stage": "stable",
         "variant": "webSerial",
-        "build": 79,
+        "build": 82,
         "chipFamilies": [
             "ESP32"
         ],
@@ -13,80 +13,80 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/bootloader.ESP32.v3.3.0-79.webSerial.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/bootloader.ESP32.v3.3.0-82.webSerial.stable.bin",
                         "offset": 4096,
                         "filetype": "bootloader",
-                        "asset_id": "RA_kwDOILehbc4MxO3i",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232546"
+                        "asset_id": "RA_kwDOILehbc4M0wVF",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156037"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/partitions.ESP32.v3.3.0-79.webSerial.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/partitions.ESP32.v3.3.0-82.webSerial.stable.bin",
                         "offset": 32768,
                         "filetype": "partitions",
-                        "asset_id": "RA_kwDOILehbc4MxO4D",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232579"
+                        "asset_id": "RA_kwDOILehbc4M0wVL",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156043"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/littlefs.ESP32.v3.3.0-79.webSerial.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/littlefs.ESP32.v3.3.0-82.webSerial.stable.bin",
                         "offset": 3473408,
                         "filetype": "filesystem",
-                        "asset_id": "RA_kwDOILehbc4MxO34",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232568"
+                        "asset_id": "RA_kwDOILehbc4M0wVH",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156039"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/firmware.ESP32.v3.3.0-79.webSerial.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/firmware.ESP32.v3.3.0-82.webSerial.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware",
-                        "asset_id": "RA_kwDOILehbc4MxO3o",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232552"
+                        "asset_id": "RA_kwDOILehbc4M0wVG",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156038"
                     }
                 ]
             }
         ]
     },
     {
-        "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/manifestAll-standard.json",
+        "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/manifestAll-standard.json",
         "version": "v3.3.0",
         "stage": "stable",
         "variant": "standard",
-        "build": 79,
+        "build": 82,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32-S2",
+            "ESP32-S3",
+            "ESP32"
         ],
         "builds": [
             {
                 "chipFamily": "ESP32-S2",
                 "parts": [
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/bootloader.ESP32-S2.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/bootloader.ESP32-S2.v3.3.0-82.standard.stable.bin",
                         "offset": 4096,
                         "filetype": "bootloader",
-                        "asset_id": "RA_kwDOILehbc4MxO4G",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232582"
+                        "asset_id": "RA_kwDOILehbc4M0wVM",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156044"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/partitions.ESP32-S2.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/partitions.ESP32-S2.v3.3.0-82.standard.stable.bin",
                         "offset": 32768,
                         "filetype": "partitions",
-                        "asset_id": "RA_kwDOILehbc4MxO4T",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232595"
+                        "asset_id": "RA_kwDOILehbc4M0wVQ",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156048"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/littlefs.ESP32-S2.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/littlefs.ESP32-S2.v3.3.0-82.standard.stable.bin",
                         "offset": 3473408,
                         "filetype": "filesystem",
-                        "asset_id": "RA_kwDOILehbc4MxO4M",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232588"
+                        "asset_id": "RA_kwDOILehbc4M0wVO",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156046"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/firmware.ESP32-S2.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/firmware.ESP32-S2.v3.3.0-82.standard.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware",
-                        "asset_id": "RA_kwDOILehbc4MxO4J",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232585"
+                        "asset_id": "RA_kwDOILehbc4M0wVN",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156045"
                     }
                 ]
             },
@@ -94,32 +94,32 @@
                 "chipFamily": "ESP32-S3",
                 "parts": [
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/bootloader.ESP32-S3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/bootloader.ESP32-S3.v3.3.0-82.standard.stable.bin",
                         "offset": 4096,
                         "filetype": "bootloader",
-                        "asset_id": "RA_kwDOILehbc4MxO4c",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232604"
+                        "asset_id": "RA_kwDOILehbc4M0wVa",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156058"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/partitions.ESP32-S3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/partitions.ESP32-S3.v3.3.0-82.standard.stable.bin",
                         "offset": 32768,
                         "filetype": "partitions",
-                        "asset_id": "RA_kwDOILehbc4MxO4s",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232620"
+                        "asset_id": "RA_kwDOILehbc4M0wVi",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156066"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/littlefs.ESP32-S3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/littlefs.ESP32-S3.v3.3.0-82.standard.stable.bin",
                         "offset": 3473408,
                         "filetype": "filesystem",
-                        "asset_id": "RA_kwDOILehbc4MxO4k",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232612"
+                        "asset_id": "RA_kwDOILehbc4M0wVc",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156060"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/firmware.ESP32-S3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/firmware.ESP32-S3.v3.3.0-82.standard.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware",
-                        "asset_id": "RA_kwDOILehbc4MxO4g",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232608"
+                        "asset_id": "RA_kwDOILehbc4M0wVb",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156059"
                     }
                 ]
             },
@@ -127,32 +127,32 @@
                 "chipFamily": "ESP32-C3",
                 "parts": [
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/bootloader.ESP32-C3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/bootloader.ESP32-C3.v3.3.0-82.standard.stable.bin",
                         "offset": 4096,
                         "filetype": "bootloader",
-                        "asset_id": "RA_kwDOILehbc4MxO4w",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232624"
+                        "asset_id": "RA_kwDOILehbc4M0wVj",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156067"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/partitions.ESP32-C3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/partitions.ESP32-C3.v3.3.0-82.standard.stable.bin",
                         "offset": 32768,
                         "filetype": "partitions",
-                        "asset_id": "RA_kwDOILehbc4MxO5H",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232647"
+                        "asset_id": "RA_kwDOILehbc4M0wVn",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156071"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/littlefs.ESP32-C3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/littlefs.ESP32-C3.v3.3.0-82.standard.stable.bin",
                         "offset": 3473408,
                         "filetype": "filesystem",
-                        "asset_id": "RA_kwDOILehbc4MxO46",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232634"
+                        "asset_id": "RA_kwDOILehbc4M0wVl",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156069"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/firmware.ESP32-C3.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/firmware.ESP32-C3.v3.3.0-82.standard.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware",
-                        "asset_id": "RA_kwDOILehbc4MxO40",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232628"
+                        "asset_id": "RA_kwDOILehbc4M0wVk",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156068"
                     }
                 ]
             },
@@ -160,32 +160,32 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/bootloader.ESP32.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/bootloader.ESP32.v3.3.0-82.standard.stable.bin",
                         "offset": 4096,
                         "filetype": "bootloader",
-                        "asset_id": "RA_kwDOILehbc4MxO5R",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232657"
+                        "asset_id": "RA_kwDOILehbc4M0wVo",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156072"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/partitions.ESP32.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/partitions.ESP32.v3.3.0-82.standard.stable.bin",
                         "offset": 32768,
                         "filetype": "partitions",
-                        "asset_id": "RA_kwDOILehbc4MxO5v",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232687"
+                        "asset_id": "RA_kwDOILehbc4M0wV3",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156087"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/littlefs.ESP32.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/littlefs.ESP32.v3.3.0-82.standard.stable.bin",
                         "offset": 3473408,
                         "filetype": "filesystem",
-                        "asset_id": "RA_kwDOILehbc4MxO5j",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232675"
+                        "asset_id": "RA_kwDOILehbc4M0wVs",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156076"
                     },
                     {
-                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12396389321/firmware.ESP32.v3.3.0-79.standard.stable.bin",
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12456722147/firmware.ESP32.v3.3.0-82.standard.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware",
-                        "asset_id": "RA_kwDOILehbc4MxO5Y",
-                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/214232664"
+                        "asset_id": "RA_kwDOILehbc4M0wVr",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/215156075"
                     }
                 ]
             }
