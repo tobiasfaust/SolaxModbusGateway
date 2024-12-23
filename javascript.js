@@ -284,6 +284,8 @@ function setManifest() {
 
     let manifestPath;
     /*
+    deactivated temporarely due to: Mixed Content: The page at 'https://tobiasfaust.github.io/test/' was loaded over HTTPS, but requested an insecure resource 'http://www.diefaeuste.de:30080/https://github.com/tobiasfaust/test/releases/download/v.2.5.1-PRE-12465535356/manifestAll-standard.json'. This request has been blocked; the content must be served over HTTPS.
+
     for (const release of releases) {
         if (release.build == build && (!variant || release.variant == variant)) {
             manifestPath = "http://www.diefaeuste.de:30080/" + release.manifest;
