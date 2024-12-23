@@ -29,7 +29,7 @@ function init() {
     .then(([versions, releases]) => {
         window.versions = versions;
         window.releases = releases;
-        GenerateSelectList(versions, releases, true, true);
+        GenerateSelectList(versions, [] , false, true);
         checkSupported(); 
         resetCheckboxes(setManifest);
     })
@@ -283,14 +283,14 @@ function setManifest() {
     variant = document.querySelector('input[name="variant"]:checked')?.value || undefined
 
     let manifestPath;
-
+    /*
     for (const release of releases) {
         if (release.build == build && (!variant || release.variant == variant)) {
             manifestPath = "http://www.diefaeuste.de:30080/" + release.manifest;
             break;
         }
     }
-
+    */
     if (!manifestPath) {
         for (const version of versions) {
             if (version.build == build && (!variant || version.variant == variant)) {
