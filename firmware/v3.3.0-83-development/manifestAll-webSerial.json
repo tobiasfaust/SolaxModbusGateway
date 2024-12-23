@@ -2,14 +2,14 @@
     "name": "SolaxModbusGateway (v3.3.0-development)",
     "version": "v3.3.0",
     "stage": "development",
-    "build": 70,
-    "variant": "WebSerial",
+    "build": 83,
+    "variant": "webSerial",
     "builds": [
         {
             "chipFamily": "ESP32",
             "parts": [
                 {
-                    "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-70-development/firmware_ESP32_WebSerial/merged-firmware.ESP32.v3.3.0-70.WebSerial.development.bin",
+                    "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-83-development/firmware_ESP32-WebSerial/merged-firmware.ESP32.v3.3.0-83.webSerial.development.bin",
                     "offset": 0
                 }
             ]
