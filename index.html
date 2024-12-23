@@ -17,12 +17,17 @@
     <div id="flasher">
       <ol>
         <li>Plug in your ESP to a USB port. We will install the {{REPOSITORY}} to it.</li>
-        <li>if you update your device, please dont forget to save your settings at "files" tab before update.</li>
         <li id="coms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
+        <li>Finally put in your WiFi credentials.</li>
         <li>Get {{REPOSITORY}} installed and connected in less than 3 minutes!</li>
       </ol>
-      <br><br>
-      
+      <p/>
+      <div class="container"> 
+        <b style="color:darkred;">Please note:</b>
+        Use this web-installer only for a full fresh installation or updating Wifi credentials.
+        If you want an update, please use the build-in OTA Update at the device.
+        <p/>
+      </div>
       <select id="versions" class="btn" onchange="resetCheckboxes(setManifest);">
 
       </select>
