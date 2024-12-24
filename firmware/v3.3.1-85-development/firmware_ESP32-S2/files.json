@@ -1,0 +1,30 @@
+{
+    "name": "SolaxModbusGateway (v3.3.1-development)",
+    "chipFamily": "ESP32-S2",
+    "stage": "development",
+    "build": 85,
+    "variant": "standard",
+    "version": "v3.3.1",
+    "parts": [
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-85-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.1-85.standard.development.bin",
+            "offset": 4096,
+            "filetype": "bootloader"
+        },
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-85-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.1-85.standard.development.bin",
+            "offset": 32768,
+            "filetype": "partitions"
+        },
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-85-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.1-85.standard.development.bin",
+            "offset": 3473408,
+            "filetype": "filesystem"
+        },
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-85-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.1-85.standard.development.bin",
+            "offset": 65536,
+            "filetype": "firmware"
+        }
+    ]
+}
