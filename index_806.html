@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ESP Installer</title>
+    <meta name="description"
+      content="Easily allow users to install ESP32 firmware on the web."
+    />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel='stylesheet' type='text/css' href='style.css'>
+    <script type="module" src="https://unpkg.com/esp-web-tools@8.0.6/dist/web/install-button.js?module"></script>
+    <script  type = "text/javascript"  src="javascript.js"></script>
+  </head>
+  <body>
+    <h2>Welcome to the {{REPOSITORY}} web installer!</h2>
+    <div id="flasher">
+      <ol>
+        <li>Plug in your ESP to a USB port. We will install the {{REPOSITORY}} to it.</li>
+        <li id="coms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
+        <li>Finally put in your WiFi credentials.</li>
+        <li>Get {{REPOSITORY}} installed and connected in less than 3 minutes!</li>
+      </ol>
+      <p/>
+      <div class="container"> 
+        <b style="color:darkred;">Please note:</b>
+        Use this web-installer only for a full fresh installation or updating Wifi credentials.
+        If you want an update, please use the build-in OTA Update at the device.
+        <p/>
+      </div>
+      <select id="versions" class="btn" onchange="resetCheckboxes(setManifest);">
+
+      </select>
+      <br>
+      <div id="variants" class="radio">
+       <!--        
+        <input class="radio__input" type="radio" value="Standard" name="version" id="standard" checked>
+        <input class="radio__input" type="radio" value="Webserial" name="version" id="webserial">
+        <label class="radio__label" for="standard" id="standard_label">Standard</label>
+        <label class="radio__label" for="webserial" id="webserial_label">Webserial</label>
+        -->
+      </div>
+
+      <br>
+      <div id="web-install-div" class="container inst-button disabled">
+        <esp-web-install-button
+          id="web-install-button"
+          manifest=""
+        >
+          <button class="btn" slot="activate">Install</button>
+        </esp-web-install-button>
+      <br>
+    </div>
+
+    <div class="footer container">
+      <form class="container" action="https://www.paypal.com/donate" method="post" target="_top">
+        <input type="hidden" name="hosted_button_id" value="RYUQVSNNTP3N6" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+        <img alt="" border="0" src="https://www.paypal.com/en_DE/i/scr/pixel.gif" width="1" height="1" />
+      </form>
+      If you think the project is great, I would be happy about a donation to be able to integrate paid extensions. I want to integrate the professional WebSerial and professional ElegantOTA Edition but each of them costs 250€.
+    </div>
+
+    <div class="footer">
+      <a href="https://github.com/tobiasfaust/{{REPOSITORY}}" target="_blank">GitHub</a>
+      &mdash;
+      <a href="https://github.com/tobiasfaust/{{REPOSITORY}}/wiki" target="_blank">WiKi</a>
+      &mdash;
+      <a href="https://github.com/tobiasfaust/{{REPOSITORY}}/releases" target="_blank">Releases</a>
+      <p></p>
+      Installer powered by <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a>.
+    </div>
+
+  </body>
+</html>
