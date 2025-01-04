@@ -846,13 +846,16 @@ String modbus::MapItem(JsonArray map, String value) {
     }
   }
   if (!match) {
+
+    String def = "noMatch";
+	  
     for (JsonArray mapItem : map) {
       String v1 = mapItem[0].as<String>();
       String v2 = mapItem[1].as<String>();
 
       Config->log(5, "Check Map value: %s -> %s", v1.c_str(), v2.c_str());
 
-      if ("noMatch" == v1) {
+      if (def == v1) {
         ret = v2;
         Config->log(4, "Mapped value: %s -> %s", v1.c_str(), v2.c_str());
       }
