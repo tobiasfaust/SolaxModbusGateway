@@ -830,6 +830,7 @@ void modbus::ParseData() {
 *******************************************************/
 String modbus::MapItem(JsonArray map, String value) {
   String ret = value;
+  bool match = false;
 
   for (JsonArray mapItem : map) {
     String v1 = mapItem[0].as<String>();
@@ -840,9 +841,23 @@ String modbus::MapItem(JsonArray map, String value) {
 
     if (value == v1) {
       ret = v2;
+      match = true;
       Config->log(4, "Mapped value: %s -> %s", v1.c_str(), v2.c_str());
     }
-  } 
+  }
+  if (!match) {
+    for (JsonArray mapItem : map) {
+      String v1 = mapItem[0].as<String>();
+      String v2 = mapItem[1].as<String>();
+
+      Config->log(5, "Check Map value: %s -> %s", v1.c_str(), v2.c_str());
+
+      if ("noMatch" == v1) {
+        ret = v2;
+        Config->log(4, "Mapped value: %s -> %s", v1.c_str(), v2.c_str());
+      }
+    }
+  }
   return ret;
 }
 
