@@ -99,7 +99,7 @@
                     "realname": "Reactive Power Generation of Today",
                     "datatype": "float",
                     "factor": 0.1,
-                    "unit": "kVarh"
+                    "unit": "kWh"
                 },
                 {
                     "position": [
@@ -1240,8 +1240,8 @@
                         15,
                         16
                     ],
-                    "name": "SN",
-                    "realname": "SerialNumber",
+                    "name": "InverterSN",
+                    "realname": "Inverter SerialNumber",
                     "datatype": "string"
                 }
             ]

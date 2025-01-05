@@ -37,7 +37,7 @@ void BaseConfig::LoadJsonConfig() {
       DeserializationError error = deserializeJson(doc, configFile);
       
       if (!error && doc["data"]) {
-        serializeJsonPretty(doc, dbg);
+        this->log(1, doc);
         
         if (doc["data"]["mqttroot"])         { this->mqtt_root = doc["data"]["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
         if (doc["data"]["mqttserver"])       { this->mqtt_server = doc["data"]["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
@@ -139,4 +139,16 @@ void BaseConfig::log(const int loglevel, const char* format, ...) {
     Serial.println(buffer);
   #endif
   va_end(args);
+}
+
+void BaseConfig::log(const int loglevel, const JsonDocument& json) {
+  if (this->GetDebugLevel() < loglevel) return;
+  
+  #ifdef USE_WEBSERIAL
+    serializeJsonPretty(json, WebSerial);
+    WebSerial.println();
+  #else
+    serializeJsonPretty(json, Serial);
+    Serial.println();
+  #endif
 }

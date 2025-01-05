@@ -26,32 +26,25 @@ MyWebServer* mywebserver = NULL;
 
 void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   String msg;
-  if (Config->GetDebugLevel() >=3) {
-    dbg.print("Message arrived ["); dbg.print(topic); dbg.print("] ");
-  }
+  Config->log(3, "Message arrived [%s]", topic);
 
   for (unsigned int i = 0; i < length; i++) {
     msg.concat((char)payload[i]);
   }
 
-  if (Config->GetDebugLevel() >=3) {
-    dbg.print("Message: "); dbg.println(msg.c_str());
-  }
-
+  Config->log(3, "Message: %s", msg.c_str());
+  
   mb->ReceiveMQTT(topic, atoi(msg.c_str()));
 }
 
 void setup() {
   Serial.begin(115200);
-
-  dbg.println("Start of Modbus-RTU MQTT Gateway"); 
-  dbg.println("Starting BaseConfig");
   Config = new BaseConfig();
 
   #ifndef USE_WEBSERIAL
-    dbg.begin(115200, SERIAL_8N1, Config->GetSerialRx(), Config->GetSerialTx()); // RX, TX, zb.: 33, 32
-    dbg.println("");
-    dbg.println("ready");
+    Serial.begin(115200, SERIAL_8N1, Config->GetSerialRx(), Config->GetSerialTx()); // RX, TX, zb.: 33, 32
+    Serial.println("");
+    Serial.println("ready");
   #endif
 
   #ifdef USE_WEBSERIAL
@@ -59,10 +52,12 @@ void setup() {
     WebSerial.begin(&server);
     WebSerial.setBuffer(100);
   #endif
+
+  Config->log(1, "Start of Modbus-RTU MQTT Gateway"); 
+  Config->log(1, "Starting BaseConfig");
   
-  dbg.println("Starting Wifi and MQTT");
-  mqtt = new MQTT(&server, &dns, 
-                    Config->GetMqttServer().c_str(), 
+  Config->log(1, "Starting Wifi and MQTT");
+  mqtt = new MQTT(Config->GetMqttServer().c_str(), 
                     Config->GetMqttPort(), 
                     Config->GetMqttBasePath().c_str(), 
                     Config->GetMqttRoot().c_str(),
@@ -73,8 +68,8 @@ void setup() {
 
   mb = new modbus();
   mb->enableMqtt(mqtt);
-
-  dbg.println("attempting to start WebServer");
+  
+  Config->log(1, "attempting to start WebServer");
   mywebserver = new MyWebServer(&server, &dns);
 }
 

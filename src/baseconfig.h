@@ -19,6 +19,7 @@ class BaseConfig {
     * @param ... the arguments
     */
     void log(const int loglevel, const char* format, ...);
+    void log(const int loglevel, const JsonDocument& json);
 
     const String&   GetMqttServer()    const {return mqtt_server;}
     const uint16_t& GetMqttPort()     const {return mqtt_port;}

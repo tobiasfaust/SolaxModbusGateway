@@ -5,7 +5,7 @@
 #include <PubSubClient.h>
 #include <ImprovWiFiLibrary.h>
 #include <vector>
-#include "baseconfig.h"
+#include <baseconfig.h>
 
 #ifdef ESP8266
   //#define SetHostName(x) wifi_station_set_hostname(x);
@@ -47,7 +47,7 @@ class MQTT: PubSubClient {
 
   public:
 
-    MQTT(AsyncWebServer* server, DNSServer *dns, const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword);
+    MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword);
     void              loop();
     void              Publish_Bool(const char* subtopic, bool b, bool fulltopic);
     void              Publish_Int(const char* subtopic, int number, bool fulltopic);
@@ -74,8 +74,6 @@ class MQTT: PubSubClient {
     void              reconnect();
 
   private:
-    AsyncWebServer*   server;
-    DNSServer*        dns;
     WiFiClient        espClient;
 
     std::vector<String>* subscriptions = NULL;
@@ -95,7 +93,6 @@ class MQTT: PubSubClient {
     void              WaitForConnect();
     void              onImprovWiFiErrorCb(ImprovTypes::Error err);
     eth_shield_t*     GetEthShield(String ShieldName);
-
 };
 
 extern MQTT* mqtt;
