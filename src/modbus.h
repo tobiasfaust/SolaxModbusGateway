@@ -119,6 +119,7 @@ class modbus {
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
     String                  MapItem(JsonArray map, String value);
+    String                  MapBitwise(JsonArray map, String value);
     void                    ReadRelays();
 
     // inverter config, in sync with register.h ->config

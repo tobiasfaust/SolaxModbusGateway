@@ -749,7 +749,7 @@ void modbus::ParseData() {
         sprintf(buffer, "%.2f", val_f);
         d.value = String(buffer);
       
-      } else if (datatype == "integer") {
+      } else if (datatype == "integer" || datatype == "bitwise") {
         //********** handle Datatype Integer ***********//
         val_i = (this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
         sprintf(buffer, "%d", val_i);
@@ -781,7 +781,8 @@ void modbus::ParseData() {
         Config->log(4, "Map values for item %s", d.Name.c_str());
 
         JsonArray map = elem["mapping"].as<JsonArray>();
-        d.value = this->MapItem(map, d.value);
+        if (datatype == "bitwise") d.value = this->MapBitwise(map, d.value);
+        else d.value = this->MapItem(map, d.value);
       }
 
       Config->log(4, "Data: %s -> %s %s", d.Name.c_str(), d.value.c_str(), d.unit.c_str());
@@ -822,6 +823,23 @@ void modbus::ParseData() {
   }
 
   this->DataFrame->clear();   
+}
+
+String modbus::MapBitwise(JsonArray map, String value) {
+  String ret("");
+  
+  for (uint8_t i=0; i<value.length(); i++) {
+    //Serial.printf("Check Bitwise value: %s\n", String(value[i]).c_str());
+    if (map[i].is<JsonArray>()) {
+      //Serial.printf("Check Bitwise map: %s -> %s - %s \n", String(value[i]).c_str(), map[i][0].as<String>().c_str(), map[i][1].as<String>().c_str());
+      if (String(value[i]) == map[i][0].as<String>()) {
+        Serial.printf("Mapped Bitwise value: %s -> %s\n", String(value[i]).c_str(), map[i][1].as<String>().c_str());
+        if (ret.length() > 0) ret += ",";
+        ret += map[i][1].as<String>();
+      }
+    }
+  }
+  return ret;              
 }
 
 /*******************************************************
