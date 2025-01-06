@@ -120,6 +120,7 @@ class modbus {
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
     String                  MapItem(JsonArray map, String value);
     String                  MapBitwise(JsonArray map, String value);
+    String                  ConvertIntToBinaryString(int n, int numBits);
     void                    ReadRelays();
 
     // inverter config, in sync with register.h ->config

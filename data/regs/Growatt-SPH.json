@@ -126,7 +126,7 @@
                     "position2": [264, 265, 266, 267],
                     "name": "BatChargingPower",
                     "realname": "Battery Charging Power",
-                    "openwbtopic": "setbatimpwh",
+                    "openwbtopic": "setbatw",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"

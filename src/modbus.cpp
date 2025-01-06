@@ -749,12 +749,17 @@ void modbus::ParseData() {
         sprintf(buffer, "%.2f", val_f);
         d.value = String(buffer);
       
-      } else if (datatype == "integer" || datatype == "bitwise") {
+      } else if (datatype == "integer") {
         //********** handle Datatype Integer ***********//
         val_i = (this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
         sprintf(buffer, "%d", val_i);
         d.value = String(buffer);
 
+      } else if (datatype == "binary") {
+        //********** handle Datatype Integer ***********//
+        val_i = (this->JsonPosArrayToInt(posArray, posArray2) * factor) + valueAdd;
+        d.value = this->ConvertIntToBinaryString(val_i, posArray.size() * 8);
+      
       } else if (datatype == "string") {
         //********** handle Datatype String ***********//
         if (!posArray.isNull()) { 
@@ -781,7 +786,7 @@ void modbus::ParseData() {
         Config->log(4, "Map values for item %s", d.Name.c_str());
 
         JsonArray map = elem["mapping"].as<JsonArray>();
-        if (datatype == "bitwise") d.value = this->MapBitwise(map, d.value);
+        if (datatype == "binary") d.value = this->MapBitwise(map, d.value);
         else d.value = this->MapItem(map, d.value);
       }
 
@@ -825,20 +830,33 @@ void modbus::ParseData() {
   this->DataFrame->clear();   
 }
 
+String modbus::ConvertIntToBinaryString(int n, int numBits) {
+  String binaryString = "";
+  binaryString.reserve(numBits);
+
+  for (int i = numBits - 1; i >= 0; i--) {
+    binaryString += ((n >> i) & 1) ? "1" : "0";
+  }
+  return binaryString;
+}
+
+/*******************************************************
+ * Map a Binary to a predefined constant string
+*******************************************************/
 String modbus::MapBitwise(JsonArray map, String value) {
   String ret("");
   
   for (uint8_t i=0; i<value.length(); i++) {
-    //Serial.printf("Check Bitwise value: %s\n", String(value[i]).c_str());
-    if (map[i].is<JsonArray>()) {
-      //Serial.printf("Check Bitwise map: %s -> %s - %s \n", String(value[i]).c_str(), map[i][0].as<String>().c_str(), map[i][1].as<String>().c_str());
-      if (String(value[i]) == map[i][0].as<String>()) {
-        Serial.printf("Mapped Bitwise value: %s -> %s\n", String(value[i]).c_str(), map[i][1].as<String>().c_str());
-        if (ret.length() > 0) ret += ",";
-        ret += map[i][1].as<String>();
-      }
+    if (String(value[i]) == "1") {
+      Config->log(4, "Mapped value: %s -> %s\n", String(value[i]).c_str(), map[i].as<String>().c_str());
+      if (ret.length() > 0) ret += ", ";
+      if (map[i]) ret += map[i].as<String>();
+      else ret += "undefined";
     }
   }
+
+  // if nothing found, set default value (is last item in array)
+  if (ret.length() == 0) ret = map[map.size() - 1].as<String>();
   return ret;              
 }
 
@@ -852,9 +870,6 @@ String modbus::MapItem(JsonArray map, String value) {
   for (JsonArray mapItem : map) {
     String v1 = mapItem[0].as<String>();
     String v2 = mapItem[1].as<String>();
-
-    
-    Config->log(5, "Check Map value: %s -> %s", v1.c_str(), v2.c_str());
 
     if (value == v1) {
       ret = v2;

@@ -1,4 +1,5 @@
 Release 3.3.1:
+  - new Feature: datatype "binary" now available for json register definitions (PR #115)
   - BugFix: fix null-terminationof string handling (#96)
   - new feature: support for OpenWB 2.0 Api (#100)
   - bugfix: fix esp crash for /getitems if using an huge register table (#76)
