@@ -2,9 +2,23 @@
 window.addEventListener('DOMContentLoaded', init, false);
 function init() {
   GetInitData();
+  
+  // Initiale Verbindung aufbauen
+  connectWebSocket();
 }
 
-var myInterval = setInterval(RefreshLiveData, 5000);
+// Event Listener für das Fokussieren und Verlassen der Webseite
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') {
+    if (!ws || ws.readyState === WebSocket.CLOSED) {
+      console.log('Reconnecting WebSocket due to visibility change');
+      connectWebSocket();
+    }
+  }
+});
+
+
+//var myInterval = setInterval(RefreshLiveData, 5000);
 
 // ************************************************
 function GetInitData() {

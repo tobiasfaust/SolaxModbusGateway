@@ -3,6 +3,7 @@
 MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false), RequestRebootTime(0), server(server), dns(dns) {
   
   fsfiles = new handleFiles(server);
+  ws = new AsyncWebSocket("/ajaxws");
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
   server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
@@ -15,6 +16,18 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
   server->on("/ajax",                   HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
   server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
+
+  ws->onEvent([this](AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
+        if (type == WS_EVT_CONNECT) {
+            Config->log(2, "[Client: %u] WebSocket client connected", client->id());
+        } else if (type == WS_EVT_DISCONNECT) {
+            Config->log(2, "[Client: %u] WebSocket client disconnected", client->id());
+        } else if (type == WS_EVT_DATA) {
+            Config->log(2, "[Client: %u] WebSocket data received: %s", client->id(), String((char*)data).c_str()); 
+        }
+    });
+
+  server->addHandler(ws);
 
   ElegantOTA.begin(server);    // Start ElegantOTA
   ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH));
@@ -39,16 +52,26 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
   // try to start the server if wifi is connected, otherwise wait for wifi connection
   if (mqtt->GetConnectStatusWifi()) {
     server->begin();
+    mb->setWebSocketCallback([this](const String& message) {
+        this->sendWebSocketMessage(message);
+    });
     Config->log(1, "WebServer has been started ...");
   } else {
     mqtt->improvSerial.onImprovConnected(std::bind(&MyWebServer::onImprovWiFiConnectedCb, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 
-
 void MyWebServer::onImprovWiFiConnectedCb(const char *ssid, const char *password) {
   server->begin();
+  mb->setWebSocketCallback([this](const String& message) {
+        this->sendWebSocketMessage(message);
+    });
   Config->log(1, "WebServer has been started now ...");
+}
+
+void MyWebServer::sendWebSocketMessage(const String& message) {
+    Config->log(4, "send WebSocket Message: %s", message.c_str());
+    ws->textAll(message);
 }
 
 void MyWebServer::loop() {
@@ -64,6 +87,7 @@ void MyWebServer::loop() {
     }
   }
   ElegantOTA.loop();
+  ws->cleanupClients();
 }
 
 void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
@@ -114,7 +138,7 @@ void MyWebServer::handleWiFiReset(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
-  mb->GetLiveDataAsJson(request);
+  mb->GetLiveDataAsJsonToWebServer(request);
 }
 
 void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
@@ -123,7 +147,7 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   response->addHeader("Pragma", "no-cache");
   response->addHeader("Expires", "-1");
   
-  mb->GetRegisterAsJson(response);
+  mb->GetRegisterAsJsonToWebServer(response);
 
   request->send(response);  
 }
@@ -158,7 +182,7 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   }
 
   if (action && action == "RefreshLiveData") {
-    mb->GetLiveDataAsJson(request);
+    mb->GetLiveDataAsJsonToWebServer(request);
     return;
   }
 

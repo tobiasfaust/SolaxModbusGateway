@@ -72,6 +72,67 @@ const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                ];
 
 var timer; // ID of setTimout Timer -> setResponse
+let ws;    // websocket handle
+let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
+
+function connectWebSocket() {
+  window.addEventListener('beforeunload', function() {
+    if (ws) {
+      ws.close();
+    }
+  }, false);
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      if (!ws || ws.readyState === WebSocket.CLOSED) {
+        console.log('Reconnecting WebSocket due to visibility change');
+        connectWebSocket();
+      }
+    } else {
+      if (ws) {
+        console.log('Closing WebSocket due to visibility change');
+        ws.close();
+      }
+    }
+  });
+
+  if (document.visibilityState != 'visible') {
+    console.log('Not connecting WebSocket due to visibility state:', document.visibilityState);
+    return;
+  }
+
+  ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  var wsStatus = document.getElementById('ws-status');
+
+  ws.onopen = function() {
+    console.log('WebSocket connection opened');
+    if (wsStatus) wsStatus.style.backgroundColor = 'green';
+  };
+
+  ws.onmessage = function(event) {
+    try {
+      const json = JSON.parse(event.data);
+      console.log('Received JSON:', json);
+      //handleJsonItems(json, true);
+    } catch (e) {
+      console.error('Invalid JSON received:', event.data);
+    }
+  };
+
+  ws.onclose = function() {
+    console.log('WebSocket connection closed, attempting to reconnect in ' + reconnectInterval / 1000 + ' seconds');
+    if (wsStatus) wsStatus.style.backgroundColor = 'yellow';
+    setTimeout(connectWebSocket, reconnectInterval);
+  };
+
+  ws.onerror = function(error) {
+    console.error('WebSocket error:', error);
+    if (wsStatus) wsStatus.style.backgroundColor = 'red';
+    ws.close();
+  };
+}
+
+
 
 /******************************************************************************************
  * activate all radioselections after pageload to hide unnecessary elements

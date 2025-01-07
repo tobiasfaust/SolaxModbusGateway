@@ -31,6 +31,7 @@ class MyWebServer {
     MyWebServer(AsyncWebServer *server, DNSServer* dns);
 
     void      loop();
+    void      sendWebSocketMessage(const String& message);
 
   private:
     
@@ -39,12 +40,10 @@ class MyWebServer {
 
     AsyncWebServer* server;
     DNSServer* dns;
+    AsyncWebSocket* ws;
 
     handleFiles* fsfiles;
 
-//    void      handle_update_page(AsyncWebServerRequest *request);
-//    void      handle_update_progress(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);    
-//    void      handle_update_response(AsyncWebServerRequest *request);
     void      handleNotFound(AsyncWebServerRequest *request);
     void      handleReboot(AsyncWebServerRequest *request);
     void      handleReset(AsyncWebServerRequest *request);

@@ -13,7 +13,7 @@
 #include <sstream>
 #include <openwb.h>
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -58,10 +58,14 @@ class modbus {
     void                    GetInitRawData(AsyncResponseStream *response);
     String                  GetInverterSN();
 
-    void                    GetLiveDataAsJson(AsyncWebServerRequest *request);
-    void                    GetRegisterAsJson(AsyncResponseStream *response);
+    void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
+    void                    GetLiveDataAsJsonToWebSocket();
+    void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
+
+    // Callback setzen
+    void setWebSocketCallback(std::function<void(const String&)> callback);
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -129,6 +133,9 @@ class modbus {
 
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<std::vector<byte>>*  Conf_RequestIdData;
+
+    std::function<void(const String&)> webSocketCallback; // Callback-Funktion
+
 		uint8_t                 Conf_ClientIdPos;
     //uint8_t                 Conf_LiveDataStartsAtPos;
 		//uint8_t                 Conf_IdDataStartsAtPos;

@@ -3,6 +3,7 @@ Release 3.3.1:
   - BugFix: fix null-terminationof string handling (#96)
   - new feature: support for OpenWB 2.0 Api (#100)
   - bugfix: fix esp crash for /getitems if using an huge register table (#76)
+  - bugfix: fix register id definition (#113)
 
 Release 3.3.0:
   - new feature: WebSerial as remote serial output (#74)
