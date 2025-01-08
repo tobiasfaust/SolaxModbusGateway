@@ -1017,6 +1017,8 @@ String modbus::GetInverterSN() {
 *******************************************************/
 void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
   std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
+  std::shared_ptr<bool> firstRow = std::make_shared<bool>(true);
+
   String subaction(""), json("{}");
   
   if(request->hasArg("json")) {
@@ -1035,16 +1037,17 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
     Config->log(2, "[GetLiveDataAsJsonToWebServer] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
   }
 
-	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
+	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, firstRow, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
 			String ret("");
       ret.reserve(maxLen);
       maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
+
       if (*counter == 0) {
         // send start of JSON
         ret += "{\"data\": {\"items\": [";
         (*counter)++;
       }
-      const uint8_t startLen = ret.length();
+      
 
       if (*counter <= this->InverterIdData->size() && ret.length() < maxLen) {
         // send IdData
@@ -1053,7 +1056,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
         // jedes JsonObject wird mit 200 bytes angenommen, + 100 bytes puffer am Ende
         while (i < this->InverterIdData->size() && ret.length() < maxLen) {
           if (!(subaction == "onlyactive" && !this->InverterIdData->at(i).active)) {
-            if(ret.length() > startLen) ret += ",";
+            if(!(*firstRow)) ret += ",";
             ret += "{\"name\": \"" + this->InverterIdData->at(i).Name + "\",";
             ret += "\"realname\": \"" + this->InverterIdData->at(i).RealName + "\",";
             ret += "\"value\": {\"innerHTML\": \"" + this->InverterIdData->at(i).value + " " + this->InverterIdData->at(i).unit + "\", \"data-id\": \"" + this->InverterIdData->at(i).Name + ".value" + "\"},";
@@ -1064,6 +1067,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterIdData->at(i).openwb) + "\"}]";
             }
             ret += "}";
+            (*firstRow) = false;
           }
 
           (*counter)++;
@@ -1077,7 +1081,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
         
         while (i < this->InverterLiveData->size() && ret.length() < maxLen) {
           if (!(subaction == "onlyactive" && !this->InverterLiveData->at(i).active)) {
-            if(*counter > 1) ret += ",";
+            if(!(*firstRow)) ret += ",";
             ret += "{\"name\": \"" + this->InverterLiveData->at(i).Name + "\",";
             ret += "\"realname\": \"" + this->InverterLiveData->at(i).RealName + "\",";
             ret += "\"value\": {\"innerHTML\": \"" + this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit + "\", \"data-id\": \"" + this->InverterLiveData->at(i).Name + ".value" + "\"},";
@@ -1088,6 +1092,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterLiveData->at(i).openwb) + "\"}]";
             }
             ret += "}";
+            (*firstRow) = false;
           } 
 
           (*counter)++;
