@@ -75,6 +75,29 @@ var timer; // ID of setTimout Timer -> setResponse
 let ws;    // websocket handle
 let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
 
+/*****************************************************************************************
+ * @description This function updated values according their data-id in DOM elements.
+ * @param {*} json: JSON object containing the data-id values to update
+ * @param {*} highlight: boolean value to highlight the updated elements
+ * @returns {*} void
+ * @example updateDataID({"data-id":{"InverterSN.value":"123456789"}}, true)
+ * *****************************************************************************************/
+function updateDataID(json, highlight) {
+  if (json["data-id"]) {
+    for (const key in json["data-id"]) {
+      const elements = document.querySelectorAll(`[data-id="${key}"]`);
+      elements.forEach(element => {
+        element.innerHTML = json["data-id"][key];
+        if (highlight && element.classList.contains('ajaxchange')) { 
+        	element.classList.add('highlightOn');
+          setTimeout(function() {document.getElementById(element.id).classList.remove('highlightOn')}, 1000);
+        }
+        
+      });
+    }
+  }
+}
+
 function connectWebSocket() {
   window.addEventListener('beforeunload', function() {
     if (ws) {
@@ -113,7 +136,7 @@ function connectWebSocket() {
     try {
       const json = JSON.parse(event.data);
       console.log('Received JSON:', json);
-      //handleJsonItems(json, true);
+      updateDataID(json, true);
     } catch (e) {
       console.error('Invalid JSON received:', event.data);
     }
@@ -201,13 +224,10 @@ function applyKey (_obj, _key, _val, counter, tplHierarchie, highlight) {
 	  if (['SPAN', 'DIV', 'TD', 'DFN'].includes(_obj.tagName)) {
       if (highlight && _obj.classList.contains('ajaxchange')) {
         _obj.classList.add('highlightOn');
-        _obj.innerHTML = _val;
-      } if (!highlight && _obj.classList.contains('ajaxchange')) {
-         _obj.classList.remove('highlightOn');
-         _obj.innerHTML = _val;
-      } else {
-        _obj.innerHTML = _val;
-      }
+        setTimeout(function() {document.getElementById(_obj.id).classList.remove('highlightOn')}, 1000);
+      }  
+      _obj.innerHTML = _val;
+
     } else if (_obj.tagName == 'INPUT' && ['checkbox','radio'].includes(_obj.type)) {
       if (_val == true) _obj.checked = true;
     } else if (_obj.tagName == 'OPTION') {
@@ -216,8 +236,17 @@ function applyKey (_obj, _key, _val, counter, tplHierarchie, highlight) {
       _obj.value = _val;
     }
   } else {
-  	// using parenet object 
-    _obj[_key] = _val;
+  	// using parent object 
+    if (_key in _obj) {
+      if (highlight && _obj.classList.contains('ajaxchange')) { 
+        _obj.classList.add('highlightOn'); 
+        setTimeout(function() {document.getElementById(_obj.id).classList.remove('highlightOn')}, 1000);
+      }
+      
+      _obj[_key] = _val;
+    } else {
+      _obj.setAttribute(_key, _val);
+    }
   }
 }
 

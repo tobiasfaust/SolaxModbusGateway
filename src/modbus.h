@@ -59,13 +59,13 @@ class modbus {
     String                  GetInverterSN();
 
     void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
-    void                    GetLiveDataAsJsonToWebSocket();
     void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
 
     // Callback setzen
     void setWebSocketCallback(std::function<void(const String&)> callback);
+    void deleteWebSocketCallback() { webSocketCallback = NULL; }
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -126,6 +126,7 @@ class modbus {
     String                  MapBitwise(JsonArray map, String value);
     String                  ConvertIntToBinaryString(int n, int numBits);
     void                    ReadRelays();
+    void                    SendDataToWebSocket(std::vector<reg_t>* vector);
 
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;

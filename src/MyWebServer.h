@@ -19,7 +19,6 @@
 #include "handleFiles.h"
 #include "mqtt.h"
 #include "favicon.h"
-//#include "html_update.h"
 #include <ElegantOTA.h>
 #include "_Release.h"
 
@@ -37,7 +36,7 @@ class MyWebServer {
     
     bool      DoReboot;
     unsigned long RequestRebootTime;
-
+    
     AsyncWebServer* server;
     DNSServer* dns;
     AsyncWebSocket* ws;

@@ -20,10 +20,18 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
   ws->onEvent([this](AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
         if (type == WS_EVT_CONNECT) {
             Config->log(2, "[Client: %u] WebSocket client connected", client->id());
+        
         } else if (type == WS_EVT_DISCONNECT) {
             Config->log(2, "[Client: %u] WebSocket client disconnected", client->id());
+        
         } else if (type == WS_EVT_DATA) {
-            Config->log(2, "[Client: %u] WebSocket data received: %s", client->id(), String((char*)data).c_str()); 
+          String msg(""); msg.reserve(len + 1);
+          for (size_t i = 0; i < len; i++) {
+            msg += (char)data[i];
+          }
+          msg += '\0';
+          
+          Config->log(2, "[Client: %u] WebSocket data received: %s", client->id(), msg.c_str()); 
         }
     });
 

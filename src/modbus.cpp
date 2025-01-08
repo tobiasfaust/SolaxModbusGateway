@@ -825,6 +825,12 @@ void modbus::ParseData() {
         Config->log(3, "Inverter ID Data found -> %s: %s ", d.Name.c_str(), d.value.c_str());
 
       }
+
+      //if (webSocketCallback) {
+        //const String ws("{\"data-id\":{\"" + d.Name + ".value\":\"" + d.value + " "+ d.unit +"\"}}");
+        //const String ws("{\"" + d.Name + ".value\":\"" + d.value + " "+ d.unit +"\"}");
+        //webSocketCallback(ws);
+      //}
     
     } while (regfile.findUntil(",","]"));
 
@@ -842,9 +848,24 @@ void modbus::ParseData() {
     this->SaveIdDataframe->assign(this->DataFrame->begin(), this->DataFrame->end());
   }
 
-  if (webSocketCallback) this->GetLiveDataAsJsonToWebSocket();
+  if (webSocketCallback) {
+    this->SendDataToWebSocket(RequestType == "livedata" ? this->InverterLiveData : this->InverterIdData);
+  }
 
   this->DataFrame->clear();   
+}
+
+void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
+  if (webSocketCallback) {
+    String msg("{\"data-id\":{"); msg.reserve(vector->size() * 25);
+
+    for (uint8_t i=0; i < vector->size(); i++) {
+      if (i > 0) msg += ",";
+      msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value + " "+ vector->at(i).unit +"\"";
+    }
+    msg += "}}";
+    webSocketCallback(msg);
+  }
 }
 
 String modbus::ConvertIntToBinaryString(int n, int numBits) {
@@ -1023,7 +1044,8 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
         ret += "{\"data\": {\"items\": [";
         (*counter)++;
       }
-      
+      const uint8_t startLen = ret.length();
+
       if (*counter <= this->InverterIdData->size() && ret.length() < maxLen) {
         // send IdData
         uint16_t i = *counter - 1;
@@ -1031,10 +1053,10 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
         // jedes JsonObject wird mit 200 bytes angenommen, + 100 bytes puffer am Ende
         while (i < this->InverterIdData->size() && ret.length() < maxLen) {
           if (!(subaction == "onlyactive" && !this->InverterIdData->at(i).active)) {
-            if(*counter > 1) ret += ",";
+            if(ret.length() > startLen) ret += ",";
             ret += "{\"name\": \"" + this->InverterIdData->at(i).Name + "\",";
             ret += "\"realname\": \"" + this->InverterIdData->at(i).RealName + "\",";
-            ret += "\"value\": \"" + this->InverterIdData->at(i).value + " " + this->InverterIdData->at(i).unit + "\",";
+            ret += "\"value\": {\"innerHTML\": \"" + this->InverterIdData->at(i).value + " " + this->InverterIdData->at(i).unit + "\", \"data-id\": \"" + this->InverterIdData->at(i).Name + ".value" + "\"},";
             ret += "\"active\": {\"checked\": " + String(this->InverterIdData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterIdData->at(i).Name + "\"},";
             ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterIdData->at(i).Name, false) + "\"";
             
@@ -1058,7 +1080,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
             if(*counter > 1) ret += ",";
             ret += "{\"name\": \"" + this->InverterLiveData->at(i).Name + "\",";
             ret += "\"realname\": \"" + this->InverterLiveData->at(i).RealName + "\",";
-            ret += "\"value\": \"" + this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit + "\",";
+            ret += "\"value\": {\"innerHTML\": \"" + this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit + "\", \"data-id\": \"" + this->InverterLiveData->at(i).Name + ".value" + "\"},";
             ret += "\"active\": {\"checked\": " + String(this->InverterLiveData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterLiveData->at(i).Name + "\"},";
             ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false) + "\"";
             
@@ -1086,37 +1108,6 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
 
 	request->send(response);
 }
-
-void modbus::GetLiveDataAsJsonToWebSocket() {
-  if (webSocketCallback) {
-    uint16_t maxLen = 3000; // max length of JSON
-    uint16_t i=0;
-
-    while (i < this->InverterLiveData->size()) {
-      uint8_t itemcount=0;
-      String ret("{ \"data\": { \"items\": [");
-      ret.reserve(maxLen);
-      
-      // füge leeres jsonobject für jedes bereits gesendete Item ein
-      for (uint16_t j=0; j < i; j++) {
-        if(itemcount > 0) ret += ",";
-        ret += "{}";
-        itemcount++;
-      }
-
-      while (i < this->InverterLiveData->size() && ret.length() < maxLen) {
-        if(itemcount > 0) ret += ",";
-        ret += "{ \"name\": \"" + this->InverterLiveData->at(i).Name + "\", \"realname\": \"" + this->InverterLiveData->at(i).RealName + "\", \"value\": \"" + this->InverterLiveData->at(i).value + "\" }";
-        i++;
-        itemcount++;
-      }
-
-      ret += "]}}";
-      webSocketCallback(ret);
-    }
-  }
-}
-
 
 /*******************************************************
  * Return all LiveData as jsonArray
