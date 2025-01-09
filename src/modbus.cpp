@@ -667,6 +667,7 @@ void modbus::ParseData() {
       // setUp local variables
       String datatype = "";
       String openwbtopic = "";
+      String settopic = "";
       float factor = 1;
       int valueAdd = 0;
       String unit = "";
@@ -705,7 +706,12 @@ void modbus::ParseData() {
       if(this->Conf_EnableOpenWB && !elem["openwbtopic"].isNull()) {
         openwbtopic = elem["openwbtopic"].as<String>();
       }
-      
+
+      // optional field
+      if(!elem["settopic"].isNull()) {
+        settopic = elem["settopic"].as<String>();
+      }
+ 
       // optional field
       if (elem["factor"]) {
         factor = elem["factor"];
@@ -1024,6 +1030,10 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
             if (this->Conf_EnableOpenWB && this->InverterIdData->at(i).openwb.length() > 0) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterIdData->at(i).openwb) + "\"}]";
             }
+
+            if (this->InverterIdData->at(i).settopic.length() > 0) {
+              ret += ",\"settopic\": [{\"settopic\": \"/set/" + this->InverterIdData->at(i).settopic + "\"}]";
+            }
             ret += "}";
           }
 
@@ -1246,6 +1256,11 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
     // optional field
     if(!elem["openwbtopic"].isNull()) {
       d.openwb = elem["openwbtopic"].as<String>();
+    } 
+
+    // optional field
+    if(!elem["settopic"].isNull()) {
+      d.settopic = elem["settopic"].as<String>();
     } 
 
     d.active = false; // set initial
