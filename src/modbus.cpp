@@ -1058,7 +1058,7 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
             if (this->Conf_EnableOpenWB && this->InverterLiveData->at(i).openwb.length() > 0) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterLiveData->at(i).openwb) + "\"}]";
             }
-	    if (this->InverterIdData->at(i).settopic.length() > 0) {
+	    if (this->InverterLiveData->at(i).settopic.length() > 0) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + GetMqttSetTopic(this->InverterLiveData->at(i).settopic) + "\"}]";
             }
             ret += "}";
