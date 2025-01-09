@@ -1032,7 +1032,7 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
             }
 
             if (this->InverterIdData->at(i).settopic.length() > 0) {
-              ret += ",\"openwb\": [{\"openwbtopic\": \"" + GetMqttSetTopic(this->InverterIdData->at(i).settopic) + "\"}]";
+              ret += ",\"setter\": [{\"settopic\": \"" + GetMqttSetTopic(this->InverterIdData->at(i).settopic) + "\"}]";
             }
             ret += "}";
           }
@@ -1059,7 +1059,7 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterLiveData->at(i).openwb) + "\"}]";
             }
 	    if (this->InverterLiveData->at(i).settopic.length() > 0) {
-              ret += ",\"openwb\": [{\"openwbtopic\": \"" + GetMqttSetTopic(this->InverterLiveData->at(i).settopic) + "\"}]";
+              ret += ",\"setter\": [{\"settopic\": \"" + GetMqttSetTopic(this->InverterLiveData->at(i).settopic) + "\"}]";
             }
             ret += "}";
           } 
