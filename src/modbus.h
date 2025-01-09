@@ -100,7 +100,6 @@ class modbus {
 
     MQTT*                   mqtt = NULL;
     openwb*                 OpenWB = NULL;
-    settopic*               SetTopic = NULL;
 
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
