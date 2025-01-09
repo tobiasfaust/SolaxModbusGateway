@@ -1032,7 +1032,7 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
             }
 
             if (this->InverterIdData->at(i).settopic.length() > 0) {
-              ret += ",\"openwb\": [{\"openwbtopic\": \"" + this->InverterIdData->at(i).settopic + "\"}]";
+              ret += ",\"openwb\": [{\"openwbtopic\": \"" + this->mqtt->mqtt_basepath + "/set/" + this->InverterIdData->at(i).settopic + "\"}]";
             }
             ret += "}";
           }
@@ -1057,6 +1057,9 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
             
             if (this->Conf_EnableOpenWB && this->InverterLiveData->at(i).openwb.length() > 0) {
               ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterLiveData->at(i).openwb) + "\"}]";
+            }
+	    if (this->InverterIdData->at(i).settopic.length() > 0) {
+              ret += ",\"openwb\": [{\"openwbtopic\": \"" + this->mqtt->mqtt_basepath + "/set/" + this->InverterIdData->at(i).settopic + "\"}]";
             }
             ret += "}";
           } 
