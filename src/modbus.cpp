@@ -1032,7 +1032,7 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
             }
 
             if (this->InverterIdData->at(i).settopic.length() > 0) {
-              ret += ",\"settopic\": [{\"settopic\": \"/set/" + this->InverterIdData->at(i).settopic + "\"}]";
+              ret += ",\"openwb\": [{\"openwbtopic\": \"" + this->InverterIdData->at(i).settopic + "\"}]";
             }
             ret += "}";
           }
