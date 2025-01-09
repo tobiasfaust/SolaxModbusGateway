@@ -24,6 +24,7 @@ class modbus {
       String unit;
       bool active;
       String openwb;
+      String settopic;
   } reg_t;
 
   typedef struct {
@@ -99,6 +100,7 @@ class modbus {
 
     MQTT*                   mqtt = NULL;
     openwb*                 OpenWB = NULL;
+    settopic*               SetTopic = NULL;
 
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
