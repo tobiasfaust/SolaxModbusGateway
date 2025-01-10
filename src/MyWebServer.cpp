@@ -164,9 +164,12 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
 
   if (action && action == "RefreshLiveData") {
     mb->GetLiveDataAsJson(request);
-    mb->GetSetterAsJson(request);
     return;
   }
+  if (action && action == "GetSetData") {
+    mb->GetSetterAsJson(request);
+    return;
+  }  
 
   AsyncResponseStream *response = request->beginResponseStream("text/json");
   response->addHeader("Server","ESP Async Web Server");
