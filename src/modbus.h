@@ -26,6 +26,13 @@ class modbus {
       String openwb;
   } reg_t;
 
+  typedef struct { 
+      String Name;
+      String RealName;
+      String info;
+      bool active;
+  } reg_s;
+
   typedef struct {
     String command = "";
     std::vector<byte> request; 
