@@ -1373,6 +1373,13 @@ void modbus::LoadSetItems(std::vector<setter_t>* vector) {
       d.RealName = d.Name;
     }
 
+    // optional field
+    if(!elem["info"].isNull()) {
+      d.info = elem["info"].as<String>();
+    } else {
+      d.info = d.Name;
+    }
+
     d.active = false; // set initial
     vector->push_back(d);
 
