@@ -164,6 +164,7 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
 
   if (action && action == "RefreshLiveData") {
     mb->GetLiveDataAsJson(request);
+    mb->GetSetterAsJson(request);
     return;
   }
 
