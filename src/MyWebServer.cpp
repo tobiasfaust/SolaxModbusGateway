@@ -128,6 +128,21 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   request->send(response);  
 }
 
+void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
+  mb->GetLiveDataAsJson(request);
+}
+
+void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response->addHeader("Pragma", "no-cache");
+  response->addHeader("Expires", "-1");
+  
+  mb->GetSetterAsJson(response);
+
+  request->send(response);  
+}
+
 void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   char buffer[100] = {0};
   memset(buffer, 0, sizeof(buffer));
