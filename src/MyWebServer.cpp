@@ -133,14 +133,7 @@ void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "-1");
-  
-  mb->GetSetterAsJson(response);
-
-  request->send(response);  
+  mb->GetSetterAsJson(request);
 }
 
 void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
