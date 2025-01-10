@@ -18,7 +18,7 @@ modbus::modbus(): enableRelays(false),
 
   InverterLiveData    = new std::vector<reg_t>{};
   InverterIdData      = new std::vector<reg_t>{};
-  InverterSetData      = new std::vector<reg_s>{};
+  InverterSetData      = new std::vector<setter_t>{};
   AvailableInverters  = new std::vector<regfiles_t>{};
   Setters             = new std::vector<subscription_t>{};
   OpenWB              = new openwb();
