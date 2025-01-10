@@ -21,8 +21,8 @@ function init(startpath) {
 // ***********************************
 function requestListDir(startpath) {
   var data = {};
-  data['action'] = "handlefiles";
-  data['subaction'] = "listDir"
+  data['cmd']['action'] = "handlefiles";
+  data['cmd']['subaction'] = "listDir"
   //ajax_send(JSON.stringify(data));
   
   var http = null;
@@ -234,9 +234,9 @@ function deleteFile() {
   
   if (fileName != '') {
     var data = {};
-    data['action'] = 'handlefiles';
-    data['subaction'] = "deleteFile";
-    data['filename'] = pathOfFile + '/' + fileName;
+    data['cmd']['action'] = 'handlefiles';
+    data['cmd']['subaction'] = "deleteFile";
+    data['cmd']['filename'] = pathOfFile + '/' + fileName;
 
     setResponse(true, 'Please wait for deleting ...');
     requestData(JSON.stringify(data));

@@ -54,8 +54,12 @@ class modbus {
     const String            GetOpenWbVersion()  const {return Conf_OpenWBVersion;}
 
     void                    enableMqtt(MQTT* object);
+    
     void                    GetInitData(AsyncResponseStream *response);
     void                    GetInitRawData(AsyncResponseStream *response);
+    void                    GetInitData(JsonDocument& json);
+    void                    GetInitRawData(JsonDocument& json);
+
     String                  GetInverterSN();
 
     void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
@@ -65,7 +69,7 @@ class modbus {
 
     // Callback setzen
     void setWebSocketCallback(std::function<void(const String&)> callback);
-    void deleteWebSocketCallback() { webSocketCallback = NULL; }
+    void deleteWebSocketCallback() { webSocketCallback = nullptr; }
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin

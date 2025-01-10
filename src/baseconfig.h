@@ -12,6 +12,7 @@ class BaseConfig {
     BaseConfig();
     void      LoadJsonConfig();
     void      GetInitData(AsyncResponseStream *response);
+    void      GetInitData(JsonDocument& json);
 
     /**
     * @brief Wrapper function for logging like Serial.printf

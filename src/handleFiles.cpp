@@ -15,7 +15,7 @@ handleFiles::handleFiles(AsyncWebServer *server) {
 //###############################################################
 // returns the complete folder structure
 //###############################################################
-void handleFiles::getDirList(JsonArray* json, String path) {
+void handleFiles::getDirList(JsonArray json, String path) {
   JsonDocument doc;
   JsonObject jsonRoot = doc.to<JsonObject>();
 
@@ -45,12 +45,43 @@ void handleFiles::getDirList(JsonArray* json, String path) {
     file = FSroot.openNextFile();
   }
   FSroot.close();
-  json->add(jsonRoot);
+  json.add(jsonRoot);
 }
 
 //###############################################################
-// returns the requested data via AJAX from Webserver.cpp
+// returns the requested data from Webserver.cpp
 //###############################################################
+void handleFiles::HandleRequest(JsonDocument& json) {
+  String subaction = "";
+  if (json["cmd"]["subaction"])  {subaction  = json["cmd"]["subaction"].as<String>();}
+
+  Config->log(3, "handle Request in handleFiles.cpp: %s", subaction.c_str());
+
+  if (subaction == "listDir") {
+    //JsonDocument doc;
+    JsonArray content = json.add<JsonArray>();
+    
+    this->getDirList(content, "/");
+    Config->log(5, json["content"].as<String>().c_str());
+      
+  } else if (subaction == "deleteFile") {
+    String filename("");
+
+    Config->log(3, "Request to delete file %s", filename.c_str());
+
+    if (json["cmd"]["filename"])  {filename  = json["cmd"]["filename"].as<String>();}
+    
+    if (LittleFS.remove(filename)) { 
+      json["response"]["status"] = 1;
+      json["response"]["text"] = "deletion successful";
+    } else {
+      json["response"]["status"] = 0;
+      json["response"]["text"] = "deletion failed";
+    }
+    Config->log(3, json.as<String>().c_str());
+  }
+}
+
 void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* response) {
   String subaction = "";
   if (jsonGet["subaction"])  {subaction  = jsonGet["subaction"].as<String>();}
@@ -61,7 +92,7 @@ void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* 
     JsonDocument doc;
     JsonArray content = doc.add<JsonArray>();
     
-    this->getDirList(&content, "/");
+    this->getDirList(content, "/");
     String ret("");
     serializeJson(content, ret);
     Config->log(5, content);

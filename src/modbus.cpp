@@ -11,7 +11,7 @@ modbus::modbus(): enableRelays(false),
                   LastTxIdData(0), 
                   LastTxInverter(0),
                   Conf_OpenWBModulID(1),
-                  Conf_OpenWBBatteryID(2) {
+                  Conf_OpenWBBatteryID(2) { 
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -1484,6 +1484,48 @@ void modbus::LoadJsonItemConfig() {
 /*******************************************************************************************************
  * WebContent
 *******************************************************************************************************/
+void modbus::GetInitData(JsonDocument &json){
+  json["data"].to<JsonObject>();
+  json["data"]["GpioPin_RX"]          = this->pin_RX;
+  json["data"]["GpioPin_TX"]          = this->pin_TX;
+  json["data"]["GpioPin_RTS"]         = this->pin_RTS;
+  json["data"]["clientid"]            = this->ClientID;
+  json["data"]["baudrate"]            = this->Baudrate;
+  json["data"]["txintervallive"]      = this->TxIntervalLiveData;
+  json["data"]["txintervalid"]        = this->TxIntervalIdData;
+  json["data"]["GpioPin_Relay1"]      = this->pin_Relay1;
+  json["data"]["GpioPin_Relay2"]      = this->pin_Relay2;
+  json["data"]["enableRelays"]        = ((this->enableRelays)?1:0);
+
+  json["data"]["enableOpenWb"]        = ((this->Conf_EnableOpenWB)?1:0);
+  json["data"]["openwbmodulid"]       = this->Conf_OpenWBModulID;
+  json["data"]["openwbbatteryid"]     = this->Conf_OpenWBBatteryID;
+
+  json["data"]["enableCrcCheck"]      = ((this->enableCrcCheck)?1:0);
+  json["data"]["enableLengthCheck"]   = ((this->enableLengthCheck)?1:0);
+  json["data"]["enable_setters"]      = ((this->Conf_EnableSetters)?1:0);
+  
+  for (uint8_t i=0; i< AvailableInverters->size(); i++) {
+    json["data"]["inverters"][i]["inverter"].to<JsonObject>();
+    json["data"]["inverters"][i]["inverter"]["value"] = AvailableInverters->at(i).name;
+    json["data"]["inverters"][i]["inverter"]["selected"] = (AvailableInverters->at(i).name == this->InverterType.name?1:0);
+    json["data"]["inverters"][i]["inverter"]["text"] = AvailableInverters->at(i).name;
+  }
+
+  const std::vector<String> *OpenWBVersions = OpenWB->getOpenWbVersions();
+
+  for (uint8_t i=0; i< OpenWBVersions->size(); i++) {
+    json["data"]["openwbversions"][i]["openwbversion"].to<JsonObject>();
+    json["data"]["openwbversions"][i]["openwbversion"]["value"] = OpenWBVersions->at(i);
+    json["data"]["openwbversions"][i]["openwbversion"]["selected"] = (OpenWBVersions->at(i) == this->Conf_OpenWBVersion?1:0);
+    json["data"]["openwbversions"][i]["openwbversion"]["text"] = OpenWBVersions->at(i);
+  }
+
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
+}
+
 void modbus::GetInitData(AsyncResponseStream *response) {
   String ret;
   JsonDocument json;
@@ -1528,6 +1570,29 @@ void modbus::GetInitData(AsyncResponseStream *response) {
   json["response"]["text"] = "successful";
   serializeJson(json, ret);
   response->print(ret);
+}
+
+void modbus::GetInitRawData(JsonDocument& json) {
+  std::ostringstream id, live;
+  
+  live << std::hex << std::uppercase;
+  id << std::hex << std::uppercase;
+
+  for (uint16_t i = 0; i < this->SaveIdDataframe->size(); i++) {
+    id << std::setw(2) << std::setfill('0') << (int)this->SaveIdDataframe->at(i);
+  }
+
+  for (uint16_t i = 0; i < this->SaveLiveDataframe->size(); i++) {
+    live << std::setw(2) << std::setfill('0') << (int)this->SaveLiveDataframe->at(i);
+  }
+
+  json["data"].to<JsonObject>();
+  json["data"]["id_rawdata_org"] = id.str();
+  json["data"]["live_rawdata_org"] = live.str();
+
+  json["response"].to<JsonObject>();
+  json["response"]["status"] = 1;
+  json["response"]["text"] = "successful";
 }
 
 void modbus::GetInitRawData(AsyncResponseStream *response) {

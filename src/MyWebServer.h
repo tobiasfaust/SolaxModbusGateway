@@ -24,8 +24,6 @@
 
 class MyWebServer {
 
-  //enum page_t {ROOT, BASECONFIG, MODBUSCONFIG, MODBUSITEMCONFIG, MODBUSRAWDATA, FSFILES};
-  
   public:
     MyWebServer(AsyncWebServer *server, DNSServer* dns);
 
@@ -36,6 +34,8 @@ class MyWebServer {
     
     bool      DoReboot;
     unsigned long RequestRebootTime;
+
+    std::vector<uint32_t>  WsConnectedClientsForBroadcast = {};
     
     AsyncWebServer* server;
     DNSServer* dns;
@@ -52,10 +52,14 @@ class MyWebServer {
     void      handleAjax(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);
     void      handleGetRegisterJson(AsyncWebServerRequest *request);
+
     void      GetInitDataStatus(AsyncResponseStream *response);
     void      GetInitDataNavi(AsyncResponseStream *response);
-    
+    void      GetInitDataStatus(JsonDocument& json);
+    void      GetInitDataNavi(JsonDocument& json);    
+
     void      onImprovWiFiConnectedCb(const char *ssid, const char *password);
+    void      onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
 };
 
 #endif
