@@ -1070,6 +1070,75 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
 	request->send(response);
 }
 
+/*******************************************************
+ * Return all LiveData as jsonArray
+ * {data: [{"name": "xx", "value": "xx", ...}, ...] }
+*******************************************************/
+void modbus::GetSetterAsJson(AsyncWebServerRequest *request) {
+  std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
+  String subaction(""), json("{}");
+  
+  if(request->hasArg("json")) {
+    json = request->arg("json");
+  }
+  JsonDocument jsonGet; 
+  DeserializationError error = deserializeJson(jsonGet, json.c_str());
+  
+  Config->log(4, "[GetSetterAsJson] Json command empfangen: ");
+  if (!error) {
+    Config->log(4, jsonGet);
+
+    if (jsonGet["subaction"]){subaction = jsonGet["subaction"].as<String>();}
+  
+  } else { 
+    Config->log(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
+  }
+
+	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
+			String ret("");
+      ret.reserve(maxLen);
+      maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
+      if (*counter == 0) {
+        // send start of JSON
+        ret += "{\"data\": {\"setitems\": [";
+        (*counter)++;
+      }
+      
+      if (*counter <= this->InverterSetData->size() && ret.length() < maxLen) {
+        // send IdData
+        uint16_t i = *counter - 1;
+
+        // jedes JsonObject wird mit 200 bytes angenommen, + 100 bytes puffer am Ende
+        while (i < this->InverterSetData->size() && ret.length() < maxLen) {
+          if (!(subaction == "onlyactive" && !this->InverterSetData->at(i).active)) {
+            if(*counter > 1) ret += ",";
+            ret += "{\"name\": \"" + this->InverterSetData->at(i).Name + "\",";
+            ret += "\"realname\": \"" + this->InverterSetData->at(i).RealName + "\",";
+            ret += "\"info\": \"" + this->InverterSetData->at(i).info + "\",";
+            ret += "\"active\": {\"checked\": " + String(this->InverterSetData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterSetData->at(i).Name + "\"},";
+            ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterSetData->at(i).Name, false) + "\"";
+            
+            ret += "}";
+          }
+
+          (*counter)++;
+          i++;
+        }
+
+      }
+      
+      if (this->InverterSetData->size() + 1 == *counter) {
+        // send end of JSON
+        ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
+        (*counter)++;
+      }
+      int len = sprintf((char*)buffer, ret.c_str());
+      return len;
+
+	});
+
+	request->send(response);
+}
 
 /*******************************************************
  * Return all LiveData as jsonArray
