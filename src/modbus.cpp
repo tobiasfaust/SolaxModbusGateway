@@ -1328,6 +1328,62 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
   if (regfile) { regfile.close(); }
 }
 
+void modbus::LoadSetItems(std::vector<setter_t>* vector) {
+  vector->clear();
+
+  Config->log(4, "Load SetItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type.c_str());
+
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  if (!regfile) {
+    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+    return;
+  }
+
+  String streamString = "";
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
+    
+  streamString = "\"set\": [";
+  regfile.find(streamString.c_str());
+  do {
+    JsonDocument elem;
+    DeserializationError error = deserializeJson(elem, regfile); 
+      
+    if (!error) {
+      // Print the result
+      Config->log(4, "parsing JSON ok");
+      Config->log(5, elem);
+    } else {
+      Config->log(1, "(Function LoadSetterItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), type.c_str(), error.c_str());
+    }
+
+    setter_t d = {};
+      
+    // mandantory field
+    if(!elem["name"].isNull()) {
+      d.Name = elem["name"].as<String>();
+    } else {
+      d.Name = String("undefined");
+    }
+
+    // optional field
+    if(!elem["realname"].isNull()) {
+      d.RealName = elem["realname"].as<String>();
+    } else {
+      d.RealName = d.Name;
+    }
+
+    d.active = false; // set initial
+    vector->push_back(d);
+
+    Config->log(4, "processed SetterItem: %s", d.Name.c_str());
+
+  } while (regfile.findUntil(",","]"));
+
+  if (regfile) { regfile.close(); }
+}
+
+
 /*******************************************************
  * load configuration from file
 *******************************************************/
