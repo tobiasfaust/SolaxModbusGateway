@@ -128,10 +128,6 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   request->send(response);  
 }
 
-void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
-  mb->GetLiveDataAsJson(request);
-}
-
 void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
   mb->GetSetterAsJson(request);
 }
