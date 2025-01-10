@@ -69,6 +69,7 @@ void modbus::init(bool firstrun) {
   this->LoadInverterConfigFromJson();
   this->LoadRegItems(this->InverterIdData, "id");
   this->LoadRegItems(this->InverterLiveData, "livedata");
+  this->LoadSetItems(this->InverterSetData);
   this->LoadJsonItemConfig(); // loads InverterLiveData Items too
   
 
