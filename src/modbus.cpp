@@ -1331,7 +1331,7 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
 void modbus::LoadSetItems(std::vector<setter_t>* vector) {
   vector->clear();
 
-  Config->log(4, "Load SetItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type.c_str());
+  Config->log(4, "Load SetItems for Inverter %s and type <%s>", this->InverterType.name.c_str());
 
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
@@ -1354,7 +1354,7 @@ void modbus::LoadSetItems(std::vector<setter_t>* vector) {
       Config->log(4, "parsing JSON ok");
       Config->log(5, elem);
     } else {
-      Config->log(1, "(Function LoadSetterItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), type.c_str(), error.c_str());
+      Config->log(1, "(Function LoadSetterItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), error.c_str());
     }
 
     setter_t d = {};
