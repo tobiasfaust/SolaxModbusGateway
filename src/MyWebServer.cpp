@@ -15,6 +15,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
   server->on("/ajax",                   HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
   server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
+  server->on("/getsetter",              HTTP_GET, std::bind(&MyWebServer::handleGetSetterJson, this, std::placeholders::_1));
 
   ElegantOTA.begin(server);    // Start ElegantOTA
   ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH));
