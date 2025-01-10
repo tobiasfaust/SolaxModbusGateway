@@ -66,7 +66,7 @@ class modbus {
     String                  GetInverterSN();
 
     void                    GetLiveDataAsJson(AsyncWebServerRequest *request);
-    void                    GetSetterAsJson(AsyncWebServerRequest *request)
+    void                    GetSetterAsJson(AsyncWebServerRequest *request);
     void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
@@ -127,7 +127,7 @@ class modbus {
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
-    void                    LoadSetItems(std::vector<setter_t>* vector)
+    void                    LoadSetItems(std::vector<setter_t>* vector);
     String                  MapItem(JsonArray map, String value);
     String                  MapBitwise(JsonArray map, String value);
     String                  ConvertIntToBinaryString(int n, int numBits);
