@@ -31,7 +31,7 @@ class modbus {
       String RealName;
       String info;
       bool active;
-  } reg_s;
+  } setter_t;
 
   typedef struct {
     String command = "";
@@ -101,7 +101,8 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
-    std::vector<regfiles_t>*AvailableInverters;   // available inverters from JSON
+    std::vector<setter_t>*  InverterSetData;     // storing readable results
+    std::vector<regfiles_t>* AvailableInverters;   // available inverters from JSON
     std::vector<subscription_t>* Setters;         // available set Options from JSON register 
 
     MQTT*                   mqtt = NULL;
