@@ -54,6 +54,7 @@ class MyWebServer {
     void      handleAjax(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);
     void      handleGetRegisterJson(AsyncWebServerRequest *request);
+    void      handleGetSetterJson(AsyncWebServerRequest *request);
     void      GetInitDataStatus(AsyncResponseStream *response);
     void      GetInitDataNavi(AsyncResponseStream *response);
     
