@@ -1,5 +1,177 @@
 [
     {
+        "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/manifestAll-webSerial.json",
+        "version": "v3.3.1",
+        "stage": "stable",
+        "variant": "webSerial",
+        "build": 107,
+        "chipFamilies": [
+            "ESP32"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/bootloader.ESP32.v3.3.1-107.webSerial.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369101"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/partitions.ESP32.v3.3.1-107.webSerial.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369108"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/littlefs.ESP32.v3.3.1-107.webSerial.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369105"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/firmware.ESP32.v3.3.1-107.webSerial.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369104"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/manifestAll-standard.json",
+        "version": "v3.3.1",
+        "stage": "stable",
+        "variant": "standard",
+        "build": 107,
+        "chipFamilies": [
+            "ESP32-S2",
+            "ESP32-C3",
+            "ESP32-S3",
+            "ESP32"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32-S2",
+                "parts": [
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/bootloader.ESP32-S2.v3.3.1-107.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369096"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/partitions.ESP32-S2.v3.3.1-107.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369100"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/littlefs.ESP32-S2.v3.3.1-107.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369098"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/firmware.ESP32-S2.v3.3.1-107.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369097"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/bootloader.ESP32.v3.3.1-107.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369109"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/partitions.ESP32.v3.3.1-107.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369115"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/littlefs.ESP32.v3.3.1-107.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369113"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/firmware.ESP32.v3.3.1-107.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369111"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-C3",
+                "parts": [
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/bootloader.ESP32-C3.v3.3.1-107.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369118"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/partitions.ESP32-C3.v3.3.1-107.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369138"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/littlefs.ESP32-C3.v3.3.1-107.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369124"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/firmware.ESP32-C3.v3.3.1-107.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369123"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-S3",
+                "parts": [
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/bootloader.ESP32-S3.v3.3.1-107.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369144"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/partitions.ESP32-S3.v3.3.1-107.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369165"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/littlefs.ESP32-S3.v3.3.1-107.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369155"
+                    },
+                    {
+                        "path": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.1--12706161503/firmware.ESP32-S3.v3.3.1-107.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware",
+                        "asset_apiUrl": "https://api.github.com/repos/tobiasfaust/SolaxModbusGateway/releases/assets/219369152"
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "manifest": "https://github.com/tobiasfaust/SolaxModbusGateway/releases/download/v.3.3.0--12470082078/manifestAll-webSerial.json",
         "version": "v3.3.0",
         "stage": "stable",
@@ -48,9 +220,9 @@
         "build": 84,
         "chipFamilies": [
             "ESP32-S2",
+            "ESP32-C3",
             "ESP32-S3",
-            "ESP32",
-            "ESP32-C3"
+            "ESP32"
         ],
         "builds": [
             {
