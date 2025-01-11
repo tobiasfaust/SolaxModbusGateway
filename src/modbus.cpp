@@ -1116,8 +1116,8 @@ void modbus::GetSetterAsJson(AsyncWebServerRequest *request) {
             if(*counter > 1) ret += ",";
             ret += "{\"name\": \"" + this->InverterSetData->at(i).Name + "\",";
             ret += "\"realname\": \"" + this->InverterSetData->at(i).RealName + "\",";
-            ret += "\"subscription\": \"" + this->GetMqttSetTopic(this->InverterSetData->at(i).Name) + "\"";
-            ret += "\"info\": \"" + this->InverterSetData->at(i).info + "\",";
+            ret += "\"subscription\": \"" + this->GetMqttSetTopic(this->InverterSetData->at(i).Name) + "\",";
+            ret += "\"info\": \"" + this->InverterSetData->at(i).info + "\"";
             
             ret += "}";
           }
