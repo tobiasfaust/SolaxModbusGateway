@@ -1116,9 +1116,8 @@ void modbus::GetSetterAsJson(AsyncWebServerRequest *request) {
             if(*counter > 1) ret += ",";
             ret += "{\"name\": \"" + this->InverterSetData->at(i).Name + "\",";
             ret += "\"realname\": \"" + this->InverterSetData->at(i).RealName + "\",";
+            ret += "\"subscription\": \"" + this->GetMqttSetTopic(this->InverterSetData->at(i).Name, false) + "\"";
             ret += "\"info\": \"" + this->InverterSetData->at(i).info + "\",";
-            ret += "\"active\": {\"checked\": " + String(this->InverterSetData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterSetData->at(i).Name + "\"},";
-            ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterSetData->at(i).Name, false) + "\"";
             
             ret += "}";
           }
@@ -1329,6 +1328,10 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
   if (regfile) { regfile.close(); }
 }
 
+
+/*******************************************************
+ * load initial Setter Items from file into vector
+*******************************************************/
 void modbus::LoadSetItems(std::vector<setter_t>* vector) {
   vector->clear();
 
