@@ -29,7 +29,6 @@ class modbus {
   typedef struct { 
       String Name;
       String RealName;
-      String subscription
       String info;
       bool active;
   } setter_t;
