@@ -15,7 +15,7 @@ function GetInitData() {
   requestData(JSON.stringify(data), false, MyCallback);
 
   var data = {};
-  data.action = "GetSetData";
+  data.action = "GetSetterData";
   data.subaction = "all";
   requestData(JSON.stringify(data), false, MyCallback);
 }
