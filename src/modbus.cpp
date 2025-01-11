@@ -1233,6 +1233,13 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
       this->InverterIdData->at(j).active = newstate;
     }
   }
+
+  for (uint16_t j=0; j < this->InverterSetData->size(); j++) {
+    if (this->InverterSetData->at(j).Name == item) {
+      Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
+      this->InverterSetData->at(j).active = newstate;
+    }
+  }
   //Lazgar
 }
 
