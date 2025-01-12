@@ -1570,6 +1570,15 @@ void modbus::LoadJsonItemConfig() {
               break;
             }
           }
+
+         for(uint16_t i=0; i<this->InverterSetData->size(); i++) {
+            if (this->InverterSetData->at(i).Name == ItemName ) {
+              this->InverterSetData->at(i).active = kv.value().as<bool>();
+
+              Config->log(3, "item %s -> %s", ItemName, (this->InverterSetData->at(i).active?"enabled":"disabled"));
+              break;
+            }
+          }
 	  //Lazgar
         }
 
