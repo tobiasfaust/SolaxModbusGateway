@@ -75,29 +75,6 @@ var timer; // ID of setTimout Timer -> setResponse
 let ws;    // websocket handle
 let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
 
-/*****************************************************************************************
- * @description This function updated values according their data-id in DOM elements.
- * @param {*} json: JSON object containing the data-id values to update
- * @param {*} highlight: boolean value to highlight the updated elements
- * @returns {*} void
- * @example updateDataID({"data-id":{"InverterSN.value":"123456789"}}, true)
- * *****************************************************************************************/
-function updateDataID(json, highlight) {
-  if (json["data-id"]) {
-    for (const key in json["data-id"]) {
-      const elements = document.querySelectorAll(`[data-id="${key}"]`);
-      elements.forEach(element => {
-        element.innerHTML = json["data-id"][key];
-        if (highlight && element.classList.contains('ajaxchange')) { 
-        	element.classList.add('highlightOn');
-          setTimeout(function() {document.getElementById(element.id).classList.remove('highlightOn')}, 1000);
-        }
-        
-      });
-    }
-  }
-}
-
 function connectWebSocket() {
   window.addEventListener('beforeunload', function() {
     if (ws) {
@@ -136,7 +113,7 @@ function connectWebSocket() {
     try {
       const json = JSON.parse(event.data);
       console.log('Received JSON:', json);
-      updateDataID(json, true);
+      handleJsonItems(json);
     } catch (e) {
       console.error('Invalid JSON received:', event.data);
     }
@@ -193,19 +170,37 @@ function handleRadioSelections() {
  * @param {*} callbackFn -> callback function to call after data is fetched
  * @returns {*} void
 ******************************************************************************************/
-
-function requestData(json, highlight, callbackFn) {
-  const data = new URLSearchParams();
-  data.append('json', json);
-
-  fetch('/ajax', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: data
-  })
-  .then (response => response.json())
-  .then (json =>  { handleJsonItems(json, highlight, callbackFn)}); 
+function requestData(json) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(json);
+  } else {
+    console.log('WebSocket not open');
+  }
 }
+
+/*****************************************************************************************
+ * @description This function updated values according their data-id in DOM elements.
+ * @param {*} json: JSON object containing the data-id values to update
+ * @param {*} highlight: boolean value to highlight the updated elements
+ * @returns {*} void
+ * @example updateDataID({"data-id":{"InverterSN.value":"123456789"}}, true)
+ * *****************************************************************************************/
+function updateDataID(json, highlight) {
+  if (json["data-id"]) {
+    for (const key in json["data-id"]) {
+      const elements = document.querySelectorAll(`[data-id="${key}"]`);
+      elements.forEach(element => {
+        element.innerHTML = json["data-id"][key];
+        if (highlight && element.classList.contains('ajaxchange')) { 
+        	element.classList.add('highlightOn');
+          setTimeout(function() {document.getElementById(element.id).classList.remove('highlightOn')}, 1000);
+        }
+        
+      });
+    }
+  }
+}
+
 
 /*****************************************************************************************
  *
@@ -345,9 +340,35 @@ function applyTemplate(TemplateJson, templateID, doc, tplHierarchie, highlight) 
   }
 }
 
-function handleJsonItems(json, highlight, callbackFn) {
+/*****************************************************************************************
+ * apply Javascript variables to the window object from a JSON object
+ * @param {*} json: JSON object containing the variables to apply
+ * @returns {*} void
+ * @example applyJS({"myVar": "myValue"})
+ * *****************************************************************************************/
+function applyJS(json) {
+	for (var key in json) {
+  	window[key] = json[key];
+  }
+}
+
+/*****************************************************************************************
+ * Main function to handle JSON response
+ * @param {*} json: JSON object containing the response data
+ * @returns {*} void
+ * @example handleJsonItems({"data-id": {"InverterSN": "123456789"}, "cmd": {"action": "GetInitData", "subaction": "status", "callbackFn": "MyCallback"}, "
+ *                          "response": {"status": 1, "text": "OK"}})
+ * *****************************************************************************************/
+function handleJsonItems(json) {
+  var callbackFn = json['cmd']['callbackFn'];
+  var highlight = json['cmd']['highlight'];
+
   if ("data" in json) {
     applyKeys(json.data, document, undefined, undefined, '', highlight);
+  }
+
+  if ('js' in json) { 
+  	applyJS(json.js);
   }
 
   if ('response' in json) {
@@ -355,6 +376,10 @@ function handleJsonItems(json, highlight, callbackFn) {
       if (json.response.status == 1) {setResponse(true, json.response.text);}
       if (json.response.status == 0) {setResponse(false, json.response.text);}
     } catch(e) {setResponse(false, 'unknow error');}
+  }
+
+  if ("data-id" in json) {
+    updateDataID(json, highlight);
   }
 
 	// DOM objects now ready
@@ -384,15 +409,12 @@ function setResponse(b, s) {
 }
 
 /******************************************************************************************
-#
-# definition of creating selectionlists from input fields
-# querySelector -> select input fields to convert
-# jsonLists -> define multiple predefined lists to set as option as array
-# blacklist -> simple list of ports (numbers) to set as disabled option 
-#
-# example: 
-# CreateSelectionListFromInputField('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]', 
-#                                    [gpio, gpio_analog], gpio_disabled);
+ * definition of creating selectionlists from input fields
+ * @param {*} querySelector -> select input fields to convert
+ * @param {*} jsonLists -> define multiple predefined lists to set as option as array
+ * @param {*}blacklist -> simple list of ports (numbers) to set as disabled option 
+ * @example 
+ * CreateSelectionListFromInputField('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]', [gpio, gpio_analog], gpio_disabled);
 ******************************************************************************************/
 function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) {
 	var _parent, _select, _option, i, j, k;
@@ -509,9 +531,10 @@ function onSubmit(DataForm, separator='') {
 
 
 /****************************************************************************************
-blendet Zeilen der Tabelle aus
-  show: Array of shown IDs return true;
-  hide: Array of hidden IDs 
+ * blendet Zeilen der Tabelle aus
+ * @param {*} show: Array of shown IDs return true;
+ * @param {*} hide: Array of hidden IDs 
+ * @example radioselection(["row1", "row2"], ["row3", "row4"])
 ****************************************************************************************/
 function radioselection(show, hide) {
   for(var i = 0; i < show.length; i++){

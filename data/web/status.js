@@ -12,18 +12,22 @@ function init() {
 // ************************************************
 function GetInitData() {
   var data = {};
-  data['action'] = "GetInitData";
-  data['subaction'] = "status";
-  requestData(JSON.stringify(data), false, MyCallback);
+  data['cmd']['action'] = "GetInitData";
+  data['cmd']['subaction'] = "status";
+  data['cmd']['callbackFn'] = "MyCallback";
+  
+  requestData(JSON.stringify(data));  
   RefreshLiveData();
 }
 
 // ************************************************
 function RefreshLiveData() {
   var data = {};
-  data.action = "RefreshLiveData";
-  data.subaction = "onlyactive";
-  requestData(JSON.stringify(data), true);
+  data['cmd']['action'] = "RefreshLiveData";
+  data['cmd']['subaction'] = "onlyactive";
+  data['cmd']['highlight'] = "true";
+  
+  requestData(JSON.stringify(data));
 }
 
 // ************************************************
