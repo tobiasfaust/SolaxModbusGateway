@@ -72,7 +72,7 @@ void modbus::init(bool firstrun) {
   this->LoadSetItems(this->InverterSetData);
   this->LoadJsonItemConfig(); // loads InverterLiveData Items too
   
-  this->GenerateMqttSubscriptions();
+
   // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
   RS485Serial = new HardwareSerial(1);
   RS485Serial->begin(this->Baudrate, SERIAL_8N1, this->pin_RX, this->pin_TX);
@@ -109,7 +109,7 @@ String modbus::GetMqttSetTopic(String command) {
 void modbus::GenerateMqttSubscriptions() {
   for (uint16_t i=0; i < this->InverterSetData->size(); i++) {
     if (this->InverterSetData->at(i).active) {
-      this->mqtt->Subscribe(this->GetMqttSetTopic(this->InverterSetData->at(i).Name));
+      this->mqtt->Subscribe(this->InverterSetData->at(i).subscription);
     }
   }
 }
@@ -270,7 +270,7 @@ byte modbus::String2Byte(String s){
 *******************************************************/
 void modbus::enableMqtt(MQTT* object) {
   this->mqtt = object;
-  
+  this->GenerateMqttSubscriptions();
 }
 
 /*******************************************************
