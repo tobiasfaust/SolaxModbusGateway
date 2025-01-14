@@ -97,7 +97,7 @@ void modbus::ReadRelays() {
   this->mqtt->Publish_Int("relay2", this->state_Relay2, false);
 
   if (webSocketCallback) {
-    webSocketCallback(String( "{data: {items: [{\"name\":\"relay1\",\"realname\":\"Relay 1\",\"value\":\"" + String(this->state_Relay1) + "\"}, {\"name\":\"relay2\",\"realname\":\"Relay 2\",\"value\":\"" + String(this->state_Relay2) + "\"}]}}" ));
+    webSocketCallback(String("{\"data-id\": {\"relay1.value\":\"" + String(this->state_Relay1?"On":"Off") + "\",\"relay2.value\":\"" + String(this->state_Relay2?"On":"Off") + "\"}}"));
   }
 }
 

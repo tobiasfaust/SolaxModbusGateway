@@ -33,7 +33,8 @@ class MyWebServer {
   private:
     
     bool      DoReboot;
-    unsigned long RequestRebootTime;
+    bool      DoWiFiReset;
+    uint64_t  RequestRebootTime;
 
     std::vector<uint32_t>  WsConnectedClientsForBroadcast = {};
     
@@ -44,9 +45,9 @@ class MyWebServer {
     handleFiles* fsfiles;
 
     void      handleNotFound(AsyncWebServerRequest *request);
-    void      handleReboot(AsyncWebServerRequest *request);
-    void      handleReset(AsyncWebServerRequest *request);
-    void      handleWiFiReset(AsyncWebServerRequest *request);
+    //void      handleReboot();
+    bool      handleReset();
+    void      handleWiFiReset();
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleAjax(AsyncWebServerRequest *request);

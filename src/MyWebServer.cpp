@@ -1,6 +1,11 @@
 #include "MyWebServer.h"
 
-MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false), RequestRebootTime(0), server(server), dns(dns) {
+MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): 
+        DoReboot(false),
+        DoWiFiReset(false),
+        RequestRebootTime(0),
+        server(server),
+        dns(dns) {
   
   fsfiles = new handleFiles(server);
   ws = new AsyncWebSocket("/ajaxws");
@@ -9,9 +14,9 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
   server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
    
   server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
-  server->on("/reboot",                 HTTP_GET, std::bind(&MyWebServer::handleReboot, this, std::placeholders::_1));
-  server->on("/reset",                  HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
-  server->on("/wifireset",              HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
+//  server->on("/reboot",                 HTTP_GET, std::bind(&MyWebServer::handleReboot, this, std::placeholders::_1));
+//  server->on("/reset",                  HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
+//  server->on("/wifireset",              HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
 
   server->on("/ajax",                   HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
@@ -82,7 +87,8 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
     // Ausnahme: kontinuierliches Streaming der modbuswerte, hier wird kein response und nicht das ursprüngliche Command zurückgegeben
     // example: {"data-id":{ "registername": "value", "registername": "value", ...}}
 
-    String action(""), subaction(""), item(""), newState("");
+    String action(""), subaction(""), item("");
+    bool newState = false;
     JsonDocument json;
     DeserializationError error = deserializeJson(json, msg.c_str());
     if (!error) {
@@ -95,7 +101,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         newState  = json["cmd"]["newState"].as<bool>();
       }
 
-      if (action == "GetModbusValueStream") {
+      if (action == "GetItemsAsStream") {
         // add client id to the list of clients to broadcast if not already in the list
         if (std::find(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), client->id()) == WsConnectedClientsForBroadcast.end()) {
           WsConnectedClientsForBroadcast.push_back(client->id());
@@ -108,6 +114,28 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
           });
         }
         return;
+      }
+
+      if (action && action == "reset") {
+        if (handleReset()) {
+          json["response"]["status"] = 1;
+          json["response"]["text"] = "all config files deleted successfully";
+        } else {
+          json["response"]["status"] = 0;
+          json["response"]["text"] = "deletion of config files failed";
+        }
+      }
+
+      if (action && action == "wifireset") {
+        this->DoWiFiReset = true;
+        json["response"]["status"] = 1;
+        json["response"]["text"] = "reset wifi settings, reboot after 5sec...";
+      }
+
+      if(action && action == "reboot") {
+        this->DoReboot = true;
+        json["response"]["status"] = 1;
+        json["response"]["text"] = "reboot after 5sec...";
       }
 
       if(action && action == "GetInitData")  {
@@ -142,7 +170,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         else mb->SetItemActiveStatus(item, false);    
         
         json["response"]["status"] = 1;
-        json["response"]["text"] = "successful";
+        json["response"]["text"] = String("item successfully set to " + String(newState ? "active" : "inactive"));
       } 
       
       if(action && action == "handlefiles") {
@@ -178,12 +206,16 @@ void MyWebServer::sendWebSocketMessage(const String& message) {
 
 void MyWebServer::loop() {
   //delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
-  if (this->DoReboot) {
+  if (this->DoReboot || this->DoWiFiReset) {
     if (this->RequestRebootTime == 0) {
       this->RequestRebootTime = millis();
       Config->log(1, "Request to Reboot, wait 5sek ...");
     }
     if (millis() - this->RequestRebootTime > 5000) { // wait 3sek until reboot
+      if (this->DoWiFiReset) {
+        Config->log(1, "Delete WiFi credentials ...");
+        handleWiFiReset();
+      }
       Config->log(1, "Rebooting...");
       ESP.restart();
     }
@@ -206,12 +238,8 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
-void MyWebServer::handleReboot(AsyncWebServerRequest *request) {
-  request->send(LittleFS, "/web/reboot.html", "text/html");
-  this->DoReboot = true;
-}
-
-void MyWebServer::handleReset(AsyncWebServerRequest *request) {
+bool MyWebServer::handleReset() {
+  bool ret = true;
   Config->log(3, "deletion of all config files was requested ....");
   //LittleFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
   File root = LittleFS.open("/config/");
@@ -220,23 +248,28 @@ void MyWebServer::handleReset(AsyncWebServerRequest *request) {
     String path("/config/"); path.concat(file.name());
     if (path.indexOf(".json") == -1) {file = root.openNextFile(); continue;}
     file.close();
-    bool f = LittleFS.remove(path);
-    Config->log(3, "deletion of configuration file '%s' %s", file.name(), (f?"was successful":"has failed"));
+    
+    if (LittleFS.remove(path)) {
+      Config->log(4, "deletion of configuration file '%s' was successful", file.name());
+    } else {
+      Config->log(2, "deletion of configuration file '%s' has failed", file.name());
+      ret = false;
+    }
     file = root.openNextFile();
   }
   root.close();
+  this->DoReboot = true;
 
-  this->handleReboot(request);
+  return ret;
 }
 
-void MyWebServer::handleWiFiReset(AsyncWebServerRequest *request) {
+void MyWebServer::handleWiFiReset() {
   #ifdef ESP32
     WiFi.disconnect(true,true);
+    //mqtt->improvSerial->resetWiFi();  // TODO: function in improvSerial to delete wifi credentials, needed?
   #elif defined(ESP8266)  
     ESP.eraseConfig();
   #endif
-  
-  this->handleReboot(request);
 }
 
 void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {

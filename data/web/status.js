@@ -23,11 +23,40 @@ function GetInitData() {
 // ************************************************
 function RefreshLiveData() {
   var data = {};
-  data['cmd']['action'] = "RefreshLiveData";
-  data['cmd']['subaction'] = "onlyactive";
-  data['cmd']['highlight'] = "true";
+  data['cmd']['action'] = "GetItemsAsStream";
+  //data['cmd']['subaction'] = "onlyactive";
+  //data['cmd']['highlight'] = "true";
   
   requestData(JSON.stringify(data));
+}
+
+// ************************************************
+function DoReboot() {
+  var data = {};
+  data['cmd']['action'] = "reboot";
+  data['cmd']['callbackFn'] = "CallRebootPage";
+  requestData(JSON.stringify(data));
+}
+
+// ************************************************
+function DoReset() {
+  var data = {};
+  data['cmd']['action'] = "reset";
+  data['cmd']['callbackFn'] = "CallRebootPage";
+  requestData(JSON.stringify(data));
+}
+
+// ************************************************
+function DoWifiReset() {
+  var data = {};
+  data['cmd']['action'] = "wifireset";
+  data['cmd']['callbackFn'] = "CallRebootPage";
+  requestData(JSON.stringify(data));
+}
+
+// ************************************************
+function CallRebootPage() {
+  window.location.href = "reboot.html";
 }
 
 // ************************************************
