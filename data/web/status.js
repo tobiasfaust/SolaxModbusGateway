@@ -1,10 +1,16 @@
 // ************************************************
 window.addEventListener('DOMContentLoaded', init, false);
 function init() {
-  GetInitData();
-  
   // Initiale Verbindung aufbauen
   connectWebSocket();
+
+  // Warte bis die WebSocket-Verbindung aufgebaut ist
+  let checkWebSocketInterval = setInterval(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWebSocketInterval);
+      GetInitData();
+    }
+  }, 100);
 }
 
 //var myInterval = setInterval(RefreshLiveData, 5000);
@@ -12,6 +18,7 @@ function init() {
 // ************************************************
 function GetInitData() {
   var data = {};
+  data['cmd'] = {};
   data['cmd']['action'] = "GetInitData";
   data['cmd']['subaction'] = "status";
   data['cmd']['callbackFn'] = "MyCallback";
@@ -23,6 +30,7 @@ function GetInitData() {
 // ************************************************
 function RefreshLiveData() {
   var data = {};
+  data['cmd'] = {};
   data['cmd']['action'] = "GetItemsAsStream";
   //data['cmd']['subaction'] = "onlyactive";
   //data['cmd']['highlight'] = "true";
@@ -33,6 +41,7 @@ function RefreshLiveData() {
 // ************************************************
 function DoReboot() {
   var data = {};
+  data['cmd'] = {};
   data['cmd']['action'] = "reboot";
   data['cmd']['callbackFn'] = "CallRebootPage";
   requestData(JSON.stringify(data));
@@ -41,6 +50,7 @@ function DoReboot() {
 // ************************************************
 function DoReset() {
   var data = {};
+  data['cmd'] = {};
   data['cmd']['action'] = "reset";
   data['cmd']['callbackFn'] = "CallRebootPage";
   requestData(JSON.stringify(data));
@@ -49,6 +59,7 @@ function DoReset() {
 // ************************************************
 function DoWifiReset() {
   var data = {};
+  data['cmd'] = {};
   data['cmd']['action'] = "wifireset";
   data['cmd']['callbackFn'] = "CallRebootPage";
   requestData(JSON.stringify(data));

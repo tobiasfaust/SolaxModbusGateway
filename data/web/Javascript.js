@@ -72,7 +72,7 @@ const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                ];
 
 var timer; // ID of setTimout Timer -> setResponse
-let ws;    // websocket handle
+//let ws;    // websocket handle
 let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
 
 function connectWebSocket() {
@@ -101,7 +101,7 @@ function connectWebSocket() {
     return;
   }
 
-  ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  window.ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
   var wsStatus = document.getElementById('ws-status');
 
   ws.onopen = function() {
@@ -110,13 +110,13 @@ function connectWebSocket() {
   };
 
   ws.onmessage = function(event) {
-    try {
+    //try {
       const json = JSON.parse(event.data);
       console.log('Received JSON:', json);
       handleJsonItems(json);
-    } catch (e) {
-      console.error('Invalid JSON received:', event.data);
-    }
+    //} catch (e) {
+    //  console.error('Invalid JSON received:', event.data);
+    //}
   };
 
   ws.onclose = function() {
@@ -171,7 +171,7 @@ function handleRadioSelections() {
  * @returns {*} void
 ******************************************************************************************/
 function requestData(json) {
-  if (ws && ws.readyState === WebSocket.OPEN) {
+  if (typeof ws !== 'undefined' && ws.readyState === WebSocket.OPEN) {
     ws.send(json);
   } else {
     console.log('WebSocket not open');
@@ -361,7 +361,7 @@ function applyJS(json) {
  * *****************************************************************************************/
 function handleJsonItems(json) {
   var callbackFn = json['cmd']['callbackFn'];
-  var highlight = json['cmd']['highlight'];
+  var highlight = json['cmd']['highlight'] ? json['cmd']['highlight'] : false;
 
   if ("data" in json) {
     applyKeys(json.data, document, undefined, undefined, '', highlight);
@@ -383,7 +383,9 @@ function handleJsonItems(json) {
   }
 
 	// DOM objects now ready
-  if (callbackFn) {callbackFn();}
+  if ( typeof callbackFn !== 'undefined' && typeof window[callbackFn] === 'function') {
+    window[callbackFn]();
+  }
 }
 
 /*****************************************************************************************
