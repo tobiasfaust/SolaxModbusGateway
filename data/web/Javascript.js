@@ -360,8 +360,8 @@ function applyJS(json) {
  *                          "response": {"status": 1, "text": "OK"}})
  * *****************************************************************************************/
 function handleJsonItems(json) {
-  var callbackFn = json['cmd']['callbackFn'];
-  var highlight = json['cmd']['highlight'] ? json['cmd']['highlight'] : false;
+  const callbackFn = (typeof json['cmd'] !== 'undefined' && typeof json['cmd']['callbackFn'] !== 'undefined') ? json['cmd']['callbackFn'] : undefined; 
+  const highlight = (typeof json['cmd'] !== 'undefined' && typeof json['cmd']['highlight'] !== 'undefined') ? json['cmd']['highlight'] : false;
 
   if ("data" in json) {
     applyKeys(json.data, document, undefined, undefined, '', highlight);
