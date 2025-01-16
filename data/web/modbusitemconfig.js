@@ -1,41 +1,90 @@
+import * as global from './Javascript.js';
+
 // ************************************************
-window.addEventListener('DOMContentLoaded', init, false);
-function init() {
-  GetInitData();
+export function init() {
+  // erstelle ein Beispiel json mit Beispielwerten welches die funktion modbus::GetLiveDataAsJsonToWebserver generieren würde und weise das json der variable data zu. 
+  
+  var data = {"data": {"items": [
+      {"name":  "InverterIdData", "realname": "InverterIdData", 
+       "value": {"innerHTML": "1234", "data-id": "InverterIdData.value"}, 
+       "active": {"checked": 1, "name": "InverterIdData"}, 
+       "mqtttopic": "InverterIdData"
+      },
+      {"name":  "Power", "realname": "Power",
+        "value": {"innerHTML": "1234", "data-id": "Power.value"},
+        "active": {"checked": 0, "name": "Power"},
+        "mqtttopic": "Power"
+      }
+    ]},
+    "response": {"status": 1, "text": "successful"},
+    "cmd": {
+      "callbackFn": "mbitemconfig_Callback"
+    }}
+
+  global.handleJsonItems(data);
+
+  data = {"data-id": { "InverterIdData.value" : "684453556"},
+  "response": {"status": 1, "text": "successful"},
+  "cmd": {
+    "highlight": "true"
+  }}
+  global.handleJsonItems(data);
 }
 
 // ************************************************
-var myInterval = setInterval(RefreshLiveData, 5000);
+export function init1() {
+  // Initiale Verbindung aufbauen
+  connectWebSocket();
+
+  fetch('/getitems')
+    .then(response => response.json())
+    .then(data => {
+      data['cmd'] = {};
+      data['cmd']['callbackFn'] = "mbitemconfig_Callback";
+      global.handleJsonItems(data);
+    })
+    .catch(error => console.error('Error fetching items:', error));
+
+  // Warte bis die WebSocket-Verbindung aufgebaut ist
+  let checkWebSocketInterval = setInterval(() => {
+    if (global.ws && global.ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWebSocketInterval);
+      RefreshLiveData();
+    }
+  }, 100);
+}
 
 // ************************************************
-function GetInitData() {
-  var data = {};
-  data.action = "RefreshLiveData";
-  data.subaction = "all";
-  requestData(JSON.stringify(data), false, MyCallback);
-}
+export const functionMap = {
+  mbitemconfig_Callback: MyCallback
+};
 
 // ************************************************
 function MyCallback() {
-  //transformCheckboxes()
+  global.transformCheckboxes()
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
 }
 
+// ************************************************
 function RefreshLiveData() {
   var data = {};
-  data.action = "RefreshLiveData";
-  data.subaction = "all";
-  requestData(JSON.stringify(data), true);
+  data['cmd'] = {};
+  data['cmd']['action'] = "GetItemsAsStream";
+  data['cmd']['highlight'] = "true";
+  
+  global.requestData(data);
 }
 
 // ************************************************
-function ChangeActiveStatus(id) {
-  obj = document.getElementById(id);
-  //item = id.replace(/^activeswitch_(.*)$/g, "$1");
+export function ChangeActiveStatus(id) {
+  var obj = document.getElementById(id);
+  
   var data = {};
-  data.action = "SetActiveStatus";
-  data.newState = (obj.checked?"true":"false");
-  data.item = obj.name;
-  requestData(JSON.stringify(data));
+  data['cmd'] = {};
+  data['cmd']['action'] = "SetActiveStatus";
+  data['cmd']['newState'] = (obj.checked?"true":"false");
+  data['cmd']["item"] = obj.name;
+  
+  global.requestData(data);
 }

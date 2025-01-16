@@ -1,19 +1,59 @@
+import * as global from './Javascript.js';
+
 // ************************************************
-window.addEventListener('DOMContentLoaded', init, false);
-function init() {
+export function init1() {
   // Initiale Verbindung aufbauen
   connectWebSocket();
 
   // Warte bis die WebSocket-Verbindung aufgebaut ist
   let checkWebSocketInterval = setInterval(() => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (global.ws && global.ws.readyState === WebSocket.OPEN) {
       clearInterval(checkWebSocketInterval);
       GetInitData();
     }
   }, 100);
 }
 
+
+export function init() {
+
+  var data = {
+    "data": {
+      "ipaddress": "192.168.1.1",
+      "wifiname": "MyWiFi",
+      "macaddress": "00:1A:2B:3C:4D:5E",
+      "rssi": -50,
+      "bssid": "00:1A:2B:3C:4D:5F",
+      "mqtt_status": "Connected",
+      "inverter_type": "Solax-TypeA",
+      "inverter_serial": "SN123456789",
+      "uptime": "24h 15m",
+      "freeheapmem": 20480,
+      "tr_webserial": {
+        "className": "hide"
+      }
+    },
+    "response": {
+      "status": 1,
+      "text": "successful"
+    }
+    , "cmd": {
+      "action": "GetInitData",
+      "subaction": "status"
+      ,"callbackFn": "status_Callback"
+      //, "highlight": "true"
+    }
+  };
+  
+  global.handleJsonItems(data);
+}
+
 //var myInterval = setInterval(RefreshLiveData, 5000);
+
+export const functionMap = {
+  status_Callback: MyCallback,
+  status_CallRebootPage: CallRebootPage
+};
 
 // ************************************************
 function GetInitData() {
@@ -21,9 +61,9 @@ function GetInitData() {
   data['cmd'] = {};
   data['cmd']['action'] = "GetInitData";
   data['cmd']['subaction'] = "status";
-  data['cmd']['callbackFn'] = "MyCallback";
+  data['cmd']['callbackFn'] = "status_Callback";
   
-  requestData(JSON.stringify(data));  
+  global.requestData(data);  
   RefreshLiveData();
 }
 
@@ -32,41 +72,41 @@ function RefreshLiveData() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "GetItemsAsStream";
-  //data['cmd']['subaction'] = "onlyactive";
-  //data['cmd']['highlight'] = "true";
+  data['cmd']['subaction'] = "onlyactive";
+  data['cmd']['highlight'] = "true";
   
-  requestData(JSON.stringify(data));
+  global.requestData(data);
 }
 
 // ************************************************
-function DoReboot() {
+export function DoReboot() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "reboot";
   data['cmd']['callbackFn'] = "CallRebootPage";
-  requestData(JSON.stringify(data));
+  global.requestData(data);
 }
 
 // ************************************************
-function DoReset() {
+export function DoReset() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "reset";
   data['cmd']['callbackFn'] = "CallRebootPage";
-  requestData(JSON.stringify(data));
+  global.requestData(data);
 }
 
 // ************************************************
-function DoWifiReset() {
+export function DoWifiReset() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "wifireset";
   data['cmd']['callbackFn'] = "CallRebootPage";
-  requestData(JSON.stringify(data));
+  global.requestData(data);
 }
 
 // ************************************************
-function CallRebootPage() {
+export function CallRebootPage() {
   window.location.href = "reboot.html";
 }
 

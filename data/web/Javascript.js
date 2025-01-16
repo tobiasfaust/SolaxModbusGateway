@@ -17,9 +17,9 @@
  * Definition of constants
  *****************************************************************************************/
 
-const gpio_disabled = [];
+export const gpio_disabled = [];
 
-const gpio = [  {port: 1,  name:'D1/TX0'},
+export const gpio = [  {port: 1,  name:'D1/TX0'},
                 {port: 2 , name:'D2'},
                 {port: 3,  name:'D3/RX0'},
                 {port: 4 , name:'D4'},
@@ -51,7 +51,7 @@ const gpio = [  {port: 1,  name:'D1/TX0'},
                 {port: 39, name:'D39'}
               ];
 
-const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
+export const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                   {port: 37, name:'ADC1_CH1 - GPIO37'},
                   {port: 38, name:'ADC1_CH2 - GPIO38'},
                   {port: 39, name:'ADC1_CH3 - GPIO39'},
@@ -71,11 +71,24 @@ const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                   {port: 26, name:'ADC2_CH9 - GPIO26'}
                ];
 
+import { functionMap as statusFunctionMap } from './status.js';
+import { functionMap as baseconfigFunctionMap } from './baseconfig.js';
+import { functionMap as mbconfigFunctionMap } from './modbusconfig.js';
+import { functionMap as mbitemconfigFunctionMap } from './modbusitemconfig.js';
+
+const combinedFunctionMap = {
+  ...statusFunctionMap,
+  ...baseconfigFunctionMap,
+  ...mbconfigFunctionMap,
+  ...mbitemconfigFunctionMap
+};
+
+export let ws;    // websocket handle
+
 var timer; // ID of setTimout Timer -> setResponse
-//let ws;    // websocket handle
 let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
 
-function connectWebSocket() {
+export function connectWebSocket() {
   window.addEventListener('beforeunload', function() {
     if (ws) {
       ws.close();
@@ -101,7 +114,7 @@ function connectWebSocket() {
     return;
   }
 
-  window.ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
   var wsStatus = document.getElementById('ws-status');
 
   ws.onopen = function() {
@@ -139,7 +152,7 @@ function connectWebSocket() {
  * Works for all checkbox and radio elements with onclick="radioselection(show, hide)"
  * 
  ******************************************************************************************/
-function handleRadioSelections() {
+export function handleRadioSelections() {
   var radios = document.querySelectorAll('input[type=radio][onclick*=radioselection]:checked');
   for (var i = 0; i < radios.length; i++) {
     if (radios[i].onclick) {
@@ -170,11 +183,12 @@ function handleRadioSelections() {
  * @param {*} callbackFn -> callback function to call after data is fetched
  * @returns {*} void
 ******************************************************************************************/
-function requestData(json) {
+export function requestData(json) {
   if (typeof ws !== 'undefined' && ws.readyState === WebSocket.OPEN) {
-    ws.send(json);
+    ws.send(JSON.stringify(json));
   } else {
     console.log('WebSocket not open');
+    setResponse(false, 'WebSocket not open, could not send data');
   }
 }
 
@@ -359,7 +373,7 @@ function applyJS(json) {
  * @example handleJsonItems({"data-id": {"InverterSN": "123456789"}, "cmd": {"action": "GetInitData", "subaction": "status", "callbackFn": "MyCallback"}, "
  *                          "response": {"status": 1, "text": "OK"}})
  * *****************************************************************************************/
-function handleJsonItems(json) {
+export function handleJsonItems(json) {
   const callbackFn = (typeof json['cmd'] !== 'undefined' && typeof json['cmd']['callbackFn'] !== 'undefined') ? json['cmd']['callbackFn'] : undefined; 
   const highlight = (typeof json['cmd'] !== 'undefined' && typeof json['cmd']['highlight'] !== 'undefined') ? json['cmd']['highlight'] : false;
 
@@ -383,8 +397,8 @@ function handleJsonItems(json) {
   }
 
 	// DOM objects now ready
-  if ( typeof callbackFn !== 'undefined' && typeof window[callbackFn] === 'function') {
-    window[callbackFn]();
+  if (callbackFn && typeof combinedFunctionMap[callbackFn] === 'function') {
+    combinedFunctionMap[callbackFn]();
   }
 }
 
@@ -418,7 +432,7 @@ function setResponse(b, s) {
  * @example 
  * CreateSelectionListFromInputField('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]', [gpio, gpio_analog], gpio_disabled);
 ******************************************************************************************/
-function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) {
+export function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) {
 	var _parent, _select, _option, i, j, k;
   var objects = document.querySelectorAll(querySelector);
   for( j=0; j< objects.length; j++) {
@@ -426,8 +440,8 @@ function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) 
     _select = document.createElement('select');
     _select.id = objects[j].id;
     _select.name = objects[j].name;
-    for ( k = 0; k < jsonLists.length; k += 1 ) {  
-      for ( i = 0; i < jsonLists[k].length; i += 1 ) {
+    for ( k = 0; k < jsonLists.length; k++ ) {  
+      for ( i = 0; i < jsonLists[k].length; i++ ) {
           _option = document.createElement( 'option' );
           _option.value = jsonLists[k][i].port; 
           _option.text  = jsonLists[k][i].name;
@@ -459,7 +473,7 @@ regex of item ID to identify first element in row
   - if set, returned json is an array, all elements per row, example: "^myonoffswitch.*"
   - if emty, all elements at one level together, ONLY for small json´s (->memory issue)
 ****************************************************************************************/
-function onSubmit(DataForm, separator='') {
+export function onSubmit(DataForm, separator='') {
   // init json Objects
   var JsonData, tempData; 
   
@@ -538,7 +552,7 @@ function onSubmit(DataForm, separator='') {
  * @param {*} hide: Array of hidden IDs 
  * @example radioselection(["row1", "row2"], ["row3", "row4"])
 ****************************************************************************************/
-function radioselection(show, hide) {
+export function radioselection(show, hide) {
   for(var i = 0; i < show.length; i++){
     if (document.getElementById(show[i])) {document.getElementById(show[i]).style.display = 'table-row';}
   }
@@ -554,7 +568,7 @@ function radioselection(show, hide) {
  * @param {*} hide Array of hidden IDs if checkbox is checked
  * @returns {*} void
  ****************************************************************************************/
-function onCheckboxSelection(checkbox, show, hide) {
+export function onCheckboxSelection(checkbox, show, hide) {
   if (checkbox.checked) {
     radioselection(show, hide);
   } else {
@@ -569,7 +583,7 @@ function onCheckboxSelection(checkbox, show, hide) {
  * For each of these checkboxes, it creates a new div element with the class "onoffswitch", clones the checkbox into this div,
  * and adds a label with the necessary span elements for styling. Finally, it replaces the original checkbox with the new div element.
  ****************************************************************************************/
-function transformCheckboxes() {
+export function transformCheckboxes() {
   // Alle Checkboxen im Dokument suchen deren elternelement kein div mit der Style class "onoffswitch" ist
   const checkboxes = document.querySelectorAll("input[type='checkbox']:not(.onoffswitch-checkbox)");
 

@@ -1,3 +1,5 @@
+import * as global from './Javascript.js';
+
 // ************************************************
 window.addEventListener('load', init, false);
 function init() {
@@ -9,12 +11,12 @@ function GetInitData() {
   var data = {};
   data['action'] = "GetInitData";
   data['subaction'] = "navi";
-  requestData(JSON.stringify(data));
+  global.requestData(JSON.stringify(data));
 }
 
 // ************************************************
-function highlightNavi(item) {
-  collection = document.getElementsByName('navi')
+export function highlightNavi(item) {
+  const collection = document.getElementsByName('navi')
   
   for (let i = 0; i < collection.length; i++) {
     if (item.id == collection[i].id ) {
