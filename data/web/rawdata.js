@@ -41,7 +41,7 @@ function GetInitData() {
 /*******************************
  * Callback function after receiving the data
 *******************************/
-function MyCallback() {
+function MyCallback(json) {
   reset_rawdata('id_rawdata');
   reset_rawdata('live_rawdata');
 

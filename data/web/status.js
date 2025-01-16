@@ -48,8 +48,6 @@ export function init() {
   global.handleJsonItems(data);
 }
 
-//var myInterval = setInterval(RefreshLiveData, 5000);
-
 export const functionMap = {
   status_Callback: MyCallback,
   status_CallRebootPage: CallRebootPage
@@ -106,12 +104,12 @@ export function DoWifiReset() {
 }
 
 // ************************************************
-export function CallRebootPage() {
+export function CallRebootPage(json) {
   window.location.href = "reboot.html";
 }
 
 // ************************************************
-function MyCallback() {
+function MyCallback(json) {
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
 }

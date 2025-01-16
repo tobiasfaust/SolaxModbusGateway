@@ -4,9 +4,20 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
     <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
-     <script language='javascript' type='text/javascript' src='/web/handlefiles.js'></script>
+    <script language='javascript' type='module' src='/web/Javascript.js'></script>
+     <script language='javascript' type='module' src='/web/handlefiles.js'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
+
+    <script type='module'>
+      import { init, downloadFile, uploadFile, deleteFile, fetchFile } from './handlefiles.js';
+      window.downloadFile = downloadFile;
+      window.uploadFile = uploadFile;
+      window.deleteFile = deleteFile;
+      window.fetchFile = fetchFile;
+
+      window.addEventListener('DOMContentLoaded', () => init('/'), false);
+    </script>
+
     <title>HandleFiles</title>
   </head>
   <body>
@@ -48,7 +59,7 @@
         <tr>
           <td colspan='2'>filename:
             <input type='text' id='filename' value='{fullpath}' title='name of file to store'/>
-            <input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>
+            <input type='button' onclick='downloadFile()'style='font-size:18px' class='fa' value='&#xf019' title='download to pc'/>
             <input type='button' onclick='uploadFile()' style='font-size:18px' class='fa' value='&#xf0c7' title='store it'/>
             <input type='button' onclick='deleteFile()' style='font-size:18px' class='fa' value='&#xf014' title='delete it'/>
             <span id='response'></span>

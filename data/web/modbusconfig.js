@@ -62,7 +62,7 @@ function GetInitData() {
 }
 
 // ************************************************
-function MyCallback() {
+function MyCallback(json) {
   global.transformCheckboxes();
   global.handleRadioSelections();
   global.CreateSelectionListFromInputField('input[type=number][id^=GpioPin]', [global.gpio]);

@@ -60,7 +60,7 @@ export const functionMap = {
 };
 
 // ************************************************
-function MyCallback() {
+function MyCallback(json) {
   global.transformCheckboxes()
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";

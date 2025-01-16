@@ -58,8 +58,7 @@ void handleFiles::HandleRequest(JsonDocument& json) {
   Config->log(3, "handle Request in handleFiles.cpp: %s", subaction.c_str());
 
   if (subaction == "listDir") {
-    //JsonDocument doc;
-    JsonArray content = json.add<JsonArray>();
+    JsonArray content = json["JS"]["listdir"].to<JsonArray>();
     
     this->getDirList(content, "/");
     Config->log(5, json["content"].as<String>().c_str());

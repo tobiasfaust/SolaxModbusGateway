@@ -400,7 +400,7 @@ export function handleJsonItems(json) {
 
 	// DOM objects now ready
   if (callbackFn && typeof combinedFunctionMap[callbackFn] === 'function') {
-    combinedFunctionMap[callbackFn]();
+    combinedFunctionMap[callbackFn](json);
   }
 }
 
@@ -409,7 +409,7 @@ export function handleJsonItems(json) {
  * @param {*} b (bool):  true = OK; false = Error
  * @param {*} s (String): text to show
 *****************************************************************************************/
-function setResponse(b, s) {
+export function setResponse(b, s) {
   try {
   	// clear if previous timer still run
     clearTimeout(timer);

@@ -1,69 +1,60 @@
 // https://jsfiddle.net/tobiasfaust/uc1jfpgb/
 
+import * as global from './Javascript.js';
+
 var DirJson;
 
-window.addEventListener('load', initHandleFS, false);
-function initHandleFS() {
-  init("/");
+export const functionMap = {
+  files_Callback: MyCallback
+};
+
+export function init(startpath) {
+  var data = {};
+  data['cmd'] = {};
+  data['cmd']['action'] = "handlefiles";
+  data['cmd']['subaction'] = "listDir"
+  data['cmd']['startpath'] = startpath;
+  data['cmd']['callbackFn'] = "files_listFiles";
+
+  global.requestData(data);
+
+  document.getElementById('fullpath').innerHTML = ''; // div 
+  document.getElementById('filename').value = ''; // input field
+  document.getElementById('content').value = '';
+
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
 }
 
-function init(startpath) {
-  requestListDir(startpath);
-  obj = document.getElementById('fullpath').innerHTML = ''; // div 
-  obj = document.getElementById('filename').value = ''; // input field
-  obj = document.getElementById('content').value = '';
-}
+function MyCallback(json) {
+  DirJson = json["JS"].listdir;
 
-// ***********************************
-// Ajax Request to update  
-// ***********************************
-function requestListDir(startpath) {
-  var data = {};
-  data['cmd']['action'] = "handlefiles";
-  data['cmd']['subaction'] = "listDir"
-  //ajax_send(JSON.stringify(data));
-  
-  var http = null;
-  if (window.XMLHttpRequest)  { http =new XMLHttpRequest(); }
-  else                        { http =new ActiveXObject("Microsoft.XMLHTTP"); }
-  
-  if(!http){ alert("AJAX is not supported."); return; }
- 
-  var url = '/ajax';
-  var params = 'json=' + JSON.stringify(data);
-  
-  http.open('POST', url, true);
-  http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  http.onreadystatechange = function() { //Call a function when the state changes.
-    if(http.readyState == 4 && http.status == 200) {
-      DirJson = JSON.parse(http.responseText);
-      listFiles(startpath);
-    } 
-  }
-  http.send(params);
+  console.log("listdir -> ", window.listdir);
+  console.log("DirJson -> ", DirJson);
+
+  listFiles(json["cmd"]["startpath"]);
+
 }
 
 // ***********************************
 // show content of fetched file 
 // ***********************************
 function setContent(string, file) {
-  obj = document.getElementById('fullpath').innerHTML = file; // div 
-  obj = document.getElementById('filename').value = basename(file); // input field
+  document.getElementById('fullpath').innerHTML = file; // div 
+  document.getElementById('filename').value = basename(file); // input field
   
   if (file.endsWith("json")) {
-    obj = document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
+    document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
   } else {
-    obj = document.getElementById('content').value = string;
+    document.getElementById('content').value = string;
   }
 }
 
 // ***********************************
 // fetch file from host
 // ***********************************
-function fetchFile(file) {
-  obj = document.getElementById('content').value = "loading "+file+"...";
+export function fetchFile(file) {
+  document.getElementById('content').value = "loading "+file+"...";
   
   fetch(file)
   .then(response => response.text())
@@ -170,7 +161,7 @@ function validateJson(json) {
 // ***********************************
 // download content of textarea as filename on local pc
 // ***********************************
-function downloadFile() {
+export function downloadFile() {
   var textToSave = document.getElementById("content").value;
   var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
   var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
@@ -182,11 +173,11 @@ function downloadFile() {
     downloadLink.innerHTML = "Download File";
     downloadLink.href = textToSaveAsURL;
 
-     downloadLink.onclick = destroyClickedElement;
+    downloadLink.onclick = destroyClickedElement;
     downloadLink.style.display = "none";
     document.body.appendChild(downloadLink);
     downloadLink.click();
-  } else { setResponse(false, 'Filename is empty, Please define it.');}
+  } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
 
 function destroyClickedElement(event)
@@ -197,7 +188,7 @@ function destroyClickedElement(event)
 // ***********************************
 // store content of textarea
 // ***********************************
-function uploadFile() {
+export function uploadFile() {
   var textToSave = document.getElementById("content").value;
   var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
   var fileNameToSaveAs = document.getElementById("filename").value;
@@ -206,12 +197,12 @@ function uploadFile() {
   if (fileNameToSaveAs != '') {
     if (fileNameToSaveAs.toLowerCase().endsWith('.json')) {
       if (!validateJson(textToSave)) {
-        setResponse(false, 'Json invalid')
+        global.setResponse(false, 'Json invalid')
         return;
       }
     }
 
-    setResponse(true, 'Please wait for saving ...');
+    global.setResponse(true, 'Please wait for saving ...');
     
     const formData = new FormData();
     formData.append(fileNameToSaveAs, textToSaveAsBlob, pathOfFile + '/' + fileNameToSaveAs);
@@ -222,24 +213,25 @@ function uploadFile() {
     })
       .then (response => response.json())
       .then (json =>  {
-        setResponse(true, json.text)
+        global.setResponse(true, json.text)
       }); 
   
-  } else { setResponse(false, 'Filename is empty, Please define it.');}
+  } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
 
-function deleteFile() {
+export function deleteFile() {
   var pathOfFile = document.getElementById('path').innerHTML;
   var fileName = document.getElementById("filename").value;
   
   if (fileName != '') {
     var data = {};
+    data['cmd'] = {};
     data['cmd']['action'] = 'handlefiles';
     data['cmd']['subaction'] = "deleteFile";
     data['cmd']['filename'] = pathOfFile + '/' + fileName;
 
-    setResponse(true, 'Please wait for deleting ...');
-    requestData(JSON.stringify(data));
+    global.setResponse(true, 'Please wait for deleting ...');
+    global.requestData(data);
     init(pathOfFile);
-  } else { setResponse(false, 'Filename is empty, Please define it.');}
+  } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
