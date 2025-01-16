@@ -1,19 +1,46 @@
 /* https://jsfiddle.net/tobiasfaust/p5q9hgsL/ */
 
+import * as global from './Javascript.js';
+
 // ************************************************
-window.addEventListener('DOMContentLoaded', init, false);
-function init() {
+export function init1() {
   GetInitData();  
 }
 
-// ************************************************
-function GetInitData() {
-  var data = {};
-  data.action = "GetInitData";
-  data.subaction = "rawdata";
-  requestData(JSON.stringify(data), false, MyCallback);
+export function init() {
+  var data = {"data": {"id_rawdata_org": "0103EEFF8A44130000281F0A0B0C0D0E0F",
+    "live_rawdata_org": "0102030405060708090a0b0c0d0e0f"
+  }, 
+  "response": {"status": 1, "text": "successful"},
+  "cmd": {"action": "GetInitData", "subaction": "rawdata", "callbackFn": "rawdata_Callback"
+  }};
+
+  global.handleJsonItems(data);
 }
 
+/*******************************
+ * define all callback functions here to make them accessible from other modules by the global combinedFunctionMap
+*******************************/
+export const functionMap = {
+  rawdata_Callback: MyCallback
+};
+
+/*******************************
+ * get initial data after page load
+*******************************/
+function GetInitData() {
+  var data = {};
+  data['cmd'] = {};
+  data['cmd']['action'] = "GetInitData";
+  data['cmd']['subaction'] = "rawdata";
+  data['cmd']['callbackFn'] = "rawdata_Callback";
+    
+  global.requestData(data);
+}
+
+/*******************************
+ * Callback function after receiving the data
+*******************************/
 function MyCallback() {
   reset_rawdata('id_rawdata');
   reset_rawdata('live_rawdata');
@@ -23,7 +50,7 @@ function MyCallback() {
 }
 
 /*******************************
-split long byte-string into array 
+ * split long byte-string into array 
 *******************************/
 function chunk(str, size) {
   return str.match(new RegExp('.{1,' + size + '}', 'g')) || [];
@@ -45,7 +72,7 @@ insert Tooltips and linebreaks
 *******************************/
 function prettyprint_rawdata(rawdatatype, bytearray, bytearray_org) {
   
-  for( i=0; i< bytearray.length; i++) {
+  for( var i=0; i< bytearray.length; i++) {
     const bstr = byte2string(bytearray_org[i]);
     const bint = byte2int(bytearray_org[i]);
     
@@ -61,7 +88,7 @@ function prettyprint_rawdata(rawdatatype, bytearray, bytearray_org) {
 /*******************************
 take over the clicked byte position into posTextField 
 *******************************/
-function cpRawDataPos(pos) {
+export function cpRawDataPos(pos) {
   let posarray;
   const obj = document.getElementById('positions'); 
   
@@ -94,7 +121,7 @@ function byte2int(bytestring) {
 /*******************************
 compute result from selected positions
 *******************************/
-function check_rawdata() {
+export function check_rawdata() {
   const datatype = document.querySelector('input[name="datatype"]:checked').value;
   const rawdatatype = document.querySelector('input[name="rawdatatype"]:checked').value;
   const string_positions = document.getElementById('positions').value;
@@ -112,7 +139,7 @@ function check_rawdata() {
   if (datatype == 'int') { result = 0; }
   if (datatype == 'string') { result = "";}
   
-  for( j=0; j< pos.length; j++) {
+  for( var j=0; j< pos.length; j++) {
     if (datatype == 'int') { 
       result = result << 8 | byte2int(bytes[Number(pos[j])]);
     }
