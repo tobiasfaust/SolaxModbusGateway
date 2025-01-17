@@ -78,7 +78,6 @@ void modbus::init(bool firstrun) {
   RS485Serial->begin(this->Baudrate, SERIAL_8N1, this->pin_RX, this->pin_TX);
 
   //at first read ID Data
-
   this->QueryIdData();
 }
 
@@ -1241,7 +1240,6 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
       this->InverterSetData->at(j).active = newstate;
     }
   }
-  this->GenerateMqttSubscriptions();
   //Lazgar
 }
 
@@ -1580,7 +1578,6 @@ void modbus::LoadJsonItemConfig() {
               break;
             }
           }
-	  this->GenerateMqttSubscriptions();
 	  //Lazgar
         }
 
