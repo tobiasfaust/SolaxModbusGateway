@@ -1,5 +1,7 @@
 import * as global from './Javascript.js';
 
+var datavalues;
+
 // ************************************************
 export function init1() {
   // erstelle ein Beispiel json mit Beispielwerten welches die funktion modbus::GetLiveDataAsJsonToWebserver generieren würde und weise das json der variable data zu. 
@@ -22,6 +24,7 @@ export function init1() {
     }}
 
   global.handleJsonItems(data);
+  datavalues = global.getFormData("DataForm");
 
   data = {"data-id": { "InverterIdData.value" : "684453556"},
   "response": {"status": 1, "text": "successful"},
@@ -29,6 +32,8 @@ export function init1() {
     "highlight": "true"
   }}
   global.handleJsonItems(data);
+
+  
 }
 
 // ************************************************
@@ -62,6 +67,17 @@ export const functionMap = {
 // ************************************************
 function MyCallback(json) {
   global.transformCheckboxes()
+
+  document.querySelectorAll('#DataForm input:not([type=checkbox]):not([type=radio]), #DataForm select').forEach(element => {
+    element.addEventListener('blur', CheckFormValuesChange);
+  });
+    
+  document.querySelectorAll('#DataForm input[type=checkbox], #DataForm input[type=radio]').forEach(element => {
+    element.addEventListener('click', CheckFormValuesChange);
+  });
+    
+  datavalues = global.getFormData("DataForm");
+
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
 }
@@ -88,3 +104,13 @@ export function ChangeActiveStatus(id) {
   
   global.requestData(data);
 }
+
+// ************************************************
+function CheckFormValuesChange() {
+  if (document.getElementById('needToSave') && datavalues !== global.getFormData("DataForm")) {
+    document.getElementById('needToSave').classList.remove('hide');
+  } else {
+    document.getElementById('needToSave').classList.add('hide');
+  }
+}
+// ************************************************

@@ -6,6 +6,7 @@
     <link rel='stylesheet' type='text/css' href='/web/Style.css'>
     <script language='javascript' type='module' src='/web/Javascript.js'></script>
     <script language='javascript' type='module' src='/web/modbusconfig.js'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
     
     <script type='module'>
       import { onCheckboxSelection, onSubmit } from './Javascript.js';
@@ -20,6 +21,13 @@
   </head>
   <body>
     <div id="loader"></div>
+    <button onclick="onSubmit('DataForm')" style="position: fixed; top: 0; left: 0;">Save</button>
+    
+    <div id="needToSave" class="hide needToSave">
+      <i class="fa fa-exclamation-triangle" style="color: gold; font-size: 20px;"></i>
+      <span style="font-size: 70%;">Änderungen nicht gespeichert</span>
+    </div>
+
     <form id='DataForm'>
       <table id='maintable' class='editorDemoTable'>
         <thead>
@@ -165,7 +173,6 @@
     </form>
     <br/>
     <br/>
-    <input type='submit' onclick="onSubmit('DataForm')" value='Speichern' />
     <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
       <div style="font-size: 10px; float: right;">
         Connection Status:

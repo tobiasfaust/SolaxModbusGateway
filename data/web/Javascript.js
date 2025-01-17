@@ -601,6 +601,7 @@ export function transformCheckboxes() {
 
     // Checkbox in das neue Div-Element kopieren
     const newCheckbox = checkboxes[i].cloneNode(true)
+    
     newCheckbox.className = 'onoffswitch-checkbox';
     div.appendChild(newCheckbox);
      
@@ -628,3 +629,27 @@ export function transformCheckboxes() {
 
   }
 }
+
+/****************************************************************************************
+ * Get all form data values as a string
+ * @param {*} formElement: id of the form element
+ * 
+ * @returns {*} string containing all form data values
+ * ****************************************************************************************/
+export function getFormData(formElement) {
+  const form = document.getElementById(formElement);
+  if (form) {
+    const formData = new FormData(form);
+    let dataString = '';
+    formData.forEach((value, key) => {
+      dataString += `${key}=${value}|`;
+    });
+    // Remove the last '|' character
+    dataString = dataString.slice(0, -1);
+    return dataString;
+  }
+}
+
+
+/****************************************************************************************
+****************************************************************************************/
