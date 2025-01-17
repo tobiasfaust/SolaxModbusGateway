@@ -143,7 +143,7 @@ void modbus::GenerateMqttSubscriptions() {
         this->Setters->push_back(s);
 
       } else {
-        this->mqtt->UnSubscribe(this->GetMqttSetTopic(s.command));
+        continue;
       }
      
     } else {
