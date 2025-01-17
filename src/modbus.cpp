@@ -112,7 +112,7 @@ void modbus::GenerateMqttSubscriptions() {
     if (this->InverterSetData->at(i).active) {
       this->mqtt->Subscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
     } else {
-      this->mqtt->Unsubscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
+      this->mqtt->UnSubscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
     }
   }
 }
