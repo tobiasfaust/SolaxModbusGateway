@@ -108,14 +108,52 @@ String modbus::GetMqttSetTopic(String command) {
  * subscribe to all possible "set" register (register.h)
 *******************************************************/
 void modbus::GenerateMqttSubscriptions() {
-  for (uint16_t i=0; i < this->InverterSetData->size(); i++) {
-    if (this->InverterSetData->at(i).active) {
-      this->mqtt->Subscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
+  // clear vector
+  this->Setters->clear();
+  
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  
+  String streamString = "";
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
+  streamString = "\"set\": [";
+  regfile.find(streamString.c_str());
+  do {
+    JsonDocument elem;
+    DeserializationError error = deserializeJson(elem, regfile); 
+    if (!error) {
+      // Print the result
+      Config->log(4, "parsing JSON for <set> data ok");
+      Config->log(5, elem);
+     
+      if(!elem["name"].isNull() && elem["request"].is<JsonArray>()) {
+        subscription_t s = {};
+        s.command = elem["name"].as<String>();  
+        
+        JsonArray arr = elem["request"].as<JsonArray>();
+        std::vector<byte> t = {};
+        for (String x : arr) {
+          byte e = this->String2Byte(x);
+          t.push_back(e);
+        }
+        s.request = t;        
+
+        this->mqtt->Subscribe(this->GetMqttSetTopic(s.command));
+        Config->log(4, "Set command successfully parsed from JSON: %s with %s", s.command.c_str(), (this->PrintDataFrame(&(s.request))).c_str());
+        this->Setters->push_back(s);
+
+      } else {
+        this->mqtt->UnSubscribe(this->GetMqttSetTopic(s.command));
+      }
+     
     } else {
-      this->mqtt->UnSubscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
+      Config->log(1, "Failed to parse JSON Register <set> Data: %s", error.c_str());
     }
-  }
+  } while (regfile.findUntil(",","]"));
+
+  regfile.close();
 }
+
 /*******************************************************
  * act on received mqtt command
 *******************************************************/
