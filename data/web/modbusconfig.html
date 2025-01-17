@@ -8,9 +8,11 @@
     <script language='javascript' type='module' src='/web/modbusconfig.js'></script>
     
     <script type='module'>
-      import { onCheckboxSelection } from './Javascript.js';
+      import { onCheckboxSelection, onSubmit } from './Javascript.js';
       import { init } from './modbusconfig.js';
       window.onCheckboxSelection = onCheckboxSelection;
+      window.onSubmit = onSubmit;
+
       window.addEventListener('DOMContentLoaded', init, false);
     </script>
 

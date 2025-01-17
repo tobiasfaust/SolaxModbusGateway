@@ -3,11 +3,20 @@
 import * as global from './Javascript.js';
 
 // ************************************************
-export function init1() {
-  GetInitData();  
+export function init() {
+  // Initiale Verbindung aufbauen
+  global.connectWebSocket();
+
+  // Warte bis die WebSocket-Verbindung aufgebaut ist
+  let checkWebSocketInterval = setInterval(() => {
+    if (global.ws && global.ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWebSocketInterval);
+      GetInitData();
+    }
+  }, 100);
 }
 
-export function init() {
+export function init1() {
   var data = {"data": {"id_rawdata_org": "0103EEFF8A44130000281F0A0B0C0D0E0F",
     "live_rawdata_org": "0102030405060708090a0b0c0d0e0f"
   }, 

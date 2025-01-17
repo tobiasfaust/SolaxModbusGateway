@@ -4,17 +4,52 @@ import * as global from './Javascript.js';
 
 var DirJson;
 
+// ************************************************
 export const functionMap = {
   files_Callback: MyCallback
 };
 
-export function init(startpath) {
+// ************************************************
+export function init1() {
+  var data = {"JS": {"listdir": [
+      {"path": "/", "content": [{"name": "file1.txt", "isDir": 0}, {"name": "file2.txt", "isDir": 0}, {"name": "dir1", "isDir": 1}]},
+      {"path": "/dir1", "content": [{"name": "file3.txt", "isDir": 0}, {"name": "file4.txt", "isDir": 0}]}
+    ]},
+    "response": {"status": 1, "text": "successful"},
+    "cmd": {"callbackFn": "files_Callback", "startpath": "/"}
+    };
+
+  global.handleJsonItems(data);
+
+  document.getElementById('fullpath').innerHTML = ''; // div 
+  document.getElementById('filename').value = ''; // input field
+  document.getElementById('content').value = '';
+
+  document.querySelector("#loader").style.visibility = "hidden";
+  document.querySelector("body").style.visibility = "visible";
+}
+
+export function init() {
+  // Initiale Verbindung aufbauen
+  global.connectWebSocket();
+
+  // Warte bis die WebSocket-Verbindung aufgebaut ist
+  let checkWebSocketInterval = setInterval(() => {
+    if (global.ws && global.ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWebSocketInterval);
+      GetInitData("/");
+    }
+  }, 100);
+}
+
+// ************************************************
+export function GetInitData(startpath) {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "handlefiles";
   data['cmd']['subaction'] = "listDir"
   data['cmd']['startpath'] = startpath;
-  data['cmd']['callbackFn'] = "files_listFiles";
+  data['cmd']['callbackFn'] = "files_Callback";
 
   global.requestData(data);
 
@@ -26,19 +61,15 @@ export function init(startpath) {
   document.querySelector("body").style.visibility = "visible";
 }
 
+// ************************************************
 function MyCallback(json) {
   DirJson = json["JS"].listdir;
-
-  console.log("listdir -> ", window.listdir);
-  console.log("DirJson -> ", DirJson);
-
   listFiles(json["cmd"]["startpath"]);
-
 }
 
-// ***********************************
+// ************************************************
 // show content of fetched file 
-// ***********************************
+// ************************************************
 function setContent(string, file) {
   document.getElementById('fullpath').innerHTML = file; // div 
   document.getElementById('filename').value = basename(file); // input field
@@ -64,10 +95,10 @@ export function fetchFile(file) {
 // ***********************************
 // show directory structure 
 // ***********************************
-function listFiles(path) {
+export function listFiles(path) {
   var table = document.querySelector('#files'),
       row = document.querySelector('#NewRow'),
-      tr_tpl, DirJsonLocal;
+      cells, tr_tpl, DirJsonLocal;
   
   // cleanup table
   table.replaceChildren();
@@ -78,7 +109,7 @@ function listFiles(path) {
       DirJsonLocal = DirJson[i]
     }
   }
-  
+
   // show path information
   document.getElementById('path').innerHTML = path;
   
@@ -219,6 +250,7 @@ export function uploadFile() {
   } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
 
+// ************************************************
 export function deleteFile() {
   var pathOfFile = document.getElementById('path').innerHTML;
   var fileName = document.getElementById("filename").value;
@@ -232,6 +264,6 @@ export function deleteFile() {
 
     global.setResponse(true, 'Please wait for deleting ...');
     global.requestData(data);
-    init(pathOfFile);
+    GetInitData(pathOfFile);
   } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }

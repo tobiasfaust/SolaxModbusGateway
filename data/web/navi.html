@@ -6,9 +6,12 @@
   <link rel='stylesheet' type='text/css' href='Style.css'>
   <script language='javascript' type='module' src='Javascript.js'></script>
   <script language='javascript' type='module' src='navi.js'></script>
+  
   <script type='module'>
-    import { highlightNavi } from './navi.js';
+    import { init, highlightNavi } from './navi.js';
     window.highlightNavi = highlightNavi;
+
+    window.addEventListener('load', init, false);
   </script>
 
   <title>Modbus MQTT Gateway</title>

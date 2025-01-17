@@ -1,7 +1,7 @@
 import * as global from './Javascript.js';
 
 // ************************************************
-export function init() {
+export function init1() {
   // erstelle ein Beispiel json mit Beispielwerten welches die funktion modbus::GetLiveDataAsJsonToWebserver generieren würde und weise das json der variable data zu. 
   
   var data = {"data": {"items": [
@@ -32,9 +32,9 @@ export function init() {
 }
 
 // ************************************************
-export function init1() {
+export function init() {
   // Initiale Verbindung aufbauen
-  connectWebSocket();
+  global.connectWebSocket();
 
   fetch('/getitems')
     .then(response => response.json())

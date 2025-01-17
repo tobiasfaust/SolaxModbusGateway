@@ -1,9 +1,9 @@
 import * as global from './Javascript.js';
 
 // ************************************************
-export function init1() {
+export function init() {
   // Initiale Verbindung aufbauen
-  connectWebSocket();
+  global.connectWebSocket();
 
   // Warte bis die WebSocket-Verbindung aufgebaut ist
   let checkWebSocketInterval = setInterval(() => {
@@ -15,7 +15,7 @@ export function init1() {
 }
 
 
-export function init() {
+export function init1() {
 
   var data = {
     "data": {
@@ -62,7 +62,21 @@ function GetInitData() {
   data['cmd']['callbackFn'] = "status_Callback";
   
   global.requestData(data);  
+}
+
+// ************************************************
+function MyCallback(json) {
+  
+  fetch('/getitems')
+    .then(response => response.json())
+    .then(data => {
+        global.handleJsonItems(data);
+    })
+    .catch(error => console.error('Error fetching items:', error));
+
   RefreshLiveData();
+  document.querySelector("#loader").style.visibility = "hidden";
+  document.querySelector("body").style.visibility = "visible";
 }
 
 // ************************************************
@@ -106,12 +120,6 @@ export function DoWifiReset() {
 // ************************************************
 export function CallRebootPage(json) {
   window.location.href = "reboot.html";
-}
-
-// ************************************************
-function MyCallback(json) {
-  document.querySelector("#loader").style.visibility = "hidden";
-  document.querySelector("body").style.visibility = "visible";
 }
 
 // ************************************************

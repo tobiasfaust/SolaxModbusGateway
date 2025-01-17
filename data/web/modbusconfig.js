@@ -1,9 +1,9 @@
 import * as global from './Javascript.js';
 
 // ************************************************
-export function init1() {
+export function init() {
   // Initiale Verbindung aufbauen
-  connectWebSocket();
+  global.connectWebSocket();
 
   // Warte bis die WebSocket-Verbindung aufgebaut ist
   let checkWebSocketInterval = setInterval(() => {
@@ -14,7 +14,7 @@ export function init1() {
   }, 100);
 }
 
-export function init() {
+export function init1() {
   // erstelle ein Beispiel json mit Beispielwerten welches die funktion modbus::GetInitData generieren würde und weise das json der variable data zu. 
   var data = {
     "data": {

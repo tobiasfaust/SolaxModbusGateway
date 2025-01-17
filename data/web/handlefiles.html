@@ -9,13 +9,14 @@
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
 
     <script type='module'>
-      import { init, downloadFile, uploadFile, deleteFile, fetchFile } from './handlefiles.js';
+      import { init, listFiles, downloadFile, uploadFile, deleteFile, fetchFile } from './handlefiles.js';
       window.downloadFile = downloadFile;
       window.uploadFile = uploadFile;
       window.deleteFile = deleteFile;
       window.fetchFile = fetchFile;
+      window.listFiles = listFiles;
 
-      window.addEventListener('DOMContentLoaded', () => init('/'), false);
+      window.addEventListener('DOMContentLoaded', init, false);
     </script>
 
     <title>HandleFiles</title>

@@ -76,13 +76,15 @@ import { functionMap as baseconfigFunctionMap } from './baseconfig.js';
 import { functionMap as mbconfigFunctionMap } from './modbusconfig.js';
 import { functionMap as mbitemconfigFunctionMap } from './modbusitemconfig.js';
 import { functionMap as rawdataFunctionMap } from './rawdata.js';
+import { functionMap as filesFunctionMap } from './handlefiles.js';
 
 const combinedFunctionMap = {
   ...statusFunctionMap,
   ...baseconfigFunctionMap,
   ...mbconfigFunctionMap,
   ...mbitemconfigFunctionMap,
-  ...rawdataFunctionMap
+  ...rawdataFunctionMap,
+  ...filesFunctionMap
 };
 
 export let ws;    // websocket handle
