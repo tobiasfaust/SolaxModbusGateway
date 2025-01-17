@@ -78,6 +78,7 @@ void modbus::init(bool firstrun) {
   RS485Serial->begin(this->Baudrate, SERIAL_8N1, this->pin_RX, this->pin_TX);
 
   //at first read ID Data
+  this->GenerateMqttSubscriptions();
   this->QueryIdData();
 }
 
@@ -110,6 +111,8 @@ void modbus::GenerateMqttSubscriptions() {
   for (uint16_t i=0; i < this->InverterSetData->size(); i++) {
     if (this->InverterSetData->at(i).active) {
       this->mqtt->Subscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
+    } else {
+      this->mqtt->Unsubscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
     }
   }
 }
