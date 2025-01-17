@@ -137,7 +137,12 @@ void modbus::GenerateMqttSubscriptions() {
         }
         s.request = t;        
 
-        this->mqtt->Subscribe(this->GetMqttSetTopic(s.command));
+        for (uint8_t i = 0; i < this->InverterSetData->size(); i++) {
+          if (this->InverterSetData->at(i).Name == s.command && this->InverterSetData->at(i).active) {
+            this->mqtt->Subscribe(this->GetMqttSetTopic(s.command));
+	  }
+        }
+	      
         Config->log(4, "Set command successfully parsed from JSON: %s with %s", s.command.c_str(), (this->PrintDataFrame(&(s.request))).c_str());
         this->Setters->push_back(s);
 
