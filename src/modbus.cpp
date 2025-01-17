@@ -109,7 +109,7 @@ String modbus::GetMqttSetTopic(String command) {
 void modbus::GenerateMqttSubscriptions() {
   for (uint16_t i=0; i < this->InverterSetData->size(); i++) {
     if (this->InverterSetData->at(i).active) {
-      this->mqtt->Subscribe(this->InverterSetData->at(i).subscription);
+      this->mqtt->Subscribe(GetMqttSetTopic(this->InverterSetData->at(i).Name));
     }
   }
 }
