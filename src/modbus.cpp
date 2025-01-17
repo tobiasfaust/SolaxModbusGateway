@@ -78,7 +78,7 @@ void modbus::init(bool firstrun) {
   RS485Serial->begin(this->Baudrate, SERIAL_8N1, this->pin_RX, this->pin_TX);
 
   //at first read ID Data
-  this->GenerateMqttSubscriptions();
+
   this->QueryIdData();
 }
 
@@ -311,7 +311,7 @@ byte modbus::String2Byte(String s){
 *******************************************************/
 void modbus::enableMqtt(MQTT* object) {
   this->mqtt = object;
-  
+  this->GenerateMqttSubscriptions();
 }
 
 /*******************************************************
