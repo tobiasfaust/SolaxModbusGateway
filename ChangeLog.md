@@ -1,8 +1,12 @@
+Release 3.3.2:
+  - new feature: add confirmation dialog for ESP reset or Wifi-Reset
+  
 Release 3.3.1:
   - new Feature: datatype "binary" now available for json register definitions (PR #115)
   - BugFix: fix null-terminationof string handling (#96)
   - new feature: support for OpenWB 2.0 Api (#100)
   - bugfix: fix esp crash for /getitems if using an huge register table (#76)
+  - fix CORS Issue when download a stable release
 
 Release 3.3.0:
   - new feature: WebSerial as remote serial output (#74)

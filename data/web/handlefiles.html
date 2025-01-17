@@ -50,11 +50,16 @@
             <input type='text' id='filename' value='{fullpath}' title='name of file to store'/>
             <input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>
             <input type='button' onclick='uploadFile()' style='font-size:18px' class='fa' value='&#xf0c7' title='store it'/>
-            <input type='button' onclick='deleteFile()' style='font-size:18px' class='fa' value='&#xf014' title='delete it'/>
+            <input type='button' onclick="document.getElementById('confirmDeleteFile').classList.remove('hide')" style='font-size:18px' class='fa' value='&#xf014' title='delete it'/>
             <span id='response'></span>
           </td>
         </tr>
       </tbody>
     </table>
+    <div id="confirmDeleteFile" class="hide" style="position: fixed; top: 30%; left: 50%; width: 300px; height: 100px; margin-top: -50px; margin-left: -150px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
+      <p>Are you sure you want to delete this file?</p>
+      <button class="button" onclick="document.getElementById('confirmDeleteFile').classList.add('hide')">Cancel</button>
+      <button class="button" onclick='deleteFile()'>Confirm</button>
+    </div>
   </body>
 </html>

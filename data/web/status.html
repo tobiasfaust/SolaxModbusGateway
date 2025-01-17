@@ -71,27 +71,37 @@
 
         <tr id="tr_webserial">
           <td>show logs via webserial</td>
-          <td><form action='/webserial' target="_blank"><input class='button' type='submit' value='WebSerial' /></form></td>
+          <td>
+            <button class='button' onclick='window.location.href="/webserial"'>WebSerial</button>
+          </td>
         </tr>
 
         <tr>
           <td>Firmware Update</td>
-          <td><form action='/update'><input class='button' type='submit' value='Update' /></form></td>
+          <td>
+            <button class='button' onclick='window.location.href="/update"'>Update</button>
+          </td>
         </tr>
         
         <tr>
           <td>Device Reboot</td>
-          <td><form action='/reboot'><input class='button' type='submit' value='Reboot' /></form></td>
+          <td>
+            <button class='button' onclick='window.location.href="/reboot"'>Reboot</button>
+          </td>
         </tr>
 
         <tr>
           <td>Werkszustand herstellen (ohne WiFi)</td>
-          <td><form action='/reset'><input class='button' type='submit' value='Reset' /></form></td>
+          <td>
+            <button class="button" onclick="document.getElementById('confirmReset').classList.remove('hide')">Reset</button>
+          </td>
         </tr>
 
         <tr>
           <td>WiFi Zugangsdaten entfernen</td>
-          <td><form action='/wifireset'><input class='button' type='submit' value='WifiReset' /></form></td>
+          <td>
+            <button class="button" onclick="document.getElementById('confirmWiFiReset').classList.remove('hide')">WifiReset</button>
+          </td>
         </tr>
       </tbody>
     </table> 
@@ -113,5 +123,15 @@
         </template>
       </tbody>
     </table>
+    <div id="confirmReset" class="hide" style="position: fixed; top: 30%; left: 50%; width: 300px; height: 100px; margin-top: -50px; margin-left: -150px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
+      <p>Are you sure you want to reset?</p>
+      <button class="button" onclick="document.getElementById('confirmReset').classList.add('hide')">Cancel</button>
+      <button class="button" onclick="window.location.href='/reset'">Confirm</button>
+    </div>
+    <div id="confirmWiFiReset" class="hide" style="position: fixed; top: 30%; left: 50%; width: 300px; height: 100px; margin-top: -50px; margin-left: -150px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
+      <p>Are you sure you want to reset WiFi Credentials?</p>
+      <button class="button" onclick="document.getElementById('confirmWiFiReset').classList.add('hide')">Cancel</button>
+      <button class="button" onclick="window.location.href='/wifireset'">Confirm</button>
+    </div>
   </body>
 </html>
