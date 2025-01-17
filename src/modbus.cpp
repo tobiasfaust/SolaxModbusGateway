@@ -1203,6 +1203,7 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
       this->InverterSetData->at(j).active = newstate;
     }
   }
+  this->GenerateMqttSubscriptions();
   //Lazgar
 }
 
@@ -1541,6 +1542,7 @@ void modbus::LoadJsonItemConfig() {
               break;
             }
           }
+	  this->GenerateMqttSubscriptions();
 	  //Lazgar
         }
 
