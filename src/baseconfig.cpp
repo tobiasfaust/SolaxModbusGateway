@@ -120,38 +120,6 @@ void BaseConfig::GetInitData(JsonDocument& json) {
   json["response"]["text"] = "successful";
 }
 
-void BaseConfig::GetInitData(AsyncResponseStream *response) {
-  String ret;
-  JsonDocument json;
-  json["data"]["mqttroot"]    = this->mqtt_root;
-  json["data"]["mqttserver"]  = this->mqtt_server;
-  json["data"]["mqttport"]    = this->mqtt_port;
-  json["data"]["mqttuser"]    = this->mqtt_username;
-  json["data"]["mqttpass"]    = this->mqtt_password;
-  json["data"]["mqttbasepath"]= this->mqtt_basepath;
-  json["data"]["debuglevel"]  = this->debuglevel;
-  json["data"]["sel_wifi"]    = ((this->useETH)?0:1);
-  json["data"]["sel_eth"]     = ((this->useETH)?1:0);
-  json["data"]["useRandomClientID"]  = ((this->mqtt_UseRandomClientID)?1:0);
-  json["data"]["sel_auth"]= ((this->useAuth)?1:0);
-  json["data"]["auth_user"]   = this->auth_user;
-  json["data"]["auth_pass"]   = this->auth_pass;
-
-
-  #ifdef USE_WEBSERIAL
-    json["data"]["tr_serial_rx"]["className"] = "hide";
-    json["data"]["tr_serial_tx"]["className"] = "hide";
-  #else
-    json["data"]["GpioPin_serial_rx"] = this->serial_rx;
-    json["data"]["GpioPin_serial_tx"] = this->serial_tx;
-  #endif
-
-  json["response"]["status"] = 1;
-  json["response"]["text"] = "successful";
-  serializeJson(json, ret);
-  response->print(ret);
-}
-
 void BaseConfig::log(const int loglevel, const char* format, ...) {
   if (this->GetDebugLevel() < loglevel) return;
   

@@ -14,11 +14,6 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
    
   server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
-//  server->on("/reboot",                 HTTP_GET, std::bind(&MyWebServer::handleReboot, this, std::placeholders::_1));
-//  server->on("/reset",                  HTTP_GET, std::bind(&MyWebServer::handleReset, this, std::placeholders::_1));
-//  server->on("/wifireset",              HTTP_GET, std::bind(&MyWebServer::handleWiFiReset, this, std::placeholders::_1));
-
-  server->on("/ajax",                   HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
   server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
 
@@ -97,7 +92,6 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         if (json["cmd"]["subaction"]){subaction = json["cmd"]["subaction"].as<String>();}
         if (json["cmd"]["item"])     {item      = json["cmd"]["item"].as<String>();}
         
-        // TODO: check if true/false able to be interpreta as bool
         newState  = json["cmd"]["newState"].as<bool>();
       }
 
@@ -285,114 +279,6 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   mb->GetRegisterAsJsonToWebServer(response);
 
   request->send(response);  
-}
-
-void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
-  char buffer[100] = {0};
-  memset(buffer, 0, sizeof(buffer));
-  String ret;
-  bool RaiseError = false;
-  String action, subaction, item, newState; 
-  String json = "{}";
-
-  if(request->hasArg("json")) {
-    json = request->arg("json");
-  }
-
-  JsonDocument jsonGet; // TODO Use computed size??
-  DeserializationError error = deserializeJson(jsonGet, json.c_str());
-
-  Config->log(4, "Ajax Json Empfangen: ");
-  if (!error) {
-    Config->log(4, jsonGet);
-
-    if (jsonGet["action"])   {action    = jsonGet["action"].as<String>();}
-    if (jsonGet["subaction"]){subaction = jsonGet["subaction"].as<String>();}
-    if (jsonGet["item"])     {item      = jsonGet["item"].as<String>();}
-    if (jsonGet["newState"]) {newState  = jsonGet["newState"].as<String>();}
-  
-  } else { 
-    snprintf(buffer, sizeof(buffer), "Ajax Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
-    RaiseError = true; 
-  }
-
-  if (action && action == "RefreshLiveData") {
-    mb->GetLiveDataAsJsonToWebServer(request);
-    return;
-  }
-
-  AsyncResponseStream *response = request->beginResponseStream("text/json");
-  response->addHeader("Server","ESP Async Web Server");
-
-  JsonDocument jsonReturn;
-  jsonReturn["response"].to<JsonObject>();
-  
-  if (RaiseError) {
-    jsonReturn["response"]["status"] = 0;
-    jsonReturn["response"]["text"] = buffer;
-    serializeJson(jsonReturn, ret);
-    response->print(ret);
-
-    Config->log(4, buffer);
-
-    return;
-
-  } else if(action && action == "GetInitData")  {
-    if (subaction && subaction == "status") {
-      this->GetInitDataStatus(response);
-    } else if (subaction && subaction == "navi") {
-      this->GetInitDataNavi(response);
-    } else if (subaction && subaction == "baseconfig") {
-      Config->GetInitData(response);
-    } else if (subaction && subaction == "modbusconfig") {
-      mb->GetInitData(response);
-    } else if (subaction && subaction == "rawdata") {
-      mb->GetInitRawData(response);
-    }
-  
-  } else if(action && action == "ReloadConfig")  {
-    if (subaction && subaction == "baseconfig") {
-      Config->LoadJsonConfig();
-    } else if (subaction && subaction == "modbusconfig") {
-      mb->LoadJsonConfig(false);
-    } else if (subaction && subaction == "modbusitemconfig") {
-      mb->LoadJsonItemConfig();
-    }
-  
-    jsonReturn["response"]["status"] = 1;
-    jsonReturn["response"]["text"] = "new config reloaded sucessfully";
-    serializeJson(jsonReturn, ret);
-    response->print(ret);
-  
-  //} else if (action && action == "RefreshLiveData") {
-      //TODO
-      //mb->GetLiveDataAsJson(response, subaction);
-  
-  } else if (action && action == "SetActiveStatus") {
-      if (strcmp(newState.c_str(),"true")==0)  mb->SetItemActiveStatus(item, true); 
-      if (strcmp(newState.c_str(),"false")==0) mb->SetItemActiveStatus(item, false);    
-      
-      jsonReturn["response"]["status"] = 1;
-      jsonReturn["response"]["text"] = "successful";
-      serializeJson(jsonReturn, ret);
-      response->print(ret);
-
-  } else if(action && action == "handlefiles") {
-    fsfiles->HandleAjaxRequest(jsonGet, response);
-
-  } else {
-    snprintf(buffer, sizeof(buffer), "Ajax Command unknown: %s - %s", action.c_str(), subaction.c_str());
-    jsonReturn["response"]["status"] = 0;
-    jsonReturn["response"]["text"] = buffer;
-    serializeJson(jsonReturn, ret);
-    response->print(ret);
-
-    Config->log(1, buffer);
-  }
-
-  Config->log(4, "Ajax Json Antwort: ", ret);
-  
-  request->send(response);
 }
 
 void MyWebServer::GetInitDataNavi(AsyncResponseStream *response){

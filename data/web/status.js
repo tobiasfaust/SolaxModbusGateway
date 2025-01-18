@@ -95,7 +95,7 @@ export function DoReboot() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "reboot";
-  data['cmd']['callbackFn'] = "CallRebootPage";
+  data['cmd']['callbackFn'] = "status_CallRebootPage";
   global.requestData(data);
 }
 
@@ -104,7 +104,7 @@ export function DoReset() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "reset";
-  data['cmd']['callbackFn'] = "CallRebootPage";
+  data['cmd']['callbackFn'] = "status_CallRebootPage";
   global.requestData(data);
 }
 
@@ -113,7 +113,7 @@ export function DoWifiReset() {
   var data = {};
   data['cmd'] = {};
   data['cmd']['action'] = "wifireset";
-  data['cmd']['callbackFn'] = "CallRebootPage";
+  data['cmd']['callbackFn'] = "status_CallRebootPage";
   global.requestData(data);
 }
 

@@ -9,7 +9,6 @@ class handleFiles {
     public:
         handleFiles(AsyncWebServer *server);
 
-        void        HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* response);
         void        HandleRequest(JsonDocument& json);
         void        handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
         

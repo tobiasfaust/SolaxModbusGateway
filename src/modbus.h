@@ -52,16 +52,10 @@ class modbus {
 
     const String&           GetInverterType()   const {return InverterType.name;}
     const String            GetOpenWbVersion()  const {return Conf_OpenWBVersion;}
-
     void                    enableMqtt(MQTT* object);
-    
-    void                    GetInitData(AsyncResponseStream *response);
-    void                    GetInitRawData(AsyncResponseStream *response);
     void                    GetInitData(JsonDocument& json);
     void                    GetInitRawData(JsonDocument& json);
-
     String                  GetInverterSN();
-
     void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
     void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);

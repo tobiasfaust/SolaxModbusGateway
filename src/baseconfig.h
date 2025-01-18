@@ -11,7 +11,6 @@ class BaseConfig {
   public:
     BaseConfig();
     void      LoadJsonConfig();
-    void      GetInitData(AsyncResponseStream *response);
     void      GetInitData(JsonDocument& json);
 
     /**

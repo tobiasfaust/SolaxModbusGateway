@@ -45,12 +45,10 @@ class MyWebServer {
     handleFiles* fsfiles;
 
     void      handleNotFound(AsyncWebServerRequest *request);
-    //void      handleReboot();
     bool      handleReset();
     void      handleWiFiReset();
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
-    void      handleAjax(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);
     void      handleGetRegisterJson(AsyncWebServerRequest *request);
 

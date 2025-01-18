@@ -81,44 +81,6 @@ void handleFiles::HandleRequest(JsonDocument& json) {
   }
 }
 
-void handleFiles::HandleAjaxRequest(JsonDocument& jsonGet, AsyncResponseStream* response) {
-  String subaction = "";
-  if (jsonGet["subaction"])  {subaction  = jsonGet["subaction"].as<String>();}
-
-  Config->log(3, "handle Ajax Request in handleFiles.cpp: %s", subaction.c_str());
-
-  if (subaction == "listDir") {
-    JsonDocument doc;
-    JsonArray content = doc.add<JsonArray>();
-    
-    this->getDirList(content, "/");
-    String ret("");
-    serializeJson(content, ret);
-    Config->log(5, content);
-      
-    response->print(ret);   
-  } else if (subaction == "deleteFile") {
-    String filename(""), ret("");
-    JsonDocument jsonReturn;
-
-    Config->log(3, "Request to delete file %s", filename.c_str());
-
-    if (jsonGet["filename"])  {filename  = jsonGet["filename"].as<String>();}
-    
-    if (LittleFS.remove(filename)) { 
-      jsonReturn["response_status"] = 1;
-      jsonReturn["response_text"] = "deletion successful";
-    } else {
-      jsonReturn["response_status"] = 0;
-      jsonReturn["response_text"] = "deletion failed";
-    }
-    Config->log(3, jsonReturn);
- 
-    serializeJson(jsonReturn, ret);
-    response->print(ret);
-  }
-}
-
 //###############################################################
 // store a file at Filesystem
 //###############################################################
