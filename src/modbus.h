@@ -70,7 +70,6 @@ class modbus {
     void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
-    void		    UpdateSubscription();
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
