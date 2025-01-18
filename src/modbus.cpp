@@ -158,16 +158,6 @@ void modbus::GenerateMqttSubscriptions() {
   regfile.close();
 }
 
-void modbus::UpdateSubscription() {
-  for (uint8_t i = 0; i < this->InverterSetData->size(); i++) {
-    if (this->InverterSetData->at(i).Name == s.command && this->InverterSetData->at(i).active) {
-      this->mqtt->Subscribe(this->GetMqttSetTopic(this->InverterSetData->at(i).Name));
-    } else {
-      this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->InverterSetData->at(i).Name));
-    }
-  }
-}
-
 /*******************************************************
  * act on received mqtt command
 *******************************************************/
@@ -1252,6 +1242,13 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
   for (uint16_t j=0; j < this->InverterSetData->size(); j++) {
     if (this->InverterSetData->at(j).Name == item) {
       Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
+      if (this->InverterSetData->at(j).active != newstate) {
+	if (!newstate) {
+          this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->InverterSetData->at(j).Name));
+        } else {
+          this->mqtt->Subscribe(this->GetMqttSetTopic(this->InverterSetData->at(j).Name));
+	}
+      }
       this->InverterSetData->at(j).active = newstate;
     }
   }
