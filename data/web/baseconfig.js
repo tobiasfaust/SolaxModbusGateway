@@ -1,7 +1,5 @@
 import * as global from './Javascript.js';
 
-var datavalues;
-
 // ************************************************
 export function init() {
   // Initiale Verbindung aufbauen
@@ -49,7 +47,7 @@ export function init1() {
   
   global.handleJsonItems(data);
 
-  datavalues = global.getFormData("DataForm");
+  global.initDataValues();
 }
 
 export const functionMap = {
@@ -74,14 +72,14 @@ function MyCallback(json) {
   global.CreateSelectionListFromInputField('input[type=number][id^=GpioPin]', [global.gpio]);
   
   document.querySelectorAll('#DataForm input:not([type=checkbox]):not([type=radio]), #DataForm select').forEach(element => {
-    element.addEventListener('blur', CheckFormValuesChange);
+    element.addEventListener('blur', global.showMustSaveDialog);
   });
 
   document.querySelectorAll('#DataForm input[type=checkbox], #DataForm input[type=radio]').forEach(element => {
-    element.addEventListener('click', CheckFormValuesChange);
+    element.addEventListener('click', global.showMustSaveDialog);
   });
 
-  datavalues = global.getFormData("DataForm");
+  global.initDataValues();
 
   // Hide loader and show body
   document.querySelector("#loader").style.visibility = "hidden";
@@ -89,11 +87,3 @@ function MyCallback(json) {
 }
 
 // ************************************************
-
-function CheckFormValuesChange() {
-  if (document.getElementById('needToSave') && datavalues !== global.getFormData("DataForm")) {
-    document.getElementById('needToSave').classList.remove('hide');
-  } else {
-    document.getElementById('needToSave').classList.add('hide');
-  }
-}

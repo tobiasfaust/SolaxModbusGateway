@@ -88,10 +88,14 @@ const combinedFunctionMap = {
 };
 
 export let ws;    // websocket handle
+var datavalues;   // form data values as string to check, if "needToSave" Dialog should be shown
 
 var timer; // ID of setTimout Timer -> setResponse
 let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
 
+/******************************************************************************************
+ * Connect to WebSocket server
+ * *****************************************************************************************/
 export function connectWebSocket() {
   window.addEventListener('beforeunload', function() {
     if (ws) {
@@ -118,7 +122,8 @@ export function connectWebSocket() {
     return;
   }
 
-  ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  //ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  ws = new WebSocket('ws://10.0.2.150/ajaxws'); 
   var wsStatus = document.getElementById('ws-status');
 
   ws.onopen = function() {
@@ -181,7 +186,7 @@ export function handleRadioSelections() {
 }
 
 /*****************************************************************************************
- * central function to initiate data fetch
+ * central function to send data to server
  * @param {*} json -> json object to send
  * @param {*} highlight -> highlight on/off
  * @param {*} callbackFn -> callback function to call after data is fetched
@@ -189,6 +194,7 @@ export function handleRadioSelections() {
 ******************************************************************************************/
 export function requestData(json) {
   if (typeof ws !== 'undefined' && ws.readyState === WebSocket.OPEN) {
+    console.log('WebSocket is open, sending data:', json);
     ws.send(JSON.stringify(json));
   } else {
     console.log('WebSocket not open');
@@ -543,9 +549,10 @@ export function onSubmit(DataForm, separator='') {
       })
       .then (() => {  
         var data = {};
-        data['action'] = "ReloadConfig";
-        data['subaction'] = filename;
-        requestData(JSON.stringify(data), false);
+        data['cmd'] = {};
+        data['cmd']['action'] = "ReloadConfig";
+        data['cmd']['subaction'] = filename;
+        requestData(data);
       }); 
 }
 
@@ -650,6 +657,26 @@ export function getFormData(formElement) {
   }
 }
 
+/****************************************************************************************
+ * Show a dialog if the form data has been changed
+ * ****************************************************************************************/
+export function showMustSaveDialog() {
+  if (document.getElementById('needToSave') && datavalues !== getFormData("DataForm")) {
+    document.getElementById('needToSave').classList.remove('hide');
+  } else {
+    document.getElementById('needToSave').classList.add('hide');
+  }
+}
 
+/****************************************************************************************
+ * Initialize the data values in variable "datavalues"
+ * ****************************************************************************************/
+export function initDataValues() {
+  datavalues = getFormData("DataForm");
+  
+  if (document.getElementById('needToSave')) {
+    document.getElementById('needToSave').classList.add('hide');
+  }
+}
 /****************************************************************************************
 ****************************************************************************************/

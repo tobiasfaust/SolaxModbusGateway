@@ -9,11 +9,12 @@
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
 
     <script type='module'>
-      import { radioselection, onCheckboxSelection, onSubmit } from './Javascript.js';
+      import { radioselection, onCheckboxSelection, onSubmit, initDataValues } from './Javascript.js';
       import { init } from './baseconfig.js';
       window.radioselection = radioselection;
       window.onCheckboxSelection = onCheckboxSelection;
       window.onSubmit = onSubmit;
+      window.initDataValues = initDataValues;
 
       window.addEventListener('DOMContentLoaded', init, false);
 
@@ -23,7 +24,7 @@
   </head>
   <body>
     <div id="loader"></div>
-    <button onclick="onSubmit('DataForm')" style="position: fixed; top: 0; left: 0;">Save</button>
+    <button onclick="onSubmit('DataForm');initDataValues();" style="position: fixed; top: 0; left: 0;">Save</button>
     
     <div id="needToSave" class="hide needToSave">
       <i class="fa fa-exclamation-triangle" style="color: gold; font-size: 20px;"></i>
