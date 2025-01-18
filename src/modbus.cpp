@@ -158,6 +158,16 @@ void modbus::GenerateMqttSubscriptions() {
   regfile.close();
 }
 
+void modbus::UpdateSubscription() {
+  for (uint8_t i = 0; i < this->InverterSetData->size(); i++) {
+    if (this->InverterSetData->at(i).Name == s.command && this->InverterSetData->at(i).active) {
+      this->mqtt->Subscribe(this->GetMqttSetTopic(this->InverterSetData->at(i).Name));
+    } else {
+      this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->InverterSetData->at(i).Name));
+    }
+  }
+}
+
 /*******************************************************
  * act on received mqtt command
 *******************************************************/
