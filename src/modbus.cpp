@@ -1489,7 +1489,7 @@ void modbus::GetInitData(JsonDocument &json){
   json["data"]["GpioPin_RX"]          = this->pin_RX;
   json["data"]["GpioPin_TX"]          = this->pin_TX;
   json["data"]["GpioPin_RTS"]         = this->pin_RTS;
-  json["data"]["clientid"]            = this->ClientID;
+  json["data"]["clientid"]            = String(this->ClientID, HEX);
   json["data"]["baudrate"]            = this->Baudrate;
   json["data"]["txintervallive"]      = this->TxIntervalLiveData;
   json["data"]["txintervalid"]        = this->TxIntervalIdData;
