@@ -26,6 +26,13 @@ class modbus {
       String openwb;
   } reg_t;
 
+  typedef struct { 
+      String Name;
+      String RealName;
+      String info;
+      bool active;
+  } setter_t;
+
   typedef struct {
     String command = "";
     std::vector<byte> request; 
@@ -59,6 +66,7 @@ class modbus {
     String                  GetInverterSN();
 
     void                    GetLiveDataAsJson(AsyncWebServerRequest *request);
+    void                    GetSetterAsJson(AsyncWebServerRequest *request);
     void                    GetRegisterAsJson(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
@@ -94,7 +102,8 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
-    std::vector<regfiles_t>*AvailableInverters;   // available inverters from JSON
+    std::vector<setter_t>*  InverterSetData;     // storing readable results
+    std::vector<regfiles_t>* AvailableInverters;   // available inverters from JSON
     std::vector<subscription_t>* Setters;         // available set Options from JSON register 
 
     MQTT*                   mqtt = NULL;
@@ -118,6 +127,7 @@ class modbus {
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
+    void                    LoadSetItems(std::vector<setter_t>* vector);
     String                  MapItem(JsonArray map, String value);
     String                  MapBitwise(JsonArray map, String value);
     String                  ConvertIntToBinaryString(int n, int numBits);

@@ -13,6 +13,11 @@ function GetInitData() {
   data.action = "RefreshLiveData";
   data.subaction = "all";
   requestData(JSON.stringify(data), false, MyCallback);
+
+  var data = {};
+  data.action = "GetSetterData";
+  data.subaction = "all";
+  requestData(JSON.stringify(data), false, MyCallback);
 }
 
 // ************************************************

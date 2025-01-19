@@ -43,6 +43,31 @@
           </template>
         </tbody>
       </table>
+      <br>
+      <table id='settable' class='editorDemoTable'>
+        <thead>
+          <tr>
+            <td style='width: 25px;'>Active</td>
+            <td style='width: 180px;'>Name</td>
+            <td style='width: 358px;'>Subscription</td>
+          </tr>
+        </thead>
+        <tbody>
+          <template id='setitems'>
+          <tr>
+            <td>
+              <input type='checkbox' onclick='ChangeActiveStatus(this.id)' id='active'>
+            </td>
+            <td>
+              <dfn class='tooltip_simple'><span id='realname'></span>
+                <span id='info' role='tooltip_simple'></span>
+              </dfn>
+            </td>
+            <td><div class='ajaxchange' id='subscription'></div></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
     </form>
     <br />
     <br/>

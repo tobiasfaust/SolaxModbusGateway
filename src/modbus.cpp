@@ -18,6 +18,7 @@ modbus::modbus(): enableRelays(false),
 
   InverterLiveData    = new std::vector<reg_t>{};
   InverterIdData      = new std::vector<reg_t>{};
+  InverterSetData      = new std::vector<setter_t>{};
   AvailableInverters  = new std::vector<regfiles_t>{};
   Setters             = new std::vector<subscription_t>{};
   OpenWB              = new openwb();
@@ -68,6 +69,7 @@ void modbus::init(bool firstrun) {
   this->LoadInverterConfigFromJson();
   this->LoadRegItems(this->InverterIdData, "id");
   this->LoadRegItems(this->InverterLiveData, "livedata");
+  this->LoadSetItems(this->InverterSetData);
   this->LoadJsonItemConfig(); // loads InverterLiveData Items too
   
 
@@ -135,7 +137,12 @@ void modbus::GenerateMqttSubscriptions() {
         }
         s.request = t;        
 
-        this->mqtt->Subscribe(this->GetMqttSetTopic(s.command));
+        for (uint8_t i = 0; i < this->InverterSetData->size(); i++) {
+          if (this->InverterSetData->at(i).Name == s.command && this->InverterSetData->at(i).active) {
+            this->mqtt->Subscribe(this->GetMqttSetTopic(s.command));
+	  }
+        }
+	      
         Config->log(4, "Set command successfully parsed from JSON: %s with %s", s.command.c_str(), (this->PrintDataFrame(&(s.request))).c_str());
         this->Setters->push_back(s);
 
@@ -150,7 +157,6 @@ void modbus::GenerateMqttSubscriptions() {
 
   regfile.close();
 }
-
 
 /*******************************************************
  * act on received mqtt command
@@ -1070,6 +1076,75 @@ void modbus::GetLiveDataAsJson(AsyncWebServerRequest *request) {
 	request->send(response);
 }
 
+/*******************************************************
+ * Return all LiveData as jsonArray
+ * {data: [{"name": "xx", "value": "xx", ...}, ...] }
+*******************************************************/
+void modbus::GetSetterAsJson(AsyncWebServerRequest *request) {
+  std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
+  String subaction(""), json("{}");
+  
+  if(request->hasArg("json")) {
+    json = request->arg("json");
+  }
+  JsonDocument jsonGet; 
+  DeserializationError error = deserializeJson(jsonGet, json.c_str());
+  
+  Config->log(4, "[GetSetterAsJson] Json command empfangen: ");
+  if (!error) {
+    Config->log(4, jsonGet);
+
+    if (jsonGet["subaction"]){subaction = jsonGet["subaction"].as<String>();}
+  
+  } else { 
+    Config->log(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
+  }
+
+	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
+			String ret("");
+      ret.reserve(maxLen);
+      maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
+      if (*counter == 0) {
+        // send start of JSON
+        ret += "{\"data\": {\"setitems\": [";
+        (*counter)++;
+      }
+      
+      if (*counter <= this->InverterSetData->size() && ret.length() < maxLen) {
+        // send IdData
+        uint16_t i = *counter - 1;
+
+        // jedes JsonObject wird mit 200 bytes angenommen, + 100 bytes puffer am Ende
+        while (i < this->InverterSetData->size() && ret.length() < maxLen) {
+          if (!(subaction == "onlyactive" && !this->InverterSetData->at(i).active)) {
+            if(*counter > 1) ret += ",";
+            ret += "{\"name\": \"" + this->InverterSetData->at(i).Name + "\",";
+            ret += "\"realname\": \"" + this->InverterSetData->at(i).RealName + "\",";
+	    ret += "\"active\": {\"checked\": " + String(this->InverterSetData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterSetData->at(i).Name + "\"},";
+            ret += "\"subscription\": \"" + this->GetMqttSetTopic(this->InverterSetData->at(i).Name) + "\",";
+            ret += "\"info\": \"" + this->InverterSetData->at(i).info + "\"";
+            
+            ret += "}";
+          }
+
+          (*counter)++;
+          i++;
+        }
+
+      }
+      
+      if (this->InverterSetData->size() + 1 == *counter) {
+        // send end of JSON
+        ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
+        (*counter)++;
+      }
+      int len = sprintf((char*)buffer, ret.c_str());
+      return len;
+
+	});
+
+	request->send(response);
+}
 
 /*******************************************************
  * Return all LiveData as jsonArray
@@ -1161,6 +1236,20 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
     if (this->InverterIdData->at(j).Name == item) {
       Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
       this->InverterIdData->at(j).active = newstate;
+    }
+  }
+
+  for (uint16_t j=0; j < this->InverterSetData->size(); j++) {
+    if (this->InverterSetData->at(j).Name == item) {
+      Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
+      if (this->InverterSetData->at(j).active != newstate) {
+	if (!newstate) {
+          this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->InverterSetData->at(j).Name));
+        } else {
+          this->mqtt->Subscribe(this->GetMqttSetTopic(this->InverterSetData->at(j).Name));
+	}
+      }
+      this->InverterSetData->at(j).active = newstate;
     }
   }
   //Lazgar
@@ -1257,6 +1346,73 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
 
   if (regfile) { regfile.close(); }
 }
+
+
+/*******************************************************
+ * load initial Setter Items from file into vector
+*******************************************************/
+void modbus::LoadSetItems(std::vector<setter_t>* vector) {
+  vector->clear();
+
+  Config->log(4, "Load SetItems for Inverter %s and type <%s>", this->InverterType.name.c_str());
+
+  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  if (!regfile) {
+    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+    return;
+  }
+
+  String streamString = "";
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
+    
+  streamString = "\"set\": [";
+  regfile.find(streamString.c_str());
+  do {
+    JsonDocument elem;
+    DeserializationError error = deserializeJson(elem, regfile); 
+      
+    if (!error) {
+      // Print the result
+      Config->log(4, "parsing JSON ok");
+      Config->log(5, elem);
+    } else {
+      Config->log(1, "(Function LoadSetterItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), error.c_str());
+    }
+
+    setter_t d = {};
+      
+    // mandantory field
+    if(!elem["name"].isNull()) {
+      d.Name = elem["name"].as<String>();
+    } else {
+      d.Name = String("undefined");
+    }
+
+    // optional field
+    if(!elem["realname"].isNull()) {
+      d.RealName = elem["realname"].as<String>();
+    } else {
+      d.RealName = d.Name;
+    }
+
+    // optional field
+    if(!elem["info"].isNull()) {
+      d.info = elem["info"].as<String>();
+    } else {
+      d.info = d.Name;
+    }
+
+    d.active = false; // set initial
+    vector->push_back(d);
+
+    Config->log(4, "processed SetterItem: %s", d.Name.c_str());
+
+  } while (regfile.findUntil(",","]"));
+
+  if (regfile) { regfile.close(); }
+}
+
 
 /*******************************************************
  * load configuration from file
@@ -1422,6 +1578,15 @@ void modbus::LoadJsonItemConfig() {
               this->InverterIdData->at(i).active = kv.value().as<bool>();
 
               Config->log(3, "item %s -> %s", ItemName, (this->InverterIdData->at(i).active?"enabled":"disabled"));
+              break;
+            }
+          }
+
+         for(uint16_t i=0; i<this->InverterSetData->size(); i++) {
+            if (this->InverterSetData->at(i).Name == ItemName ) {
+              this->InverterSetData->at(i).active = kv.value().as<bool>();
+
+              Config->log(3, "item %s -> %s", ItemName, (this->InverterSetData->at(i).active?"enabled":"disabled"));
               break;
             }
           }

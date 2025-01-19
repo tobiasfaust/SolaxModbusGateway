@@ -15,6 +15,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): DoReboot(false
   server->on("/ajax",                   HTTP_POST, std::bind(&MyWebServer::handleAjax, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
   server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
+  server->on("/getsetter",              HTTP_GET, std::bind(&MyWebServer::handleGetSetterJson, this, std::placeholders::_1));
 
   ElegantOTA.begin(server);    // Start ElegantOTA
   ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH));
@@ -128,6 +129,10 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   request->send(response);  
 }
 
+void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
+  mb->GetSetterAsJson(request);
+}
+
 void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
   char buffer[100] = {0};
   memset(buffer, 0, sizeof(buffer));
@@ -161,6 +166,11 @@ void MyWebServer::handleAjax(AsyncWebServerRequest *request) {
     mb->GetLiveDataAsJson(request);
     return;
   }
+  
+  if (action && action == "GetSetterData") {
+    mb->GetSetterAsJson(request);
+    return;
+  }  
 
   AsyncResponseStream *response = request->beginResponseStream("text/json");
   response->addHeader("Server","ESP Async Web Server");
