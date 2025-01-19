@@ -63,8 +63,12 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
     Config->log(2, "[Client: %u] WebSocket client disconnected", client->id());
 
     // wenn client->id() in der Liste WsConnectedClientsForBroadcast vorhanden ist, dann entfernen
-    auto it = std::find(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), client->id());
-    if (it != WsConnectedClientsForBroadcast.end()) {WsConnectedClientsForBroadcast.erase(it);}
+    
+    auto it = std::find_if(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), 
+                 [client](const WsConnClient_t& c) { return c.id == client->id(); });
+    if (it != WsConnectedClientsForBroadcast.end()) {
+      WsConnectedClientsForBroadcast.erase(it);
+    }
 
     // wenn keine clients mehr in der Liste sind, dann den Callback für die modbuswerte entfernen
     if (this->WsConnectedClientsForBroadcast.size() == 0) {
@@ -97,13 +101,15 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
 
       if (action == "GetItemsAsStream") {
         // add client id to the list of clients to broadcast if not already in the list
-        if (std::find(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), client->id()) == WsConnectedClientsForBroadcast.end()) {
-          WsConnectedClientsForBroadcast.push_back(client->id());
+        auto it = std::find_if(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), 
+           [client](const WsConnClient_t& c) { return c.id == client->id(); });
+        if (it == WsConnectedClientsForBroadcast.end()) {
+          const WsConnClient_t w = {client->id(), msg};
+          WsConnectedClientsForBroadcast.push_back(w);
         }
-        
         // if this is the first client in the list, then set the callback for the modbus values
         if (this->WsConnectedClientsForBroadcast.size() == 1) {
-          mb->setWebSocketCallback([this](const String& message) {
+          mb->setWebSocketCallback([this](String& message) {
             this->sendWebSocketMessage(message);
           });
         }
@@ -187,12 +193,14 @@ void MyWebServer::onImprovWiFiConnectedCb(const char *ssid, const char *password
   Config->log(1, "WebServer has been started now ...");
 }
 
-void MyWebServer::sendWebSocketMessage(const String& message) {
+void MyWebServer::sendWebSocketMessage(String& message) {
   // send message to all connected clients in the list WsConnectedClientsForBroadcast
-  for (auto clientid : WsConnectedClientsForBroadcast) {
-    if (ws->client(clientid)) {
-      Config->log(4, "send WebSocket Message to client %u: %s", clientid, message.c_str());
-      ws->text(clientid, message);
+  for (auto client : WsConnectedClientsForBroadcast) {
+    if (ws->client(client.id)) {
+      message = message.substring(0, message.length()-1) + "," + client.json.substring(1, client.json.length()-1);
+
+      Config->log(4, "send WebSocket Message to client %u: %s", client.id, message.c_str());
+      ws->text(client.id, message);
     }
   }
     
@@ -258,12 +266,8 @@ bool MyWebServer::handleReset() {
 }
 
 void MyWebServer::handleWiFiReset() {
-  #ifdef ESP32
-    WiFi.disconnect(true,true);
-    //mqtt->improvSerial->resetWiFi();  // TODO: function in improvSerial to delete wifi credentials, needed?
-  #elif defined(ESP8266)  
-    ESP.eraseConfig();
-  #endif
+  WiFi.disconnect(true,true);
+  mqtt->improvSerial.deleteWiFiCredentials();
 }
 
 void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {

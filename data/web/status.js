@@ -70,13 +70,21 @@ function MyCallback(json) {
   fetch('/getitems')
     .then(response => response.json())
     .then(data => {
-        global.handleJsonItems(data);
+        global.handleJsonItems(ReduceJsonOnlyActiveItems(data));
     })
     .catch(error => console.error('Error fetching items:', error));
 
   RefreshLiveData();
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
+}
+
+// ************************************************
+function ReduceJsonOnlyActiveItems(json) {
+  if (json.data && json.data.items) {
+    json.data.items = json.data.items.filter(item => item.active && item.active.checked !== 0);
+  }
+  return json;
 }
 
 // ************************************************

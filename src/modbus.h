@@ -62,7 +62,7 @@ class modbus {
     void                    ReceiveMQTT(String topic, int msg);
 
     // Callback setzen
-    void setWebSocketCallback(std::function<void(const String&)> callback);
+    void setWebSocketCallback(std::function<void(String&)> callback);
     void deleteWebSocketCallback() { webSocketCallback = nullptr; }
 
   private:
@@ -133,7 +133,7 @@ class modbus {
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<std::vector<byte>>*  Conf_RequestIdData;
 
-    std::function<void(const String&)> webSocketCallback; // Callback-Funktion
+    std::function<void(String&)> webSocketCallback; // Callback-Funktion
 
 		uint8_t                 Conf_ClientIdPos;
     //uint8_t                 Conf_LiveDataStartsAtPos;

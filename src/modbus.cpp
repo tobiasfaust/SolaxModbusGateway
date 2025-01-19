@@ -82,7 +82,7 @@ void modbus::init(bool firstrun) {
 /*******************************************************
 * set websocket callback
 ********************************************************/
-void modbus::setWebSocketCallback(std::function<void(const String&)> callback) {
+void modbus::setWebSocketCallback(std::function<void(String&)> callback) {
     webSocketCallback = callback;
 }
 
@@ -97,7 +97,8 @@ void modbus::ReadRelays() {
   this->mqtt->Publish_Int("relay2", this->state_Relay2, false);
 
   if (webSocketCallback) {
-    webSocketCallback(String("{\"data-id\": {\"relay1.value\":\"" + String(this->state_Relay1?"On":"Off") + "\",\"relay2.value\":\"" + String(this->state_Relay2?"On":"Off") + "\"}}"));
+    String message = "{\"data-id\": {\"relay1.value\":\"" + String(this->state_Relay1?"On":"Off") + "\",\"relay2.value\":\"" + String(this->state_Relay2?"On":"Off") + "\"}}";
+    webSocketCallback(message);
   }
 }
 

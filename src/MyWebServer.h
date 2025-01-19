@@ -24,11 +24,16 @@
 
 class MyWebServer {
 
+  typedef struct {
+    uint32_t id;
+    String   json;
+  } WsConnClient_t;
+
   public:
     MyWebServer(AsyncWebServer *server, DNSServer* dns);
 
     void      loop();
-    void      sendWebSocketMessage(const String& message);
+    void      sendWebSocketMessage(String& message);
 
   private:
     
@@ -36,7 +41,7 @@ class MyWebServer {
     bool      DoWiFiReset;
     uint64_t  RequestRebootTime;
 
-    std::vector<uint32_t>  WsConnectedClientsForBroadcast = {};
+    std::vector<WsConnClient_t>  WsConnectedClientsForBroadcast = {};
     
     AsyncWebServer* server;
     DNSServer* dns;
