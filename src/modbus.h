@@ -29,9 +29,9 @@ class modbus {
   typedef struct {
     //String command = ""; // is the "name" of the setter
     String Name;
-    String RealName;
-    String info;
-    bool active;
+    String RealName = "";
+    String info = "";
+    bool active = false;
     std::vector<byte> request; 
   } subscription_t;
 

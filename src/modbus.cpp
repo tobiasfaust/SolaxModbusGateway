@@ -12,6 +12,7 @@ modbus::modbus(): enableRelays(false),
                   LastTxInverter(0),
                   Conf_OpenWBModulID(1),
                   Conf_OpenWBBatteryID(2) { 
+  
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -114,7 +115,7 @@ String modbus::GetMqttSetTopic(String command) {
 }
 
 /*******************************************************
- * subscribe to all possible "set" register (register.h)
+ * subscribe to all possible "set" register
 *******************************************************/
 void modbus::GenerateMqttSubscriptions() {
   // clear vector
@@ -127,6 +128,7 @@ void modbus::GenerateMqttSubscriptions() {
   regfile.find(streamString.c_str());
   streamString = "\"set\": [";
   regfile.find(streamString.c_str());
+
   do {
     JsonDocument elem;
     DeserializationError error = deserializeJson(elem, regfile); 
@@ -149,8 +151,6 @@ void modbus::GenerateMqttSubscriptions() {
         // optional field
         if(!elem["info"].isNull()) {
           s.info = elem["info"].as<String>();
-        } else {
-          s.info = s.Name;
         }
 
         s.active = false; // set initial, set to the right value when loading modbusitemconfig.json
