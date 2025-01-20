@@ -17,7 +17,7 @@ function GetInitData() {
   var data = {};
   data.action = "GetSetterData";
   data.subaction = "all";
-  requestData(JSON.stringify(data), false, MyCallback);
+  requestData(JSON.stringify(data));
 }
 
 // ************************************************

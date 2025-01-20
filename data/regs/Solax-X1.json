@@ -515,13 +515,26 @@
           ]
       },
       "set": [
+        {
+            "name": "setUnlockSettings",
+            "realname": "Unlock Settings",
+            "info": "send the 4 digit advanced password",
+            "request": [
+              "#ClientID",
+              "0x06",
+              "0x00",
+              "0x00"
+            ]
+          },
           {
-              "name": "TargetBatSOC",
-              "request": [
-                  "#ClientID",
-                  "0x06",
-                  "0x00",
-                  "0x83"
+            "name": "setTargetBatSOC",
+            "realname": "Target SoC",
+            "info": "set 0 - 100 in percent",
+            "request": [
+                "#ClientID",
+                "0x06",
+                "0x00",
+                "0x83"
               ]
           }
       ]
