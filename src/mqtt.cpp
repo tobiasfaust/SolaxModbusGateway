@@ -1,25 +1,27 @@
-#include "mqtt.h"
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
 
-MQTT::MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot, char* APName, char* APpassword): 
-  improvSerial(&Serial),
-  mqtt_root(MqttRoot), 
-  mqtt_basepath(MqttBasepath), 
-  ConnectStatusWifi(false), 
-  ConnectStatusMqtt(false)
-{ 
-  
+#include <mqtt.h>
+
+MQTT::MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, String MqttRoot):
+          improvSerial(&Serial),
+          mqtt_root(MqttRoot),
+          mqtt_basepath(MqttBasepath),
+          ConnectStatusWifi(false),
+          ConnectStatusMqtt(false) {
   this->subscriptions = new std::vector<String>{};
- 
+
   WiFi.setHostname(this->mqtt_root.c_str());
 
-#ifdef ESP32  
+#ifdef ESP32
   WiFi.onEvent(std::bind(&MQTT::WifiOnEvent, this, std::placeholders::_1));
 #endif
 
   Config->log(3, "Go into %s Mode", (Config->GetUseETH()?"ETH":"Wifi"));
 
   ImprovTypes::ChipFamily variant;
-  
+
 #ifdef ESP32
   String variantString = ARDUINO_VARIANT;
 #else
@@ -38,21 +40,26 @@ MQTT::MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, Strin
       variant = ImprovTypes::ChipFamily::CF_ESP32;
   }
 
-  improvSerial.setDeviceInfo(variant, String(GIT_REPO).c_str(), Config->GetReleaseName().c_str(), Config->GetMqttRoot().c_str());
-  improvSerial.onImprovError(std::bind(&MQTT::onImprovWiFiErrorCb, this, std::placeholders::_1));
-  
+  improvSerial.setDeviceInfo(variant,
+                             String(GIT_REPO).c_str(),
+                             Config->GetReleaseName().c_str(),
+                             Config->GetMqttRoot().c_str());
+  improvSerial.onImprovError(std::bind(&MQTT::onImprovWiFiErrorCb,
+                             this,
+                             std::placeholders::_1));
+
   if (Config->GetUseETH()) {
     #ifdef ESP32
       eth_shield_t* shield = this->GetEthShield(Config->GetLANBoard());
-      
-      //ETH.begin(1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN);
+
+      // ETH.begin(1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN);
       ETH.begin(shield->PHY_ADDR,
                 shield->PHY_POWER,
                 shield->PHY_MDC,
                 shield->PHY_MDIO,
                 shield->PHY_TYPE,
                 shield->CLK_MODE);
-    
+
       this->WaitForConnect();
     #endif
 
@@ -65,17 +72,16 @@ MQTT::MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, Strin
 
   Config->log(1, "Initializing MQTT (%s:%d)", Config->GetMqttServer().c_str(), Config->GetMqttPort());
   espClient = WiFiClient();
-  
+
   PubSubClient::setClient(espClient);
   PubSubClient::setServer(Config->GetMqttServer().c_str(), Config->GetMqttPort());
 }
 
-void MQTT::onImprovWiFiErrorCb(ImprovTypes::Error err)
-{
-  if(err == ImprovTypes::Error::ERROR_WIFI_DISCONNECTED) {
+void MQTT::onImprovWiFiErrorCb(ImprovTypes::Error err) {
+  if (err == ImprovTypes::Error::ERROR_WIFI_DISCONNECTED) {
     this->disconnect();
   }
-  if(err == ImprovTypes::Error::ERROR_WIFI_CONNECT_GIVEUP) {
+  if (err == ImprovTypes::Error::ERROR_WIFI_CONNECT_GIVEUP) {
     Serial.println("Giving up on connecting to WiFi, restart the device");
     ESP.restart();
   }
@@ -86,7 +92,7 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
     Config->log(4, "[WiFi-event] event: %d", event);
 
     switch (event) {
-        case ARDUINO_EVENT_WIFI_READY: 
+        case ARDUINO_EVENT_WIFI_READY:
             Config->log(1, "WiFi interface ready");
             break;
         case ARDUINO_EVENT_WIFI_SCAN_DONE:
@@ -116,7 +122,7 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
         case ARDUINO_EVENT_WIFI_STA_LOST_IP:
             Config->log(1, "Lost IP address and IP address is reset to 0");
             this->ConnectStatusWifi = false;
-            this->ipadresse = (0,0,0,0);
+            this->ipadresse = (0, 0, 0, 0);
             break;
         case ARDUINO_EVENT_WPS_ER_SUCCESS:
             Config->log(1, "WiFi Protected Setup (WPS): succeeded in enrollee mode");
@@ -169,16 +175,15 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
         case ARDUINO_EVENT_ETH_DISCONNECTED:
             Config->log(1, "Ethernet disconnected");
             this->ConnectStatusWifi = false;
-            this->ipadresse = (0,0,0,0);
+            this->ipadresse = (0, 0, 0, 0);
             break;
         case ARDUINO_EVENT_ETH_GOT_IP:
             if (!this->ConnectStatusWifi) {
-              Config->log(1, "ETH MAC: %s, IPv4: %s, %s, Mbps: %d", 
-                ETH.macAddress().c_str(), 
+              Config->log(1, "ETH MAC: %s, IPv4: %s, %s, Mbps: %d",
+                ETH.macAddress().c_str(),
                 ETH.localIP().toString().c_str(),
                 (ETH.fullDuplex()?"FULL_DUPLEX":"HALF_DUPLEX"),
-                ETH.linkSpeed()
-              );
+                ETH.linkSpeed());
               this->ipadresse = ETH.localIP();
               this->ConnectStatusWifi = true;
             }
@@ -192,8 +197,8 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
 return LanShield parameter tuple 
 ########################################*/
 eth_shield_t* MQTT::GetEthShield(String ShieldName) {
-  for(uint8_t i=0; i<this->lan_shields.size(); i++) {
-    if(this->lan_shields.at(i).name == ShieldName) {
+  for (uint8_t i = 0; i < this->lan_shields.size(); i++) {
+    if (this->lan_shields.at(i).name == ShieldName) {
       return &this->lan_shields.at(i);
       break;
     }
@@ -204,8 +209,7 @@ eth_shield_t* MQTT::GetEthShield(String ShieldName) {
 void MQTT::WaitForConnect() {
   while (!this->ConnectStatusWifi)
     delay(100);
-    Config->log(1, "Wait for connect");    
-    //yield();
+    Config->log(1, "Wait for connect");
 }
 
 void MQTT::reconnect() {
@@ -213,27 +217,33 @@ void MQTT::reconnect() {
   char LWT[50];
   memset(&LWT[0], 0, sizeof(LWT));
   memset(&topic[0], 0, sizeof(topic));
-  
-  if (Config->UseRandomMQTTClientID()) { 
+
+  if (Config->UseRandomMQTTClientID()) {
     snprintf (topic, sizeof(topic), "%s-%s", this->mqtt_root.c_str(), String(random(0xffff)).c_str());
   } else {
     snprintf (topic, sizeof(topic), "%s-%08X", this->mqtt_root.c_str(), ESP_getChipId());
   }
   snprintf(LWT, sizeof(LWT), "%s/state", this->mqtt_root.c_str());
-  
+
   Config->log(1, "Attempting MQTT connection as %s ", topic);
-  
-  if (PubSubClient::connect(topic, Config->GetMqttUsername().c_str(), Config->GetMqttPassword().c_str(), LWT, true, false, "Offline")) {
+
+  if (PubSubClient::connect(topic,
+                            Config->GetMqttUsername().c_str(),
+                            Config->GetMqttPassword().c_str(),
+                            LWT,
+                            true,
+                            false,
+                            "Offline")) {
     Config->log(1, "connected... ");
     // Once connected, publish basics ...
     this->Publish_IP();
     this->Publish_String("ssid", WiFi.SSID(), false);
     this->Publish_String("version", Config->GetReleaseName(), false);
-    this->Publish_String("state", "Online", false); //LWT reset
-    
+    this->Publish_String("state", "Online", false);  // LWT reset
+
     // ... and resubscribe if needed
     for (uint8_t i=0; i< this->subscriptions->size(); i++) {
-      PubSubClient::subscribe(this->subscriptions->at(i).c_str()); 
+      PubSubClient::subscribe(this->subscriptions->at(i).c_str());
       Config->log(1, "MQTT resubscribed to: %s", this->subscriptions->at(i).c_str());
     }
 
@@ -247,13 +257,13 @@ void MQTT::disconnect() {
 }
 
 void MQTT::Publish_Bool(const char* subtopic, bool b, bool fulltopic) {
-  String s;
-  if(b) {s = "1";} else {s = "0";};
+  String s("");
+  if (b) {s = "1";} else {s = "0";}
   Publish_String(subtopic, s, fulltopic);
 }
 
 void MQTT::Publish_Int(const char* subtopic, int number, bool fulltopic) {
-  char buffer[20] = {0}; 
+  char buffer[20] = {0};
   memset(buffer, 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%d", number);
   Publish_String(subtopic, (String)buffer, fulltopic);
@@ -272,7 +282,7 @@ void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
   if (PubSubClient::connected()) {
     PubSubClient::publish((const char*)topic.c_str(), value.c_str(), true);
     Config->log(3, "Publish %s: %s ", topic.c_str(), value.c_str());
-  } else Config->log(2, "Request for MQTT Publish, but not connected to Broker");
+  } else { Config->log(2, "Request for MQTT Publish, but not connected to Broker"); }
 }
 
 String MQTT::getTopic(String subtopic, bool fulltopic) {
@@ -282,7 +292,7 @@ String MQTT::getTopic(String subtopic, bool fulltopic) {
   return std::move(subtopic);
 }
 
-void MQTT::Publish_IP() { 
+void MQTT::Publish_IP() {
   char buffer[16] = {0};
   memset(&buffer[0], 0, sizeof(buffer));
   snprintf(buffer, sizeof(buffer), "%s", this->ipadresse.toString().c_str());
@@ -305,7 +315,7 @@ bool MQTT::UnSubscribe(String topic) {
   for (uint8_t i=0; i< this->subscriptions->size(); i++) {
     if (topic == this->subscriptions->at(i)) {
       if (PubSubClient::connected()) {
-        PubSubClient::unsubscribe(this->subscriptions->at(i).c_str()); 
+        PubSubClient::unsubscribe(this->subscriptions->at(i).c_str());
       }
       Config->log(3, "MQTT unsubscribed from: %s", this->subscriptions->at(i).c_str());
       this->subscriptions->erase(this->subscriptions->begin()+i);
@@ -317,16 +327,16 @@ bool MQTT::UnSubscribe(String topic) {
 }
 
 void MQTT::ClearSubscriptions() {
-  for ( uint8_t i=0; i< this->subscriptions->size(); i++) {
-    if (PubSubClient::connected()) { 
-      PubSubClient::unsubscribe(this->subscriptions->at(i).c_str()); 
+  for (uint8_t i = 0; i < this->subscriptions->size(); i++) {
+    if (PubSubClient::connected()) {
+      PubSubClient::unsubscribe(this->subscriptions->at(i).c_str());
     }
   }
   this->subscriptions->clear();
   this->subscriptions->shrink_to_fit();
 }
 
-void MQTT::loop() { 
+void MQTT::loop() {
   improvSerial.loop();
 
   #ifdef ESP8266
@@ -335,12 +345,14 @@ void MQTT::loop() {
       this->ipadresse = WiFi.localIP();
     } else {
       this->ConnectStatusWifi = false;
-      this->ipadresse = (0,0,0,0);
+      this->ipadresse = (0, 0, 0, 0);
     }
   #endif
 
   if (this->mqtt_root != Config->GetMqttRoot()) {
-    Config->log(3, "MQTT DeviceName has changed via Web Configuration from %s to %s ", this->mqtt_root.c_str(), Config->GetMqttRoot().c_str());
+    Config->log(3, "MQTT DeviceName has changed via Web Configuration from %s to %s ",
+                    this->mqtt_root.c_str(),
+                    Config->GetMqttRoot().c_str());
     Config->log(3, "Initiate Reconnect");
 
     this->mqtt_root = Config->GetMqttRoot();
@@ -348,7 +360,9 @@ void MQTT::loop() {
   }
 
   if (this->mqtt_basepath != Config->GetMqttBasePath()) {
-    Config->log(3, "MQTT Basepath has changed via Web Configuration from %s to %s ", this->mqtt_basepath.c_str(), Config->GetMqttBasePath().c_str());
+    Config->log(3, "MQTT Basepath has changed via Web Configuration from %s to %s ",
+                    this->mqtt_basepath.c_str(),
+                    Config->GetMqttBasePath().c_str());
     Config->log(3, "Initiate Reconnect");
 
     this->mqtt_basepath = Config->GetMqttBasePath();
@@ -356,12 +370,12 @@ void MQTT::loop() {
   }
 
   // WIFI ok, MQTT lost
-  if (!PubSubClient::connected() && this->ConnectStatusWifi) { 
+  if (!PubSubClient::connected() && this->ConnectStatusWifi) {
     if (millis() - mqttreconnect_lasttry > 10000) {
-      this->reconnect(); 
+      this->reconnect();
       this->mqttreconnect_lasttry = millis();
     }
-  } else if (this->ConnectStatusWifi) {     
+  } else if (this->ConnectStatusWifi) {
     PubSubClient::loop();
   }
 
@@ -374,7 +388,7 @@ void MQTT::loop() {
   if (Config->GetDebugLevel() >=4 && millis() - this->last_keepalive > (30 * 1000))  {
     // send messages for debugging every 30 seconds
     this->last_keepalive = millis();
-    
+
     if (Config->GetDebugLevel() >=4) {
       char buffer[100] = {0};
       memset(buffer, 0, sizeof(buffer));
@@ -384,10 +398,10 @@ void MQTT::loop() {
 
       snprintf(buffer, sizeof(buffer), "%d", WiFi.RSSI());
       this->Publish_String("rssi", buffer, false);
-      
+
       uint64_t uptimeMicroSeconds = esp_timer_get_time();
       uint64_t uptimeSeconds = uptimeMicroSeconds / 1000000;
-      this->Publish_Int("uptime",uptimeSeconds,false);
+      this->Publish_Int("uptime", uptimeSeconds, false);
     }
   }
 }

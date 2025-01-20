@@ -4,8 +4,17 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
     <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
-    <script language='javascript' type='text/javascript' src='/web/status.js'></script>
+    <script language='javascript' type='module' src='/web/Javascript.js'></script>
+    <script language='javascript' type='module' src='/web/status.js'></script>
+
+    <script type='module'>
+      import { init, DoReboot, DoReset } from './status.js';
+      window.DoReboot = DoReboot;
+      window.DoReset = DoReset;
+
+      window.addEventListener('DOMContentLoaded', init, false);
+    </script>
+
     <title>status</title>
   </head>
   <body>
@@ -86,7 +95,7 @@
         <tr>
           <td>Device Reboot</td>
           <td>
-            <button class='button' onclick='window.location.href="/reboot"'>Reboot</button>
+            <button class='button' onclick='DoReboot()'>Reboot</button>
           </td>
         </tr>
 
@@ -97,12 +106,6 @@
           </td>
         </tr>
 
-        <tr>
-          <td>WiFi Zugangsdaten entfernen</td>
-          <td>
-            <button class="button" onclick="document.getElementById('confirmWiFiReset').classList.remove('hide')">WifiReset</button>
-          </td>
-        </tr>
       </tbody>
     </table> 
 
@@ -123,15 +126,20 @@
         </template>
       </tbody>
     </table>
+
     <div id="confirmReset" class="hide" style="position: fixed; top: 30%; left: 50%; width: 300px; height: 100px; margin-top: -50px; margin-left: -150px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
       <p>Are you sure you want to reset?</p>
       <button class="button" onclick="document.getElementById('confirmReset').classList.add('hide')">Cancel</button>
-      <button class="button" onclick="window.location.href='/reset'">Confirm</button>
+      <button class="button" onclick="DoReset()">Confirm</button>
     </div>
-    <div id="confirmWiFiReset" class="hide" style="position: fixed; top: 30%; left: 50%; width: 300px; height: 100px; margin-top: -50px; margin-left: -150px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
-      <p>Are you sure you want to reset WiFi Credentials?</p>
-      <button class="button" onclick="document.getElementById('confirmWiFiReset').classList.add('hide')">Cancel</button>
-      <button class="button" onclick="window.location.href='/wifireset'">Confirm</button>
+    
+    <br>
+    <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
+      <div style="font-size: 10px; float: right;">
+        Connection Status:
+        <span id="ws-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: red; margin-right: 25px; margin-top: 7px;"></span>
+      </div>
+      <span style="float: left; margin-top: 2px;" id='response'>x</span>
     </div>
   </body>
 </html>

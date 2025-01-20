@@ -1,20 +1,32 @@
+import * as global from './Javascript.js';
+
 // ************************************************
-window.addEventListener('load', init, false);
-function init() {
-  GetInitData();
+export function init() {
+  // Initiale Verbindung aufbauen
+  global.connectWebSocket();
+
+  // Warte bis die WebSocket-Verbindung aufgebaut ist
+  let checkWebSocketInterval = setInterval(() => {
+    if (global.ws && global.ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWebSocketInterval);
+      GetInitData();
+    }
+  }, 100);
 }
 
 // ************************************************
 function GetInitData() {
   var data = {};
-  data['action'] = "GetInitData";
-  data['subaction'] = "navi";
-  requestData(JSON.stringify(data));
+  data['cmd'] = {};
+  data['cmd']['action'] = "GetInitData";
+  data['cmd']['subaction'] = "navi";
+
+  global.requestData(data);
 }
 
 // ************************************************
-function highlightNavi(item) {
-  collection = document.getElementsByName('navi')
+export function highlightNavi(item) {
+  const collection = document.getElementsByName('navi')
   
   for (let i = 0; i < collection.length; i++) {
     if (item.id == collection[i].id ) {

@@ -4,8 +4,16 @@
   <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
   <meta charset='utf-8'>
   <link rel='stylesheet' type='text/css' href='Style.css'>
-  <script language='javascript' type='text/javascript' src='Javascript.js'></script>
-  <script language='javascript' type='text/javascript' src='navi.js'></script>
+  <script language='javascript' type='module' src='Javascript.js'></script>
+  <script language='javascript' type='module' src='navi.js'></script>
+  
+  <script type='module'>
+    import { init, highlightNavi } from './navi.js';
+    window.highlightNavi = highlightNavi;
+
+    window.addEventListener('load', init, false);
+  </script>
+
   <title>Modbus MQTT Gateway</title>
 </head>
 <body>

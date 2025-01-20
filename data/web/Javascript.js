@@ -17,9 +17,9 @@
  * Definition of constants
  *****************************************************************************************/
 
-const gpio_disabled = [];
+export const gpio_disabled = [];
 
-const gpio = [  {port: 1,  name:'D1/TX0'},
+export const gpio = [  {port: 1,  name:'D1/TX0'},
                 {port: 2 , name:'D2'},
                 {port: 3,  name:'D3/RX0'},
                 {port: 4 , name:'D4'},
@@ -51,7 +51,7 @@ const gpio = [  {port: 1,  name:'D1/TX0'},
                 {port: 39, name:'D39'}
               ];
 
-const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
+export const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                   {port: 37, name:'ADC1_CH1 - GPIO37'},
                   {port: 38, name:'ADC1_CH2 - GPIO38'},
                   {port: 39, name:'ADC1_CH3 - GPIO39'},
@@ -71,14 +71,97 @@ const gpioanalog = [  {port: 36, name:'ADC1_CH0 - GPIO36'},
                   {port: 26, name:'ADC2_CH9 - GPIO26'}
                ];
 
+import { functionMap as statusFunctionMap } from './status.js';
+import { functionMap as baseconfigFunctionMap } from './baseconfig.js';
+import { functionMap as mbconfigFunctionMap } from './modbusconfig.js';
+import { functionMap as mbitemconfigFunctionMap } from './modbusitemconfig.js';
+import { functionMap as rawdataFunctionMap } from './rawdata.js';
+import { functionMap as filesFunctionMap } from './handlefiles.js';
+
+const combinedFunctionMap = {
+  ...statusFunctionMap,
+  ...baseconfigFunctionMap,
+  ...mbconfigFunctionMap,
+  ...mbitemconfigFunctionMap,
+  ...rawdataFunctionMap,
+  ...filesFunctionMap
+};
+
+export let ws;    // websocket handle
+var datavalues;   // form data values as string to check, if "needToSave" Dialog should be shown
+
 var timer; // ID of setTimout Timer -> setResponse
+let reconnectInterval = 5000; // 5 seconds interval to reconnect websocket connection
+
+/******************************************************************************************
+ * Connect to WebSocket server
+ * *****************************************************************************************/
+export function connectWebSocket() {
+  window.addEventListener('beforeunload', function() {
+    if (ws) {
+      ws.close();
+    }
+  }, false);
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      if (!ws || ws.readyState === WebSocket.CLOSED) {
+        console.log('Reconnecting WebSocket due to visibility change');
+        connectWebSocket();
+      }
+    } else {
+      if (ws) {
+        console.log('Closing WebSocket due to visibility change');
+        ws.close();
+      }
+    }
+  });
+
+  if (document.visibilityState != 'visible') {
+    console.log('Not connecting WebSocket due to visibility state:', document.visibilityState);
+    return;
+  }
+
+  //ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  ws = new WebSocket('ws://10.0.2.150/ajaxws'); 
+  var wsStatus = document.getElementById('ws-status');
+
+  ws.onopen = function() {
+    console.log('WebSocket connection opened');
+    if (wsStatus) wsStatus.style.backgroundColor = 'green';
+  };
+
+  ws.onmessage = function(event) {
+    //try {
+      const json = JSON.parse(event.data);
+      console.log('Received JSON:', json);
+      handleJsonItems(json);
+    //} catch (e) {
+    //  console.error('Invalid JSON received:', event.data);
+    //}
+  };
+
+  ws.onclose = function() {
+    console.log('WebSocket connection closed, attempting to reconnect in ' + reconnectInterval / 1000 + ' seconds');
+    if (wsStatus) wsStatus.style.backgroundColor = 'yellow';
+    setTimeout(connectWebSocket, reconnectInterval);
+  };
+
+  ws.onerror = function(error) {
+    console.error('WebSocket error:', error);
+    if (wsStatus) wsStatus.style.backgroundColor = 'red';
+    ws.close();
+  };
+}
+
+
 
 /******************************************************************************************
  * activate all radioselections after pageload to hide unnecessary elements
  * Works for all checkbox and radio elements with onclick="radioselection(show, hide)"
  * 
  ******************************************************************************************/
-function handleRadioSelections() {
+export function handleRadioSelections() {
   var radios = document.querySelectorAll('input[type=radio][onclick*=radioselection]:checked');
   for (var i = 0; i < radios.length; i++) {
     if (radios[i].onclick) {
@@ -103,25 +186,45 @@ function handleRadioSelections() {
 }
 
 /*****************************************************************************************
- * central function to initiate data fetch
+ * central function to send data to server
  * @param {*} json -> json object to send
  * @param {*} highlight -> highlight on/off
  * @param {*} callbackFn -> callback function to call after data is fetched
  * @returns {*} void
 ******************************************************************************************/
-
-function requestData(json, highlight, callbackFn) {
-  const data = new URLSearchParams();
-  data.append('json', json);
-
-  fetch('/ajax', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: data
-  })
-  .then (response => response.json())
-  .then (json =>  { handleJsonItems(json, highlight, callbackFn)}); 
+export function requestData(json) {
+  if (typeof ws !== 'undefined' && ws.readyState === WebSocket.OPEN) {
+    console.log('WebSocket is open, sending data:', json);
+    ws.send(JSON.stringify(json));
+  } else {
+    console.log('WebSocket not open');
+    setResponse(false, 'WebSocket not open, could not send data');
+  }
 }
+
+/*****************************************************************************************
+ * @description This function updated values according their data-id in DOM elements.
+ * @param {*} json: JSON object containing the data-id values to update
+ * @param {*} highlight: boolean value to highlight the updated elements
+ * @returns {*} void
+ * @example updateDataID({"data-id":{"InverterSN.value":"123456789"}}, true)
+ * *****************************************************************************************/
+function updateDataID(json, highlight) {
+  if (json["data-id"]) {
+    for (const key in json["data-id"]) {
+      const elements = document.querySelectorAll(`[data-id="${key}"]`);
+      elements.forEach(element => {
+        element.innerHTML = json["data-id"][key];
+        if (highlight && element.classList.contains('ajaxchange')) { 
+        	element.classList.add('highlightOn');
+          setTimeout(function() {document.getElementById(element.id).classList.remove('highlightOn')}, 1000);
+        }
+        
+      });
+    }
+  }
+}
+
 
 /*****************************************************************************************
  *
@@ -140,13 +243,10 @@ function applyKey (_obj, _key, _val, counter, tplHierarchie, highlight) {
 	  if (['SPAN', 'DIV', 'TD', 'DFN'].includes(_obj.tagName)) {
       if (highlight && _obj.classList.contains('ajaxchange')) {
         _obj.classList.add('highlightOn');
-        _obj.innerHTML = _val;
-      } if (!highlight && _obj.classList.contains('ajaxchange')) {
-         _obj.classList.remove('highlightOn');
-         _obj.innerHTML = _val;
-      } else {
-        _obj.innerHTML = _val;
-      }
+        setTimeout(function() {document.getElementById(_obj.id).classList.remove('highlightOn')}, 1000);
+      }  
+      _obj.innerHTML = _val;
+
     } else if (_obj.tagName == 'INPUT' && ['checkbox','radio'].includes(_obj.type)) {
       if (_val == true) _obj.checked = true;
     } else if (_obj.tagName == 'OPTION') {
@@ -155,8 +255,17 @@ function applyKey (_obj, _key, _val, counter, tplHierarchie, highlight) {
       _obj.value = _val;
     }
   } else {
-  	// using parenet object 
-    _obj[_key] = _val;
+  	// using parent object 
+    if (_key in _obj) {
+      if (highlight && _obj.classList.contains('ajaxchange')) { 
+        _obj.classList.add('highlightOn'); 
+        setTimeout(function() {document.getElementById(_obj.id).classList.remove('highlightOn')}, 1000);
+      }
+      
+      _obj[_key] = _val;
+    } else {
+      _obj.setAttribute(_key, _val);
+    }
   }
 }
 
@@ -255,9 +364,35 @@ function applyTemplate(TemplateJson, templateID, doc, tplHierarchie, highlight) 
   }
 }
 
-function handleJsonItems(json, highlight, callbackFn) {
+/*****************************************************************************************
+ * apply Javascript variables to the window object from a JSON object
+ * @param {*} json: JSON object containing the variables to apply
+ * @returns {*} void
+ * @example applyJS({"myVar": "myValue"})
+ * *****************************************************************************************/
+function applyJS(json) {
+	for (var key in json) {
+  	window[key] = json[key];
+  }
+}
+
+/*****************************************************************************************
+ * Main function to handle JSON response
+ * @param {*} json: JSON object containing the response data
+ * @returns {*} void
+ * @example handleJsonItems({"data-id": {"InverterSN": "123456789"}, "cmd": {"action": "GetInitData", "subaction": "status", "callbackFn": "MyCallback"}, "
+ *                          "response": {"status": 1, "text": "OK"}})
+ * *****************************************************************************************/
+export function handleJsonItems(json) {
+  const callbackFn = (typeof json['cmd'] !== 'undefined' && typeof json['cmd']['callbackFn'] !== 'undefined') ? json['cmd']['callbackFn'] : undefined; 
+  const highlight = (typeof json['cmd'] !== 'undefined' && typeof json['cmd']['highlight'] !== 'undefined') ? json['cmd']['highlight'] : false;
+
   if ("data" in json) {
     applyKeys(json.data, document, undefined, undefined, '', highlight);
+  }
+
+  if ('js' in json) { 
+  	applyJS(json.js);
   }
 
   if ('response' in json) {
@@ -267,8 +402,14 @@ function handleJsonItems(json, highlight, callbackFn) {
     } catch(e) {setResponse(false, 'unknow error');}
   }
 
+  if ("data-id" in json) {
+    updateDataID(json, highlight);
+  }
+
 	// DOM objects now ready
-  if (callbackFn) {callbackFn();}
+  if (callbackFn && typeof combinedFunctionMap[callbackFn] === 'function') {
+    combinedFunctionMap[callbackFn](json);
+  }
 }
 
 /*****************************************************************************************
@@ -276,7 +417,7 @@ function handleJsonItems(json, highlight, callbackFn) {
  * @param {*} b (bool):  true = OK; false = Error
  * @param {*} s (String): text to show
 *****************************************************************************************/
-function setResponse(b, s) {
+export function setResponse(b, s) {
   try {
   	// clear if previous timer still run
     clearTimeout(timer);
@@ -294,17 +435,14 @@ function setResponse(b, s) {
 }
 
 /******************************************************************************************
-#
-# definition of creating selectionlists from input fields
-# querySelector -> select input fields to convert
-# jsonLists -> define multiple predefined lists to set as option as array
-# blacklist -> simple list of ports (numbers) to set as disabled option 
-#
-# example: 
-# CreateSelectionListFromInputField('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]', 
-#                                    [gpio, gpio_analog], gpio_disabled);
+ * definition of creating selectionlists from input fields
+ * @param {*} querySelector -> select input fields to convert
+ * @param {*} jsonLists -> define multiple predefined lists to set as option as array
+ * @param {*}blacklist -> simple list of ports (numbers) to set as disabled option 
+ * @example 
+ * CreateSelectionListFromInputField('input[type=number][id^=AllePorts], input[type=number][id^=GpioPin]', [gpio, gpio_analog], gpio_disabled);
 ******************************************************************************************/
-function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) {
+export function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) {
 	var _parent, _select, _option, i, j, k;
   var objects = document.querySelectorAll(querySelector);
   for( j=0; j< objects.length; j++) {
@@ -312,8 +450,8 @@ function CreateSelectionListFromInputField(querySelector, jsonLists, blacklist) 
     _select = document.createElement('select');
     _select.id = objects[j].id;
     _select.name = objects[j].name;
-    for ( k = 0; k < jsonLists.length; k += 1 ) {  
-      for ( i = 0; i < jsonLists[k].length; i += 1 ) {
+    for ( k = 0; k < jsonLists.length; k++ ) {  
+      for ( i = 0; i < jsonLists[k].length; i++ ) {
           _option = document.createElement( 'option' );
           _option.value = jsonLists[k][i].port; 
           _option.text  = jsonLists[k][i].name;
@@ -345,7 +483,7 @@ regex of item ID to identify first element in row
   - if set, returned json is an array, all elements per row, example: "^myonoffswitch.*"
   - if emty, all elements at one level together, ONLY for small json´s (->memory issue)
 ****************************************************************************************/
-function onSubmit(DataForm, separator='') {
+export function onSubmit(DataForm, separator='') {
   // init json Objects
   var JsonData, tempData; 
   
@@ -411,19 +549,21 @@ function onSubmit(DataForm, separator='') {
       })
       .then (() => {  
         var data = {};
-        data['action'] = "ReloadConfig";
-        data['subaction'] = filename;
-        requestData(JSON.stringify(data), false);
+        data['cmd'] = {};
+        data['cmd']['action'] = "ReloadConfig";
+        data['cmd']['subaction'] = filename;
+        requestData(data);
       }); 
 }
 
 
 /****************************************************************************************
-blendet Zeilen der Tabelle aus
-  show: Array of shown IDs return true;
-  hide: Array of hidden IDs 
+ * blendet Zeilen der Tabelle aus
+ * @param {*} show: Array of shown IDs return true;
+ * @param {*} hide: Array of hidden IDs 
+ * @example radioselection(["row1", "row2"], ["row3", "row4"])
 ****************************************************************************************/
-function radioselection(show, hide) {
+export function radioselection(show, hide) {
   for(var i = 0; i < show.length; i++){
     if (document.getElementById(show[i])) {document.getElementById(show[i]).style.display = 'table-row';}
   }
@@ -439,7 +579,7 @@ function radioselection(show, hide) {
  * @param {*} hide Array of hidden IDs if checkbox is checked
  * @returns {*} void
  ****************************************************************************************/
-function onCheckboxSelection(checkbox, show, hide) {
+export function onCheckboxSelection(checkbox, show, hide) {
   if (checkbox.checked) {
     radioselection(show, hide);
   } else {
@@ -454,7 +594,7 @@ function onCheckboxSelection(checkbox, show, hide) {
  * For each of these checkboxes, it creates a new div element with the class "onoffswitch", clones the checkbox into this div,
  * and adds a label with the necessary span elements for styling. Finally, it replaces the original checkbox with the new div element.
  ****************************************************************************************/
-function transformCheckboxes() {
+export function transformCheckboxes() {
   // Alle Checkboxen im Dokument suchen deren elternelement kein div mit der Style class "onoffswitch" ist
   const checkboxes = document.querySelectorAll("input[type='checkbox']:not(.onoffswitch-checkbox)");
 
@@ -468,6 +608,7 @@ function transformCheckboxes() {
 
     // Checkbox in das neue Div-Element kopieren
     const newCheckbox = checkboxes[i].cloneNode(true)
+    
     newCheckbox.className = 'onoffswitch-checkbox';
     div.appendChild(newCheckbox);
      
@@ -495,3 +636,47 @@ function transformCheckboxes() {
 
   }
 }
+
+/****************************************************************************************
+ * Get all form data values as a string
+ * @param {*} formElement: id of the form element
+ * 
+ * @returns {*} string containing all form data values
+ * ****************************************************************************************/
+export function getFormData(formElement) {
+  const form = document.getElementById(formElement);
+  if (form) {
+    const formData = new FormData(form);
+    let dataString = '';
+    formData.forEach((value, key) => {
+      dataString += `${key}=${value}|`;
+    });
+    // Remove the last '|' character
+    dataString = dataString.slice(0, -1);
+    return dataString;
+  }
+}
+
+/****************************************************************************************
+ * Show a dialog if the form data has been changed
+ * ****************************************************************************************/
+export function showMustSaveDialog() {
+  if (document.getElementById('needToSave') && datavalues !== getFormData("DataForm")) {
+    document.getElementById('needToSave').classList.remove('hide');
+  } else {
+    document.getElementById('needToSave').classList.add('hide');
+  }
+}
+
+/****************************************************************************************
+ * Initialize the data values in variable "datavalues"
+ * ****************************************************************************************/
+export function initDataValues() {
+  datavalues = getFormData("DataForm");
+  
+  if (document.getElementById('needToSave')) {
+    document.getElementById('needToSave').classList.add('hide');
+  }
+}
+/****************************************************************************************
+****************************************************************************************/

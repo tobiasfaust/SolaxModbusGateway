@@ -3,18 +3,18 @@ Solar Inverter Modbus-RTU Gateway to MQTT
 
 _________________________________________________________________
 |                                                               |
-|       author : Tobias Faust <tobias.faust@gmx.net             |
+|       Copyright [2024] Tobias Faust <tobias.faust@gmx.net     |
 |       Any feedback is welcome                                 |
 |                                                               |
 _________________________________________________________________
  
 */
 
-#include "commonlibs.h"
-#include "modbus.h"
-#include "baseconfig.h"
-#include "mqtt.h"
-#include "MyWebServer.h"
+#include <commonlibs.h>
+#include <modbus.h>
+#include <baseconfig.h>
+#include <mqtt.h>
+#include <MyWebServer.h>
 
 AsyncWebServer server(80);
 DNSServer dns;
@@ -29,11 +29,11 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   Config->log(3, "Message arrived [%s]", topic);
 
   for (unsigned int i = 0; i < length; i++) {
-    msg.concat((char)payload[i]);
+    msg.concat(static_cast<char>(payload[i]));
   }
 
   Config->log(3, "Message: %s", msg.c_str());
-  
+
   mb->ReceiveMQTT(topic, atoi(msg.c_str()));
 }
 
@@ -42,7 +42,10 @@ void setup() {
   Config = new BaseConfig();
 
   #ifndef USE_WEBSERIAL
-    Serial.begin(115200, SERIAL_8N1, Config->GetSerialRx(), Config->GetSerialTx()); // RX, TX, zb.: 33, 32
+    Serial.begin(115200,
+                 SERIAL_8N1,
+                 Config->GetSerialRx(),
+                 Config->GetSerialTx());  // RX, TX, zb.: 33, 32
     Serial.println("");
     Serial.println("ready");
   #endif
@@ -53,22 +56,19 @@ void setup() {
     WebSerial.setBuffer(100);
   #endif
 
-  Config->log(1, "Start of Modbus-RTU MQTT Gateway"); 
+  Config->log(1, "Start of Modbus-RTU MQTT Gateway");
   Config->log(1, "Starting BaseConfig");
-  
+
   Config->log(1, "Starting Wifi and MQTT");
-  mqtt = new MQTT(Config->GetMqttServer().c_str(), 
-                    Config->GetMqttPort(), 
-                    Config->GetMqttBasePath().c_str(), 
-                    Config->GetMqttRoot().c_str(),
-                    (char*)"AP_ModbusGateway",
-                    (char*)"MbMQTTGtw"
-                  );
+  mqtt = new MQTT(Config->GetMqttServer().c_str(),
+                    Config->GetMqttPort(),
+                    Config->GetMqttBasePath().c_str(),
+                    Config->GetMqttRoot().c_str());
   mqtt->setCallback(myMQTTCallBack);
 
   mb = new modbus();
   mb->enableMqtt(mqtt);
-  
+
   Config->log(1, "attempting to start WebServer");
   mywebserver = new MyWebServer(&server, &dns);
 }
@@ -76,8 +76,8 @@ void setup() {
 void loop() {
   mqtt->loop();
   mywebserver->loop();
-  mb->loop(); 
-  
+  mb->loop();
+
   #ifdef USE_WEBSERIAL
     WebSerial.loop();
   #endif

@@ -13,7 +13,7 @@
 #include <sstream>
 #include <openwb.h>
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -26,15 +26,12 @@ class modbus {
       String openwb;
   } reg_t;
 
-  typedef struct { 
-      String Name;
-      String RealName;
-      String info;
-      bool active;
-  } setter_t;
-
   typedef struct {
-    String command = "";
+    //String command = ""; // is the "name" of the setter
+    String Name;
+    String RealName;
+    String info;
+    bool active;
     std::vector<byte> request; 
   } subscription_t;
 
@@ -59,17 +56,19 @@ class modbus {
 
     const String&           GetInverterType()   const {return InverterType.name;}
     const String            GetOpenWbVersion()  const {return Conf_OpenWBVersion;}
-
     void                    enableMqtt(MQTT* object);
-    void                    GetInitData(AsyncResponseStream *response);
-    void                    GetInitRawData(AsyncResponseStream *response);
+    void                    GetInitData(JsonDocument& json);
+    void                    GetInitRawData(JsonDocument& json);
     String                  GetInverterSN();
-
-    void                    GetLiveDataAsJson(AsyncWebServerRequest *request);
-    void                    GetSetterAsJson(AsyncWebServerRequest *request);
-    void                    GetRegisterAsJson(AsyncResponseStream *response);
+    void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
+    void                    GetSetterAsJsonToWebServer(AsyncWebServerRequest *request);
+    void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, int msg);
+
+    // Callback setzen
+    void setWebSocketCallback(std::function<void(String&)> callback);
+    void deleteWebSocketCallback() { webSocketCallback = nullptr; }
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -102,7 +101,6 @@ class modbus {
     std::vector<byte>*      DataFrame;            // storing read results as hexdata to parse
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
-    std::vector<setter_t>*  InverterSetData;     // storing readable results
     std::vector<regfiles_t>* AvailableInverters;   // available inverters from JSON
     std::vector<subscription_t>* Setters;         // available set Options from JSON register 
 
@@ -127,11 +125,11 @@ class modbus {
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
-    void                    LoadSetItems(std::vector<setter_t>* vector);
     String                  MapItem(JsonArray map, String value);
     String                  MapBitwise(JsonArray map, String value);
     String                  ConvertIntToBinaryString(int n, int numBits);
     void                    ReadRelays();
+    void                    SendDataToWebSocket(std::vector<reg_t>* vector);
 
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;
@@ -139,6 +137,9 @@ class modbus {
 
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<std::vector<byte>>*  Conf_RequestIdData;
+
+    std::function<void(String&)> webSocketCallback; // Callback-Funktion
+
 		uint8_t                 Conf_ClientIdPos;
     //uint8_t                 Conf_LiveDataStartsAtPos;
 		//uint8_t                 Conf_IdDataStartsAtPos;

@@ -4,9 +4,21 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
     <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
-     <script language='javascript' type='text/javascript' src='/web/handlefiles.js'></script>
+    <script language='javascript' type='module' src='/web/Javascript.js'></script>
+     <script language='javascript' type='module' src='/web/handlefiles.js'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
+
+    <script type='module'>
+      import { init, listFiles, downloadFile, uploadFile, deleteFile, fetchFile } from './handlefiles.js';
+      window.downloadFile = downloadFile;
+      window.uploadFile = uploadFile;
+      window.deleteFile = deleteFile;
+      window.fetchFile = fetchFile;
+      window.listFiles = listFiles;
+
+      window.addEventListener('DOMContentLoaded', init, false);
+    </script>
+
     <title>HandleFiles</title>
   </head>
   <body>
@@ -48,9 +60,9 @@
         <tr>
           <td colspan='2'>filename:
             <input type='text' id='filename' value='{fullpath}' title='name of file to store'/>
-            <input type='button' style='font-size:18px' class='fa' value='&#xf019' onclick='downloadFile()' title='download to pc'/>
-            <input type='button' onclick='uploadFile()' style='font-size:18px' class='fa' value='&#xf0c7' title='store it'/>
-            <input type='button' onclick="document.getElementById('confirmDeleteFile').classList.remove('hide')" style='font-size:18px' class='fa' value='&#xf014' title='delete it'/>
+            <button type='button' onclick='downloadFile()'style='font-size:18px' class='fa' title='download to pc'>&#xf019</button>
+            <button onclick='uploadFile()' style='font-size:18px' class='fa' title='store it'>&#xf0c7</button>
+            <button onclick="document.getElementById('confirmDeleteFile').classList.remove('hide')" style='font-size:18px' class='fa' title='delete it'>&#xf014</button>
             <span id='response'></span>
           </td>
         </tr>
@@ -60,6 +72,13 @@
       <p>Are you sure you want to delete this file?</p>
       <button class="button" onclick="document.getElementById('confirmDeleteFile').classList.add('hide')">Cancel</button>
       <button class="button" onclick='deleteFile()'>Confirm</button>
+    </div>
+    <p></p>
+    <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
+      <div style="font-size: 10px; float: right;">
+        Connection Status:
+        <span id="ws-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: red; margin-right: 25px; margin-top: 7px;"></span>
+      </div>
     </div>
   </body>
 </html>

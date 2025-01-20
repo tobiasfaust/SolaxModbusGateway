@@ -92,9 +92,7 @@ const String BaseConfig::GetReleaseName() {
   return String(Release) + "(@" + String(GIT_BRANCH) + ")"; 
 }
 
-void BaseConfig::GetInitData(AsyncResponseStream *response) {
-  String ret;
-  JsonDocument json;
+void BaseConfig::GetInitData(JsonDocument& json) {
   json["data"]["mqttroot"]    = this->mqtt_root;
   json["data"]["mqttserver"]  = this->mqtt_server;
   json["data"]["mqttport"]    = this->mqtt_port;
@@ -120,8 +118,6 @@ void BaseConfig::GetInitData(AsyncResponseStream *response) {
 
   json["response"]["status"] = 1;
   json["response"]["text"] = "successful";
-  serializeJson(json, ret);
-  response->print(ret);
 }
 
 void BaseConfig::log(const int loglevel, const char* format, ...) {

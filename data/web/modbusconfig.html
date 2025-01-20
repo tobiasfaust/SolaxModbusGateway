@@ -4,12 +4,31 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
     <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
-    <script language='javascript' type='text/javascript' src='/web/modbusconfig.js'></script>
+    <script language='javascript' type='module' src='/web/Javascript.js'></script>
+    <script language='javascript' type='module' src='/web/modbusconfig.js'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
+    
+    <script type='module'>
+      import { onCheckboxSelection, onSubmit, initDataValues } from './Javascript.js';
+      import { init } from './modbusconfig.js';
+      window.onCheckboxSelection = onCheckboxSelection;
+      window.onSubmit = onSubmit;
+      window.initDataValues = initDataValues;
+
+      window.addEventListener('DOMContentLoaded', init, false);
+    </script>
+
     <title>ModbusConfig</title>
   </head>
   <body>
     <div id="loader"></div>
+    <button onclick="onSubmit('DataForm');initDataValues();" style="position: fixed; top: 0; left: 0;">Save</button>
+    
+    <div id="needToSave" class="hide needToSave">
+      <i class="fa fa-exclamation-triangle" style="color: gold; font-size: 20px;"></i>
+      <span style="font-size: 70%;">Änderungen nicht gespeichert</span>
+    </div>
+
     <form id='DataForm'>
       <table id='maintable' class='editorDemoTable'>
         <thead>
@@ -155,7 +174,12 @@
     </form>
     <br/>
     <br/>
-    <input type='submit' onclick="onSubmit('DataForm')" value='Speichern' />
-    <span id='response'></span>
+    <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
+      <div style="font-size: 10px; float: right;">
+        Connection Status:
+        <span id="ws-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: red; margin-right: 25px; margin-top: 7px;"></span>
+      </div>
+      <span style="float: left; margin-top: 2px;" id='response'>x</span>
+    </div>
   </body>
 </html>

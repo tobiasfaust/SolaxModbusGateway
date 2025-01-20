@@ -288,7 +288,7 @@ def deleteVersions(root: str, keepVersions: int, json: list = None) -> None:
         # Lade die 'versions.json' Datei
         versions_file = os.path.join(root, 'versions.json')
         json = read_json_file(versions_file)
-        if versions is None:
+        if json is None:
             logging.error(f"Fehler beim Verarbeiten der Datei {versions_file}")
             return
 
