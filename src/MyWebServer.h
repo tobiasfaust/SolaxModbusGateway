@@ -38,7 +38,6 @@ class MyWebServer {
   private:
     
     bool      DoReboot;
-    bool      DoWiFiReset;
     uint64_t  RequestRebootTime;
 
     std::vector<WsConnClient_t>  WsConnectedClientsForBroadcast = {};
@@ -51,7 +50,6 @@ class MyWebServer {
 
     void      handleNotFound(AsyncWebServerRequest *request);
     bool      handleReset();
-    void      handleWiFiReset();
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
     void      handleGetItemJson(AsyncWebServerRequest *request);

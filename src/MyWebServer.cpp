@@ -2,7 +2,6 @@
 
 MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): 
         DoReboot(false),
-        DoWiFiReset(false),
         RequestRebootTime(0),
         server(server),
         dns(dns) {
@@ -126,12 +125,6 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         }
       }
 
-      if (action && action == "wifireset") {
-        this->DoWiFiReset = true;
-        json["response"]["status"] = 1;
-        json["response"]["text"] = "reset wifi settings, reboot after 5sec...";
-      }
-
       if(action && action == "reboot") {
         this->DoReboot = true;
         json["response"]["status"] = 1;
@@ -208,16 +201,12 @@ void MyWebServer::sendWebSocketMessage(String& message) {
 
 void MyWebServer::loop() {
   //delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
-  if (this->DoReboot || this->DoWiFiReset) {
+  if (this->DoReboot) {
     if (this->RequestRebootTime == 0) {
       this->RequestRebootTime = millis();
       Config->log(1, "Request to Reboot, wait 5sek ...");
     }
     if (millis() - this->RequestRebootTime > 5000) { // wait 3sek until reboot
-      if (this->DoWiFiReset) {
-        Config->log(1, "Delete WiFi credentials ...");
-        handleWiFiReset();
-      }
       Config->log(1, "Rebooting...");
       ESP.restart();
     }
@@ -263,11 +252,6 @@ bool MyWebServer::handleReset() {
   this->DoReboot = true;
 
   return ret;
-}
-
-void MyWebServer::handleWiFiReset() {
-  WiFi.disconnect(true,true);
-  mqtt->improvSerial.deleteWiFiCredentials();
 }
 
 void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {

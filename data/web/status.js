@@ -117,15 +117,6 @@ export function DoReset() {
 }
 
 // ************************************************
-export function DoWifiReset() {
-  var data = {};
-  data['cmd'] = {};
-  data['cmd']['action'] = "wifireset";
-  data['cmd']['callbackFn'] = "status_CallRebootPage";
-  global.requestData(data);
-}
-
-// ************************************************
 export function CallRebootPage(json) {
   window.location.href = "reboot.html";
 }
