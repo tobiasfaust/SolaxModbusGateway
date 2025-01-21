@@ -102,8 +102,8 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         if (json["cmd"]["action"])   {action    = json["cmd"]["action"].as<String>();}
         if (json["cmd"]["subaction"]){subaction = json["cmd"]["subaction"].as<String>();}
         if (json["cmd"]["item"])     {item      = json["cmd"]["item"].as<String>();}
+        if (json["cmd"]["newState"]) {newState  = (json["cmd"]["newState"].as<String>() == "true"?true:false);}
         
-        newState  = json["cmd"]["newState"].as<bool>();
       }
 
       if (action == "GetItemsAsStream") {
@@ -167,8 +167,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
       }
 
       if (action && action == "SetActiveStatus") {
-        if (newState)  mb->SetItemActiveStatus(item, true); 
-        else mb->SetItemActiveStatus(item, false);    
+        mb->SetItemActiveStatus(item, newState);    
         
         json["response"]["status"] = 1;
         json["response"]["text"] = String("item successfully set to " + String(newState ? "active" : "inactive"));
