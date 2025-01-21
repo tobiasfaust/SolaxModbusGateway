@@ -1232,36 +1232,36 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
         streamString = "\"set\": [";
         regfile.find(streamString.c_str());
         do {
-          bool isActive = true; //default
-          JsonDocument elem;
-          DeserializationError error = deserializeJson(elem, regfile); 
+          if (itemIterator == (*counter - 1)) {
+            bool isActive = false;  // default
+            JsonDocument elem;
+            DeserializationError error = deserializeJson(elem, regfile); 
+              
+            if (error) {
+              Config->log(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
+              break;
+            }
             
-          if (error) {
-            Config->log(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
-            break;
-          }
-          
-          Config->log(4, "parsing JSON ok");
-          Config->log(5, elem);
+            Config->log(4, "parsing JSON ok");
+            Config->log(5, elem);
 
-          if (subaction == "onlyactive" && itemIterator == (*counter - 1)) {
-            //check if setter is inactive
+            //check if setter is active
             for (uint8_t i = 0; i < this->Setters->size(); i++) {
               if (this->Setters->at(i).Name == elem["name"].as<String>()) {
                 isActive = this->Setters->at(i).active;
                 break;
               }
             }
-          }
 
-          if (isActive && itemIterator == (*counter - 1)) {
-            if(*counter > 1) ret += ",";
-            ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
-            ret += "\"realname\": \"" + elem["realname"].as<String>() + "\",";
-            ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
-            ret += "\"subscription\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\",";
-            ret += "\"info\": \"" + elem["info"].as<String>() + "\"";            
-            ret += "}";
+            if ((subaction == "onlyactive" && isActive) || subaction != "onlyactive") {
+              if(*counter > 1) ret += ",";
+              ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
+              ret += "\"realname\": \"" + elem["realname"].as<String>() + "\",";
+              ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
+              ret += "\"subscription\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\",";
+              ret += "\"info\": \"" + elem["info"].as<String>() + "\"";            
+              ret += "}";
+            }
           }
 
           (*counter)++;

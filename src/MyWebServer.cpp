@@ -19,7 +19,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetLiveDataAsJsonToWebServer(request); });
   server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
-  server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSetterAsJsonToWebServer(request); });
+  server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSettersAsJsonToWebServer(request); });
 
   //server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
   //server->on("/getsetter",              HTTP_GET, std::bind(&MyWebServer::handleGetSetterJson, this, std::placeholders::_1));

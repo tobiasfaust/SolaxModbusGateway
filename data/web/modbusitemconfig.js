@@ -2,7 +2,6 @@ import * as global from './Javascript.js';
 
 // ************************************************
 export function init1() {
-  // erstelle ein Beispiel json mit Beispielwerten welches die funktion modbus::GetLiveDataAsJsonToWebserver generieren würde und weise das json der variable data zu. 
   
   var data = {"data": {"items": [
       {"name":  "InverterIdData", "realname": "InverterIdData", 
@@ -24,13 +23,7 @@ export function init1() {
   global.handleJsonItems(data);
 
 
-  data = {"data": {"setitems": [
-    {"name": "InverterIdData", "realname": "InverterIdData", "active": {"checked": 1, "name": "InverterIdData"}, "subscription": "home/set/InverterIdData", "info": "set InverterIdData"},
-  ]},
-  "response": {"status": 1, "text": "successful"},
-    "cmd": {
-      "callbackFn": "mbitemconfig_Callback"
-  }}
+  data = {"globalEnabled": "1",  "data": {"setitems": [{"name": "setUnlockSettings","realname": "Unlock Settings","active": {"checked": 0, "name": "setUnlockSettings"},"subscription": "home/Solax-Test/set/setUnlockSettings","info": "send the 4 digit advanced password"},{"name": "setTargetBatSOC","realname": "Target SoC","active": {"checked": 0, "name": "setTargetBatSOC"},"subscription": "home/Solax-Test/set/setTargetBatSOC","info": "set 0 - 100 in percent"} ]}, "object_id": "home/Solax-Test"}
   global.handleJsonItems(data);
 
 
