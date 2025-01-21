@@ -122,8 +122,8 @@ export function connectWebSocket() {
     return;
   }
 
-  //ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
-  ws = new WebSocket('ws://10.0.2.150/ajaxws'); 
+  ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/ajaxws');
+  //ws = new WebSocket('ws://10.0.2.150/ajaxws'); 
   var wsStatus = document.getElementById('ws-status');
 
   ws.onopen = function() {
