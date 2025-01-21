@@ -34,7 +34,7 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
 
   Config->log(3, "Message: %s", msg.c_str());
 
-  mb->ReceiveMQTT(topic, atoi(msg.c_str()));
+  mb->ReceiveMQTT(topic, msg);
 }
 
 void setup() {

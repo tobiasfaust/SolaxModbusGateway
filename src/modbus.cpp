@@ -71,9 +71,10 @@ void modbus::init(bool firstrun) {
 
   this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
-  this->LoadRegItems(this->InverterIdData, "id");
-  this->LoadRegItems(this->InverterLiveData, "livedata");
-  this->LoadJsonItemConfig(); // loads InverterLiveData Items too
+  this->LoadRegItems(this->InverterIdData, "id"); // load item definitions from register file
+  this->LoadRegItems(this->InverterLiveData, "livedata"); // load item definitions from register file
+  this->LoadSettersFromRegFile(); // loads setter config from config file and updates Setters
+  this->LoadJsonItemConfig(); // loads item config (active/inactive) from config file and updates InverterIdData, InverterLiveData and Setters
   
 
   // https://forum.arduino.cc/t/creating-serial-objects-within-a-library/697780/11
@@ -119,12 +120,14 @@ String modbus::GetMqttSetTopic(String command) {
 }
 
 /*******************************************************
- * subscribe to all possible "set" register
+ * load all "set" register from regfile if setters are enabled globally
 *******************************************************/
-void modbus::GenerateMqttSubscriptions() {
+void modbus::LoadSettersFromRegFile() {
   // clear vector
   this->Setters->clear();
   
+  if (!this->Conf_EnableSetters) { return; }
+
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   
   String streamString = "";
@@ -143,31 +146,9 @@ void modbus::GenerateMqttSubscriptions() {
      
       if(!elem["name"].isNull() && elem["request"].is<JsonArray>()) {
         subscription_t s = {};
-        s.Name = elem["name"].as<String>();  
-        
-        // optional field
-        if(!elem["realname"].isNull()) {
-          s.RealName = elem["realname"].as<String>();
-        } else {
-          s.RealName = s.Name;
-        }
+        s.Name = elem["name"].as<String>();
 
-        // optional field
-        if(!elem["info"].isNull()) {
-          s.info = elem["info"].as<String>();
-        }
-
-        s.active = false; // set initial, set to the right value when loading modbusitemconfig.json
-
-        JsonArray arr = elem["request"].as<JsonArray>();
-        std::vector<byte> t = {};
-        for (String x : arr) {
-          byte e = this->String2Byte(x);
-          t.push_back(e);
-        }
-        s.request = t;        
-
-        Config->log(4, "Set command successfully parsed from JSON: %s with %s", s.Name.c_str(), (this->PrintDataFrame(&(s.request))).c_str());
+        Config->log(4, "Set command successfully parsed from JSON: %s", s.Name.c_str());
         this->Setters->push_back(s);
 
       } else {
@@ -185,9 +166,9 @@ void modbus::GenerateMqttSubscriptions() {
 /*******************************************************
  * act on received mqtt command
 *******************************************************/
-void modbus::ReceiveMQTT(String topic, int msg) {
+void modbus::ReceiveMQTT(String topic, String msg) {
   if (!this->Conf_EnableSetters) {
-    Config->log(2, "Set command <%s> received, but setters over mqtt are currently disabled", topic.c_str());
+    Config->log(2, "Set command <%s> received, but setters over mqtt are currently disabled globally", topic.c_str());
     return;
   }
 
@@ -198,19 +179,37 @@ void modbus::ReceiveMQTT(String topic, int msg) {
         return;
       }
 
-      // TODO: handle mapping
-      // add handling by reading json file like parseData
+      JsonDocument elem = this->GetSetterByName(this->Setters->at(i).Name);
+      if (elem.isNull()) {
+        Config->log(1, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
+        return;
+      }
 
+      JsonArray arr = elem["request"].as<JsonArray>();
+      std::vector<byte> request = {};
 
-      std::vector<byte> request = this->Setters->at(i).request;
+      for (String x : arr) {
+        byte e = this->String2Byte(x);
+        request.push_back(e);
+      }
+
+      // map values if a mapping is specified
+      if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && msg != "") {
+        Config->log(4, "Map values for item %s", msg.c_str());
+
+        JsonArray map = elem["mapping"].as<JsonArray>();
+        msg = this->MapItem(map, msg);
+      }
+
+      int msgInt = msg.toInt(); // atoi(msg.c_str())
       byte bytes[4];
 
-      bytes[0] = (msg >> 24) & 0xFF;
-      bytes[1] = (msg >> 16) & 0xFF;
-      bytes[2] = (msg >> 8) & 0xFF;
-      bytes[3] = (msg >> 0) & 0xFF;
+      bytes[0] = (msgInt >> 24) & 0xFF;
+      bytes[1] = (msgInt >> 16) & 0xFF;
+      bytes[2] = (msgInt >> 8) & 0xFF;
+      bytes[3] = (msgInt >> 0) & 0xFF;
 
-      // 16bit number
+      // 32bit number
       request.push_back(bytes[2]);
       request.push_back(bytes[3]);
 
@@ -220,6 +219,48 @@ void modbus::ReceiveMQTT(String topic, int msg) {
       this->SetQueue->enqueue(request);
     }
   }
+}
+
+/*******************************************************
+ * @brief get setter by name, read json file and return the json object for the setter
+ * @param name: name of the setter
+ * @return JsonDocument: json object for the setter
+ * ******************************************************/
+JsonDocument modbus::GetSetterByName(String name) {
+  File regfile = LittleFS.open("/regs/" + this->InverterType.filename);
+  if (!regfile) {
+    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+    return JsonDocument();
+  }
+
+  String streamString = "";
+  streamString = "\""+ this->InverterType.name +"\": {";
+  regfile.find(streamString.c_str());
+    
+  streamString = "\"set\": [";
+  regfile.find(streamString.c_str());
+  do {
+    JsonDocument elem;
+    DeserializationError error = deserializeJson(elem, regfile); 
+      
+    if (!error) {
+      // Print the result
+      Config->log(4, "parsing JSON ok");
+      Config->log(5, elem);
+    } else {
+      Config->log(1, "(Function GetSetterByName) Failed to parse JSON Register Data: %s", error.c_str()); 
+    }
+
+    if (elem["name"] == name) {
+      regfile.close();
+      return elem;
+    }
+
+  } while (regfile.findUntil(",","]"));
+
+  if (regfile) { regfile.close(); }
+
+  return JsonDocument();
 }
 
 /*******************************************************
@@ -348,7 +389,6 @@ byte modbus::String2Byte(String s){
 *******************************************************/
 void modbus::enableMqtt(MQTT* object) {
   this->mqtt = object;
-  this->GenerateMqttSubscriptions();
 }
 
 /*******************************************************
@@ -1059,7 +1099,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
   if (!error) {
     Config->log(4, jsonGet);
 
-    if (jsonGet["subaction"]){subaction = jsonGet["subaction"].as<String>();}
+    if (jsonGet["cmd"]["subaction"]) subaction = jsonGet["cmd"]["subaction"].as<String>();
   
   } else { 
     Config->log(2, "[GetLiveDataAsJsonToWebServer] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
@@ -1146,7 +1186,108 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
  * Return all LiveData as jsonArray
  * {data: [{"name": "xx", "value": "xx", ...}, ...] }
 *******************************************************/
-void modbus::GetSetterAsJsonToWebServer(AsyncWebServerRequest *request) {
+void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
+  std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
+  String subaction("");
+  
+  if(request->hasArg("json")) {
+    const String json = request->arg("json");
+    Config->log(4, "[GetSetterAsJson] Json command empfangen: %s", json.c_str());
+
+    JsonDocument jsonGet; 
+    DeserializationError error = deserializeJson(jsonGet, json.c_str());
+    
+    if (!error) {
+      if (jsonGet["cmd"]["subaction"]) subaction = jsonGet["cmd"]["subaction"].as<String>();
+    } else { 
+      Config->log(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
+    }
+  }
+
+  AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
+			String ret("");
+      ret.reserve(maxLen);
+      maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
+
+      if (*counter == 0) {
+        // send start of JSON
+        ret += "{\"globalEnabled\": \""+ String(this->Conf_EnableSetters) +"\",  \"data\": {\"setitems\": [";
+        (*counter)++;
+      }
+      
+//      if (*counter <= this->Setters->size()) {
+        
+        File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+        if (!regfile) {
+          Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+          return 0;
+        }
+
+        String streamString = "";
+        uint16_t itemIterator = 0;
+
+        streamString = "\""+ this->InverterType.name +"\": {";
+        regfile.find(streamString.c_str());
+          
+        streamString = "\"set\": [";
+        regfile.find(streamString.c_str());
+        do {
+          bool isActive = true; //default
+          JsonDocument elem;
+          DeserializationError error = deserializeJson(elem, regfile); 
+            
+          if (error) {
+            Config->log(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
+            break;
+          }
+          
+          Config->log(4, "parsing JSON ok");
+          Config->log(5, elem);
+
+          if (subaction == "onlyactive" && itemIterator == (*counter - 1)) {
+            //check if setter is inactive
+            for (uint8_t i = 0; i < this->Setters->size(); i++) {
+              if (this->Setters->at(i).Name == elem["name"].as<String>()) {
+                isActive = this->Setters->at(i).active;
+                break;
+              }
+            }
+          }
+
+          if (isActive && itemIterator == (*counter - 1)) {
+            if(*counter > 1) ret += ",";
+            ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
+            ret += "\"realname\": \"" + elem["realname"].as<String>() + "\",";
+            ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
+            ret += "\"subscription\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\",";
+            ret += "\"info\": \"" + elem["info"].as<String>() + "\"";            
+            ret += "}";
+          }
+
+          (*counter)++;
+          itemIterator++;
+
+        } while (regfile.findUntil(",","]"));
+
+        if (regfile) { regfile.close(); }
+//      }
+      
+//      if (this->Setters->size() + 1 == *counter) {
+        if (ret.length() > 0) {
+        // send end of JSON
+        ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
+        (*counter)++;
+      }
+      int len = sprintf((char*)buffer, ret.c_str());
+      return len;
+
+	});
+
+	request->send(response);
+}
+
+/*
+void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
   std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
   String subaction(""), json("{}");
   
@@ -1207,6 +1348,7 @@ void modbus::GetSetterAsJsonToWebServer(AsyncWebServerRequest *request) {
 
 	request->send(response);
 }
+*/
 
 /*******************************************************
  * Return all LiveData as jsonArray
@@ -1426,6 +1568,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
   uint8_t pin_Relay1_old   = this->pin_Relay1;
   uint8_t pin_Relay2_old   = this->pin_Relay2;
   bool enableRelays_old  = this->enableRelays;
+  bool enableSetters_old = this->Conf_EnableSetters;
 
   if (LittleFS.exists("/config/modbusconfig.json")) {
     //file exists, reading and loading
@@ -1531,12 +1674,21 @@ void modbus::LoadJsonConfig(bool firstrun) {
     this->init(false);
   }
 
+  if (enableSetters_old != this->Conf_EnableSetters) {
+    this->LoadSettersFromRegFile();
+    if (Conf_EnableSetters) this->LoadJsonItemConfig(false, false, true); // load only Setters
+  }
+
 }
 
 /*******************************************************
  * load Modbus Item configuration from file
 *******************************************************/
-void modbus::LoadJsonItemConfig() {
+void modbus::LoadJsonItemConfig() { 
+  this->LoadJsonItemConfig(true, true, true);
+}
+
+void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSetters) {
   
   if (LittleFS.exists("/config/modbusitemconfig.json")) {
     //file exists, reading and loading
@@ -1561,38 +1713,47 @@ void modbus::LoadJsonItemConfig() {
 
         for (JsonPair kv : elem.as<JsonObject>()) {
           const char* ItemName = kv.key().c_str();
+          
           /* handle LiveData */
-          for(uint16_t i=0; i<this->InverterLiveData->size(); i++) {
-            if (this->InverterLiveData->at(i).Name == ItemName ) {
-              this->InverterLiveData->at(i).active = kv.value().as<bool>();
+          if (loadLiveData) {
+            for(uint16_t i=0; i<this->InverterLiveData->size(); i++) {
+              if (this->InverterLiveData->at(i).Name == ItemName ) {
+                this->InverterLiveData->at(i).active = kv.value().as<bool>();
 
-              Config->log(3, "item %s -> %s", ItemName, (this->InverterLiveData->at(i).active?"enabled":"disabled"));
+                Config->log(3, "item %s -> %s", ItemName, (this->InverterLiveData->at(i).active?"enabled":"disabled"));
 
-              break;
-            }
-          }
-          /* handle IdData */
-          for(uint16_t i=0; i<this->InverterIdData->size(); i++) {
-            if (this->InverterIdData->at(i).Name == ItemName ) {
-              this->InverterIdData->at(i).active = kv.value().as<bool>();
-
-              Config->log(3, "item %s -> %s", ItemName, (this->InverterIdData->at(i).active?"enabled":"disabled"));
-              break;
-            }
-          }
-          /* handle Setters */  
-          for(uint16_t i=0; i<this->Setters->size(); i++) {
-            if (this->Setters->at(i).Name == ItemName ) {
-              this->Setters->at(i).active = kv.value().as<bool>();
-              
-              if (this->Setters->at(i).active) {
-                this->mqtt->Subscribe(this->GetMqttSetTopic(this->Setters->at(i).Name));
-              } else {
-                this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->Setters->at(i).Name));
+                break;
               }
-              
-              Config->log(3, "setter %s -> %s", ItemName, (this->Setters->at(i).active?"enabled":"disabled"));
-              break;
+            }
+          }
+
+          if (loadIdData) {
+            /* handle IdData */
+            for(uint16_t i=0; i<this->InverterIdData->size(); i++) {
+              if (this->InverterIdData->at(i).Name == ItemName ) {
+                this->InverterIdData->at(i).active = kv.value().as<bool>();
+
+                Config->log(3, "item %s -> %s", ItemName, (this->InverterIdData->at(i).active?"enabled":"disabled"));
+                break;
+              }
+            }
+          }
+
+          if (loadSetters) {
+            /* handle Setters */  
+            for(uint16_t i=0; i<this->Setters->size(); i++) {
+              if (this->Setters->at(i).Name == ItemName ) {
+                this->Setters->at(i).active = kv.value().as<bool>();
+                
+                if (this->Setters->at(i).active) {
+                  this->mqtt->Subscribe(this->GetMqttSetTopic(this->Setters->at(i).Name));
+                } else {
+                  this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->Setters->at(i).Name));
+                }
+                
+                Config->log(3, "setter %s -> %s", ItemName, (this->Setters->at(i).active?"enabled":"disabled"));
+                break;
+              }
             }
           }
 	  

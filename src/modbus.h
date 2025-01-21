@@ -33,10 +33,10 @@ class modbus {
   typedef struct {
     //String command = ""; // is the "name" of the setter
     String Name;
-    String RealName = "";
-    String info = "";
+    //String RealName = "";
+    //String info = "";
     bool active = false;
-    std::vector<byte> request; 
+    //std::vector<byte> request; 
   } subscription_t;
 
   // available inverter register json files
@@ -55,6 +55,7 @@ class modbus {
     void                    init(bool firstrun);
     void                    LoadJsonConfig(bool firstrun);
     void                    LoadJsonItemConfig();
+    void                    LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSetters);
 
     void                    loop();
 
@@ -65,10 +66,11 @@ class modbus {
     void                    GetInitRawData(JsonDocument& json);
     String                  GetInverterSN();
     void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
-    void                    GetSetterAsJsonToWebServer(AsyncWebServerRequest *request);
+    void                    GetSettersAsJsonToWebServer(AsyncWebServerRequest *request);
     void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
-    void                    ReceiveMQTT(String topic, int msg);
+    void                    ReceiveMQTT(String topic, String msg);
+    JsonDocument            GetSetterByName(String name);
 
     // Callback setzen
     void setWebSocketCallback(std::function<void(String&)> callback);
@@ -125,7 +127,7 @@ class modbus {
     void                    ParseData();
     void                    LoadInvertersFromJson();
     void                    LoadInverterConfigFromJson();
-    void                    GenerateMqttSubscriptions();
+    void                    LoadSettersFromRegFile();
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);

@@ -17,10 +17,13 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
    
   server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
-  server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
+  server->on("/getitems",               HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetLiveDataAsJsonToWebServer(request); });
   server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1));
-  server->on("/getsetter",              HTTP_GET, std::bind(&MyWebServer::handleGetSetterJson, this, std::placeholders::_1));
+  server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSetterAsJsonToWebServer(request); });
 
+  //server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
+  //server->on("/getsetter",              HTTP_GET, std::bind(&MyWebServer::handleGetSetterJson, this, std::placeholders::_1));
+  
   ws->onEvent(std::bind(&MyWebServer::onWsEvent, this, std::placeholders::_1, 
                                                        std::placeholders::_2, 
                                                        std::placeholders::_3, 
@@ -259,13 +262,14 @@ bool MyWebServer::handleReset() {
   return ret;
 }
 
-void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
-  mb->GetLiveDataAsJsonToWebServer(request);
-}
+//void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
+//  mb->GetLiveDataAsJsonToWebServer(request);
+//}
 
-void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
-  mb->GetSetterAsJsonToWebServer(request);
-}
+//void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
+//  mb->GetSetterAsJsonToWebServer(request);
+//}
+
 void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");

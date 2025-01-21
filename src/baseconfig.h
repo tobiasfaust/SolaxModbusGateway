@@ -2,17 +2,16 @@
  * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
  ********************************************************/
 
-#ifndef BASECONFIG_H
-#define BASECONFIG_H
+#ifndef BASECONFIG_H_
+#define BASECONFIG_H_
 
-#include "commonlibs.h"
-#include "ArduinoJson.h"
-#include "_Release.h"
+#include <commonlibs.h>
+#include <ArduinoJson.h>
+#include <_Release.h>
 
 
 class BaseConfig {
-
-  public:
+ public:
     BaseConfig();
     void      LoadJsonConfig();
     void      GetInitData(JsonDocument& json);
@@ -41,8 +40,9 @@ class BaseConfig {
     const String&   GetAuthUser()      const {return auth_user;}
     const String&   GetAuthPass()      const {return auth_pass;}
 
-    const String    GetReleaseName(); 
-  private:
+    const String    GetReleaseName();
+
+ private:
     String    mqtt_server;
     String    mqtt_username;
     String    mqtt_password;
@@ -58,9 +58,8 @@ class BaseConfig {
     bool      useAuth;
     String    auth_user;
     String    auth_pass;
-
 };
 
 extern BaseConfig* Config;
 
-#endif
+#endif  // BASECONFIG_H_
