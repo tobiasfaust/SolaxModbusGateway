@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #ifndef BASECONFIG_H
 #define BASECONFIG_H
 

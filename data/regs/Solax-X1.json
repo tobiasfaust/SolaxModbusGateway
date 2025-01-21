@@ -536,6 +536,25 @@
                 "0x00",
                 "0x83"
               ]
+          },
+          {
+            "name": "setOperationMode",
+            "realname": "Operation Mode",
+            "info": "0->Self Use Mode<br>1->FeedIn Priority<br>2->Backup Mode<br>3->Manuel Mode<br>4->Peak Shaving<br>5->TUO Mode",
+            "mapping": [
+                      [ "SelfUse", 0 ],
+                      [ "FeedInPriority", 1 ],
+                      [ "BackupMode", 2 ],
+                      [ "ManuelMode", 3 ],
+                      [ "PeakShaving", 4 ],
+                      [ "TUOMode", 5 ]
+                    ],
+            "request": [
+              "#ClientID",
+              "0x06",
+              "0x00",
+              "0x1f"
+            ]
           }
       ]
   }

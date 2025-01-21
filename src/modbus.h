@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #ifndef SOLAXMODBUS_H
 #define SOLAXMODBUS_H
 

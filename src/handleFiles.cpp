@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #include "handleFiles.h"
 
 handleFiles::handleFiles(AsyncWebServer *server) {

@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #ifndef HANDLEFILES_H
 #define HANDLEFILES_H
 

@@ -1,10 +1,6 @@
-// https://github.com/esp8266/Arduino/issues/3205
-// https://github.com/Hieromon/PageBuilder
-// https://www.mediaevent.de/tutorial/sonderzeichen.html
-//
-// https://byte-style.de/2018/01/automatische-updates-fuer-microcontroller-mit-gitlab-und-platformio/
-// https://community.blynk.cc/t/self-updating-from-web-server-http-ota-firmware-for-esp8266-and-esp32/18544
-// https://forum.fhem.de/index.php?topic=50628.0
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
 
 #ifndef MYWEBSERVER_H
 #define MYWEBSERVER_H

@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #include "modbus.h"
 
 /*******************************************************
@@ -189,6 +193,15 @@ void modbus::ReceiveMQTT(String topic, int msg) {
 
   for (uint8_t i = 0; i < this->Setters->size(); i++ ) {
     if (topic == this->GetMqttSetTopic(this->Setters->at(i).Name)) {
+      if (!this->Setters->at(i).active) {
+        Config->log(2, "Set command <%s> received, but setter %s is not active", topic.c_str(), this->Setters->at(i).Name.c_str());
+        return;
+      }
+
+      // TODO: handle mapping
+      // add handling by reading json file like parseData
+
+
       std::vector<byte> request = this->Setters->at(i).request;
       byte bytes[4];
 

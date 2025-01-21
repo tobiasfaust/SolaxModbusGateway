@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #include "baseconfig.h"
 
 BaseConfig::BaseConfig(): debuglevel(2), 

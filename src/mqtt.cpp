@@ -258,7 +258,11 @@ void MQTT::disconnect() {
 
 void MQTT::Publish_Bool(const char* subtopic, bool b, bool fulltopic) {
   String s("");
-  if (b) {s = "1";} else {s = "0";}
+  if (b) {
+    s = "1";
+  } else {
+    s = "0";
+  }
   Publish_String(subtopic, s, fulltopic);
 }
 
@@ -282,7 +286,9 @@ void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
   if (PubSubClient::connected()) {
     PubSubClient::publish((const char*)topic.c_str(), value.c_str(), true);
     Config->log(3, "Publish %s: %s ", topic.c_str(), value.c_str());
-  } else { Config->log(2, "Request for MQTT Publish, but not connected to Broker"); }
+  } else {
+    Config->log(2, "Request for MQTT Publish, but not connected to Broker");
+  }
 }
 
 String MQTT::getTopic(String subtopic, bool fulltopic) {

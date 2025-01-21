@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #if defined(ARDUINO) && ARDUINO >= 100
   #include "Arduino.h"
 #else
