@@ -24,7 +24,7 @@ modbus::modbus(): enableRelays(false),
   InverterLiveData    = new std::vector<reg_t>{};
   InverterIdData      = new std::vector<reg_t>{};
   AvailableInverters  = new std::vector<regfiles_t>{};
-  Setters             = new std::vector<subscription_t>{};
+  Setters             = new std::vector<setter_t>{};
   OpenWB              = new openwb();
 
   Conf_RequestLiveData= new std::vector<std::vector<byte>>{};
@@ -49,7 +49,7 @@ modbus::modbus(): enableRelays(false),
     this->pin_Relay2 = this->default_pin_Relay2 = 19;
   }
 
-  this->LoadInvertersFromJson(); //needed for selecting default inverter
+  this->LoadInvertersFromJson(); //needed for selecting default inverter in LoadJsonConfig
   this->LoadJsonConfig(true);
   this->OpenWB->begin(this->Conf_OpenWBVersion);
   this->init(true);
@@ -69,7 +69,6 @@ void modbus::init(bool firstrun) {
     pinMode(this->pin_Relay2, INPUT_PULLUP);
   }
 
-  this->LoadInvertersFromJson();
   this->LoadInverterConfigFromJson();
   this->LoadRegItems(this->InverterIdData, "id"); // load item definitions from register file
   this->LoadRegItems(this->InverterLiveData, "livedata"); // load item definitions from register file
@@ -126,8 +125,6 @@ void modbus::LoadSettersFromRegFile() {
   // clear vector
   this->Setters->clear();
   
-  if (!this->Conf_EnableSetters) { return; }
-
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   
   String streamString = "";
@@ -145,7 +142,7 @@ void modbus::LoadSettersFromRegFile() {
       Config->log(5, elem);
      
       if(!elem["name"].isNull() && elem["request"].is<JsonArray>()) {
-        subscription_t s = {};
+        setter_t s = {};
         s.Name = elem["name"].as<String>();
 
         Config->log(4, "Set command successfully parsed from JSON: %s", s.Name.c_str());
@@ -1221,133 +1218,67 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
         ret += "{\"globalEnabled\": \""+ String(this->Conf_EnableSetters) +"\",  \"data\": {\"setitems\": [";
         (*counter)++;
       }
-      
-//      if (*counter <= this->Setters->size()) {
-        
-        File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
-        if (!regfile) {
-          Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
-          return 0;
-        }
 
-        String streamString = "";
-        uint16_t itemIterator = 0;
+      File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+      if (!regfile) {
+        Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+        return 0;
+      }
 
-        streamString = "\""+ this->InverterType.name +"\": {";
-        regfile.find(streamString.c_str());
-          
-        streamString = "\"set\": [";
-        regfile.find(streamString.c_str());
-        do {
-          if (itemIterator == (*counter - 1)) {
-            bool isActive = false;  // default
-            JsonDocument elem;
-            DeserializationError error = deserializeJson(elem, regfile); 
-              
-            if (error) {
-              Config->log(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
+      String streamString = "";
+      uint16_t itemIterator = 0;
+
+      streamString = "\""+ this->InverterType.name +"\": {";
+      regfile.find(streamString.c_str());
+ 
+      streamString = "\"set\": [";
+      regfile.find(streamString.c_str());
+      do {
+        if (itemIterator == (*counter - 1)) {
+          bool isActive = false;  // default
+          JsonDocument elem;
+          DeserializationError error = deserializeJson(elem, regfile); 
+  
+          if (error) {
+            Config->log(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
+            break;
+          }
+
+          Config->log(4, "parsing JSON ok");
+          Config->log(5, elem);
+
+          //check if setter is active
+          for (uint8_t i = 0; i < this->Setters->size(); i++) {
+            if (this->Setters->at(i).Name == elem["name"].as<String>()) {
+              isActive = this->Setters->at(i).active;
               break;
             }
-            
-            Config->log(4, "parsing JSON ok");
-            Config->log(5, elem);
-
-            //check if setter is active
-            for (uint8_t i = 0; i < this->Setters->size(); i++) {
-              if (this->Setters->at(i).Name == elem["name"].as<String>()) {
-                isActive = this->Setters->at(i).active;
-                break;
-              }
-            }
-
-            if ((subaction == "onlyactive" && isActive) || subaction != "onlyactive") {
-              if(*counter > 1) ret += ",";
-              ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
-              ret += "\"realname\": \"" + elem["realname"].as<String>() + "\",";
-              ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
-              ret += "\"subscription\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\",";
-              ret += "\"info\": \"" + elem["info"].as<String>() + "\"";            
-              ret += "}";
-            }
           }
 
-          (*counter)++;
-          itemIterator++;
-
-        } while (regfile.findUntil(",","]"));
-
-        if (regfile) { regfile.close(); }
-//      }
-      
-//      if (this->Setters->size() + 1 == *counter) {
-        if (ret.length() > 0) {
-        // send end of JSON
-        ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
-        (*counter)++;
-      }
-      int len = sprintf((char*)buffer, ret.c_str());
-      return len;
-
-	});
-
-	request->send(response);
-}
-
-/*
-void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
-  std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
-  String subaction(""), json("{}");
-  
-  if(request->hasArg("json")) {
-    json = request->arg("json");
-  }
-  JsonDocument jsonGet; 
-  DeserializationError error = deserializeJson(jsonGet, json.c_str());
-  
-  Config->log(4, "[GetSetterAsJson] Json command empfangen: ");
-  if (!error) {
-    Config->log(4, jsonGet);
-    if (jsonGet["subaction"]) {subaction = jsonGet["subaction"].as<String>();}
-  } else { 
-    Config->log(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
-  }
-
-	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
-			String ret("");
-      ret.reserve(maxLen);
-      maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
-      if (*counter == 0) {
-        // send start of JSON
-        ret += "{\"data\": {\"setitems\": [";
-        (*counter)++;
-      }
-      
-      if (*counter <= this->Setters->size() && ret.length() < maxLen) {
-        uint16_t i = *counter - 1;
-
-        // jedes JsonObject wird mit 200 bytes angenommen, + 100 bytes puffer am Ende
-        while (i < this->Setters->size() && ret.length() < maxLen) {
-          if (!(subaction == "onlyactive" && !this->Setters->at(i).active)) {
+          if ((subaction == "onlyactive" && isActive) || subaction != "onlyactive") {
             if(*counter > 1) ret += ",";
-            ret += "{\"name\": \"" + this->Setters->at(i).Name + "\",";
-            ret += "\"realname\": \"" + this->Setters->at(i).RealName + "\",";
-	          ret += "\"active\": {\"checked\": " + String(this->Setters->at(i).active ? 1 : 0) + ", \"name\": \"" + this->Setters->at(i).Name + "\"},";
-            ret += "\"subscription\": \"" + this->GetMqttSetTopic(this->Setters->at(i).Name) + "\",";
-            ret += "\"info\": \"" + this->Setters->at(i).info + "\"";
+            ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
+            ret += "\"realname\": \"" + elem["realname"].as<String>() + "\",";
+            ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
+            ret += "\"subscription\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\",";
+            ret += "\"info\": \"" + elem["info"].as<String>() + "\"";            
             ret += "}";
           }
-
-          (*counter)++;
-          i++;
         }
 
-      }
-      
-      if (this->Setters->size() + 1 == *counter) {
+        (*counter)++;
+        itemIterator++;
+
+      } while (regfile.findUntil(",","]"));
+
+      if (regfile) { regfile.close(); }
+
+      if (ret.length() > 0) {
         // send end of JSON
         ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
         (*counter)++;
       }
+
       int len = sprintf((char*)buffer, ret.c_str());
       return len;
 
@@ -1355,7 +1286,6 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
 
 	request->send(response);
 }
-*/
 
 /*******************************************************
  * Return all LiveData as jsonArray
@@ -1616,6 +1546,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
           for (uint8_t i=0; i<this->AvailableInverters->size(); i++) {
             if (this->AvailableInverters->at(i).name == (doc["data"]["invertertype"]).as<String>()) {
               this->InverterType = this->AvailableInverters->at(i); 
+              
               Config->log(3, "Invertertyp '%s' was found in register file '%s', set it as selected active Inverter", this->InverterType.name.c_str(), this->InverterType.filename.c_str());
               found = true;
             } 
@@ -1661,7 +1592,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
     loadDefaultConfig = false; //set back
   }
 
-  // ReInit if Baudrate was changed, not at firstrun!
+  // ReInit if basics has been changed, not at firstrun!
   if(!firstrun && (
      (Baudrate_old != this->Baudrate) ||
      (pin_RX_old   != this->pin_RX)   ||
@@ -1669,21 +1600,15 @@ void modbus::LoadJsonConfig(bool firstrun) {
      (pin_RTS_old  != this->pin_RTS)  ||
      (enableRelays_old != this->enableRelays) ||
      (pin_Relay1_old  != this->pin_Relay1)  ||
-     (pin_Relay2_old  != this->pin_Relay2))) { 
-    
-    this->init(false);
-  }
-
-  // ReInit if Invertertype was changed
-  if(!firstrun && (
-    InverterType_old.name != this->InverterType.name) ) { 
+     (pin_Relay2_old  != this->pin_Relay2) ||
+     (InverterType_old.name != this->InverterType.name))) { 
     
     this->init(false);
   }
 
   if (enableSetters_old != this->Conf_EnableSetters) {
     this->LoadSettersFromRegFile();
-    if (Conf_EnableSetters) this->LoadJsonItemConfig(false, false, true); // load only Setters
+    this->LoadJsonItemConfig(false, false, true); // load only Setters
   }
 
 }
