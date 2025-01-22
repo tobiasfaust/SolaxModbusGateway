@@ -421,7 +421,6 @@ void modbus::QueryIdData() {
   }
 }
 
-
 /*******************************************************
  * Query Live Data to Inverter
 *******************************************************/
@@ -1492,7 +1491,6 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
 
   if (regfile) { regfile.close(); }
 }
-
 
 /*******************************************************
  * load configuration from file

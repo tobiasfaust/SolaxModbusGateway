@@ -21,9 +21,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   //server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1)); // deprecated, not longer in use
   server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSettersAsJsonToWebServer(request); });
 
-  //server->on("/getitems",               HTTP_GET, std::bind(&MyWebServer::handleGetItemJson, this, std::placeholders::_1));
-  //server->on("/getsetter",              HTTP_GET, std::bind(&MyWebServer::handleGetSetterJson, this, std::placeholders::_1));
-  
+
   ws->onEvent(std::bind(&MyWebServer::onWsEvent, this, std::placeholders::_1, 
                                                        std::placeholders::_2, 
                                                        std::placeholders::_3, 
@@ -261,14 +259,6 @@ bool MyWebServer::handleReset() {
   return ret;
 }
 
-//void MyWebServer::handleGetItemJson(AsyncWebServerRequest *request) {
-//  mb->GetLiveDataAsJsonToWebServer(request);
-//}
-
-//void MyWebServer::handleGetSetterJson(AsyncWebServerRequest *request) {
-//  mb->GetSetterAsJsonToWebServer(request);
-//}
-
 void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -278,8 +268,6 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   mb->GetRegisterAsJsonToWebServer(response);
   request->send(response);  
 }
-
-
 
 void MyWebServer::GetInitDataNavi(JsonDocument& json) {
   json["data"].to<JsonObject>();

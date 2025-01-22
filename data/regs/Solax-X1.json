@@ -529,7 +529,7 @@
           {
             "name": "setTargetBatSOC",
             "realname": "Target SoC",
-            "info": "set 0 - 100 in percent",
+            "info": "set battery SOC: 0 - 100 in percent",
             "request": [
                 "#ClientID",
                 "0x06",
@@ -540,7 +540,7 @@
           {
             "name": "setOperationMode",
             "realname": "Operation Mode",
-            "info": "0->Self Use Mode<br>1->FeedIn Priority<br>2->Backup Mode<br>3->Manuel Mode<br>4->Peak Shaving<br>5->TUO Mode",
+            "info": "setting of 6 possible operation modes",
             "mapping": [
                       [ "SelfUse", 0 ],
                       [ "FeedInPriority", 1 ],
