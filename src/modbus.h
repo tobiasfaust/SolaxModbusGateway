@@ -31,13 +31,9 @@ class modbus {
   } reg_t;
 
   typedef struct {
-    //String command = ""; // is the "name" of the setter
     String Name;
-    //String RealName = "";
-    //String info = "";
     bool active = false;
-    //std::vector<byte> request; 
-  } subscription_t;
+  } setter_t;
 
   // available inverter register json files
   typedef struct {
@@ -108,7 +104,7 @@ class modbus {
     std::vector<reg_t>*     InverterIdData;       // storing readable results
     std::vector<reg_t>*     InverterLiveData;     // storing readable results
     std::vector<regfiles_t>* AvailableInverters;   // available inverters from JSON
-    std::vector<subscription_t>* Setters;         // available set Options from JSON register 
+    std::vector<setter_t>* Setters;         // available set Options from JSON register 
 
     MQTT*                   mqtt = NULL;
     openwb*                 OpenWB = NULL;
