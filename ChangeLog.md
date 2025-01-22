@@ -1,6 +1,7 @@
 Release 3.3.2:
   - new feature: add confirmation dialog for ESP reset
   - migrate from old ajax communication to standard websocket communication
+  - show set topics in WebUI (thanks to @laszgar)
   
 Release 3.3.1:
   - new Feature: datatype "binary" now available for json register definitions (PR #115)
