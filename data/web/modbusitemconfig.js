@@ -51,10 +51,19 @@ export function init() {
     .then(response => response.json())
     .then(data => {
       data['cmd'] = {};
-      data['cmd']['callbackFn'] = "mbitemconfig_ItemCallback";
+      data['cmd']['callbackFn'] = "mbitemconfig_ItemItemCallback";
       global.handleJsonItems(data);
     })
     .catch(error => console.error('Error fetching items:', error));
+
+  fetch('/getsetter')
+    .then(response => response.json())
+    .then(data => {
+      data['cmd'] = {};
+      data['cmd']['callbackFn'] = "mbitemconfig_SetterCallback";
+      global.handleJsonItems(data);
+    })
+    .catch(error => console.error('Error fetching setters:', error));
 
   fetch('/getsetter')
     .then(response => response.json())
@@ -139,6 +148,7 @@ function RefreshLiveData() {
   
   global.requestData(data);
 }
+ 
  
 // ************************************************
 export function ChangeActiveStatus(id) {
