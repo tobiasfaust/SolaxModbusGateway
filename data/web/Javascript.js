@@ -154,8 +154,6 @@ export function connectWebSocket() {
   };
 }
 
-
-
 /******************************************************************************************
  * activate all radioselections after pageload to hide unnecessary elements
  * Works for all checkbox and radio elements with onclick="radioselection(show, hide)"
@@ -224,7 +222,6 @@ function updateDataID(json, highlight) {
     }
   }
 }
-
 
 /*****************************************************************************************
  *
@@ -555,7 +552,6 @@ export function onSubmit(DataForm, separator='') {
         requestData(data);
       }); 
 }
-
 
 /****************************************************************************************
  * blendet Zeilen der Tabelle aus

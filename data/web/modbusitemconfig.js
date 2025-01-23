@@ -121,7 +121,7 @@ function MySetterCallback(json) {
       
       for (var i = 0; i < mapping.length; i++) {
         if (info.length > 0) info += "<br>"; 
-        info += mapping[i][1] + "->" + mapping[i][0];
+        info += mapping[i][0];
       }
       obj.innerHTML += "<br>" + info;
     } catch (e) {

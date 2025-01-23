@@ -32,7 +32,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   server->addHandler(ws);
   
   ElegantOTA.begin(server);    // Start ElegantOTA
-  ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH));
+  ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH), String(GITHUB_RUN).toInt());
   ElegantOTA.setFWVersion(String(Config->GetReleaseName() + " / Build: " + GITHUB_RUN ));
   ElegantOTA.setBackupRestoreFS("/config");
   ElegantOTA.setAutoReboot(true);
@@ -259,6 +259,7 @@ bool MyWebServer::handleReset() {
   return ret;
 }
 
+/*
 void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -268,6 +269,7 @@ void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
   mb->GetRegisterAsJsonToWebServer(response);
   request->send(response);  
 }
+*/
 
 void MyWebServer::GetInitDataNavi(JsonDocument& json) {
   json["data"].to<JsonObject>();

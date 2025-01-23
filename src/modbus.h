@@ -5,9 +5,9 @@
 #ifndef SOLAXMODBUS_H
 #define SOLAXMODBUS_H
 
-#include "commonlibs.h"
-#include "baseconfig.h"
-#include "mqtt.h"
+#include <commonlibs.h>
+#include <baseconfig.h>
+#include <mqtt.h>
 #include <vector>
 #include <ArduinoJson.h>
 #include <StreamUtils.h>
@@ -17,7 +17,7 @@
 #include <sstream>
 #include <openwb.h>
 
-#define DEBUGMODE
+//#define DEBUGMODE
 
 class modbus {
 
@@ -63,7 +63,7 @@ class modbus {
     String                  GetInverterSN();
     void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
     void                    GetSettersAsJsonToWebServer(AsyncWebServerRequest *request);
-    void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
+    //void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, String msg);
     JsonDocument            GetSetterByName(String name);

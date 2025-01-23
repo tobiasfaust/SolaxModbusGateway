@@ -4,12 +4,14 @@
   <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
   <meta charset='utf-8'>
   <link rel='stylesheet' type='text/css' href='Style.css'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
   <script language='javascript' type='module' src='Javascript.js'></script>
   <script language='javascript' type='module' src='navi.js'></script>
   
   <script type='module'>
-    import { init, highlightNavi } from './navi.js';
+    import { init, highlightNavi, showUpdateInfoInMainFrame } from './navi.js';
     window.highlightNavi = highlightNavi;
+    window.showUpdateInfoInMainFrame = showUpdateInfoInMainFrame;
 
     window.addEventListener('load', init, false);
   </script>
@@ -19,14 +21,15 @@
 <body>
   <table>
     <tr>
-      <td colspan='4'>
-        <h2>Configuration</h2>
+      <td colspan='8'>
+        <b>Configuration</b> of
+        <i><span style='color:#CCCCCC;' id='hostname'></span></i>
       </td>
 
-      <td colspan='6' style='color:#CCCCCC;'>
-        <i>(<span id='hostname'></span>)</i>
-      </td>
-      <td colspan='7'>
+      <td colspan='9'>
+        <span id="updateInfoItem" class="hide" onclick="showUpdateInfoInMainFrame()">
+          <i class="pulse fa fa-info-circle" style="color: green; font-size: 20px;"></i>
+        </span>
         <b>Release: </b>
           <span style='color:orange;'>
             <span id='releasename'></span>
@@ -60,5 +63,15 @@
       <td class='navi' style='width: 50px'></td>
     </tr>
   </table>
+  
+  <div id="showUpdateInfo" class="hide" style="position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 150px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white;">
+    <span style="font-size: 70%;">An update are available</span><br>
+    <span style="font-size: 50%;">You are using: <span id="currentVersion"></span></span><br>
+    <span style="font-size: 50%;">available version: <span id="newVersion"></span></span>
+    <p></p>
+    <button class="button" onclick="top.frames['frame_main'].document.getElementById('showUpdateInfo').classList.add('hide');">Close</button>
+    <button class="button" onclick='top.frames["frame_main"].location.href="/update"'>Update</button>
+  </div>
+
 </body>
 </html>
