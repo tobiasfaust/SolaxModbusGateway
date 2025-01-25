@@ -31,18 +31,33 @@ parser.add_argument('-p', '--PathOfPartitionsCSV', type=str, help='Pfad wo die p
 args = parser.parse_args()
 result = None
 
+# Bootloader offsets vary by chip
+bootloader_offsets = {
+    "ESP32": "0x1000",
+    "ESP32-S2": "0x1000",
+    "ESP32-S3": "0x0",
+    "ESP32-C2": "0x0",
+    "ESP32-C3": "0x0",
+    "ESP32-C5": "0x2000",
+    "ESP32-C6": "0x0",
+    "ESP32-H2": "0x0",
+    "ESP32-P4": "0x2000",
+}
+
 if(not os.path.isfile(args.PathOfPartitionsCSV)):
     logging.error(f'File {args.PathOfPartitionsCSV} does not exist')
     exit(1)
 
 if args.BuildDir and os.path.isdir(args.BuildDir):
     if 'ESP32' in args.ChipFamily:
+        bootloader_offset = bootloader_offsets[args.ChipFamily]
+
         result = f'esptool.py --chip {args.ChipFamily} merge_bin \
             --output {args.BuildDir}/merged-firmware.bin \
             --flash_mode dout \
             --flash_freq 80m \
             --flash_size 4MB \
-            0x1000 {args.BuildDir}/bootloader.bin \
+            {bootloader_offset} {args.BuildDir}/bootloader.bin \
             0x8000 {args.BuildDir}/partitions.bin \
             {readOffsetFromPartitionCSV("partitions.csv", "app0")} {args.BuildDir}/firmware.bin'
         
