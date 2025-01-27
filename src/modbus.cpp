@@ -42,8 +42,8 @@ modbus::modbus(): enableRelays(false),
     this->pin_Relay1 = this->default_pin_Relay1 = 12;
     this->pin_Relay2 = this->default_pin_Relay2 = 14;
   } else {
-    this->pin_RX = this->default_pin_RX = 16;
-    this->pin_TX = this->default_pin_TX = 17;
+    this->pin_RX = this->default_pin_RX = DEFAULT_MODBUS_RX_PIN;
+    this->pin_TX = this->default_pin_TX = DEFAULT_MODBUS_TX_PIN;
     this->pin_RTS = this->default_pin_RTS = 5;
     this->pin_Relay1 = this->default_pin_Relay1 = 18;
     this->pin_Relay2 = this->default_pin_Relay2 = 19;
