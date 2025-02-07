@@ -17,6 +17,10 @@ on:
       - '**.yml'
       - '**.sh'
       - '**.py'
+      - '**.json'
+      - '**.js'
+      - '**.css'
+      - '**.html'
 
 jobs:
   build:

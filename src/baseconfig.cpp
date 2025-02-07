@@ -1,14 +1,18 @@
-#include "baseconfig.h"
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
 
-BaseConfig::BaseConfig(): debuglevel(2), 
-                          serial_rx(3), 
+#include <baseconfig.h>
+
+BaseConfig::BaseConfig(): debuglevel(2),
+                          serial_rx(3),
                           serial_tx(1),
                           mqtt_UseRandomClientID(true),
-                          useAuth(false) {  
+                          useAuth(false) {
   #ifdef ESP8266
     LittleFS.begin();
   #elif defined(ESP32)
-    if (LittleFS.begin(true)) { // true: format LittleFS/NVS if mount fails
+    if (LittleFS.begin(true)) {  // true: format LittleFS/NVS if mount fails
       if (!LittleFS.exists("/config")) {
         LittleFS.mkdir("/config");
       }
@@ -16,29 +20,29 @@ BaseConfig::BaseConfig(): debuglevel(2),
       this->log(1, "LittleFS Mount Failed");
     }
   #endif
-  
+
   // Flash Write Issue
   // https://github.com/esp8266/Arduino/issues/4061#issuecomment-428007580
   // LittleFS.format();
-  
+
   LoadJsonConfig();
 }
 
 void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
   if (LittleFS.exists("/config/baseconfig.json")) {
-    //file exists, reading and loading
+    // file exists, reading and loading
     this->log(2, "reading config file");
     File configFile = LittleFS.open("/config/baseconfig.json", "r");
     if (configFile) {
       this->log(2, "opened config file");
-      
+
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
-      
+
       if (!error && doc["data"]) {
         this->log(1, doc);
-        
+
         if (doc["data"]["mqttroot"])         { this->mqtt_root = doc["data"]["mqttroot"].as<String>();} else {this->mqtt_root = "solax";}
         if (doc["data"]["mqttserver"])       { this->mqtt_server = doc["data"]["mqttserver"].as<String>();} else {this->mqtt_server = "test.mosquitto.org";}
         if (doc["data"]["mqttport"])         { this->mqtt_port = doc["data"]["mqttport"].as<uint16_t>();} else {this->mqtt_port = 1883;}
@@ -92,9 +96,7 @@ const String BaseConfig::GetReleaseName() {
   return String(Release) + "(@" + String(GIT_BRANCH) + ")"; 
 }
 
-void BaseConfig::GetInitData(AsyncResponseStream *response) {
-  String ret;
-  JsonDocument json;
+void BaseConfig::GetInitData(JsonDocument& json) {
   json["data"]["mqttroot"]    = this->mqtt_root;
   json["data"]["mqttserver"]  = this->mqtt_server;
   json["data"]["mqttport"]    = this->mqtt_port;
@@ -120,8 +122,6 @@ void BaseConfig::GetInitData(AsyncResponseStream *response) {
 
   json["response"]["status"] = 1;
   json["response"]["text"] = "successful";
-  serializeJson(json, ret);
-  response->print(ret);
 }
 
 void BaseConfig::log(const int loglevel, const char* format, ...) {

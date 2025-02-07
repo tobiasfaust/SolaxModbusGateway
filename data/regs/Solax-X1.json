@@ -515,14 +515,46 @@
           ]
       },
       "set": [
+        {
+            "name": "setUnlockSettings",
+            "realname": "Unlock Settings",
+            "info": "send the 4 digit advanced password",
+            "request": [
+              "#ClientID",
+              "0x06",
+              "0x00",
+              "0x00"
+            ]
+          },
           {
-              "name": "TargetBatSOC",
-              "request": [
-                  "#ClientID",
-                  "0x06",
-                  "0x00",
-                  "0x83"
+            "name": "setTargetBatSOC",
+            "realname": "Target SoC",
+            "info": "set battery SOC: 0 - 100 in percent",
+            "request": [
+                "#ClientID",
+                "0x06",
+                "0x00",
+                "0x83"
               ]
+          },
+          {
+            "name": "setOperationMode",
+            "realname": "Operation Mode",
+            "info": "setting of 6 possible operation modes",
+            "mapping": [
+                      [ "SelfUse", 0 ],
+                      [ "FeedInPriority", 1 ],
+                      [ "BackupMode", 2 ],
+                      [ "ManuelMode", 3 ],
+                      [ "PeakShaving", 4 ],
+                      [ "TUOMode", 5 ]
+                    ],
+            "request": [
+              "#ClientID",
+              "0x06",
+              "0x00",
+              "0x1f"
+            ]
           }
       ]
   }

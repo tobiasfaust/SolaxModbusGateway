@@ -1,18 +1,22 @@
-#ifndef OPENWB_H
-#define SOLAXMODBUS_H
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
 
-#include "commonlibs.h"
-#include "baseconfig.h"
-#include "ArduinoJson.h"
+#ifndef OPENWB_H_
+#define OPENWB_H_
+
+#include <commonlibs.h>
+#include <baseconfig.h>
+#include <ArduinoJson.h>
 
 class openwb {
-  //openwb mqtt topics
+  // openwb mqtt topics
   typedef struct {
     String key;
     String value;
   } openwb_t;
 
-  public:
+ public:
     openwb();
 
     /*******************************************************
@@ -24,21 +28,21 @@ class openwb {
      * @brief set the needed OpenWB API Version, used from getOpenWbVersions
      *******************************************************/
     void setVersion(String version);
-    
+
     /*******************************************************
      * get openWB topic from key
      * 
      * @param key: key from openWB JSON
      * @return string: topic
     *******************************************************/
-    String getOpenWbTopic(String& key);
+    const String getOpenWbTopic(const String& key);
 
     /*******************************************************
      * @brief Get all available openWB API Versions
      * 
      * @return std::vector<String>*
      ******************************************************/
-    const std::vector<String>* getOpenWbVersions() { return OpenWBVersions; } 
+    const std::vector<String>* getOpenWbVersions() { return OpenWBVersions; }
 
     /*******************************************************
      * @brief add a new Mapping for Topic Keys like #key#, 
@@ -56,10 +60,9 @@ class openwb {
     /*******************************************************
      * @brief clear all mappings
      ******************************************************/
-    void clearMappings() { OpenWBMappings->clear(); } 
-    
-  private:
+    void clearMappings() { OpenWBMappings->clear(); }
 
+ private:
     std::vector<openwb_t>*  OpenWBTopics;         // openWB mqtt topics from JSON
     std::vector<String>*    OpenWBVersions;       // openWB available versions from JSON
     std::vector<openwb_t>*  OpenWBMappings;       // openWB mappings from JSON
@@ -70,4 +73,4 @@ class openwb {
     void                    LoadAvailableOpenWbVersions();
 };
 
-#endif
+#endif  // OPENWB_H_

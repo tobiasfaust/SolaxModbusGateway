@@ -1,3 +1,7 @@
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
 #ifndef FAVICON_H
 #define FAVICON_H
 

@@ -4,9 +4,18 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
     <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='text/javascript' src='/web/Javascript.js'></script>
-    <script language='javascript' type='text/javascript' src='/web/rawdata.js'></script>
+    <script language='javascript' type='module' src='/web/Javascript.js'></script>
+    <script language='javascript' type='module' src='/web/rawdata.js'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
+
+    <script type='module'>
+      import { init, check_rawdata, cpRawDataPos } from './rawdata.js';
+      window.check_rawdata = check_rawdata;
+      window.cpRawDataPos = cpRawDataPos;
+      
+      window.addEventListener('DOMContentLoaded', init, false);
+    </script>
+
     <title>RawData</title>
   </head>
   <body>
@@ -19,8 +28,7 @@
             <td style='width: 400px;'>Raw Data</td>
           </tr>
         </thead>
-      <tbody>
-
+        <tbody>
         <tr>
           <td>RawData of ID-Data</td>
           <td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'>
@@ -40,9 +48,8 @@
       </tbody>
       </table>
 
-      <p>
+      <p></p>
       <table id='maintable' class='editorDemoTable'>
-    
         <tr>
           <td style='width: 250px;'>Insert your positions (comma separated) to test</td>
           <td style='width: 400px;'><input id='positions' type='text' style='width: 12em' value='15,16,17,18'/><input  type='button' value='test it' onclick='check_rawdata()' /><span id='rawdata_result'></span></td>
@@ -69,9 +76,14 @@
           </td>
         </tr>
       </table>
-    </tbody>
-    </table>
     </form>
-
+    <p></p>
+    <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
+      <div style="font-size: 10px; float: right;">
+        Connection Status:
+        <span id="ws-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: red; margin-right: 25px; margin-top: 7px;"></span>
+      </div>
+      <span style="float: left; margin-top: 2px;" id='response'>x</span>
+    </div>
   </body>
 </html>

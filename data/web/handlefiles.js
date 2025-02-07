@@ -1,69 +1,91 @@
 // https://jsfiddle.net/tobiasfaust/uc1jfpgb/
 
+import * as global from './Javascript.js';
+
 var DirJson;
 
-window.addEventListener('load', initHandleFS, false);
-function initHandleFS() {
-  init("/");
+// ************************************************
+export const functionMap = {
+  files_Callback: MyCallback
+};
+
+// ************************************************
+export function init1() {
+  var data = {"JS": {"listdir": [
+      {"path": "/", "content": [{"name": "file1.txt", "isDir": 0}, {"name": "file2.txt", "isDir": 0}, {"name": "dir1", "isDir": 1}]},
+      {"path": "/dir1", "content": [{"name": "file3.txt", "isDir": 0}, {"name": "file4.txt", "isDir": 0}]}
+    ]},
+    "response": {"status": 1, "text": "successful"},
+    "cmd": {"callbackFn": "files_Callback", "startpath": "/"}
+    };
+
+  global.handleJsonItems(data);
+
+  document.getElementById('fullpath').innerHTML = ''; // div 
+  document.getElementById('filename').value = ''; // input field
+  document.getElementById('content').value = '';
+
   document.querySelector("#loader").style.visibility = "hidden";
   document.querySelector("body").style.visibility = "visible";
 }
 
-function init(startpath) {
-  requestListDir(startpath);
-  obj = document.getElementById('fullpath').innerHTML = ''; // div 
-  obj = document.getElementById('filename').value = ''; // input field
-  obj = document.getElementById('content').value = '';
+export function init() {
+  // Initiale Verbindung aufbauen
+  global.connectWebSocket();
+
+  // Warte bis die WebSocket-Verbindung aufgebaut ist
+  let checkWebSocketInterval = setInterval(() => {
+    if (global.ws && global.ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWebSocketInterval);
+      GetInitData("/");
+    }
+  }, 100);
 }
 
-// ***********************************
-// Ajax Request to update  
-// ***********************************
-function requestListDir(startpath) {
+// ************************************************
+export function GetInitData(startpath) {
   var data = {};
-  data['action'] = "handlefiles";
-  data['subaction'] = "listDir"
-  //ajax_send(JSON.stringify(data));
-  
-  var http = null;
-  if (window.XMLHttpRequest)  { http =new XMLHttpRequest(); }
-  else                        { http =new ActiveXObject("Microsoft.XMLHTTP"); }
-  
-  if(!http){ alert("AJAX is not supported."); return; }
- 
-  var url = '/ajax';
-  var params = 'json=' + JSON.stringify(data);
-  
-  http.open('POST', url, true);
-  http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  http.onreadystatechange = function() { //Call a function when the state changes.
-    if(http.readyState == 4 && http.status == 200) {
-      DirJson = JSON.parse(http.responseText);
-      listFiles(startpath);
-    } 
-  }
-  http.send(params);
+  data['cmd'] = {};
+  data['cmd']['action'] = "handlefiles";
+  data['cmd']['subaction'] = "listDir"
+  data['cmd']['startpath'] = startpath;
+  data['cmd']['callbackFn'] = "files_Callback";
+
+  global.requestData(data);
+
+  document.getElementById('fullpath').innerHTML = ''; // div 
+  document.getElementById('filename').value = ''; // input field
+  document.getElementById('content').value = '';
+
+  document.querySelector("#loader").style.visibility = "hidden";
+  document.querySelector("body").style.visibility = "visible";
 }
 
-// ***********************************
+// ************************************************
+function MyCallback(json) {
+  DirJson = json["JS"].listdir;
+  listFiles(json["cmd"]["startpath"]);
+}
+
+// ************************************************
 // show content of fetched file 
-// ***********************************
+// ************************************************
 function setContent(string, file) {
-  obj = document.getElementById('fullpath').innerHTML = file; // div 
-  obj = document.getElementById('filename').value = basename(file); // input field
+  document.getElementById('fullpath').innerHTML = file; // div 
+  document.getElementById('filename').value = basename(file); // input field
   
   if (file.endsWith("json")) {
-    obj = document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
+    document.getElementById('content').value = JSON.stringify(JSON.parse(string), null, 2);
   } else {
-    obj = document.getElementById('content').value = string;
+    document.getElementById('content').value = string;
   }
 }
 
 // ***********************************
 // fetch file from host
 // ***********************************
-function fetchFile(file) {
-  obj = document.getElementById('content').value = "loading "+file+"...";
+export function fetchFile(file) {
+  document.getElementById('content').value = "loading "+file+"...";
   
   fetch(file)
   .then(response => response.text())
@@ -73,10 +95,10 @@ function fetchFile(file) {
 // ***********************************
 // show directory structure 
 // ***********************************
-function listFiles(path) {
+export function listFiles(path) {
   var table = document.querySelector('#files'),
       row = document.querySelector('#NewRow'),
-      tr_tpl, DirJsonLocal;
+      cells, tr_tpl, DirJsonLocal;
   
   // cleanup table
   table.replaceChildren();
@@ -87,7 +109,7 @@ function listFiles(path) {
       DirJsonLocal = DirJson[i]
     }
   }
-  
+
   // show path information
   document.getElementById('path').innerHTML = path;
   
@@ -170,7 +192,7 @@ function validateJson(json) {
 // ***********************************
 // download content of textarea as filename on local pc
 // ***********************************
-function downloadFile() {
+export function downloadFile() {
   var textToSave = document.getElementById("content").value;
   var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
   var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
@@ -182,11 +204,11 @@ function downloadFile() {
     downloadLink.innerHTML = "Download File";
     downloadLink.href = textToSaveAsURL;
 
-     downloadLink.onclick = destroyClickedElement;
+    downloadLink.onclick = destroyClickedElement;
     downloadLink.style.display = "none";
     document.body.appendChild(downloadLink);
     downloadLink.click();
-  } else { setResponse(false, 'Filename is empty, Please define it.');}
+  } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
 
 function destroyClickedElement(event)
@@ -197,7 +219,7 @@ function destroyClickedElement(event)
 // ***********************************
 // store content of textarea
 // ***********************************
-function uploadFile() {
+export function uploadFile() {
   var textToSave = document.getElementById("content").value;
   var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
   var fileNameToSaveAs = document.getElementById("filename").value;
@@ -206,12 +228,12 @@ function uploadFile() {
   if (fileNameToSaveAs != '') {
     if (fileNameToSaveAs.toLowerCase().endsWith('.json')) {
       if (!validateJson(textToSave)) {
-        setResponse(false, 'Json invalid')
+        global.setResponse(false, 'Json invalid')
         return;
       }
     }
 
-    setResponse(true, 'Please wait for saving ...');
+    global.setResponse(true, 'Please wait for saving ...');
     
     const formData = new FormData();
     formData.append(fileNameToSaveAs, textToSaveAsBlob, pathOfFile + '/' + fileNameToSaveAs);
@@ -222,24 +244,26 @@ function uploadFile() {
     })
       .then (response => response.json())
       .then (json =>  {
-        setResponse(true, json.text)
+        global.setResponse(true, json.text)
       }); 
   
-  } else { setResponse(false, 'Filename is empty, Please define it.');}
+  } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
 
-function deleteFile() {
+// ************************************************
+export function deleteFile() {
   var pathOfFile = document.getElementById('path').innerHTML;
   var fileName = document.getElementById("filename").value;
   
   if (fileName != '') {
     var data = {};
-    data['action'] = 'handlefiles';
-    data['subaction'] = "deleteFile";
-    data['filename'] = pathOfFile + '/' + fileName;
+    data['cmd'] = {};
+    data['cmd']['action'] = 'handlefiles';
+    data['cmd']['subaction'] = "deleteFile";
+    data['cmd']['filename'] = pathOfFile + '/' + fileName;
 
-    setResponse(true, 'Please wait for deleting ...');
-    requestData(JSON.stringify(data));
-    init(pathOfFile);
-  } else { setResponse(false, 'Filename is empty, Please define it.');}
+    global.setResponse(true, 'Please wait for deleting ...');
+    global.requestData(data);
+    GetInitData(pathOfFile);
+  } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }

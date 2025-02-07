@@ -1,4 +1,8 @@
-#include "openwb.h"
+/********************************************************
+ * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
+ ********************************************************/
+
+#include <openwb.h>
 
 openwb::openwb(): _version("") {
   OpenWBTopics = new std::vector<openwb_t>();
@@ -25,7 +29,7 @@ void openwb::LoadAvailableOpenWbVersions() {
   }
 
   OpenWBVersions->clear();
-  
+
   JsonDocument doc;
   DeserializationError error = deserializeJson(doc, file);
   if (error) {
@@ -70,7 +74,6 @@ void openwb::LoadOpenWBTopicsFromJson() {
           this->OpenWBTopics->push_back(t);
 
           Config->log(3, "openWB topic loaded: %s", kv.value().as<String>().c_str());
-          
         }
       }
       break;
@@ -80,7 +83,7 @@ void openwb::LoadOpenWBTopicsFromJson() {
   file.close();
 }
 
-String openwb::getOpenWbTopic(String& key) {
+const String openwb::getOpenWbTopic(const String& key) {
   for (uint8_t i = 0; i < this->OpenWBTopics->size(); i++) {
     if (this->OpenWBTopics->at(i).key == key) {
       String topic = this->OpenWBTopics->at(i).value;
@@ -91,7 +94,7 @@ String openwb::getOpenWbTopic(String& key) {
     }
   }
   return "";
-} 
+}
 
 void openwb::addMapping(String key, String value) {
   for (uint8_t i = 0; i < this->OpenWBMappings->size(); i++) {

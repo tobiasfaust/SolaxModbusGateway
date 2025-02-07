@@ -1,9 +1,18 @@
+Release 3.3.2:
+  - new feature: add confirmation dialog for ESP reset
+  - migrate from old ajax communication to standard websocket communication
+  - new feature: show set topics in WebUI (thanks to @laszgar)
+  - new feature: add "newUpdate available" info in WebUI header
+  - new feature: add toggle buttons at ModbusItems WebUI to change all items at once (#96)
+  - new Inverter: add Growatt-SPH-V124 register file (thanks to @StefanNouza) (#109)
+  
 Release 3.3.1:
   - new Feature: datatype "binary" now available for json register definitions (PR #115)
   - BugFix: fix null-terminationof string handling (#96)
   - new feature: support for OpenWB 2.0 Api (#100)
   - bugfix: fix esp crash for /getitems if using an huge register table (#76)
   - fix CORS Issue when download a stable release
+  - bugfix: fix register id definition (#113)
 
 Release 3.3.0:
   - new feature: WebSerial as remote serial output (#74)
