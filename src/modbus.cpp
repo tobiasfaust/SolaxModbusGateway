@@ -195,7 +195,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
         Config->logN(4, "Map values for item %s", msg.c_str());
 
         JsonArray map = elem["mapping"].as<JsonArray>();
-        msg = this->MapItem(map, msg, false);
+        msg = this->MapItem(map, msg, true);
       }
 
       int msgInt = msg.toInt(); // atoi(msg.c_str())
