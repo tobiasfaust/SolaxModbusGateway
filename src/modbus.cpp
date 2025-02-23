@@ -973,7 +973,7 @@ String modbus::MapBitwise(JsonArray map, String value) {
 /*******************************************************
  * Map a value to a predefined constant string
 *******************************************************/
-String modbus::MapItem(JsonArray map, String value) {
+String modbus::MapItem(JsonArray map, String value, bool isSetter) {
   String ret = value;
 
   for (JsonArray mapItem : map) {
@@ -982,7 +982,9 @@ String modbus::MapItem(JsonArray map, String value) {
 
     v1.toLowerCase();
     v2.toLowerCase();
-    value.toLowerCase();
+    if (isSetter == true) {
+      value.toLowerCase();
+    }
 
     if (value == v1) {
       ret = v2;
