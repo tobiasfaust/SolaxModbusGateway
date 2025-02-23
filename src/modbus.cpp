@@ -980,10 +980,9 @@ String modbus::MapItem(JsonArray map, String value, bool isSetter) {
     String v1 = mapItem[0].as<String>();
     String v2 = mapItem[1].as<String>();
 
-    v1.toLowerCase();
-    v2.toLowerCase();
-    
     if (isSetter) {
+      v1.toLowerCase();
+      v2.toLowerCase();
       value.toLowerCase();
     }
 
