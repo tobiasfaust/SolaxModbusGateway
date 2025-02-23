@@ -872,7 +872,7 @@ void modbus::ParseData() {
 
         JsonArray map = elem["mapping"].as<JsonArray>();
         if (datatype == "binary") d.value = this->MapBitwise(map, d.value);
-        else d.value = this->MapItem(map, d.value);
+        else d.value = this->MapItem(map, d.value, false);
       }
 
       Config->logN(4, "Data: %s -> %s %s", d.Name.c_str(), d.value.c_str(), d.unit.c_str());
