@@ -127,7 +127,7 @@ class modbus {
     String                  GetMqttSetTopic(String command);
     void                    ChangeRegItem(std::vector<reg_t>* vector, reg_t item);
     void                    LoadRegItems(std::vector<reg_t>* vector, String type);
-    String                  MapItem(JsonArray map, String value);
+    String                  MapItem(JsonArray map, String value, bool isSetter);
     String                  MapBitwise(JsonArray map, String value);
     String                  ConvertIntToBinaryString(int n, int numBits);
     void                    ReadRelays();
