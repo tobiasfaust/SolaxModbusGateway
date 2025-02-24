@@ -267,3 +267,42 @@ export function deleteFile() {
     GetInitData(pathOfFile);
   } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
+
+// ***********************************
+// backup complete filesystem of ESP by zipfile
+//
+// https://gist.github.com/noelvo/4502eea719f83270c8e9
+// ***********************************
+export function backup() {
+  var url = [];
+  
+  for(let i = 0; i < DirJson.length; i++) { 
+    DirJson[i].content.forEach(function (file) {
+		  if (file.isDir==0) {
+	      //console.log(DirJson[i].path, file.name)
+				url.push(DirJson[i].path + "/" + file.name)
+      }
+    })
+  }
+  compressed_img(url, "backup");
+}
+
+function compressed_img(urls, nombre) {
+  var zip = new JSZip();
+  var count = 0;
+  var name = nombre + ".zip";
+  urls.forEach(function(url){
+    JSZipUtils.getBinaryContent(url, function (err, data) {
+      if(err) {
+         throw err; 
+      }
+       zip.file(url, data,  {binary:true});
+       count++;
+       if (count == urls.length) {
+         zip.generateAsync({type:'blob'}).then(function(content) {
+            saveAs(content, name);
+         });
+       }
+      });
+  });
+}

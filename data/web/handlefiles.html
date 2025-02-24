@@ -8,13 +8,18 @@
      <script language='javascript' type='module' src='/web/handlefiles.js'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
 
+    <script language='javascript' type='text/javascript' src='https://cdn.jsdelivr.net/gh/Stuk/jszip@main/dist/jszip.js'></script>
+    <script language='javascript' type='text/javascript' src='https://cdn.jsdelivr.net/gh/Stuk/jszip-utils@master/dist/jszip-utils.js'></script>
+    <script language='javascript' type='text/javascript' src='https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js@master/dist/FileSaver.js'></script>
+    
     <script type='module'>
-      import { init, listFiles, downloadFile, uploadFile, deleteFile, fetchFile } from './handlefiles.js';
+      import { init, listFiles, downloadFile, uploadFile, deleteFile, fetchFile, backup } from './handlefiles.js';
       window.downloadFile = downloadFile;
       window.uploadFile = uploadFile;
       window.deleteFile = deleteFile;
       window.fetchFile = fetchFile;
       window.listFiles = listFiles;
+      window.backup = backup;
 
       window.addEventListener('DOMContentLoaded', init, false);
     </script>
@@ -63,6 +68,7 @@
             <button type='button' onclick='downloadFile()'style='font-size:18px' class='fa' title='download to pc'>&#xf019</button>
             <button onclick='uploadFile()' style='font-size:18px' class='fa' title='store it'>&#xf0c7</button>
             <button onclick="document.getElementById('confirmDeleteFile').classList.remove('hide')" style='font-size:18px' class='fa' title='delete it'>&#xf014</button>
+            <button onclick='backup()' style='font-size:18px' class='fa' title='backup complete filesystem as zip'>&#xf1c6</button>
             <span id='response'></span>
           </td>
         </tr>
