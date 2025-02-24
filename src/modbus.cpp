@@ -1198,7 +1198,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
 void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
   std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
   String subaction("");
-  
+
   if(request->hasArg("json")) {
     const String json = request->arg("json");
     Config->logN(4, "[GetSetterAsJson] Json command empfangen: %s", json.c_str());
@@ -1238,19 +1238,21 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
  
       streamString = "\"set\": [";
       regfile.find(streamString.c_str());
-      do {
-        if (itemIterator == (*counter - 1)) {
-          bool isActive = false;  // default
-          JsonDocument elem;
-          DeserializationError error = deserializeJson(elem, regfile); 
-  
-          if (error) {
-            Config->logN(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
-            break;
-          }
 
-          Config->logN(4, "parsing JSON ok");
-          Config->log(5, elem);
+      do {
+        JsonDocument elem;
+        DeserializationError error = deserializeJson(elem, regfile); 
+
+        if (error) {
+          Config->logN(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
+          break;
+        }
+
+        Config->logN(4, "parsing JSON ok");
+        Config->log(5, elem);
+
+        if (itemIterator == (*counter - 1) && ret.length() < maxLen) {
+          bool isActive = false;  // default
 
           //check if setter is active
           for (uint8_t i = 0; i < this->Setters->size(); i++) {
@@ -1265,27 +1267,25 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
             String mapping = elem["mapping"].as<String>(); mapping.replace("\"", "'");
             
             ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
-            
             ret += "\"realname\": {\"innerHTML\": \"" + elem["realname"].as<String>() + "\"";
             if (elem["info"])     ret += ", \"data-info\": \"" + elem["info"].as<String>() + "\"";
             ret += "},";
-            
             ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
-            
             ret += "\"subscription\": {\"innerHTML\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\"";
             if (elem["mapping"])  ret += ", \"data-mapping\": \""+ mapping + "\"";             
             ret += "}}";
           }
-        }
 
-        (*counter)++;
+          (*counter)++;
+        }
+        
         itemIterator++;
 
       } while (regfile.findUntil(",","]"));
 
       if (regfile) { regfile.close(); }
 
-      if (ret.length() > 0) {
+      if (itemIterator == (*counter - 1)) {
         // send end of JSON
         ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
         (*counter)++;
