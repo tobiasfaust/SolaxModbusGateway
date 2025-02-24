@@ -48,11 +48,6 @@ class MyWebServer {
     bool      handleReset();
     void      handleRoot(AsyncWebServerRequest *request);
     void      handleFavIcon(AsyncWebServerRequest *request);
-//    void      handleGetItemJson(AsyncWebServerRequest *request);
-//    void      handleGetRegisterJson(AsyncWebServerRequest *request);
-//    void      handleGetSetterJson(AsyncWebServerRequest *request);
-//    void      GetInitDataStatus(AsyncResponseStream *response);
-//    void      GetInitDataNavi(AsyncResponseStream *response);
     void      GetInitDataStatus(JsonDocument& json);
     void      GetInitDataNavi(JsonDocument& json);    
 

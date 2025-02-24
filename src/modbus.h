@@ -63,7 +63,6 @@ class modbus {
     String                  GetInverterSN();
     void                    GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request);
     void                    GetSettersAsJsonToWebServer(AsyncWebServerRequest *request);
-    //void                    GetRegisterAsJsonToWebServer(AsyncResponseStream *response);
     void                    SetItemActiveStatus(String item, bool newstate);
     void                    ReceiveMQTT(String topic, String msg);
     JsonDocument            GetSetterByName(String name);

@@ -18,7 +18,6 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
    
   server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetLiveDataAsJsonToWebServer(request); });
-  //server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1)); // deprecated, not longer in use
   server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSettersAsJsonToWebServer(request); });
 
 
@@ -258,18 +257,6 @@ bool MyWebServer::handleReset() {
 
   return ret;
 }
-
-/*
-void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "-1");
-  
-  mb->GetRegisterAsJsonToWebServer(response);
-  request->send(response);  
-}
-*/
 
 void MyWebServer::GetInitDataNavi(JsonDocument& json) {
   json["data"].to<JsonObject>();
