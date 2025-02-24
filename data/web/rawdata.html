@@ -9,9 +9,10 @@
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
 
     <script type='module'>
-      import { init, check_rawdata, cpRawDataPos } from './rawdata.js';
+      import { init, check_rawdata, cpRawDataPos, cpRawdata2Clipboard } from './rawdata.js';
       window.check_rawdata = check_rawdata;
       window.cpRawDataPos = cpRawDataPos;
+      window.cpRawdata2Clipboard = cpRawdata2Clipboard;
       
       window.addEventListener('DOMContentLoaded', init, false);
     </script>
@@ -30,7 +31,10 @@
         </thead>
         <tbody>
         <tr>
-          <td>RawData of ID-Data</td>
+          <td>
+            RawData of ID-Data
+            <i class="fa fa-copy" onclick="cpRawdata2Clipboard('id_rawdata')" style="cursor: pointer;"></i>
+          </td>
           <td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'>
             <span id='id_rawdata_org' style='display: none;'></span>
             <span id='id_rawdata'></span>
@@ -38,7 +42,10 @@
         </tr>
 
         <tr>
-          <td>RawData of Live-Data</td>
+          <td>
+            RawData of Live-Data
+            <i class="fa fa-copy" onclick="cpRawdata2Clipboard('live_rawdata')" style="cursor: pointer;"></i>
+          </td>
           <td style='padding-left: 20px; width: 300px; vertical-align: middle; word-wrap: break-word; border-right: 1px solid transparent;'>
             <span id='live_rawdata_org' style='display: none;'></span>
             <span id='live_rawdata'></span>
