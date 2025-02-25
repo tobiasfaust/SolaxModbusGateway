@@ -1479,7 +1479,7 @@
           "name": "ChargePeriod1_StartTime",
           "realname": "Forced Charge Period Start Time",
           "datatype": "integer",
-          "unit": "h:m"
+          "unit": "hm"
         },
         {
           "position": [
@@ -1489,7 +1489,7 @@
           "name": "ChargePeriod1_EndTime",
           "realname": "Forced Charge Period End Time",
           "datatype": "integer",
-          "unit": "h:m"
+          "unit": "hm"
         },
         {
           "position": [
@@ -1499,7 +1499,7 @@
           "name": "DischargePeriod1_StartTime",
           "realname": "Allowed Disc Period Start Time",
           "datatype": "integer",
-          "unit": "h:m"
+          "unit": "hm"
         },
         {
           "position": [
@@ -1509,7 +1509,7 @@
           "name": "DischargePeriod1_EndTime",
           "realname": "Allowed Disc Period End Time",
           "datatype": "integer",
-          "unit": "h:m"
+          "unit": "hm"
         }
       ]
     },
