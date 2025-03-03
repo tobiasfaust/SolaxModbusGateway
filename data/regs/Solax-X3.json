@@ -337,7 +337,6 @@
           "name": "InverterSettings",
           "realname": "Inverter Settings",
           "datatype": "integer",
-          "settopic": "UnlockSettings",
           "mapping": [
             [
               0,
@@ -357,7 +356,6 @@
           "name": "ModbusPowerControl",
           "realname": "Modbus Power Control",
           "datatype": "integer",
-          "settopic": "ModbusPowerControl",
           "mapping": [
             [
               0,
@@ -501,7 +499,6 @@
           "name": "BatTargetSoC",
           "realname": "Battery Target SoC",
           "datatype": "integer",
-          "settopic": "TargetSoC",
           "unit": "&percnt;"
         },
         {
