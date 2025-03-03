@@ -337,7 +337,6 @@
           "name": "InverterSettings",
           "realname": "Inverter Settings",
           "datatype": "integer",
-          "settopic": "UnlockSettings",
           "mapping": [
             [
               0,
@@ -357,7 +356,6 @@
           "name": "ModbusPowerControl",
           "realname": "Modbus Power Control",
           "datatype": "integer",
-          "settopic": "ModbusPowerControl",
           "mapping": [
             [
               0,
@@ -501,7 +499,6 @@
           "name": "BatTargetSoC",
           "realname": "Battery Target SoC",
           "datatype": "integer",
-          "settopic": "TargetSoC",
           "unit": "&percnt;"
         },
         {
@@ -1221,7 +1218,7 @@
             ],
             [
               3,
-              "ManuelMode"
+              "ManualMode"
             ],
             [
               4,
@@ -1238,8 +1235,8 @@
             288,
             289
           ],
-          "name": "ManuelMode",
-          "realname": "Manuel Mode",
+          "name": "ManualMode",
+          "realname": "Manual Mode",
           "datatype": "integer",
           "mapping": [
             [
@@ -1339,17 +1336,17 @@
             537,
             538
           ],
-          "name": "PhasePowerBalance",
-          "realname": "Phase Power Balance",
+          "name": "PhaseUnbalancedPowerFeed",
+          "realname": "Phase Unbalanced Power Feed",
           "datatype": "integer",
           "mapping": [
             [
-              1,
-              "On"
+              0,
+              "Disabled"
             ],
             [
-              0,
-              "Off"
+              1,
+              "Enabled"
             ]
           ]
         },
@@ -1409,10 +1406,29 @@
         },
         {
           "position": [
-            307
+            303
           ],
-          "name": "FeedInMinSoC",
-          "realname": "FeedIn Minimum SoC",
+          "name": "SelfUseChargeEnable",
+          "realname": "Self-Use Charge from Grid Enable",
+          "datatype": "integer",
+          "mapping": [
+            [
+              0,
+              "Disabled"
+            ],
+            [
+              1,
+              "Enabled"
+            ]
+          ]
+        },
+        {
+          "position": [
+            304,
+            305
+          ],
+          "name": "SelfUseMaxGridSoC",
+          "realname": "Self-Use Maximum Grid SoC",
           "datatype": "integer",
           "unit": "&percnt;"
         },
@@ -1427,6 +1443,24 @@
         },
         {
           "position": [
+            307
+          ],
+          "name": "FeedInMinSoC",
+          "realname": "FeedIn Minimum SoC",
+          "datatype": "integer",
+          "unit": "&percnt;"
+        },
+        {
+          "position": [
+            308
+          ],
+          "name": "BackupNightChargeSoC",
+          "realname": "Backup NightCharge SoC",
+          "datatype": "integer",
+          "unit": "&percnt;"
+        },
+        {
+          "position": [
             309
           ],
           "name": "BackupMinSoC",
@@ -1436,12 +1470,43 @@
         },
         {
           "position": [
-            309
+            311,
+            310
           ],
-          "name": "BackupNightChargeSoC",
-          "realname": "Backup NightCharge SoC",
+          "name": "ChargePeriod1_StartTime",
+          "realname": "Forced Charge Period Start Time",
           "datatype": "integer",
-          "unit": "&percnt;"
+          "unit": "h:m"
+        },
+        {
+          "position": [
+            313,
+            312
+          ],
+          "name": "ChargePeriod1_EndTime",
+          "realname": "Forced Charge Period End Time",
+          "datatype": "integer",
+          "unit": "h:m"
+        },
+        {
+          "position": [
+            315,
+            314
+          ],
+          "name": "DischargePeriod1_StartTime",
+          "realname": "Allowed Disc Period Start Time",
+          "datatype": "integer",
+          "unit": "h:m"
+        },
+        {
+          "position": [
+            317,
+            316
+          ],
+          "name": "DischargePeriod1_EndTime",
+          "realname": "Allowed Disc Period End Time",
+          "datatype": "integer",
+          "unit": "h:m"
         }
       ]
     },
@@ -1475,7 +1540,7 @@
             2
           ],
           [
-            "ManuelMode",
+            "ManualMode",
             3
           ],
           [
@@ -1495,8 +1560,8 @@
         ]
       },
       {
-        "name": "setManuelMode",
-        "realname": "Manuel Mode",
+        "name": "setManualMode",
+        "realname": "Manual Mode",
         "info": "accepted values:",
         "mapping": [
           [
@@ -1563,16 +1628,16 @@
         ]
       },
       {
-        "name": "setPhasePowerBalance",
-        "realname": "Phase Power Balance",
-        "info": "has to be investigated",
+        "name": "setPhaseUnbalancedPowerFeed",
+        "realname": "Phase Unbalanced Power Feed",
+        "info": "Allow unbalanced power feed to the grid",
         "mapping": [
           [
-            "Off",
+            "Disable",
             0
           ],
           [
-            "On",
+            "Enable",
             1
           ]
         ],
@@ -1703,6 +1768,38 @@
         ]
       },
       {
+        "name": "setSelfUseChargeEnable",
+        "realname": "Self-Use Charge from Grid",
+        "info": "enable/disable charging from grid",
+        "mapping": [
+          [
+            "Disable",
+            0
+          ],
+          [
+            "Enable",
+            1
+          ]
+        ],
+        "request": [
+          "#ClientID",
+          "0x06",
+          "0x00",
+          "0x62"
+        ]
+      },
+      {
+        "name": "setSelfUseMaxGridSoC",
+        "realname": "Self-Use Maximum Grid SoC",
+        "info": "can be set between 10 - 100 percent",
+        "request": [
+          "#ClientID",
+          "0x06",
+          "0x00",
+          "0x63"
+        ]
+      },
+      {
         "name": "setFeedInMinSoC",
         "realname": "FeedIn Minimum SoC",
         "info": "can be set between 10 - 100 percent",
@@ -1744,6 +1841,50 @@
           "0x06",
           "0x00",
           "0x66"
+        ]
+      },
+      {
+        "name": "setChargePeriod1_StartTime",
+        "realname": "Forced Charge Period Start Time",
+        "info": "Forced Charge Period Start Time",
+        "request": [
+          "#ClientID",
+          "0x06",
+          "0x00",
+          "0x68"
+        ]
+      },
+      {
+        "name": "setChargePeriod1_EndTime",
+        "realname": "Forced Charge Period End Time",
+        "info": "Forced Charge Period End Time",
+        "request": [
+          "#ClientID",
+          "0x06",
+          "0x00",
+          "0x69"
+        ]
+      },
+      {
+        "name": "setDischargePeriod1_StartTime",
+        "realname": "Allowed Disc Period Start Time",
+        "info": "Allowed Discharge Period Start Time",
+        "request": [
+          "#ClientID",
+          "0x06",
+          "0x00",
+          "0x6A"
+        ]
+      },
+      {
+        "name": "setDischargePeriod1_EndTime",
+        "realname": "Allowed Disc Period End Time",
+        "info": "Allowed Discharge Period End Time",
+        "request": [
+          "#ClientID",
+          "0x06",
+          "0x00",
+          "0x6B"
         ]
       }
     ]
