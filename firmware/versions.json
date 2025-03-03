@@ -1,127 +1,11 @@
 [
     {
-        "manifest": "firmware/v3.3.3-123-development/manifestAll-standard.json",
-        "files": "firmware/v3.3.3-123-development/filesAll.json",
-        "version": "v3.3.3",
-        "stage": "development",
-        "variant": "standard",
-        "build": 123,
-        "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
-            "ESP32-C3",
-            "ESP32-S2"
-        ],
-        "builds": [
-            {
-                "chipFamily": "ESP32-S2",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-123.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-123.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-123.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-123.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32-C3",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-123.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-123.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-123.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-123.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/bootloader.ESP32.v3.3.3-123.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/partitions.ESP32.v3.3.3-123.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/littlefs.ESP32.v3.3.3-123.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/firmware.ESP32.v3.3.3-123.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32-S3",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-123.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-123.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-123.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-123.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "manifest": "firmware/v3.3.3-123-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.3-123-development/filesAll.json",
+        "manifest": "firmware/v3.3.3-127-development/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.3-127-development/filesAll.json",
         "version": "v3.3.3",
         "stage": "development",
         "variant": "webSerial",
-        "build": 123,
+        "build": 127,
         "chipFamilies": [
             "ESP32"
         ],
@@ -130,176 +14,22 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-123.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-127.webSerial.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-123.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-127.webSerial.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-123.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-127.webSerial.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-123.webSerial.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "manifest": "firmware/v3.3.3-125-development/manifestAll-standard.json",
-        "files": "firmware/v3.3.3-125-development/filesAll.json",
-        "version": "v3.3.3",
-        "stage": "development",
-        "variant": "standard",
-        "build": 125,
-        "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
-            "ESP32-C3",
-            "ESP32-S2"
-        ],
-        "builds": [
-            {
-                "chipFamily": "ESP32-S2",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-125.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-125.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-125.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-125.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32-C3",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-125.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-125.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-125.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-125.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/bootloader.ESP32.v3.3.3-125.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/partitions.ESP32.v3.3.3-125.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/littlefs.ESP32.v3.3.3-125.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/firmware.ESP32.v3.3.3-125.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32-S3",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-125.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-125.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-125.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-125.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "manifest": "firmware/v3.3.3-125-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.3-125-development/filesAll.json",
-        "version": "v3.3.3",
-        "stage": "development",
-        "variant": "webSerial",
-        "build": 125,
-        "chipFamilies": [
-            "ESP32"
-        ],
-        "builds": [
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-125.webSerial.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-125.webSerial.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-125.webSerial.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-125.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-127.webSerial.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -315,10 +45,10 @@
         "variant": "standard",
         "build": 127,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
+            "ESP32-S2",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32",
+            "ESP32-S3"
         ],
         "builds": [
             {
@@ -424,12 +154,12 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.3-127-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.3-127-development/filesAll.json",
+        "manifest": "firmware/v3.3.3-126-development/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.3-126-development/filesAll.json",
         "version": "v3.3.3",
         "stage": "development",
         "variant": "webSerial",
-        "build": 127,
+        "build": 126,
         "chipFamilies": [
             "ESP32"
         ],
@@ -438,22 +168,22 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-127.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-126.webSerial.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-127.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-126.webSerial.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-127.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-126.webSerial.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-127-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-127.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-126.webSerial.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -469,10 +199,10 @@
         "variant": "standard",
         "build": 126,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
+            "ESP32-S2",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32",
+            "ESP32-S3"
         ],
         "builds": [
             {
@@ -578,12 +308,12 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.3-126-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.3-126-development/filesAll.json",
+        "manifest": "firmware/v3.3.3-128-development/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.3-128-development/filesAll.json",
         "version": "v3.3.3",
         "stage": "development",
         "variant": "webSerial",
-        "build": 126,
+        "build": 128,
         "chipFamilies": [
             "ESP32"
         ],
@@ -592,22 +322,22 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-126.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-128.webSerial.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-126.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-128.webSerial.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-126.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-128.webSerial.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-126-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-126.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-128.webSerial.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -616,89 +346,39 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.3-124-development/manifestAll-standard.json",
-        "files": "firmware/v3.3.3-124-development/filesAll.json",
+        "manifest": "firmware/v3.3.3-128-development/manifestAll-standard.json",
+        "files": "firmware/v3.3.3-128-development/filesAll.json",
         "version": "v3.3.3",
         "stage": "development",
         "variant": "standard",
-        "build": 124,
+        "build": 128,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
+            "ESP32-S2",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32-S3",
+            "ESP32"
         ],
         "builds": [
             {
                 "chipFamily": "ESP32-S2",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-128.standard.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-128.standard.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-128.standard.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-124.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32-C3",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-124.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-124.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-124.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-124.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/bootloader.ESP32.v3.3.3-124.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/partitions.ESP32.v3.3.3-124.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/littlefs.ESP32.v3.3.3-124.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/firmware.ESP32.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-128.standard.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -708,126 +388,47 @@
                 "chipFamily": "ESP32-S3",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-128.standard.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-128.standard.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-128.standard.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-124.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "manifest": "firmware/v3.3.3-124-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.3-124-development/filesAll.json",
-        "version": "v3.3.3",
-        "stage": "development",
-        "variant": "webSerial",
-        "build": 124,
-        "chipFamilies": [
-            "ESP32"
-        ],
-        "builds": [
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-124.webSerial.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-124.webSerial.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-124.webSerial.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-124.webSerial.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "manifest": "firmware/v3.3.0-84-stable/manifestAll-standard.json",
-        "files": "firmware/v3.3.0-84-stable/filesAll.json",
-        "version": "v3.3.0",
-        "stage": "stable",
-        "variant": "standard",
-        "build": 84,
-        "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
-            "ESP32-C3",
-            "ESP32-S2"
-        ],
-        "builds": [
-            {
-                "chipFamily": "ESP32-S2",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.0-84.standard.stable.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.0-84.standard.stable.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.0-84.standard.stable.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-128.standard.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
                 ]
             },
             {
-                "chipFamily": "ESP32-S3",
+                "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32/bootloader.ESP32.v3.3.3-128.standard.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32/partitions.ESP32.v3.3.3-128.standard.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32/littlefs.ESP32.v3.3.3-128.standard.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32/firmware.ESP32.v3.3.3-128.standard.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -837,47 +438,22 @@
                 "chipFamily": "ESP32-C3",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-128.standard.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-128.standard.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-128.standard.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.0-84.standard.stable.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/bootloader.ESP32.v3.3.0-84.standard.stable.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/partitions.ESP32.v3.3.0-84.standard.stable.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/littlefs.ESP32.v3.3.0-84.standard.stable.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/firmware.ESP32.v3.3.0-84.standard.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-128-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-128.standard.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -886,12 +462,12 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.0-84-stable/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.0-84-stable/filesAll.json",
-        "version": "v3.3.0",
+        "manifest": "firmware/v3.3.1-109-stable/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.1-109-stable/filesAll.json",
+        "version": "v3.3.1",
         "stage": "stable",
         "variant": "webSerial",
-        "build": 84,
+        "build": 109,
         "chipFamilies": [
             "ESP32"
         ],
@@ -900,22 +476,22 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.1-109.webSerial.stable.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.1-109.webSerial.stable.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.1-109.webSerial.stable.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.1-109.webSerial.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -931,10 +507,10 @@
         "variant": "standard",
         "build": 109,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
+            "ESP32-S2",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32",
+            "ESP32-S3"
         ],
         "builds": [
             {
@@ -1040,12 +616,12 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.1-109-stable/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.1-109-stable/filesAll.json",
-        "version": "v3.3.1",
-        "stage": "stable",
+        "manifest": "firmware/v3.3.3-125-development/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.3-125-development/filesAll.json",
+        "version": "v3.3.3",
+        "stage": "development",
         "variant": "webSerial",
-        "build": 109,
+        "build": 125,
         "chipFamilies": [
             "ESP32"
         ],
@@ -1054,22 +630,22 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.1-109.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-125.webSerial.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.1-109.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-125.webSerial.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.1-109.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-125.webSerial.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.1-109-stable/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.1-109.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-125.webSerial.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -1078,89 +654,39 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.3-122-development/manifestAll-standard.json",
-        "files": "firmware/v3.3.3-122-development/filesAll.json",
+        "manifest": "firmware/v3.3.3-125-development/manifestAll-standard.json",
+        "files": "firmware/v3.3.3-125-development/filesAll.json",
         "version": "v3.3.3",
         "stage": "development",
         "variant": "standard",
-        "build": 122,
+        "build": 125,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
+            "ESP32-S2",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32",
+            "ESP32-S3"
         ],
         "builds": [
-            {
-                "chipFamily": "ESP32-S3",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-122.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-122.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-122.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-122.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
             {
                 "chipFamily": "ESP32-S2",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-125.standard.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-125.standard.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-125.standard.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-122.standard.development.bin",
-                        "offset": 65536,
-                        "filetype": "firmware"
-                    }
-                ]
-            },
-            {
-                "chipFamily": "ESP32",
-                "parts": [
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32/bootloader.ESP32.v3.3.3-122.standard.development.bin",
-                        "offset": 4096,
-                        "filetype": "bootloader"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32/partitions.ESP32.v3.3.3-122.standard.development.bin",
-                        "offset": 32768,
-                        "filetype": "partitions"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32/littlefs.ESP32.v3.3.3-122.standard.development.bin",
-                        "offset": 3473408,
-                        "filetype": "filesystem"
-                    },
-                    {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32/firmware.ESP32.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-125.standard.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -1170,22 +696,72 @@
                 "chipFamily": "ESP32-C3",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-125.standard.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-125.standard.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-125.standard.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-122.standard.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-125.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/bootloader.ESP32.v3.3.3-125.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/partitions.ESP32.v3.3.3-125.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/littlefs.ESP32.v3.3.3-125.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32/firmware.ESP32.v3.3.3-125.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-S3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-125.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-125.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-125.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-125-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-125.standard.development.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -1194,12 +770,12 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.3-122-development/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.3-122-development/filesAll.json",
+        "manifest": "firmware/v3.3.3-124-development/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.3-124-development/filesAll.json",
         "version": "v3.3.3",
         "stage": "development",
         "variant": "webSerial",
-        "build": 122,
+        "build": 124,
         "chipFamilies": [
             "ESP32"
         ],
@@ -1208,22 +784,176 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-122.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-124.webSerial.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-122.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-124.webSerial.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-122.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-124.webSerial.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-122-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-122.webSerial.development.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-124.webSerial.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "manifest": "firmware/v3.3.3-124-development/manifestAll-standard.json",
+        "files": "firmware/v3.3.3-124-development/filesAll.json",
+        "version": "v3.3.3",
+        "stage": "development",
+        "variant": "standard",
+        "build": 124,
+        "chipFamilies": [
+            "ESP32-S2",
+            "ESP32-C3",
+            "ESP32",
+            "ESP32-S3"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32-S2",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-124.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-C3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-124.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-124.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-124.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-124.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/bootloader.ESP32.v3.3.3-124.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/partitions.ESP32.v3.3.3-124.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/littlefs.ESP32.v3.3.3-124.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32/firmware.ESP32.v3.3.3-124.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-S3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-124-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-124.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "manifest": "firmware/v3.3.2-120-stable/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.2-120-stable/filesAll.json",
+        "version": "v3.3.2",
+        "stage": "stable",
+        "variant": "webSerial",
+        "build": 120,
+        "chipFamilies": [
+            "ESP32"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.2-120.webSerial.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
@@ -1239,10 +969,10 @@
         "variant": "standard",
         "build": 120,
         "chipFamilies": [
-            "ESP32-S3",
-            "ESP32",
+            "ESP32-S2",
             "ESP32-C3",
-            "ESP32-S2"
+            "ESP32-S3",
+            "ESP32"
         ],
         "builds": [
             {
@@ -1348,12 +1078,12 @@
         ]
     },
     {
-        "manifest": "firmware/v3.3.2-120-stable/manifestAll-webSerial.json",
-        "files": "firmware/v3.3.2-120-stable/filesAll.json",
-        "version": "v3.3.2",
-        "stage": "stable",
+        "manifest": "firmware/v3.3.3-123-development/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.3-123-development/filesAll.json",
+        "version": "v3.3.3",
+        "stage": "development",
         "variant": "webSerial",
-        "build": 120,
+        "build": 123,
         "chipFamilies": [
             "ESP32"
         ],
@@ -1362,22 +1092,292 @@
                 "chipFamily": "ESP32",
                 "parts": [
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.3-123.webSerial.development.bin",
                         "offset": 4096,
                         "filetype": "bootloader"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.3-123.webSerial.development.bin",
                         "offset": 32768,
                         "filetype": "partitions"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.3-123.webSerial.development.bin",
                         "offset": 3473408,
                         "filetype": "filesystem"
                     },
                     {
-                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.2-120-stable/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.2-120.webSerial.stable.bin",
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.3-123.webSerial.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "manifest": "firmware/v3.3.3-123-development/manifestAll-standard.json",
+        "files": "firmware/v3.3.3-123-development/filesAll.json",
+        "version": "v3.3.3",
+        "stage": "development",
+        "variant": "standard",
+        "build": 123,
+        "chipFamilies": [
+            "ESP32-S2",
+            "ESP32-C3",
+            "ESP32",
+            "ESP32-S3"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32-S2",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.3-123.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.3-123.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.3-123.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.3-123.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-C3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.3-123.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.3-123.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.3-123.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.3-123.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/bootloader.ESP32.v3.3.3-123.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/partitions.ESP32.v3.3.3-123.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/littlefs.ESP32.v3.3.3-123.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32/firmware.ESP32.v3.3.3-123.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-S3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.3-123.standard.development.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.3-123.standard.development.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.3-123.standard.development.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-123-development/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.3-123.standard.development.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "manifest": "firmware/v3.3.0-84-stable/manifestAll-webSerial.json",
+        "files": "firmware/v3.3.0-84-stable/filesAll.json",
+        "version": "v3.3.0",
+        "stage": "stable",
+        "variant": "webSerial",
+        "build": 84,
+        "chipFamilies": [
+            "ESP32"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/bootloader.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/partitions.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/littlefs.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-WebSerial/firmware.ESP32.v3.3.0-84.webSerial.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "manifest": "firmware/v3.3.0-84-stable/manifestAll-standard.json",
+        "files": "firmware/v3.3.0-84-stable/filesAll.json",
+        "version": "v3.3.0",
+        "stage": "stable",
+        "variant": "standard",
+        "build": 84,
+        "chipFamilies": [
+            "ESP32-S2",
+            "ESP32-C3",
+            "ESP32-S3",
+            "ESP32"
+        ],
+        "builds": [
+            {
+                "chipFamily": "ESP32-S2",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/bootloader.ESP32-S2.v3.3.0-84.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/partitions.ESP32-S2.v3.3.0-84.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/littlefs.ESP32-S2.v3.3.0-84.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S2/firmware.ESP32-S2.v3.3.0-84.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-S3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/bootloader.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/partitions.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/littlefs.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-S3/firmware.ESP32-S3.v3.3.0-84.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32-C3",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.0-84.standard.stable.bin",
+                        "offset": 65536,
+                        "filetype": "firmware"
+                    }
+                ]
+            },
+            {
+                "chipFamily": "ESP32",
+                "parts": [
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/bootloader.ESP32.v3.3.0-84.standard.stable.bin",
+                        "offset": 4096,
+                        "filetype": "bootloader"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/partitions.ESP32.v3.3.0-84.standard.stable.bin",
+                        "offset": 32768,
+                        "filetype": "partitions"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/littlefs.ESP32.v3.3.0-84.standard.stable.bin",
+                        "offset": 3473408,
+                        "filetype": "filesystem"
+                    },
+                    {
+                        "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.0-84-stable/firmware_ESP32/firmware.ESP32.v3.3.0-84.standard.stable.bin",
                         "offset": 65536,
                         "filetype": "firmware"
                     }
