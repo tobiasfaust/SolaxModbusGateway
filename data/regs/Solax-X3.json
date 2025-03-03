@@ -1221,7 +1221,7 @@
             ],
             [
               3,
-              "ManuelMode"
+              "ManualMode"
             ],
             [
               4,
@@ -1238,8 +1238,8 @@
             288,
             289
           ],
-          "name": "ManuelMode",
-          "realname": "Manuel Mode",
+          "name": "ManualMode",
+          "realname": "Manual Mode",
           "datatype": "integer",
           "mapping": [
             [
@@ -1339,17 +1339,17 @@
             537,
             538
           ],
-          "name": "PhasePowerBalance",
-          "realname": "Phase Power Balance",
+          "name": "PhaseUnbalancedPowerFeed",
+          "realname": "Phase Unbalanced Power Feed",
           "datatype": "integer",
           "mapping": [
             [
-              1,
-              "On"
+              0,
+              "Disabled"
             ],
             [
-              0,
-              "Off"
+              1,
+              "Enabled"
             ]
           ]
         },
@@ -1479,7 +1479,7 @@
           "name": "ChargePeriod1_StartTime",
           "realname": "Forced Charge Period Start Time",
           "datatype": "integer",
-          "unit": "hm"
+          "unit": "h:m"
         },
         {
           "position": [
@@ -1489,7 +1489,7 @@
           "name": "ChargePeriod1_EndTime",
           "realname": "Forced Charge Period End Time",
           "datatype": "integer",
-          "unit": "hm"
+          "unit": "h:m"
         },
         {
           "position": [
@@ -1499,7 +1499,7 @@
           "name": "DischargePeriod1_StartTime",
           "realname": "Allowed Disc Period Start Time",
           "datatype": "integer",
-          "unit": "hm"
+          "unit": "h:m"
         },
         {
           "position": [
@@ -1509,7 +1509,7 @@
           "name": "DischargePeriod1_EndTime",
           "realname": "Allowed Disc Period End Time",
           "datatype": "integer",
-          "unit": "hm"
+          "unit": "h:m"
         }
       ]
     },
@@ -1543,7 +1543,7 @@
             2
           ],
           [
-            "ManuelMode",
+            "ManualMode",
             3
           ],
           [
@@ -1563,8 +1563,8 @@
         ]
       },
       {
-        "name": "setManuelMode",
-        "realname": "Manuel Mode",
+        "name": "setManualMode",
+        "realname": "Manual Mode",
         "info": "accepted values:",
         "mapping": [
           [
@@ -1631,16 +1631,16 @@
         ]
       },
       {
-        "name": "setPhasePowerBalance",
-        "realname": "Phase Power Balance",
-        "info": "has to be investigated",
+        "name": "setPhaseUnbalancedPowerFeed",
+        "realname": "Phase Unbalanced Power Feed",
+        "info": "Allow unbalanced power feed to the grid",
         "mapping": [
           [
-            "Off",
+            "Disable",
             0
           ],
           [
-            "On",
+            "Enable",
             1
           ]
         ],
