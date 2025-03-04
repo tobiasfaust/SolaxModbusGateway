@@ -122,7 +122,7 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
         case ARDUINO_EVENT_WIFI_STA_LOST_IP:
             Config->logN(1, "Lost IP address and IP address is reset to 0");
             this->ConnectStatusWifi = false;
-            this->ipadresse = (0, 0, 0, 0);
+            this->ipadresse = IPAddress(0, 0, 0, 0);
             break;
         case ARDUINO_EVENT_WPS_ER_SUCCESS:
             Config->logN(1, "WiFi Protected Setup (WPS): succeeded in enrollee mode");
@@ -175,7 +175,7 @@ void MQTT::WifiOnEvent(WiFiEvent_t event) {
         case ARDUINO_EVENT_ETH_DISCONNECTED:
             Config->logN(1, "Ethernet disconnected");
             this->ConnectStatusWifi = false;
-            this->ipadresse = (0, 0, 0, 0);
+            this->ipadresse = IPAddress(0, 0, 0, 0);
             break;
         case ARDUINO_EVENT_ETH_GOT_IP:
             if (!this->ConnectStatusWifi) {
@@ -207,9 +207,10 @@ eth_shield_t* MQTT::GetEthShield(String ShieldName) {
 }
 
 void MQTT::WaitForConnect() {
-  while (!this->ConnectStatusWifi)
+  while (!this->ConnectStatusWifi) {
     delay(100);
     Config->logN(1, "Wait for connect");
+  }
 }
 
 void MQTT::reconnect() {
@@ -344,12 +345,13 @@ void MQTT::ClearSubscriptions() {
 
 void MQTT::loop() {
   improvSerial.loop();
-
+  
   #ifdef ESP8266
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED && !this->ConnectStatusWifi) {
       this->ConnectStatusWifi = true;
       this->ipadresse = WiFi.localIP();
-    } else {
+    } 
+    if (WiFi.status() != WL_CONNECTED && this->ConnectStatusWifi) {
       this->ConnectStatusWifi = false;
       this->ipadresse = (0, 0, 0, 0);
     }
@@ -385,9 +387,10 @@ void MQTT::loop() {
     PubSubClient::loop();
   }
 
-  if (PubSubClient::connected()) {
+  if (PubSubClient::connected() && !this->ConnectStatusMqtt) {
     this->ConnectStatusMqtt = true;
-  } else {
+  } 
+  if (!PubSubClient::connected() && this->ConnectStatusMqtt) {
     this->ConnectStatusMqtt = false;
   }
 
@@ -405,9 +408,14 @@ void MQTT::loop() {
       snprintf(buffer, sizeof(buffer), "%d", WiFi.RSSI());
       this->Publish_String("rssi", buffer, false);
 
-      uint64_t uptimeMicroSeconds = esp_timer_get_time();
-      uint64_t uptimeSeconds = uptimeMicroSeconds / 1000000;
-      this->Publish_Int("uptime", uptimeSeconds, false);
+      unsigned long uptime = millis() / 1000;
+      unsigned int hours = uptime / 3600;
+      unsigned int minutes = (uptime % 3600) / 60;
+      unsigned int seconds = uptime % 60;
+      char uptimeStr[20];
+      snprintf(uptimeStr, sizeof(uptimeStr), "%02d:%02d:%02d", hours, minutes, seconds);
+
+      this->Publish_String("uptime", uptimeStr, false);
     }
   }
 }
