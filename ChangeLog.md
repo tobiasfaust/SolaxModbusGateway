@@ -1,5 +1,7 @@
 Release 3.3.3:
   - improve logging functionality methods
+  - fixing some bugs
+  - updated Solax-X3 json (thanks to @Lazgar)
 
 Release 3.3.2:
   - new feature: add confirmation dialog for ESP reset
