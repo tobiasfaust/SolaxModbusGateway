@@ -59,8 +59,8 @@ modbus::modbus(): enableRelays(false),
  * initialize transmission
 *******************************************************/
 void modbus::init(bool firstrun) {
-  Config->log(3, "Start Hardwareserial 1 on RX (%d), TX(%d), RTS(%d)", this->pin_RX, this->pin_TX, this->pin_RTS);
-  Config->log(3, "Init Modbus to Client 0x%02X with %d Baud", this->ClientID, this->Baudrate);
+  Config->logN(3, "Start Hardwareserial 1 on RX (%d), TX(%d), RTS(%d)", this->pin_RX, this->pin_TX, this->pin_RTS);
+  Config->logN(3, "Init Modbus to Client 0x%02X with %d Baud", this->ClientID, this->Baudrate);
 
   // Configure Direction Control pin
   pinMode(this->pin_RTS, OUTPUT);  
@@ -138,14 +138,14 @@ void modbus::LoadSettersFromRegFile() {
     DeserializationError error = deserializeJson(elem, regfile); 
     if (!error) {
       // Print the result
-      Config->log(4, "parsing JSON for <set> data ok");
+      Config->logN(4, "parsing JSON for <set> data ok");
       Config->log(5, elem);
      
       if(!elem["name"].isNull() && elem["request"].is<JsonArray>()) {
         setter_t s = {};
         s.Name = elem["name"].as<String>();
 
-        Config->log(4, "Set command successfully parsed from JSON: %s", s.Name.c_str());
+        Config->logN(4, "Set command successfully parsed from JSON: %s", s.Name.c_str());
         this->Setters->push_back(s);
 
       } else {
@@ -153,7 +153,7 @@ void modbus::LoadSettersFromRegFile() {
       }
      
     } else {
-      Config->log(1, "Failed to parse JSON Register <set> Data: %s", error.c_str());
+      Config->logN(1, "Failed to parse JSON Register <set> Data: %s", error.c_str());
     }
   } while (regfile.findUntil(",","]"));
 
@@ -165,20 +165,20 @@ void modbus::LoadSettersFromRegFile() {
 *******************************************************/
 void modbus::ReceiveMQTT(String topic, String msg) {
   if (!this->Conf_EnableSetters) {
-    Config->log(2, "Set command <%s> received, but setters over mqtt are currently disabled globally", topic.c_str());
+    Config->logN(2, "Set command <%s> received, but setters over mqtt are currently disabled globally", topic.c_str());
     return;
   }
 
   for (uint8_t i = 0; i < this->Setters->size(); i++ ) {
     if (topic == this->GetMqttSetTopic(this->Setters->at(i).Name)) {
       if (!this->Setters->at(i).active) {
-        Config->log(2, "Set command <%s> received, but setter %s is not active", topic.c_str(), this->Setters->at(i).Name.c_str());
+        Config->logN(2, "Set command <%s> received, but setter %s is not active", topic.c_str(), this->Setters->at(i).Name.c_str());
         return;
       }
 
       JsonDocument elem = this->GetSetterByName(this->Setters->at(i).Name);
       if (elem.isNull()) {
-        Config->log(1, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
+        Config->logN(1, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
         return;
       }
 
@@ -192,10 +192,10 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 
       // map values if a mapping is specified
       if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && msg != "") {
-        Config->log(4, "Map values for item %s", msg.c_str());
+        Config->logN(4, "Map values for item %s", msg.c_str());
 
         JsonArray map = elem["mapping"].as<JsonArray>();
-        msg = this->MapItem(map, msg);
+        msg = this->MapItem(map, msg, true);
       }
 
       int msgInt = msg.toInt(); // atoi(msg.c_str())
@@ -210,8 +210,8 @@ void modbus::ReceiveMQTT(String topic, String msg) {
       request.push_back(bytes[2]);
       request.push_back(bytes[3]);
 
-      Config->log(3, "MQTT Setter found: %s" ,this->Setters->at(i).Name.c_str());
-      Config->log(3, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
+      Config->logN(3, "MQTT Setter found: %s" ,this->Setters->at(i).Name.c_str());
+      Config->logN(3, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
 
       this->SetQueue->enqueue(request);
     }
@@ -226,7 +226,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 JsonDocument modbus::GetSetterByName(String name) {
   File regfile = LittleFS.open("/regs/" + this->InverterType.filename);
   if (!regfile) {
-    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+    Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     return JsonDocument();
   }
 
@@ -242,10 +242,10 @@ JsonDocument modbus::GetSetterByName(String name) {
       
     if (!error) {
       // Print the result
-      Config->log(4, "parsing JSON ok");
+      Config->logN(4, "parsing JSON ok");
       Config->log(5, elem);
     } else {
-      Config->log(1, "(Function GetSetterByName) Failed to parse JSON Register Data: %s", error.c_str()); 
+      Config->logN(1, "(Function GetSetterByName) Failed to parse JSON Register Data: %s", error.c_str()); 
     }
 
     if (elem["name"] == name) {
@@ -273,14 +273,14 @@ void modbus::LoadInvertersFromJson() {
   File root = LittleFS.open("/regs/");
   File file = root.openNextFile();
   while(file){
-    Config->log(3, "open register file from Filesystem: %s", file.name());
+    Config->logN(3, "open register file from Filesystem: %s", file.name());
 
     DeserializationError error = deserializeJson(regjson, file, DeserializationOption::Filter(filter));
      if (!error && regjson.size() > 0) {
       // https://arduinojson.org/v6/api/jsonobject/begin_end/
       JsonObject root = regjson.as<JsonObject>();
       for (JsonPair kv : root) {
-        Config->log(3, "Inverter found: %s", kv.key().c_str());
+        Config->logN(3, "Inverter found: %s", kv.key().c_str());
 
         regfiles_t wr = {};
         wr.filename = file.name();
@@ -288,7 +288,7 @@ void modbus::LoadInvertersFromJson() {
         AvailableInverters->push_back(wr);
       }
     } else{
-      Config->log(1, "Error: unable to load inverters from File %s: %s", file.name(), error.c_str());
+      Config->logN(1, "Error: unable to load inverters from File %s: %s", file.name(), error.c_str());
     }
     file.close();
     file = root.openNextFile();
@@ -296,8 +296,8 @@ void modbus::LoadInvertersFromJson() {
   root.close();
 
   if (this->AvailableInverters->size() == 0) {
-    Config->log(1, "ALERT: No register definitions found. ESP cannot work properly");
-    Config->log(1, "Please flash filesystem Image!");
+    Config->logN(1, "ALERT: No register definitions found. ESP cannot work properly");
+    Config->logN(1, "Please flash filesystem Image!");
   }
 }
 
@@ -310,7 +310,7 @@ void modbus::LoadInverterConfigFromJson() {
 
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
-    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+    Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
   }
 
   filter[this->InverterType.name]["config"] = true;
@@ -318,9 +318,9 @@ void modbus::LoadInverterConfigFromJson() {
   DeserializationError error = deserializeJson(doc, regfile, DeserializationOption::Filter(filter));
 
   if (error) {
-    Config->log(1, "Error: unable to read configdata for inverter %s: %s", this->InverterType.name.c_str(), error.c_str());
+    Config->logN(1, "Error: unable to read configdata for inverter %s: %s", this->InverterType.name.c_str(), error.c_str());
   } else {
-    Config->log(4, "Read config data for inverter %s", this->InverterType.name.c_str());
+    Config->logN(4, "Read config data for inverter %s", this->InverterType.name.c_str());
     Config->log(4, doc);
   }
 
@@ -399,7 +399,7 @@ void modbus::enableMqtt(MQTT* object) {
  * Query ID Data to Inverter
 *******************************************************/
 void modbus::QueryIdData() {
-  Config->log(4, "Query ID Data into Queue:");
+  Config->logN(4, "Query ID Data into Queue:");
   
   /* byte message[] = {this->ClientID, 
                                0x03,  // FunctionCode
@@ -414,7 +414,7 @@ void modbus::QueryIdData() {
 
   if (this->ReadQueue->isEmpty()) {
     for (uint8_t i = 0; i < this->Conf_RequestIdData->size(); i++) {
-      Config->log(4, this->PrintDataFrame(&this->Conf_RequestIdData->at(i)).c_str());
+      Config->logN(4, this->PrintDataFrame(&this->Conf_RequestIdData->at(i)).c_str());
       this->ReadQueue->enqueue(this->Conf_RequestIdData->at(i));
     }
     this->LastTxIdData = millis(); //erst setzen wenn erfolgreich in die Queue geschickt wurde
@@ -425,7 +425,7 @@ void modbus::QueryIdData() {
  * Query Live Data to Inverter
 *******************************************************/
 void modbus::QueryLiveData() {
-  Config->log(4, "Query Live Data into Queue:");
+  Config->logN(4, "Query Live Data into Queue:");
    
   /* byte message[] = {this->ClientID, 
                                0x04,  // FunctionCode
@@ -440,7 +440,7 @@ void modbus::QueryLiveData() {
 
   if (this->ReadQueue->isEmpty()) {
     for (uint8_t i = 0; i < this->Conf_RequestLiveData->size(); i++) {
-      Config->log(4, this->PrintDataFrame(&this->Conf_RequestLiveData->at(i)).c_str());
+      Config->logN(4, this->PrintDataFrame(&this->Conf_RequestLiveData->at(i)).c_str());
       this->ReadQueue->enqueue(this->Conf_RequestLiveData->at(i));
     }
     this->LastTxLiveData = millis(); //erst setzen wenn erfolgreich in die Queue geschickt wurde
@@ -469,7 +469,7 @@ void modbus::QueryQueueToInverter() {
   else { rwtype = NUL; }
 
   if (rwtype != NUL) {
-    Config->log(3, "Request queue data to inverter: ");
+    Config->logN(3, "Request queue data to inverter: ");
   
     digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
     while (RS485Serial->available() > 0) { // read serial if any old data is available
@@ -488,7 +488,7 @@ void modbus::QueryQueueToInverter() {
     m.push_back(lowByte(crc));
     m.push_back(highByte(crc));
 
-    Config->log(3, this->PrintDataFrame(message, sizeof(message)).c_str());
+    Config->logN(3, this->PrintDataFrame(message, sizeof(message)).c_str());
 
     digitalWrite(this->pin_RTS, RS485Transmit);     // init Transmit
     RS485Serial->write(message, sizeof(message));
@@ -521,7 +521,7 @@ bool modbus::ReceiveSetData(std::vector<byte>* SendHexFrame) {
   std::vector<byte> RecvHexframe = {};
   bool ret = false; 
 
-  Config->log(3, "Read Data from Queue: ");
+  Config->logN(3, "Read Data from Queue: ");
 
   digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
   if (RS485Serial->available()) {
@@ -529,10 +529,10 @@ bool modbus::ReceiveSetData(std::vector<byte>* SendHexFrame) {
     while(RS485Serial->available()) {
       byte d = RS485Serial->read();
       RecvHexframe.push_back(d);
-      if (Config->GetDebugLevel() >=4) {dbg.print(PrintHex(d)); dbg.print(" ");}
+      Config->log(4, "%s ", PrintHex(d));
       delay(1); // keep this! Loosing bytes possible if too fast
     }    
-    if (Config->GetDebugLevel() >=4) {dbg.println();}
+    Config->logN(4, "");
     
     // TODO
     // compare Set and Received Answer, should be equal
@@ -550,7 +550,7 @@ bool modbus::ReceiveSetData(std::vector<byte>* SendHexFrame) {
 void modbus::ReceiveReadData() {
   size_t dataFrameStartPos =  this->DataFrame->size();
 
-  Config->log(3, "Read Data from Queue: ");
+  Config->logN(3, "Read Data from Queue: ");
 
   digitalWrite(this->pin_RTS, RS485Receive);     // init Receive
   if (RS485Serial->available()) {
@@ -558,10 +558,10 @@ void modbus::ReceiveReadData() {
     while(RS485Serial->available()) {
       byte d = RS485Serial->read();
       this->DataFrame->push_back(d);
-      if (Config->GetDebugLevel() >=4) {dbg.print(PrintHex(d)); dbg.print(" ");}
+      Config->log(4, "%s", PrintHex(d).c_str());
       delay(1); // keep this! Loosing bytes possible if too fast
     }
-    if (Config->GetDebugLevel() >=4) {dbg.println();}
+    Config->logN(4, "");
     
     bool valid = true;
 
@@ -570,39 +570,39 @@ void modbus::ReceiveReadData() {
         this->DataFrame->at(dataFrameStartPos+this->Conf_IdDataErrorPos) != this->Conf_IdDataErrorCode && 
         this->DataFrame->at(dataFrameStartPos+this->Conf_LiveDataErrorPos) != this->Conf_LiveDataErrorCode) {
 
-      Config->log(4, "ErrorCode passed, OK");
+      Config->logN(4, "ErrorCode passed, OK");
       
       if (this->enableCrcCheck) {
         //CRC Check
         uint16_t crc = this->Calc_CRC(this->DataFrame, dataFrameStartPos, this->DataFrame->size()-2);
         
-        Config->log(4, "Received CRC: 0x%02X 0x%02X", this->DataFrame->at(this->DataFrame->size()-2), this->DataFrame->at(this->DataFrame->size()-1));
-        Config->log(4, "Calculated CRC: 0x%02X 0x%02X", lowByte(crc), highByte(crc));
+        Config->logN(4, "Received CRC: 0x%02X 0x%02X", this->DataFrame->at(this->DataFrame->size()-2), this->DataFrame->at(this->DataFrame->size()-1));
+        Config->logN(4, "Calculated CRC: 0x%02X 0x%02X", lowByte(crc), highByte(crc));
 
         if (this->DataFrame->at(this->DataFrame->size()-2) != lowByte(crc) ||
             this->DataFrame->at(this->DataFrame->size()-1) != highByte(crc)) {
           valid = false;
-          Config->log(2, "CRC check  failed!");
+          Config->logN(2, "CRC check  failed!");
         }
       }
 
       if (this->enableLengthCheck) {
         // Check datalength
-        Config->log(4, "Dataframe length should be: %d, is: %d bytes", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
+        Config->logN(4, "Dataframe length should be: %d, is: %d bytes", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
 
         if (this->DataFrame->at(dataFrameStartPos+2) != this->DataFrame->size()-dataFrameStartPos-5) {
           valid = false;
-          Config->log(2, "data length check failed, should be %d but is %d bytes", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
+          Config->logN(2, "data length check failed, should be %d but is %d bytes", this->DataFrame->at(dataFrameStartPos+2), this->DataFrame->size()-dataFrameStartPos-5);
         }
       } 
     } else { valid = false; } 
     
     if (valid) {
       // Dataframe valid
-      Config->log(3, "Dataframe valid, Dateframe size: %d bytes", this->DataFrame->size());
+      Config->logN(3, "Dataframe valid, Dateframe size: %d bytes", this->DataFrame->size());
 
     } else {
-      Config->log(2, "Dataframe invalid");
+      Config->logN(2, "Dataframe invalid");
       // clear dataframe, clear ReadQueue to start from fresh
       this->DataFrame->clear();
       for (unsigned int n = 0; n < this->ReadQueue->itemCount(); n++) {
@@ -611,7 +611,7 @@ void modbus::ReceiveReadData() {
     }
 
   } else {
-    Config->log(2, "no response from client");
+    Config->logN(2, "no response from client");
   }
 }
 
@@ -630,7 +630,7 @@ int modbus::JsonPosArrayToInt(JsonArray posArray, JsonArray posArray2) {
       if (v < this->DataFrame->size()) { 
         val_i = (val_i << 8) | this->DataFrame->at(v); 
         val_max = (val_max << 8) | 0xFF;
-      } else Config->log(1, "Error: position %d out of dataframe range", v);
+      } else Config->logN(1, "Error: position %d out of dataframe range", v);
     }
   }
 
@@ -639,7 +639,7 @@ int modbus::JsonPosArrayToInt(JsonArray posArray, JsonArray posArray2) {
     for(uint16_t w : posArray2) {
       if (w < this->DataFrame->size()) { 
         val2_i = (val2_i << 8) | this->DataFrame->at(w); 
-      } else Config->log(1, "Error: position %d out of dataframe range", w);
+      } else Config->logN(1, "Error: position %d out of dataframe range", w);
     }
   }
 
@@ -678,7 +678,7 @@ void modbus::ParseData() {
     //  ***********************************************
     #ifdef DEBUGMODE 
       this->DataFrame->clear();
-      Config->log(3, "Start parsing in testmode, use some testdata instead real live data :)");
+      Config->logN(3, "Start parsing in testmode, use some testdata instead real live data :)");
       
       // Solar-KTL 
       //byte ReadBuffer[] = {0x01, 0x03, 0x60, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x34, 0x01, 0xF3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x13, 0x86, 0x09, 0x11, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x4C, 0x00, 0x00, 0x02, 0x5F, 0x00, 0x8A, 0x01, 0x7D, 0x00, 0x28, 0x00, 0x33, 0x0E, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x60, 0x01, 0x42, 0x0A, 0x3B, 0x00, 0x0E, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x39, 0x25,0x01};
@@ -707,7 +707,7 @@ void modbus::ParseData() {
       for (uint16_t i = 0; i<sizeof(ReadBuffer); i++) {
         this->DataFrame->push_back(ReadBuffer[i]);
       }
-      Config->log(4, "%s", this->PrintDataFrame(this->DataFrame).c_str());
+      Config->logN(4, "%s", this->PrintDataFrame(this->DataFrame).c_str());
     #endif
     // ***********************************************
   } 
@@ -724,12 +724,12 @@ void modbus::ParseData() {
       RequestType = "livedata";
     }
 
-    Config->log(3, "parse %d bytes of data", this->DataFrame->size());
-    Config->log(4, "identified datatype: %s", RequestType.c_str());
+    Config->logN(3, "parse %d bytes of data", this->DataFrame->size());
+    Config->logN(4, "identified datatype: %s", RequestType.c_str());
     
     File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
     if (!regfile) {
-      Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+      Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     }
     String streamString = "";
     streamString = "\""+ this->InverterType.name +"\": {";
@@ -743,10 +743,10 @@ void modbus::ParseData() {
       
       if (!error) {
         // Print the result
-        Config->log(4, "parsing JSON ok");
+        Config->logN(4, "parsing JSON ok");
         Config->log(5, elem);
       } else {
-        Config->log(1, "(Function ParseData) Failed to parse JSON Register Data: %s", error.c_str()); 
+        Config->logN(1, "(Function ParseData) Failed to parse JSON Register Data: %s", error.c_str()); 
       }
 
       // setUp local variables
@@ -776,7 +776,7 @@ void modbus::ParseData() {
       if (elem["position"].is<JsonArray>()) {
         posArray = elem["position"].as<JsonArray>();
       } else {
-        Config->log(1, "Error: for Name '%s' no position array found", d.Name.c_str());
+        Config->logN(1, "Error: for Name '%s' no position array found", d.Name.c_str());
         continue;
       }
 
@@ -854,7 +854,7 @@ void modbus::ParseData() {
             if (v < DataFrame->size()) {
               buffer[i] = static_cast<char>(DataFrame->at(v));
               i++;
-            } else Config->log(1, "Error: for item '%s' position %d out of dataframe range", d.Name.c_str(), v);
+            } else Config->logN(1, "Error: for item '%s' position %d out of dataframe range", d.Name.c_str(), v);
           }
           buffer[i] = '\0';
           d.value = String(buffer);
@@ -862,20 +862,20 @@ void modbus::ParseData() {
       } else {
         //****************** sonst, leer *******************//
         d.value = "";
-        Config->log(2, "Error: for Name '%s' no valid datatype found", d.Name.c_str());
+        Config->logN(2, "Error: for Name '%s' no valid datatype found", d.Name.c_str());
       }
 
 
       // map values if a mapping is specified
       if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && d.value != "") {
-        Config->log(4, "Map values for item %s", d.Name.c_str());
+        Config->logN(4, "Map values for item %s", d.Name.c_str());
 
         JsonArray map = elem["mapping"].as<JsonArray>();
         if (datatype == "binary") d.value = this->MapBitwise(map, d.value);
-        else d.value = this->MapItem(map, d.value);
+        else d.value = this->MapItem(map, d.value, false);
       }
 
-      Config->log(4, "Data: %s -> %s %s", d.Name.c_str(), d.value.c_str(), d.unit.c_str());
+      Config->logN(4, "Data: %s -> %s %s", d.Name.c_str(), d.value.c_str(), d.unit.c_str());
 
       if (this->mqtt && IsActiveItem && d.Name != "") { 
           this->mqtt->Publish_String(d.Name.c_str(), d.value, false);
@@ -893,7 +893,7 @@ void modbus::ParseData() {
       } else if(RequestType == "id") {
         this->ChangeRegItem(this->InverterIdData, d);
         
-        Config->log(3, "Inverter ID Data found -> %s: %s ", d.Name.c_str(), d.value.c_str());
+        Config->logN(3, "Inverter ID Data found -> %s: %s ", d.Name.c_str(), d.value.c_str());
 
       }
 
@@ -958,7 +958,7 @@ String modbus::MapBitwise(JsonArray map, String value) {
   for (uint8_t i=0; i<value.length(); i++) {
     if (String(value[i]) == "1") {
       //note: 1 item less than map size, because last item is default value
-      Config->log(4, "Mapped value: %s -> %s\n", String(value[i]).c_str(), map[map.size() -2 -i].as<String>().c_str());
+      Config->logN(4, "Mapped value: %s -> %s\n", String(value[i]).c_str(), map[map.size() -2 -i].as<String>().c_str());
       if (ret.length() > 0) ret += ", ";
       if ((map.size() -2 -i) >=0 && map[map.size() -2 -i]) ret += map[map.size() -2 -i].as<String>();
       else ret += "undefined";
@@ -973,20 +973,22 @@ String modbus::MapBitwise(JsonArray map, String value) {
 /*******************************************************
  * Map a value to a predefined constant string
 *******************************************************/
-String modbus::MapItem(JsonArray map, String value) {
+String modbus::MapItem(JsonArray map, String value, bool isSetter) {
   String ret = value;
 
   for (JsonArray mapItem : map) {
     String v1 = mapItem[0].as<String>();
     String v2 = mapItem[1].as<String>();
 
-    v1.toLowerCase();
-    v2.toLowerCase();
-    value.toLowerCase();
+    if (isSetter) {
+      v1.toLowerCase();
+      v2.toLowerCase();
+      value.toLowerCase();
+    }
 
     if (value == v1) {
       ret = v2;
-      Config->log(4, "Mapped value: %s -> %s", v1.c_str(), v2.c_str());
+      Config->logN(4, "Mapped value: %s -> %s", v1.c_str(), v2.c_str());
     }
   } 
   return ret;
@@ -1102,14 +1104,14 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
   JsonDocument jsonGet; 
   DeserializationError error = deserializeJson(jsonGet, json.c_str());
   
-  Config->log(4, "[GetLiveDataAsJsonToWebServer] Json command empfangen: ");
+  Config->logN(4, "[GetLiveDataAsJsonToWebServer] Json command empfangen: ");
   if (!error) {
     Config->log(4, jsonGet);
 
     if (jsonGet["cmd"]["subaction"]) subaction = jsonGet["cmd"]["subaction"].as<String>();
   
   } else { 
-    Config->log(2, "[GetLiveDataAsJsonToWebServer] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
+    Config->logN(2, "[GetLiveDataAsJsonToWebServer] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
   }
 
 	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, firstRow, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
@@ -1196,10 +1198,10 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
 void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
   std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
   String subaction("");
-  
+
   if(request->hasArg("json")) {
     const String json = request->arg("json");
-    Config->log(4, "[GetSetterAsJson] Json command empfangen: %s", json.c_str());
+    Config->logN(4, "[GetSetterAsJson] Json command empfangen: %s", json.c_str());
 
     JsonDocument jsonGet; 
     DeserializationError error = deserializeJson(jsonGet, json.c_str());
@@ -1207,7 +1209,7 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
     if (!error) {
       if (jsonGet["cmd"]["subaction"]) subaction = jsonGet["cmd"]["subaction"].as<String>();
     } else { 
-      Config->log(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
+      Config->logN(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
     }
   }
 
@@ -1224,7 +1226,7 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
 
       File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
       if (!regfile) {
-        Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+        Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
         return 0;
       }
 
@@ -1236,19 +1238,21 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
  
       streamString = "\"set\": [";
       regfile.find(streamString.c_str());
-      do {
-        if (itemIterator == (*counter - 1)) {
-          bool isActive = false;  // default
-          JsonDocument elem;
-          DeserializationError error = deserializeJson(elem, regfile); 
-  
-          if (error) {
-            Config->log(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
-            break;
-          }
 
-          Config->log(4, "parsing JSON ok");
-          Config->log(5, elem);
+      do {
+        JsonDocument elem;
+        DeserializationError error = deserializeJson(elem, regfile); 
+
+        if (error) {
+          Config->logN(1, "(Function GetSettersAsJsonToWebServer) Failed to parse JSON Register Data: %s", error.c_str()); 
+          break;
+        }
+
+        Config->logN(4, "parsing JSON ok");
+        Config->log(5, elem);
+
+        if (itemIterator == (*counter - 1) && ret.length() < maxLen) {
+          bool isActive = false;  // default
 
           //check if setter is active
           for (uint8_t i = 0; i < this->Setters->size(); i++) {
@@ -1263,27 +1267,25 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
             String mapping = elem["mapping"].as<String>(); mapping.replace("\"", "'");
             
             ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
-            
             ret += "\"realname\": {\"innerHTML\": \"" + elem["realname"].as<String>() + "\"";
             if (elem["info"])     ret += ", \"data-info\": \"" + elem["info"].as<String>() + "\"";
             ret += "},";
-            
             ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
-            
             ret += "\"subscription\": {\"innerHTML\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\"";
             if (elem["mapping"])  ret += ", \"data-mapping\": \""+ mapping + "\"";             
             ret += "}}";
           }
-        }
 
-        (*counter)++;
+          (*counter)++;
+        }
+        
         itemIterator++;
 
       } while (regfile.findUntil(",","]"));
 
       if (regfile) { regfile.close(); }
 
-      if (ret.length() > 0) {
+      if (itemIterator == (*counter - 1)) {
         // send end of JSON
         ret += " ]}, \"object_id\": \"" + Config->GetMqttBasePath() + "/" + Config->GetMqttRoot() + "\"}";
         (*counter)++;
@@ -1298,89 +1300,13 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
 }
 
 /*******************************************************
- * Return all LiveData as jsonArray
- * {data: [{"name": "xx", "value": "xx"}], }
- * {"GridVoltage_R":"0.00 V","GridCurrent_R":"0.00 A","GridPower_R":"0 W","GridFrequency_R":"0.00 Hz","GridVoltage_S":"0.90 V","GridCurrent_S":"1715.40 A","GridPower_S":"-28671 W","GridFrequency_S":"174.08 Hz","GridVoltage_T":"0.00 V","GridCurrent_T":"0.00 A","GridPower_T":"0 W","GridFrequency_T":"1.30 Hz","PvVoltage1":"259.80 V","PvVoltage2":"0.00 V","PvCurrent1":"1.00 A","PvCurrent2":"0.00 A","Temperature":"28 &deg;C","PowerPv1":"283 W","PowerPv2":"0 W","BatVoltage":"0.00 V","BatCurrent":"0.00 A","BatPower":"0 W","BatTemp":"0 &deg;C","BatCapacity":"0 %","OutputEnergyChargeWh":"0 Wh","OutputEnergyChargeKWh":"0.00 KWh","OutputEnergyChargeToday":"0.00 KWh","InputEnergyChargeWh":"0 Wh","InputEnergyChargeKWh":"0.00 KWh"}
-*******************************************************/
-/*
-void modbus::GetRegisterAsJsonToWebServer(AsyncResponseStream *response) {
-  int count = 0;
-  
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
-  if (!regfile) {
-    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
-    return;
-  }
-
-  response->print("{\"data\": ["); 
-  
-  String streamString = "";
-  streamString = "\""+ this->InverterType.name +"\": {";
-  regfile.find(streamString.c_str());
-
-  streamString = "\"livedata\": [";
-  regfile.find(streamString.c_str());
-
-  do {
-    JsonDocument elem;
-    DeserializationError error = deserializeJson(elem, regfile); 
-      
-    if (!error) {
-      // Print the result
-      Config->log(4, "parsing JSON ok"); 
-      Config->log(5, elem);
-    } else {
-      Config->log(4, "(Function GetRegisterAsJson) Failed to parse JSON Register Data: %s", error.c_str()); 
-    }
-  
-    String s = "";
-    serializeJson(elem, s);
-    if(count>0) response->print(", ");
-    response->print(s);
-    count++;
-
-  } while (regfile.findUntil(",","]"));
-  //Lazgar
-  streamString = "";
-  streamString = "\""+ this->InverterType.name +"\": {";
-  regfile.find(streamString.c_str());
-
-  streamString = "\"id\": [";
-  regfile.find(streamString.c_str());
-
-  do {
-    JsonDocument elem;
-    DeserializationError error = deserializeJson(elem, regfile); 
-
-    if (!error) {
-      // Print the result
-      Config->log(4, "parsing JSON ok"); 
-      Config->log(5, elem);
-    } else {
-      Config->log(1, "(Function GetRegisterAsJson) Failed to parse JSON Register Data: %s", error.c_str()); 
-    }
-
-    String s = "";
-    serializeJson(elem, s);
-    if(count>0) response->print(", ");
-    response->print(s);
-    count++;
-
-  } while (regfile.findUntil(",","]"));
-  //Lazgar
-  if (regfile) { regfile.close(); }
-  response->print("]}");
-}
-*/
-
-/*******************************************************
  * request for changing active Status of a certain item
  * Used by handleAjax function
 *******************************************************/
 void modbus::SetItemActiveStatus(String item, bool newstate) {
   for (uint16_t j=0; j < this->InverterLiveData->size(); j++) {
     if (this->InverterLiveData->at(j).Name == item) {
-      Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
+      Config->logN(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
       this->InverterLiveData->at(j).active = newstate;
       return;
     }
@@ -1388,7 +1314,7 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
   
   for (uint16_t j=0; j < this->InverterIdData->size(); j++) {
     if (this->InverterIdData->at(j).Name == item) {
-      Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
+      Config->logN(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
       this->InverterIdData->at(j).active = newstate;
       return;
     }
@@ -1396,7 +1322,7 @@ void modbus::SetItemActiveStatus(String item, bool newstate) {
 
   for (uint16_t j=0; j < this->Setters->size(); j++) {
     if (this->Setters->at(j).Name == item) {
-      Config->log(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
+      Config->logN(3, "Set Item <%s> ActiveState to %s", item.c_str(), (newstate?"true":"false"));
       if (this->mqtt && this->Setters->at(j).active != newstate) {
 	      if (!newstate) {
           this->mqtt->UnSubscribe(this->GetMqttSetTopic(this->Setters->at(j).Name));
@@ -1446,11 +1372,11 @@ void modbus::loop() {
 void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
   vector->clear();
 
-  Config->log(4, "Load RegItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type.c_str());
+  Config->logN(4, "Load RegItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type.c_str());
 
   File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
-    Config->log(1, "failed to open %s file", this->InverterType.filename.c_str());
+    Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     return;
   }
 
@@ -1466,10 +1392,10 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
       
     if (!error) {
       // Print the result
-      Config->log(4, "parsing JSON ok");
+      Config->logN(4, "parsing JSON ok");
       Config->log(5, elem);
     } else {
-      Config->log(1, "(Function LoadRegItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), type.c_str(), error.c_str());
+      Config->logN(1, "(Function LoadRegItems) Failed to parse JSON Register Data for Inverter <%s> and type <%s>: %s", this->InverterType.name.c_str(), type.c_str(), error.c_str());
     }
 
     reg_t d = {};
@@ -1496,7 +1422,7 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
     d.active = false; // set initial
     vector->push_back(d);
 
-    Config->log(4, "processed RegItem: %s", d.Name.c_str());
+    Config->logN(4, "processed RegItem: %s", d.Name.c_str());
 
   } while (regfile.findUntil(",","]"));
 
@@ -1520,10 +1446,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
 
   if (LittleFS.exists("/config/modbusconfig.json")) {
     //file exists, reading and loading
-    Config->log(3, "reading config file....");
+    Config->logN(3, "reading config file....");
     File configFile = LittleFS.open("/config/modbusconfig.json", "r");
     if (configFile) {
-      Config->log(3, "config file is open:");
+      Config->logN(3, "config file is open:");
       //size_t size = configFile.size();
 
       JsonDocument doc;
@@ -1558,7 +1484,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
             if (this->AvailableInverters->at(i).name == (doc["data"]["invertertype"]).as<String>()) {
               this->InverterType = this->AvailableInverters->at(i); 
               
-              Config->log(3, "Invertertyp '%s' was found in register file '%s', set it as selected active Inverter", this->InverterType.name.c_str(), this->InverterType.filename.c_str());
+              Config->logN(3, "Invertertyp '%s' was found in register file '%s', set it as selected active Inverter", this->InverterType.name.c_str(), this->InverterType.filename.c_str());
               found = true;
             } 
           }
@@ -1566,18 +1492,18 @@ void modbus::LoadJsonConfig(bool firstrun) {
             if (this->AvailableInverters->size()>0) {
               this->InverterType = this->AvailableInverters->at(0);
             }
-            Config->log(3, "Invertertyp '%s' was not found, use default '%s' instead", (doc["data"]["invertertype"]).as<String>().c_str(), this->InverterType.name.c_str());
+            Config->logN(3, "Invertertyp '%s' was not found, use default '%s' instead", (doc["data"]["invertertype"]).as<String>().c_str(), this->InverterType.name.c_str());
           }
         }
 
       } else {
-        Config->log(1, "failed to load modbus json config, load default config");
+        Config->logN(1, "failed to load modbus json config, load default config");
         loadDefaultConfig = true;
       }
       configFile.close();
     }
   } else {
-    Config->log(3, "modbusconfig.json config File not exists, load default config");
+    Config->logN(3, "modbusconfig.json config File not exists, load default config");
     loadDefaultConfig = true;
   }
 
@@ -1635,10 +1561,10 @@ void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSet
   
   if (LittleFS.exists("/config/modbusitemconfig.json")) {
     //file exists, reading and loading
-    Config->log(3, "reading modbus item config file....");
+    Config->logN(3, "reading modbus item config file....");
     File configFile = LittleFS.open("/config/modbusitemconfig.json", "r");
     if (configFile) {
-      Config->log(3, "modbus item config file is open:");
+      Config->logN(3, "modbus item config file is open:");
 
       ReadBufferingStream stream{configFile, 64};
       stream.find("\"data\":[");
@@ -1648,10 +1574,10 @@ void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSet
 
         if (!error) {
           // Print the result
-          Config->log(4, "parsing JSON ok"); 
+          Config->logN(4, "parsing JSON ok"); 
           Config->log(5, elem);
         } else {
-          Config->log(1, "(Function LoadJsonItemConfig) Failed to parse JSON Register Data: %s", error.c_str()); 
+          Config->logN(1, "(Function LoadJsonItemConfig) Failed to parse JSON Register Data: %s", error.c_str()); 
         }
 
         for (JsonPair kv : elem.as<JsonObject>()) {
@@ -1663,7 +1589,7 @@ void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSet
               if (this->InverterLiveData->at(i).Name == ItemName ) {
                 this->InverterLiveData->at(i).active = kv.value().as<bool>();
 
-                Config->log(3, "item %s -> %s", ItemName, (this->InverterLiveData->at(i).active?"enabled":"disabled"));
+                Config->logN(3, "item %s -> %s", ItemName, (this->InverterLiveData->at(i).active?"enabled":"disabled"));
 
                 break;
               }
@@ -1676,7 +1602,7 @@ void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSet
               if (this->InverterIdData->at(i).Name == ItemName ) {
                 this->InverterIdData->at(i).active = kv.value().as<bool>();
 
-                Config->log(3, "item %s -> %s", ItemName, (this->InverterIdData->at(i).active?"enabled":"disabled"));
+                Config->logN(3, "item %s -> %s", ItemName, (this->InverterIdData->at(i).active?"enabled":"disabled"));
                 break;
               }
             }
@@ -1687,7 +1613,7 @@ void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSet
             for(uint16_t i=0; i<this->Setters->size(); i++) {
               if (this->Setters->at(i).Name == ItemName ) {
                 this->Setters->at(i).active = kv.value().as<bool>();
-                Config->log(3, "setter %s -> %s", ItemName, (this->Setters->at(i).active?"enabled":"disabled"));
+                Config->logN(3, "setter %s -> %s", ItemName, (this->Setters->at(i).active?"enabled":"disabled"));
                 break;
               }
             }
@@ -1698,10 +1624,10 @@ void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSet
       } while (stream.findUntil(",","]"));
       configFile.close();
     } else {
-      Config->log(1, "failed to load modbusitemconfig.json, load default item config");
+      Config->logN(1, "failed to load modbusitemconfig.json, load default item config");
     }
   } else {
-    Config->log(3, "modbusitemconfig.json config File not exists, all items are inactive as default");
+    Config->logN(3, "modbusitemconfig.json config File not exists, all items are inactive as default");
   }
 }
 

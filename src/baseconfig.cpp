@@ -17,7 +17,7 @@ BaseConfig::BaseConfig(): debuglevel(2),
         LittleFS.mkdir("/config");
       }
     } else {
-      this->log(1, "LittleFS Mount Failed");
+      this->logN(1, "LittleFS Mount Failed");
     }
   #endif
 
@@ -32,10 +32,10 @@ void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
   if (LittleFS.exists("/config/baseconfig.json")) {
     // file exists, reading and loading
-    this->log(2, "reading config file");
+    this->logN(2, "reading config file");
     File configFile = LittleFS.open("/config/baseconfig.json", "r");
     if (configFile) {
-      this->log(2, "opened config file");
+      this->logN(2, "opened config file");
 
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, configFile);
@@ -61,12 +61,12 @@ void BaseConfig::LoadJsonConfig() {
         this->mqtt_UseRandomClientID      = doc["data"]["useRandomClientID"].as<bool>();
       
       } else {
-        this->log(1, "failed to load json config, load default config");
+        this->logN(1, "failed to load json config, load default config");
         loadDefaultConfig = true;
       }
     }
   } else {
-    this->log(3, "baseconfig.json config File not exists, load default config");
+    this->logN(3, "baseconfig.json config File not exists, load default config");
     loadDefaultConfig = true;
   }
 
@@ -124,7 +124,7 @@ void BaseConfig::GetInitData(JsonDocument& json) {
   json["response"]["text"] = "successful";
 }
 
-void BaseConfig::log(const int loglevel, const char* format, ...) {
+void BaseConfig::logN(const int loglevel, const char* format, ...) {
   if (this->GetDebugLevel() < loglevel) return;
   
   va_list args;
@@ -137,6 +137,21 @@ void BaseConfig::log(const int loglevel, const char* format, ...) {
   #else
     Serial.printf("[Log %d] ", loglevel);
     Serial.println(buffer);
+  #endif
+  va_end(args);
+}
+
+void BaseConfig::log(const int loglevel, const char* format, ...) {
+  if (this->GetDebugLevel() < loglevel) return;
+  
+  va_list args;
+  va_start(args, format);
+  char buffer[256];
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  #ifdef USE_WEBSERIAL
+    WebSerial.print(buffer);
+  #else
+    Serial.print(buffer);
   #endif
   va_end(args);
 }

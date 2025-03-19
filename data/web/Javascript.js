@@ -469,7 +469,7 @@ export function CreateSelectionListFromInputField(querySelector, jsonLists, blac
 ****************************************************************************************/
 function isVisible(_obj) {
 	var ret = true;
-	if (_obj && _obj.style.display == "none") { ret = false;}
+	if (_obj && (_obj.style.display == "none" || _obj.classList.contains("hide"))) { ret = false; }
   else if (_obj && _obj.parentNode && _obj.tagName != "HTML") ret = isVisible(_obj.parentNode);
   return ret;
 }

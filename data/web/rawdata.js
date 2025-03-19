@@ -47,6 +47,22 @@ function GetInitData() {
   global.requestData(data);
 }
 
+export function cpRawdata2Clipboard(rawdatatype) {
+  const string_rawdata = document.getElementById(rawdatatype + '_org').innerHTML;
+  let bytes = chunk(string_rawdata,2)
+
+  for( var i=0; i< bytes.length; i++) {
+    bytes[i] = "0x" + bytes[i];
+  }
+
+  // Copy the result to the clipboard
+  navigator.clipboard.writeText(bytes.join(' ')).then(() => {
+    alert('Raw data copied to clipboard. You can now paste it using CTRL-V.');
+  }).catch(err => {
+    console.error('Failed to copy text: ', err);
+  });
+}
+
 /*******************************
  * Callback function after receiving the data
 *******************************/

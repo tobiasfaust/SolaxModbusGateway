@@ -18,7 +18,6 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
    
   server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
   server->on("/getitems",               HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetLiveDataAsJsonToWebServer(request); });
-  //server->on("/getregister",            HTTP_GET, std::bind(&MyWebServer::handleGetRegisterJson, this, std::placeholders::_1)); // deprecated, not longer in use
   server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSettersAsJsonToWebServer(request); });
 
 
@@ -54,7 +53,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   // try to start the server if wifi is connected, otherwise wait for wifi connection
   if (mqtt->GetConnectStatusWifi()) {
     server->begin();
-    Config->log(1, "WebServer has been started ...");
+    Config->logN(1, "WebServer has been started ...");
   } else {
     mqtt->improvSerial.onImprovConnected(std::bind(&MyWebServer::onImprovWiFiConnectedCb, this, std::placeholders::_1, std::placeholders::_2));
   }
@@ -62,10 +61,10 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
 
 void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
-    Config->log(2, "[Client: %u] WebSocket client connected", client->id());
+    Config->logN(2, "[Client: %u] WebSocket client connected", client->id());
   
   } else if (type == WS_EVT_DISCONNECT) {
-    Config->log(2, "[Client: %u] WebSocket client disconnected", client->id());
+    Config->logN(2, "[Client: %u] WebSocket client disconnected", client->id());
 
     // wenn client->id() in der Liste WsConnectedClientsForBroadcast vorhanden ist, dann entfernen
     
@@ -83,7 +82,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
   } else if (type == WS_EVT_DATA) {
     String msg(""); msg.reserve(len + 1);
     for (size_t i = 0; i < len; i++) { msg += (char)data[i]; } msg += '\0';
-    Config->log(2, "[Client: %u] WebSocket data received: %s", client->id(), msg.c_str()); 
+    Config->logN(2, "[Client: %u] WebSocket data received: %s", client->id(), msg.c_str()); 
 
     // message json request format: {"cmd": {"action": "GetInitData", "subaction": "status"}} // subaction optional
     // message json response format: die Antwort wird im json ergänzt, so weiß der Requestor zu welchem Command die Antwort gehört: 
@@ -176,7 +175,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
       }
 
     } else {
-      Config->log(1, "WebSocket data received but not a valid json string: %s -> %s", msg.c_str(), error.c_str());
+      Config->logN(1, "WebSocket data received but not a valid json string: %s -> %s", msg.c_str(), error.c_str());
       json["response"]["status"] = 0;
       json["response"]["text"] = error.c_str();
     }
@@ -188,7 +187,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
 
 void MyWebServer::onImprovWiFiConnectedCb(const char *ssid, const char *password) {
   server->begin();
-  Config->log(1, "WebServer has been started now ...");
+  Config->logN(1, "WebServer has been started now ...");
 }
 
 void MyWebServer::sendWebSocketMessage(String& message) {
@@ -197,7 +196,7 @@ void MyWebServer::sendWebSocketMessage(String& message) {
     if (ws->client(client.id)) {
       message = message.substring(0, message.length()-1) + "," + client.json.substring(1, client.json.length()-1);
 
-      Config->log(4, "send WebSocket Message to client %u: %s", client.id, message.c_str());
+      Config->logN(4, "send WebSocket Message to client %u: %s", client.id, message.c_str());
       ws->text(client.id, message);
     }
   }
@@ -209,10 +208,10 @@ void MyWebServer::loop() {
   if (this->DoReboot) {
     if (this->RequestRebootTime == 0) {
       this->RequestRebootTime = millis();
-      Config->log(1, "Request to Reboot, wait 5sek ...");
+      Config->logN(1, "Request to Reboot, wait 5sek ...");
     }
     if (millis() - this->RequestRebootTime > 5000) { // wait 3sek until reboot
-      Config->log(1, "Rebooting...");
+      Config->logN(1, "Rebooting...");
       ESP.restart();
     }
   }
@@ -236,7 +235,7 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 
 bool MyWebServer::handleReset() {
   bool ret = true;
-  Config->log(3, "deletion of all config files was requested ....");
+  Config->logN(3, "deletion of all config files was requested ....");
   //LittleFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
   File root = LittleFS.open("/config/");
   File file = root.openNextFile();
@@ -246,9 +245,9 @@ bool MyWebServer::handleReset() {
     file.close();
     
     if (LittleFS.remove(path)) {
-      Config->log(4, "deletion of configuration file '%s' was successful", file.name());
+      Config->logN(4, "deletion of configuration file '%s' was successful", file.name());
     } else {
-      Config->log(2, "deletion of configuration file '%s' has failed", file.name());
+      Config->logN(2, "deletion of configuration file '%s' has failed", file.name());
       ret = false;
     }
     file = root.openNextFile();
@@ -258,18 +257,6 @@ bool MyWebServer::handleReset() {
 
   return ret;
 }
-
-/*
-void MyWebServer::handleGetRegisterJson(AsyncWebServerRequest *request) {
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "-1");
-  
-  mb->GetRegisterAsJsonToWebServer(response);
-  request->send(response);  
-}
-*/
 
 void MyWebServer::GetInitDataNavi(JsonDocument& json) {
   json["data"].to<JsonObject>();

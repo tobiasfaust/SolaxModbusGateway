@@ -59,18 +59,18 @@ void handleFiles::HandleRequest(JsonDocument& json) {
   String subaction = "";
   if (json["cmd"]["subaction"])  {subaction  = json["cmd"]["subaction"].as<String>();}
 
-  Config->log(3, "handle Request in handleFiles.cpp: %s", subaction.c_str());
+  Config->logN(3, "handle Request in handleFiles.cpp: %s", subaction.c_str());
 
   if (subaction == "listDir") {
     JsonArray content = json["JS"]["listdir"].to<JsonArray>();
     
     this->getDirList(content, "/");
-    Config->log(5, json["content"].as<String>().c_str());
+    Config->logN(5, json["content"].as<String>().c_str());
       
   } else if (subaction == "deleteFile") {
     String filename("");
 
-    Config->log(3, "Request to delete file %s", filename.c_str());
+    Config->logN(3, "Request to delete file %s", filename.c_str());
 
     if (json["cmd"]["filename"])  {filename  = json["cmd"]["filename"].as<String>();}
     
@@ -81,7 +81,7 @@ void handleFiles::HandleRequest(JsonDocument& json) {
       json["response"]["status"] = 0;
       json["response"]["text"] = "deletion failed";
     }
-    Config->log(3, json.as<String>().c_str());
+    Config->logN(3, json.as<String>().c_str());
   }
 }
 
@@ -90,24 +90,24 @@ void handleFiles::HandleRequest(JsonDocument& json) {
 //###############################################################
 void handleFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   
-  Config->log(5, "Client: %s %s", request->client()->remoteIP().toString().c_str(), request->url().c_str());;
+  Config->logN(5, "Client: %s %s", request->client()->remoteIP().toString().c_str(), request->url().c_str());;
   
   if (!index) {
     // open the file on first call and store the file handle in the request object
     request->_tempFile = LittleFS.open(filename, "w");
-    Config->log(5, "Upload Start: %s", filename.c_str());
+    Config->logN(5, "Upload Start: %s", filename.c_str());
   }
 
   if (len) {
     // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
-    Config->log(3, "Writing file: %s ,index=%d len=%d bytes, FreeMem: %d", filename.c_str(), index, len, ESP.getFreeHeap());
+    Config->logN(3, "Writing file: %s ,index=%d len=%d bytes, FreeMem: %d", filename.c_str(), index, len, ESP.getFreeHeap());
   }
 
   if (final) {
     // close the file handle as the upload is now done
     request->_tempFile.close();
-    Config->log(3, "Upload Complete: %s ,size: %d Bytes", filename.c_str(), (index + len));
+    Config->logN(3, "Upload Complete: %s ,size: %d Bytes", filename.c_str(), (index + len));
 
     AsyncResponseStream *response = request->beginResponseStream("text/json");
     response->addHeader("Server","ESP Async Web Server");
