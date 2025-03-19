@@ -1,0 +1,14 @@
+{
+    "name": "SolaxModbusGateway (v3.3.3-stable)",
+    "chipFamily": "ESP32-S3",
+    "stage": "stable",
+    "build": 130,
+    "variant": "standard",
+    "version": "v3.3.3",
+    "parts": [
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.3-130-stable/firmware_ESP32-S3/merged-firmware.ESP32-S3.v3.3.3-130.standard.stable.bin",
+            "offset": 0
+        }
+    ]
+}
