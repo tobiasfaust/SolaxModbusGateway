@@ -4,10 +4,10 @@
 
 #include <baseconfig.h>
 
-BaseConfig::BaseConfig(): debuglevel(2),
+BaseConfig::BaseConfig(): mqtt_UseRandomClientID(true),
+                          debuglevel(2),
                           serial_rx(3),
                           serial_tx(1),
-                          mqtt_UseRandomClientID(true),
                           useAuth(false) {
   #ifdef ESP8266
     LittleFS.begin();

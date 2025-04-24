@@ -254,7 +254,7 @@ jobs:
                   continue
                 fi
                 echo "Uploading $file"
-                gh release upload -R tobiasfaust/${{ env.GITHUB_REPOSITORY }} ${{ steps.set_env_var.outputs.tagname }} "$file" --clobber
+                gh release upload -R ${{env.GITHUB_OWNER}}/${{ env.GITHUB_REPOSITORY }} ${{ steps.set_env_var.outputs.tagname }} "$file" --clobber
               fi
             done
           done
@@ -267,18 +267,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p manifests
-          tagNames=$(gh release ls -R tobiasfaust/${{ env.GITHUB_REPOSITORY }} --json tagName)
+          tagNames=$(gh release ls -R ${{env.GITHUB_OWNER}}/${{ env.GITHUB_REPOSITORY }} --json tagName)
           
           for tag in $(echo "$tagNames" | jq -r '.[].tagName'); do
-            for asset in $(gh release view $tag -R tobiasfaust/${{ env.GITHUB_REPOSITORY }} --json assets --jq '.assets[].name' | grep -E 'manifestAll|filesAll'); do
-              echo "Downloading file: gh release download $tag -R tobiasfaust/${{ env.GITHUB_REPOSITORY }} --pattern '$asset' --dir 'manifests/${tag}/'"
+            for asset in $(gh release view $tag -R ${{env.GITHUB_OWNER}}/${{ env.GITHUB_REPOSITORY }} --json assets --jq '.assets[].name' | grep -E 'manifestAll|filesAll'); do
+              echo "Downloading file: gh release download $tag -R ${{env.GITHUB_OWNER}}/${{ env.GITHUB_REPOSITORY }} --pattern '$asset' --dir 'manifests/${tag}/'"
               gh release download $tag \
-                -R tobiasfaust/${{ env.GITHUB_REPOSITORY }} \
+                -R ${{env.GITHUB_OWNER}}/${{ env.GITHUB_REPOSITORY }} \
                 --pattern "$asset" \
                 --dir "manifests/${tag}/" || true
             done
             mkdir -p manifests/${tag}/
-            gh release view $tag -R tobiasfaust/${{ env.GITHUB_REPOSITORY }} --json assets > "manifests/${tag}/assets.json"
+            gh release view $tag -R ${{env.GITHUB_OWNER}}/${{ env.GITHUB_REPOSITORY }} --json assets > "manifests/${tag}/assets.json"
           done 
           python app/.github/scripts/createReleaseVersions.py \
             --ManifestDir manifests \

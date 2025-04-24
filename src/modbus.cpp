@@ -960,7 +960,7 @@ String modbus::MapBitwise(JsonArray map, String value) {
       //note: 1 item less than map size, because last item is default value
       Config->logN(4, "Mapped value: %s -> %s\n", String(value[i]).c_str(), map[map.size() -2 -i].as<String>().c_str());
       if (ret.length() > 0) ret += ", ";
-      if ((map.size() -2 -i) >=0 && map[map.size() -2 -i]) ret += map[map.size() -2 -i].as<String>();
+      if (((signed)map.size() -2 -i) >=0 && map[map.size() -2 -i]) ret += map[map.size() -2 -i].as<String>();
       else ret += "undefined";
     }
   }
