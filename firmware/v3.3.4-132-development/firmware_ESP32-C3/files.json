@@ -1,0 +1,30 @@
+{
+    "name": "SolaxModbusGateway (v3.3.4-development)",
+    "chipFamily": "ESP32-C3",
+    "stage": "development",
+    "build": 132,
+    "variant": "standard",
+    "version": "v3.3.4",
+    "parts": [
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.4-132-development/firmware_ESP32-C3/bootloader.ESP32-C3.v3.3.4-132.standard.development.bin",
+            "offset": 4096,
+            "filetype": "bootloader"
+        },
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.4-132-development/firmware_ESP32-C3/partitions.ESP32-C3.v3.3.4-132.standard.development.bin",
+            "offset": 32768,
+            "filetype": "partitions"
+        },
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.4-132-development/firmware_ESP32-C3/littlefs.ESP32-C3.v3.3.4-132.standard.development.bin",
+            "offset": 3473408,
+            "filetype": "filesystem"
+        },
+        {
+            "path": "https://tobiasfaust.github.io/SolaxModbusGateway/firmware/v3.3.4-132-development/firmware_ESP32-C3/firmware.ESP32-C3.v3.3.4-132.standard.development.bin",
+            "offset": 65536,
+            "filetype": "firmware"
+        }
+    ]
+}
