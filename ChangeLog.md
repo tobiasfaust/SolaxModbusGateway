@@ -1,3 +1,6 @@
+Release 3.3.4:
+  -
+  
 Release 3.3.3:
   - improve logging functionality methods
   - fixing some bugs
