@@ -350,33 +350,6 @@
         },
         {
           "position": [
-            525,
-            526
-          ],
-          "name": "ModbusPowerControl",
-          "realname": "Modbus Power Control",
-          "datatype": "integer",
-          "mapping": [
-            [
-              0,
-              "Off"
-            ],
-            [
-              1,
-              "PowerCtrl"
-            ],
-            [
-              2,
-              "ElectricQuantityCtrl"
-            ],
-            [
-              3,
-              "SoCTargetCtrl"
-            ]
-          ]
-        },
-        {
-          "position": [
             55,
             56
           ],
@@ -473,6 +446,30 @@
         },
         {
           "position": [
+            575,
+            576,
+            573,
+            574
+          ],
+          "name": "BatDischargeableEnergy",
+          "realname": "Battery Dischargeable Energy",
+          "datatype": "integer",
+          "unit": "Wh"
+        },
+        {
+          "position": [
+            571,
+            572,
+            569,
+            570
+          ],
+          "name": "BatChargeableEnergy",
+          "realname": "Battery Chargeable Energy",
+          "datatype": "integer",
+          "unit": "Wh"
+        },
+        {
+          "position": [
             388,
             389
           ],
@@ -488,16 +485,6 @@
           ],
           "name": "BatUserSoH",
           "realname": "Battery User SoH",
-          "datatype": "integer",
-          "unit": "&percnt;"
-        },
-        {
-          "position": [
-            579,
-            580
-          ],
-          "name": "BatTargetSoC",
-          "realname": "Battery Target SoC",
           "datatype": "integer",
           "unit": "&percnt;"
         },
@@ -1646,67 +1633,6 @@
           "0x06",
           "0x00",
           "0x9e"
-        ]
-      },
-      {
-        "name": "setModbusPowerControl",
-        "realname": "Modbus Power Control",
-        "info": "accepted values:",
-        "mapping": [
-          [
-            "Off",
-            0
-          ],
-          [
-            "PowerCtrl",
-            1
-          ],
-          [
-            "ElectricQuantityCtrl",
-            2
-          ],
-          [
-            "SoCTargetCtrl",
-            3
-          ]
-        ],
-        "request": [
-          "#ClientID",
-          "0x10",
-          "0x00",
-          "0x7c"
-        ]
-      },
-      {
-        "name": "setTargetSetType",
-        "realname": "Target Set Type",
-        "info": "accepted values:",
-        "mapping": [
-          [
-            "Set",
-            1
-          ],
-          [
-            "Update",
-            2
-          ]
-        ],
-        "request": [
-          "#ClientID",
-          "0x10",
-          "0x00",
-          "0x7d"
-        ]
-      },
-      {
-        "name": "setTargetSoC",
-        "realname": "Target SoC",
-        "info": "set 0 - 100 in percent",
-        "request": [
-          "#ClientID",
-          "0x10",
-          "0x00",
-          "0x83"
         ]
       },
       {
