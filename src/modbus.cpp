@@ -214,14 +214,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
        	JsonArray sizearr = elem["size"].as<JsonArray>();
 	// Spliten der msg in einzelne Strings und ins Array mparts speichern
 	std::vector<String> mparts;
-	std::stringstream mstream;
-	mstream << msg;
-
-	while (mstream.good()) {
-          String substr;
-          getline(mstream, substr, ','); //irgendwas passt da noch nicht
-          mparts.push_back(substr);
-        }
+	mparts = splitStringToVector(String msg)
 	//Schleife zum umwandeln der Strings und anhängen an den request
 	for (uint8_t z = 0; z < mparts.size(); z++ )
 	  // wenn der Value als int32 zurückgeliefert werden muss
