@@ -274,7 +274,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
       Config->logN(3, "MQTT Setter found: %s" ,this->Setters->at(i).Name.c_str());
       Config->logN(3, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
 
-      this->SetQueue->enqueue(request);
+      //this->SetQueue->enqueue(request);
     }
   }
 }
