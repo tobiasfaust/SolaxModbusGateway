@@ -189,27 +189,81 @@ void modbus::ReceiveMQTT(String topic, String msg) {
         byte e = this->String2Byte(x);
         request.push_back(e);
       }
+      //add by Lasgar
+      if (!elem["size"].isNull()) {
+	// der letzte Value aus arr auslesen umwandeln und verdoppeln zurück in byte und dem request anhängen (byte number)
+	byte bn = arr.at(arr.size());
+	int intbn = bn;
+	intbn = intbn * 2;
+	byte bn = intbn;
+	request.push_back(bn); //keine ahnung ob das so funktioniert :D
+	//size als Array verfügbar machen      
+       	JsonArray sizearr = elem["size"].as<JsonArray>();
+	// Spliten der msg in einzelne Strings und ins Array mparts speichern
+	std::vector<string> mparts;
+	stringstream mstream(msg);
 
-      // map values if a mapping is specified
-      if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && msg != "") {
-        Config->logN(4, "Map values for item %s", msg.c_str());
+	while (mstream.good()) {
+          string substr;
+          getline(mstream, substr, ',');
+          mparts.push_back(substr);
+        }
+	//Schleife zum umwandeln der Strings und anhängen an den request
+	for (uint8_t z = 0; z < mparts.size(); z++ )
+	  // wenn der Value als int32 zurückgeliefert werden muss
+	  if (sizearr.at(z) == "int32") {
+	    int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
+	    byte bytes[4];
 
-        JsonArray map = elem["mapping"].as<JsonArray>();
-        msg = this->MapItem(map, msg, true);
+            bytes[0] = (msgInt >> 24) & 0xFF;
+            bytes[1] = (msgInt >> 16) & 0xFF;
+            bytes[2] = (msgInt >> 8) & 0xFF;
+            bytes[3] = (msgInt >> 0) & 0xFF;
+
+            // prüfen ob hier zuerst das LSB und dann das MSB zurückgeliefert wird
+	    request.push_back(bytes[0]);
+            request.push_back(bytes[1]);
+            request.push_back(bytes[2]);
+            request.push_back(bytes[3]);
+	    // wenn der Value als int16 zurückgeliefert werden muss  
+	  } else {
+		  
+            int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
+	    byte bytes[4];
+
+            bytes[0] = (msgInt >> 24) & 0xFF;
+            bytes[1] = (msgInt >> 16) & 0xFF;
+            bytes[2] = (msgInt >> 8) & 0xFF;
+            bytes[3] = (msgInt >> 0) & 0xFF;
+
+            // 32bit number
+            request.push_back(bytes[2]);
+            request.push_back(bytes[3]);
+		  
+	  }
+	
+      } else {
+        // map values if a mapping is specified
+        if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && msg != "") {
+          Config->logN(4, "Map values for item %s", msg.c_str());
+
+          JsonArray map = elem["mapping"].as<JsonArray>();
+          msg = this->MapItem(map, msg, true);
+        }
+
+        int msgInt = msg.toInt(); // atoi(msg.c_str())
+        byte bytes[4];
+
+        bytes[0] = (msgInt >> 24) & 0xFF;
+        bytes[1] = (msgInt >> 16) & 0xFF;
+        bytes[2] = (msgInt >> 8) & 0xFF;
+        bytes[3] = (msgInt >> 0) & 0xFF;
+
+        // 32bit number
+        request.push_back(bytes[2]);
+        request.push_back(bytes[3]);
       }
-
-      int msgInt = msg.toInt(); // atoi(msg.c_str())
-      byte bytes[4];
-
-      bytes[0] = (msgInt >> 24) & 0xFF;
-      bytes[1] = (msgInt >> 16) & 0xFF;
-      bytes[2] = (msgInt >> 8) & 0xFF;
-      bytes[3] = (msgInt >> 0) & 0xFF;
-
-      // 32bit number
-      request.push_back(bytes[2]);
-      request.push_back(bytes[3]);
-
+	    
       Config->logN(3, "MQTT Setter found: %s" ,this->Setters->at(i).Name.c_str());
       Config->logN(3, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
 
