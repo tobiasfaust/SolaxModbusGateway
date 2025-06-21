@@ -163,6 +163,19 @@ void modbus::LoadSettersFromRegFile() {
 /*******************************************************
  * act on received mqtt command
 *******************************************************/
+std::vector<String> splitStringToVector(String msg){
+  std::vector<String> subStrings;
+  int j=0;
+  for(int i =0; i < msg.length(); i++){
+    if(msg.charAt(i) == ','){
+      subStrings.push_back(msg.substring(j,i));
+      j = i+1;
+    }
+  }
+  subStrings.push_back(msg.substring(j,msg.length())); //to grab the last value of the string
+  return subStrings;
+}
+
 void modbus::ReceiveMQTT(String topic, String msg) {
   if (!this->Conf_EnableSetters) {
     Config->logN(2, "Set command <%s> received, but setters over mqtt are currently disabled globally", topic.c_str());
