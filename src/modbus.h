@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <sstream>
 #include <openwb.h>
+#include <bits/stdc++.h>
 
 #ifndef DEFAULT_MODBUS_RX_PIN
 #define DEFAULT_MODBUS_RX_PIN 16
