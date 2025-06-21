@@ -205,7 +205,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	mstream << msg;
 
 	while (mstream.good()) {
-          string substr;
+          String substr;
           std::getline(mstream, substr, ',');
           mparts.push_back(substr);
         }
