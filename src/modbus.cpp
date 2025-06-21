@@ -208,6 +208,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	byte bn = arr[3];
 	int intbn = bn;
 	intbn = intbn * 2;
+	Config->logN(1, "byte number: %s" ,intbn);
 	bn = intbn;
 	request.push_back(bn); //keine ahnung ob das so funktioniert :D
 	//size als Array verfügbar machen      
@@ -228,10 +229,10 @@ void modbus::ReceiveMQTT(String topic, String msg) {
             bytes[3] = (msgInt >> 0) & 0xFF;
 
             // prüfen ob hier zuerst das LSB und dann das MSB zurückgeliefert wird
-	    request.push_back(bytes[0]);
-            request.push_back(bytes[1]);
             request.push_back(bytes[2]);
             request.push_back(bytes[3]);
+	    request.push_back(bytes[0]);
+            request.push_back(bytes[1]);
 	    // wenn der Value als int16 zurückgeliefert werden muss  
 	  } else {
 		  
