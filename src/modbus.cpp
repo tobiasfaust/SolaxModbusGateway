@@ -207,7 +207,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	// der letzte Value aus arr auslesen umwandeln und verdoppeln zurück in byte und dem request anhängen (byte number)
 	byte bn = this->String2Byte(arr[3]);
 	bn = bn * 2;
-	Config->logN(1, "byte number: %s" ,(this->PrintDataFrame(&bn)).c_str());
+	//Config->logN(1, "byte number: %s" ,(this->PrintDataFrame(&bn)).c_str());
 	      
 	request.push_back(bn); //keine ahnung ob das so funktioniert :D
 	//size als Array verfügbar machen      
