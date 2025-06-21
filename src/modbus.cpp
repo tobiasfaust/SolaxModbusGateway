@@ -205,11 +205,8 @@ void modbus::ReceiveMQTT(String topic, String msg) {
       //add by Lasgar
       if (!elem["size"].isNull()) {
 	// der letzte Value aus arr auslesen umwandeln und verdoppeln zurück in byte und dem request anhängen (byte number)
-	byte bn = this->String2Byte(arr[3]);
-	bn = bn * 2;
-	//Config->logN(1, "byte number: %s" ,(this->PrintDataFrame(&bn)).c_str());
-	      
-	request.push_back(bn); //keine ahnung ob das so funktioniert :D
+	byte bn = this->String2Byte(arr[5]);
+	request.push_back(bn*2); //push byte number to request
 	//size als Array verfügbar machen      
        	JsonArray sizearr = elem["size"].as<JsonArray>();
 	// Spliten der msg in einzelne Strings und ins Array mparts speichern
