@@ -192,7 +192,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
       //add by Lasgar
       if (!elem["size"].isNull()) {
 	// der letzte Value aus arr auslesen umwandeln und verdoppeln zurück in byte und dem request anhängen (byte number)
-	byte bn = arr.at(arr.size());
+	byte bn = arr[3];
 	int intbn = bn;
 	intbn = intbn * 2;
 	byte bn = intbn;
@@ -211,7 +211,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	//Schleife zum umwandeln der Strings und anhängen an den request
 	for (uint8_t z = 0; z < mparts.size(); z++ )
 	  // wenn der Value als int32 zurückgeliefert werden muss
-	  if (sizearr.at(z) == "int32") {
+	  if (sizearr[z] == "int32") {
 	    int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
 	    byte bytes[4];
 
