@@ -209,7 +209,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
           bytes[2] = (msgInt >> 8) & 0xFF;
           bytes[3] = (msgInt >> 0) & 0xFF;
 
-	  if (sizearr[z] == "int32") { // bei int32 werden 4 byte dem "request" angehängt
+	  if (sizearr[z].toLowerCase() == "int32") { // bei int32 werden 4 byte dem "request" angehängt
             
             request.push_back(bytes[2]); // LSB zuerst
             request.push_back(bytes[3]);
