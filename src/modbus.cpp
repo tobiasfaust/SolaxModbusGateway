@@ -163,19 +163,6 @@ void modbus::LoadSettersFromRegFile() {
 /*******************************************************
  * act on received mqtt command
 *******************************************************/
-std::vector<String> modbus::splitStringToVector(String msg){
-  std::vector<String> subStrings;
-  int j=0;
-  for(int i =0; i < msg.length(); i++){
-    if(msg.charAt(i) == ','){
-      subStrings.push_back(msg.substring(j,i));
-      j = i+1;
-    }
-  }
-  subStrings.push_back(msg.substring(j,msg.length())); //to grab the last value of the string
-  return subStrings;
-}
-
 void modbus::ReceiveMQTT(String topic, String msg) {
   if (!this->Conf_EnableSetters) {
     Config->logN(2, "Set command <%s> received, but setters over mqtt are currently disabled globally", topic.c_str());
@@ -191,7 +178,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 
       JsonDocument elem = this->GetSetterByName(this->Setters->at(i).Name);
       if (elem.isNull()) {
-        Config->logN(1, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
+        Config->logN(4, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
         return;
       }
 
@@ -202,51 +189,41 @@ void modbus::ReceiveMQTT(String topic, String msg) {
         byte e = this->String2Byte(x);
         request.push_back(e);
       }
-      //add by Lasgar
-      if (!elem["size"].isNull()) {
-	// der letzte Value aus arr auslesen umwandeln und verdoppeln zurück in byte und dem request anhängen (byte number)
-	byte bn = this->String2Byte(arr[5]);
-	request.push_back(bn*2); //push byte number to request
-	//size als Array verfügbar machen      
-       	JsonArray sizearr = elem["size"].as<JsonArray>();
-	// Spliten der msg in einzelne Strings und ins Array mparts speichern
-	std::vector<String> mparts;
-	mparts = splitStringToVector(msg);
-	//Schleife zum umwandeln der Strings und anhängen an den request
-	for (uint8_t z = 0; z < mparts.size(); z++ )
-	  // wenn der Value als int32 zurückgeliefert werden muss
-	  if (sizearr[z] == "int32") {
-	    int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
-	    byte bytes[4];
+      //added by Lazgar
+      if (!elem["intsize"].isNull()) { // wenn "intsize" gefunden wird, muss es als multiregister beschrieben werden
+	
+	byte bn = this->String2Byte(arr[5]); // der letzte Value aus "arr" auslesen und in Byte umwandeln (byte number)
+	request.push_back(bn*2); //Byte verdoppeln und dem "request" anhängen
+	     
+       	JsonArray sizearr = elem["intsize"].as<JsonArray>(); //intsize als Array verfügbar machen 
+	
+	std::vector<String> mparts = splitStringToVector(msg); // Spliten der "msg" in einzelne Strings und in einen Vector laden
+	
+	for (uint8_t z = 0; z < mparts.size(); z++ ) //Schleife zum umwandeln der Strings und anhängen an den request
 
-            bytes[0] = (msgInt >> 24) & 0xFF;
-            bytes[1] = (msgInt >> 16) & 0xFF;
-            bytes[2] = (msgInt >> 8) & 0xFF;
-            bytes[3] = (msgInt >> 0) & 0xFF;
+	  int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
+	  byte bytes[4];
 
-            // prüfen ob hier zuerst das LSB und dann das MSB zurückgeliefert wird
-            request.push_back(bytes[2]);
+          bytes[0] = (msgInt >> 24) & 0xFF;
+          bytes[1] = (msgInt >> 16) & 0xFF;
+          bytes[2] = (msgInt >> 8) & 0xFF;
+          bytes[3] = (msgInt >> 0) & 0xFF;
+
+	  if (sizearr[z] == "int32") { // bei int32 werden 4 byte dem "request" angehängt
+            
+            request.push_back(bytes[2]); // LSB zuerst
             request.push_back(bytes[3]);
-	    request.push_back(bytes[0]);
+	    request.push_back(bytes[0]); // MSB danach
             request.push_back(bytes[1]);
-	    // wenn der Value als int16 zurückgeliefert werden muss  
-	  } else {
-		  
-            int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
-	    byte bytes[4];
+	     
+	  } else { // bei int16 werden 2 byte dem "request" angehängt 
 
-            bytes[0] = (msgInt >> 24) & 0xFF;
-            bytes[1] = (msgInt >> 16) & 0xFF;
-            bytes[2] = (msgInt >> 8) & 0xFF;
-            bytes[3] = (msgInt >> 0) & 0xFF;
-
-            // 32bit number
             request.push_back(bytes[2]);
             request.push_back(bytes[3]);
-		  
+	
 	  }
 	
-      } else {
+      } else { // übliche abarbeitung normaler Set Befehle
         // map values if a mapping is specified
         if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && msg != "") {
           Config->logN(4, "Map values for item %s", msg.c_str());
@@ -269,7 +246,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
       }
 	    
       Config->logN(3, "MQTT Setter found: %s" ,this->Setters->at(i).Name.c_str());
-      Config->logN(1, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
+      Config->logN(4, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
 
       this->SetQueue->enqueue(request);
     }
@@ -437,6 +414,22 @@ byte modbus::String2Byte(String s){
     ret = this->ClientID;
   }
   return ret;
+}
+
+/*******************************************************
+ * split a String into Vector with comma as separator
+*******************************************************/
+std::vector<String> modbus::splitStringToVector(String msg){
+  std::vector<String> subStrings;
+  int j=0;
+  for(int i =0; i < msg.length(); i++){
+    if(msg.charAt(i) == ','){
+      subStrings.push_back(msg.substring(j,i));
+      j = i+1;
+    }
+  }
+  subStrings.push_back(msg.substring(j,msg.length())); //to grab the last value of the string
+  return subStrings;
 }
 
 /*******************************************************
