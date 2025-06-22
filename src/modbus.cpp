@@ -199,7 +199,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	
 	std::vector<String> mparts = splitStringToVector(msg); // Spliten der "msg" in einzelne Strings und in einen Vector laden
 	
-	for (uint8_t z = 0; z < mparts.size(); z++ ) {//Schleife zum umwandeln der Strings und anhängen an den request
+	for (uint8_t z = 0; z < mparts.size(); z++ ) { //Schleife zum umwandeln der Strings und anhängen an den request
 
 	  int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
 	  byte bytes[4];
@@ -209,7 +209,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
           bytes[2] = (msgInt >> 8) & 0xFF;
           bytes[3] = (msgInt >> 0) & 0xFF;
 
-	  if (sizearr[z].toLowerCase() == "int32") { // bei int32 werden 4 byte dem "request" angehängt
+	  if (sizearr[z] == "int32") { // bei int32 werden 4 byte dem "request" angehängt
             
             request.push_back(bytes[2]); // LSB zuerst
             request.push_back(bytes[3]);
@@ -224,7 +224,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	  }
 	
 	}
-	
+
       } else { // übliche abarbeitung normaler Set Befehle
         // map values if a mapping is specified
         if(!elem["mapping"].isNull() && elem["mapping"].is<JsonArray>() && msg != "") {
