@@ -199,7 +199,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	
 	std::vector<String> mparts = splitStringToVector(msg); // Spliten der "msg" in einzelne Strings und in einen Vector laden
 	
-	for (uint8_t z = 0; z < mparts.size(); z++ ) { //Schleife zum umwandeln der Strings und anhängen an den request
+	for (uint8_t z = 0; z < mparts.size(); z++ ) { //Schleife zum umwandeln der Strings und anhängen an den "request"
 
 	  int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
 	  byte bytes[4];
@@ -216,7 +216,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	    request.push_back(bytes[0]); // MSB danach
             request.push_back(bytes[1]);
 	     
-	  } else { // bei int16 werden 2 byte dem "request" angehängt 
+	  } else { // bei int16 werden 2 byte dem "request" angehängt
 
             request.push_back(bytes[2]);
             request.push_back(bytes[3]);
