@@ -1897,7 +1897,7 @@
         "name": "setVPPControl",
         "realname": "VPP Control",
         "info": "VPP Control Function, a comma separated List of Values. Check Solax Documentation for Details.",
-        "size": [
+        "intsize": [
           "int16",
           "int16",
           "int32",
