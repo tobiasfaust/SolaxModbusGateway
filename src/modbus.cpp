@@ -178,7 +178,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 
       JsonDocument elem = this->GetSetterByName(this->Setters->at(i).Name);
       if (elem.isNull()) {
-        Config->logN(4, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
+        Config->logN(1, "Setter %s not found in JSON", this->Setters->at(i).Name.c_str());
         return;
       }
 
@@ -248,7 +248,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
       }
 	    
       Config->logN(3, "MQTT Setter found: %s" ,this->Setters->at(i).Name.c_str());
-      Config->logN(4, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
+      Config->logN(3, "Initiate Set Request to queue: %s" ,(this->PrintDataFrame(&request)).c_str());
 
       this->SetQueue->enqueue(request);
     }
