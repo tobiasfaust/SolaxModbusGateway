@@ -196,9 +196,14 @@ void modbus::ReceiveMQTT(String topic, String msg) {
 	request.push_back(bn*2); //Byte verdoppeln und dem "request" anhängen
 	     
        	JsonArray sizearr = elem["intsize"].as<JsonArray>(); //intsize als Array verfügbar machen 
-	
+
 	std::vector<String> mparts = splitStringToVector(msg); // Spliten der "msg" in einzelne Strings und in einen Vector laden
-	
+
+        if (mparts.size() != sizearr.size()) {
+	  Config->logN(1, "The correct number of values ​​was not passed (%s)", sizearr.size());
+	  return;
+	}
+	      
 	for (uint8_t z = 0; z < mparts.size(); z++ ) { //Schleife zum umwandeln der Strings und anhängen an den "request"
 
 	  int msgInt = mparts.at(z).toInt(); // atoi(msg.c_str())
