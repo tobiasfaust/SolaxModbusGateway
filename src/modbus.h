@@ -139,6 +139,7 @@ class modbus {
     String                  ConvertIntToBinaryString(int n, int numBits);
     void                    ReadRelays();
     void                    SendDataToWebSocket(std::vector<reg_t>* vector);
+    std::vector<String>     splitStringToVector(String msg);
 
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;
