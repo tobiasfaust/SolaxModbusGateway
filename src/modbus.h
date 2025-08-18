@@ -17,6 +17,14 @@
 #include <sstream>
 #include <openwb.h>
 
+#ifndef DEFAULT_MODBUS_RX_PIN
+#define DEFAULT_MODBUS_RX_PIN 16
+#endif
+
+#ifndef DEFAULT_MODBUS_TX_PIN
+#define DEFAULT_MODBUS_TX_PIN 17
+#endif
+
 //#define DEBUGMODE
 
 class modbus {
@@ -131,6 +139,7 @@ class modbus {
     String                  ConvertIntToBinaryString(int n, int numBits);
     void                    ReadRelays();
     void                    SendDataToWebSocket(std::vector<reg_t>* vector);
+    std::vector<String>     splitStringToVector(String msg);
 
     // inverter config, in sync with register.h ->config
     ArduinoQueue<std::vector<byte>>* ReadQueue;

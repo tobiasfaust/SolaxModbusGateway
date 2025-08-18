@@ -350,33 +350,6 @@
         },
         {
           "position": [
-            525,
-            526
-          ],
-          "name": "ModbusPowerControl",
-          "realname": "Modbus Power Control",
-          "datatype": "integer",
-          "mapping": [
-            [
-              0,
-              "Off"
-            ],
-            [
-              1,
-              "PowerCtrl"
-            ],
-            [
-              2,
-              "ElectricQuantityCtrl"
-            ],
-            [
-              3,
-              "SoCTargetCtrl"
-            ]
-          ]
-        },
-        {
-          "position": [
             55,
             56
           ],
@@ -473,6 +446,30 @@
         },
         {
           "position": [
+            575,
+            576,
+            573,
+            574
+          ],
+          "name": "BatDischargeableEnergy",
+          "realname": "Battery Dischargeable Energy",
+          "datatype": "integer",
+          "unit": "Wh"
+        },
+        {
+          "position": [
+            571,
+            572,
+            569,
+            570
+          ],
+          "name": "BatChargeableEnergy",
+          "realname": "Battery Chargeable Energy",
+          "datatype": "integer",
+          "unit": "Wh"
+        },
+        {
+          "position": [
             388,
             389
           ],
@@ -488,16 +485,6 @@
           ],
           "name": "BatUserSoH",
           "realname": "Battery User SoH",
-          "datatype": "integer",
-          "unit": "&percnt;"
-        },
-        {
-          "position": [
-            579,
-            580
-          ],
-          "name": "BatTargetSoC",
-          "realname": "Battery Target SoC",
           "datatype": "integer",
           "unit": "&percnt;"
         },
@@ -1059,6 +1046,130 @@
           "datatype": "float",
           "factor": 0.001,
           "unit": "V"
+        },
+        {
+          "position": [
+            525,
+            526
+          ],
+          "name": "VPPControlMode",
+          "realname": "VPP Control Mode",
+          "datatype": "integer",
+          "mapping": [
+            [
+              0,
+              "Disabled"
+            ],
+            [
+              1,
+              "PowerControl"
+            ],
+            [
+              2,
+              "ElectricQuantityControl"
+            ],
+            [
+              3,
+              "SoCTargetControl"
+            ]
+          ]
+        },
+        {
+          "position": [
+            527,
+            528
+          ],
+          "name": "VPPControlStatus",
+          "realname": "VPP Control Status",
+          "datatype": "integer",
+          "mapping": [
+            [
+              0,
+              "Unfinished"
+            ],
+            [
+              1,
+              "Finished"
+            ]
+          ]
+        },
+        {
+          "position": [
+            531,
+            532,
+            529,
+            530
+          ],
+          "name": "VPPActivePowerTarget",
+          "realname": "VPP Active Power Target",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            535,
+            536,
+            533,
+            534
+          ],
+          "name": "VPPReactivePowerTarget",
+          "realname": "VPP Reactive Power Target",
+          "datatype": "integer",
+          "unit": "VA"
+        },
+        {
+          "position": [
+            563,
+            564,
+            561,
+            562
+          ],
+          "name": "VPPTargetEnergy",
+          "realname": "VPP Target Energy",
+          "datatype": "integer",
+          "unit": "Wh"
+        },
+        {
+          "position": [
+            579,
+            580
+          ],
+          "name": "VPPTargetSoC",
+          "realname": "VPP Target SoC",
+          "datatype": "integer",
+          "unit": "&percnt;"
+        },
+        {
+          "position": [
+            567,
+            568,
+            565,
+            566
+          ],
+          "name": "VPPChargeDischargePower",
+          "realname": "VPP Charge Discharge Power",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            577,
+            578
+          ],
+          "name": "VPPDuration",
+          "realname": "VPP Duration",
+          "datatype": "integer",
+          "unit": "s"
+        },
+        {
+          "position": [
+            585,
+            586
+          ],
+          "name": "VPPCtrlTimeout",
+          "realname": "VPP Ctrl Timeout",
+          "datatype": "integer",
+          "unit": "s"
         }
       ],
       "id": [
@@ -1649,67 +1760,6 @@
         ]
       },
       {
-        "name": "setModbusPowerControl",
-        "realname": "Modbus Power Control",
-        "info": "accepted values:",
-        "mapping": [
-          [
-            "Off",
-            0
-          ],
-          [
-            "PowerCtrl",
-            1
-          ],
-          [
-            "ElectricQuantityCtrl",
-            2
-          ],
-          [
-            "SoCTargetCtrl",
-            3
-          ]
-        ],
-        "request": [
-          "#ClientID",
-          "0x10",
-          "0x00",
-          "0x7c"
-        ]
-      },
-      {
-        "name": "setTargetSetType",
-        "realname": "Target Set Type",
-        "info": "accepted values:",
-        "mapping": [
-          [
-            "Set",
-            1
-          ],
-          [
-            "Update",
-            2
-          ]
-        ],
-        "request": [
-          "#ClientID",
-          "0x10",
-          "0x00",
-          "0x7d"
-        ]
-      },
-      {
-        "name": "setTargetSoC",
-        "realname": "Target SoC",
-        "info": "set 0 - 100 in percent",
-        "request": [
-          "#ClientID",
-          "0x10",
-          "0x00",
-          "0x83"
-        ]
-      },
-      {
         "name": "setPgridBias",
         "realname": "Pgrid Bias",
         "info": "accepted values:",
@@ -1841,6 +1891,31 @@
           "0x06",
           "0x00",
           "0x66"
+        ]
+      },
+      {
+        "name": "setVPPControl",
+        "realname": "VPP Control",
+        "info": "VPP Control Function, a comma separated List of Values. Check Solax Documentation for Details.",
+        "intsize": [
+          "int16",
+          "int16",
+          "int32",
+          "int32",
+          "int16",
+          "int16",
+          "int32",
+          "int32",
+          "int16",
+          "int32"
+        ],
+        "request": [
+          "#ClientID",
+          "0x10",
+          "0x00",
+          "0x7C",
+          "0x00",
+          "0x0F"
         ]
       },
       {
