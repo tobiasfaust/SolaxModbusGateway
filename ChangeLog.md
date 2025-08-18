@@ -1,5 +1,6 @@
 Release 3.3.4:
   - Change default pins for ESP32-C3 (#149), thanks to @NHellFire
+  - remove deprecated backup functionality  from Elegant-OTA
   
 Release 3.3.3:
   - improve logging functionality methods
