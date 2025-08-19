@@ -85,4 +85,36 @@ export function highlightNavi(item) {
   
 }
 
+/************************************************
+ * init external site by filling predefined templates
+ * -> id = footer
+ ************************************************/
+export function initExternalSite(doc) {
+  fetch("navi.html")
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const naviDoc = parser.parseFromString(html, "text/html");
+      const footerTemplate = naviDoc.getElementById("footer");
+      
+      if (footerTemplate && doc) {
+        const targetFooter = doc.getElementById("footer");
+        if (targetFooter) {
+          targetFooter.innerHTML = footerTemplate.innerHTML;
+          
+          if (doc.getElementById("ws-status")) {
+            if (global.ws.readyState === WebSocket.OPEN) {
+              doc.getElementById("ws-status").style.backgroundColor = 'green';
+            } else {  
+              doc.getElementById("ws-status").style.backgroundColor = 'yellow';
+            }
+          }
+        }
+      }
+    })
+    .catch(error => console.error("Error loading navi.html:", error));
+
+    document.defaultView.toggleView = global.toggleView;
+}
+
 // ************************************************

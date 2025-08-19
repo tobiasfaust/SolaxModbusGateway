@@ -10,6 +10,7 @@
 #include <ArduinoJson.h>
 
 class openwb {
+  
   // openwb mqtt topics
   typedef struct {
     String key;
@@ -17,7 +18,7 @@ class openwb {
   } openwb_t;
 
  public:
-    openwb();
+    openwb(fs::LittleFSFS& fs);
 
     /*******************************************************
      * @brief initialize openWB
@@ -63,9 +64,10 @@ class openwb {
     void clearMappings() { OpenWBMappings->clear(); }
 
  private:
-    std::vector<openwb_t>*  OpenWBTopics;         // openWB mqtt topics from JSON
-    std::vector<String>*    OpenWBVersions;       // openWB available versions from JSON
-    std::vector<openwb_t>*  OpenWBMappings;       // openWB mappings from JSON
+  fs::LittleFSFS&         _fs;
+  std::vector<openwb_t>*  OpenWBTopics = nullptr;         // openWB mqtt topics from JSON
+  std::vector<String>*    OpenWBVersions = nullptr;       // openWB available versions from JSON
+  std::vector<openwb_t>*  OpenWBMappings = nullptr;       // openWB mappings from JSON
 
     String                  _version;
 

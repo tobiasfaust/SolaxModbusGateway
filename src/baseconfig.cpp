@@ -4,36 +4,24 @@
 
 #include <baseconfig.h>
 
-BaseConfig::BaseConfig(): debuglevel(2),
-                          serial_rx(RX),
-                          serial_tx(TX),
-                          mqtt_UseRandomClientID(true),
-                          useAuth(false) {
-  #ifdef ESP8266
-    LittleFS.begin();
-  #elif defined(ESP32)
-    if (LittleFS.begin(true)) {  // true: format LittleFS/NVS if mount fails
-      if (!LittleFS.exists("/config")) {
-        LittleFS.mkdir("/config");
-      }
-    } else {
-      this->logN(1, "LittleFS Mount Failed");
-    }
-  #endif
-
-  // Flash Write Issue
-  // https://github.com/esp8266/Arduino/issues/4061#issuecomment-428007580
-  // LittleFS.format();
-
+BaseConfig::BaseConfig(fs::LittleFSFS& configFS)
+    : configFS(configFS),
+      debuglevel(3),
+      serial_rx(RX),
+      serial_tx(TX),
+      mqtt_UseRandomClientID(true),
+      useAuth(false) {
+  // Partition wird im main.cpp gemountet
   LoadJsonConfig();
 }
 
+
 void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
-  if (LittleFS.exists("/config/baseconfig.json")) {
+  if (this->configFS.exists("/baseconfig.json")) {
     // file exists, reading and loading
     this->logN(2, "reading config file");
-    File configFile = LittleFS.open("/config/baseconfig.json", "r");
+    File configFile = configFS.open("/baseconfig.json", "r");
     if (configFile) {
       this->logN(2, "opened config file");
 

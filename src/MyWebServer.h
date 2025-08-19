@@ -26,23 +26,25 @@ class MyWebServer {
   } WsConnClient_t;
 
  public:
-    MyWebServer(AsyncWebServer *server, DNSServer* dns);
+    MyWebServer(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS, AsyncWebServer *server, DNSServer* dns);
 
     void      loop();
     void      sendWebSocketMessage(String& message);
 
  private:
     
-    bool      DoReboot;
-    uint64_t  RequestRebootTime;
-
-    std::vector<WsConnClient_t>  WsConnectedClientsForBroadcast = {};
+  fs::LittleFSFS&   sysFS;
+  fs::LittleFSFS&   configFS;
+  bool              DoReboot;
+  uint64_t          RequestRebootTime;
     
-    AsyncWebServer* server;
-    DNSServer* dns;
-    AsyncWebSocket* ws;
-
-    handleFiles* fsfiles;
+  std::vector<WsConnClient_t>  WsConnectedClientsForBroadcast = {};
+    
+  AsyncWebServer* server;
+  DNSServer* dns;
+  AsyncWebSocket* ws;
+    
+  handleFiles* fsfiles;
 
     void      handleNotFound(AsyncWebServerRequest *request);
     bool      handleReset();

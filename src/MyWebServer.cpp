@@ -4,13 +4,14 @@
 
 #include "MyWebServer.h"
 
-MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): 
-        DoReboot(false),
-        RequestRebootTime(0),
-        server(server),
-        dns(dns) {
+MyWebServer::MyWebServer(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS, AsyncWebServer *server, DNSServer* dns)
+    : sysFS(sysFS), configFS(configFS), DoReboot(false), RequestRebootTime(0), server(server), dns(dns) {
   
   fsfiles = new handleFiles(server);
+  fsfiles->registerLogCallback(std::bind(&BaseConfig::logN, Config, std::placeholders::_1, std::placeholders::_2));
+  fsfiles->registerLittleFS(&sysFS, "/web");
+  fsfiles->registerLittleFS(&configFS, "/config");
+
   ws = new AsyncWebSocket("/ajaxws");
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
@@ -33,6 +34,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   ElegantOTA.begin(server);    // Start ElegantOTA
   ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH), String(GITHUB_RUN).toInt());
   ElegantOTA.setFWVersion(String(Config->GetReleaseName() + " / Build: " + GITHUB_RUN ));
+  ElegantOTA.setTargetPartition("webdata");  // Set default partition for OTA updates
   ElegantOTA.setAutoReboot(true);
   
   //ElegantOTA callbacks
@@ -41,13 +43,15 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   //ElegantOTA.onEnd(std::bind(&MyWebServer::onOTAEnd, this, std::placeholders::_1));
 
   if (Config->GetUseAuth()) {
-    server->serveStatic("/", LittleFS, "/", "max-age=3600")
-          .setDefaultFile("/web/index.html")
+    server->serveStatic("/web/", sysFS, "/", "max-age=3600")
+          .setDefaultFile("/web/web/index.html")
           .setAuthentication(Config->GetAuthUser().c_str(), Config->GetAuthPass().c_str());
   } else {
-    server->serveStatic("/", LittleFS, "/", "max-age=3600")
-          .setDefaultFile("/web/index.html");
+    server->serveStatic("/web/", sysFS, "/", "max-age=3600")
+          .setDefaultFile("/web/web/index.html");
   }
+
+  server->serveStatic("/config/", configFS, "/");
   
   // try to start the server if wifi is connected, otherwise wait for wifi connection
   if (mqtt->GetConnectStatusWifi()) {
@@ -223,7 +227,7 @@ void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
-  request->redirect("/web/index.html");
+  request->redirect("/web/web/index.html");
 }
 
 void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
@@ -235,15 +239,15 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 bool MyWebServer::handleReset() {
   bool ret = true;
   Config->logN(3, "deletion of all config files was requested ....");
-  //LittleFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
-  File root = LittleFS.open("/config/");
+  // configFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
+  File root = configFS.open("/");
   File file = root.openNextFile();
   while(file){
-    String path("/config/"); path.concat(file.name());
+    String path = String("/") + file.name();
     if (path.indexOf(".json") == -1) {file = root.openNextFile(); continue;}
     file.close();
     
-    if (LittleFS.remove(path)) {
+    if (configFS.remove(path)) {
       Config->logN(4, "deletion of configuration file '%s' was successful", file.name());
     } else {
       Config->logN(2, "deletion of configuration file '%s' has failed", file.name());

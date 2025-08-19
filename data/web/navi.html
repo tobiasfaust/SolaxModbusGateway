@@ -40,17 +40,17 @@
     </tr>
     <tr>
       <td class='navi' style='width: 50px'></td>
-      <td class='navi navi_active' name='navi' id='status' onclick='highlightNavi(this)' style='width: 100px'><a href='/web/status.html' target="frame_main">Status</a></td>
+  <td class='navi navi_active' name='navi' id='status' onclick='highlightNavi(this)' style='width: 100px'><a href='./status.html' target="frame_main">Status</a></td>
       <td class='navi' style='width: 50px'></td>
-      <td class='navi' name='navi' id='baseconfig' onclick='highlightNavi(this)' style='width: 100px'><a href='/web/baseconfig.html' target="frame_main">Basis Config</a></td>
+  <td class='navi' name='navi' id='baseconfig' onclick='highlightNavi(this)' style='width: 100px'><a href='./baseconfig.html' target="frame_main">Basis Config</a></td>
       <td class='navi' style='width: 50px'></td>
-      <td class='navi' name='navi' id='ModbusConfig' onclick='highlightNavi(this)' style='width: 120px'><a href='/web/modbusconfig.html' target="frame_main">Modbus Config</a></td>
+  <td class='navi' name='navi' id='ModbusConfig' onclick='highlightNavi(this)' style='width: 120px'><a href='./modbusconfig.html' target="frame_main">Modbus Config</a></td>
       <td class='navi' style='width: 50px'></td>
-      <td class='navi' name='navi' id='ModbusItemConfig' onclick='highlightNavi(this)' style='width: 100px'><a href='/web/modbusitemconfig.html' target="frame_main">Item Config</a></td>
+  <td class='navi' name='navi' id='ModbusItemConfig' onclick='highlightNavi(this)' style='width: 100px'><a href='./modbusitemconfig.html' target="frame_main">Item Config</a></td>
       <td class='navi' style='width: 50px'></td>
-      <td class='navi' name='navi' id='ModbusRawData' onclick='highlightNavi(this)' style='width: 100px'><a href='/web/rawdata.html' target="frame_main">Raw Data</a></td>
+  <td class='navi' name='navi' id='ModbusRawData' onclick='highlightNavi(this)' style='width: 100px'><a href='./rawdata.html' target="frame_main">Raw Data</a></td>
       <td class='navi' style='width: 50px'></td>
-      <td class='navi' name='navi' id='handleFiles' onclick='highlightNavi(this)' style='width: 100px'><a href='/web/handlefiles.html' target="frame_main">Files</a></td>
+  <td class='navi' name='navi' id='handleFiles' onclick='highlightNavi(this)' style='width: 100px'><a href='./handlefiles.html' target="frame_main">Files</a></td>
       <td class='navi' style='width: 50px'></td>
       <td class='navi' name='navi' id='wiki' style='width: 100px'><a href='https://github.com/tobiasfaust/SolaxModbusGateway/wiki' target='_blank'>Wiki</a></td>
       <td class='navi' style='width: 50px'></td>
@@ -72,6 +72,26 @@
     <button class="button" onclick="top.frames['frame_main'].document.getElementById('showUpdateInfo').classList.add('hide');">Close</button>
     <button class="button" onclick='top.frames["frame_main"].location.href="/update"'>Update</button>
   </div>
+
+    <template id="footer">
+      <div id="logView" style="display: none; position: fixed; bottom: 22px; left: 10px; width: 400px; height: 60px; overflow-y: auto; white-space: nowrap; border: 1px solid blue; background-color: white; font-family: 'Courier New', monospace; font-size: 11px; text-align: left;"></div>
+      <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
+        <table style="width: 100%"><tr>
+          <td style="width: 33%">
+            <i class="fa fa-list" style="color: green; font-size: 15px; float: left; padding-left: 10px;" title="show log" onclick="toggleView()"></i>
+          </td>
+          <td style="width: 33%">
+            <div id="footer-response" style="font-size: 12px;"></div>
+          </td>
+          <td style="width: 33%">
+            <div style="font-size: 10px; float: right;">
+              Connection Status:
+              <span id="ws-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: red; margin-right: 25px; margin-top: 3px;"></span>
+            </div>
+          </td> 
+        </tr></table>
+      </div>
+    </template>
 
 </body>
 </html>

@@ -2,21 +2,26 @@
  * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
  ********************************************************/
 
+
 #include "modbus.h"
+
 
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus(): enableRelays(false), 
-                  Baudrate(19200), 
-                  enableCrcCheck(true), 
-                  enableLengthCheck(true), 
-                  LastTxLiveData(0), 
-                  LastTxIdData(0), 
-                  LastTxInverter(0),
-                  Conf_OpenWBModulID(1),
-                  Conf_OpenWBBatteryID(2) { 
-  
+modbus::modbus(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS)
+  : enableRelays(false),
+    Baudrate(19200),
+    enableCrcCheck(true),
+    enableLengthCheck(true),
+    LastTxLiveData(0),
+    LastTxIdData(0),
+    LastTxInverter(0),
+    Conf_OpenWBModulID(1),
+    Conf_OpenWBBatteryID(2),
+    _sysFS(sysFS),
+    _configFS(configFS)
+{
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -25,7 +30,7 @@ modbus::modbus(): enableRelays(false),
   InverterIdData      = new std::vector<reg_t>{};
   AvailableInverters  = new std::vector<regfiles_t>{};
   Setters             = new std::vector<setter_t>{};
-  OpenWB              = new openwb();
+  OpenWB              = new openwb(sysFS);
 
   Conf_RequestLiveData= new std::vector<std::vector<byte>>{};
   Conf_RequestIdData  = new std::vector<std::vector<byte>>{};
@@ -125,7 +130,7 @@ void modbus::LoadSettersFromRegFile() {
   // clear vector
   this->Setters->clear();
   
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  File regfile = _sysFS.open("/regs/"+this->InverterType.filename);
   
   String streamString = "";
   streamString = "\""+ this->InverterType.name +"\": {";
@@ -266,7 +271,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
  * @return JsonDocument: json object for the setter
  * ******************************************************/
 JsonDocument modbus::GetSetterByName(String name) {
-  File regfile = LittleFS.open("/regs/" + this->InverterType.filename);
+  File regfile = _sysFS.open("/regs/" + this->InverterType.filename);
   if (!regfile) {
     Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     return JsonDocument();
@@ -312,7 +317,7 @@ void modbus::LoadInvertersFromJson() {
   AvailableInverters->clear();
 
   filter["*"]["config"]["ClientIdPos"] = true;  
-  File root = LittleFS.open("/regs/");
+  File root = _sysFS.open("/regs/");
   File file = root.openNextFile();
   while(file){
     Config->logN(3, "open register file from Filesystem: %s", file.name());
@@ -350,7 +355,7 @@ void modbus::LoadInverterConfigFromJson() {
   JsonDocument doc;
   JsonDocument filter;
 
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  File regfile = _sysFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
     Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
   }
@@ -784,8 +789,8 @@ void modbus::ParseData() {
 
     Config->logN(3, "parse %d bytes of data", this->DataFrame->size());
     Config->logN(4, "identified datatype: %s", RequestType.c_str());
-    
-    File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+
+    File regfile = this->_sysFS.open("/regs/"+this->InverterType.filename);
     if (!regfile) {
       Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     }
@@ -1282,7 +1287,7 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
         (*counter)++;
       }
 
-      File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+      File regfile = this->_sysFS.open("/regs/"+this->InverterType.filename);
       if (!regfile) {
         Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
         return 0;
@@ -1432,7 +1437,7 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
 
   Config->logN(4, "Load RegItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type.c_str());
 
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  File regfile = this->_sysFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
     Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     return;
@@ -1502,10 +1507,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
   bool enableRelays_old  = this->enableRelays;
   bool enableSetters_old = this->Conf_EnableSetters;
 
-  if (LittleFS.exists("/config/modbusconfig.json")) {
+  if (this->_sysFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
     Config->logN(3, "reading config file....");
-    File configFile = LittleFS.open("/config/modbusconfig.json", "r");
+    File configFile = this->_sysFS.open("/modbusconfig.json", "r");
     if (configFile) {
       Config->logN(3, "config file is open:");
       //size_t size = configFile.size();
@@ -1616,11 +1621,11 @@ void modbus::LoadJsonItemConfig() {
 }
 
 void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSetters) {
-  
-  if (LittleFS.exists("/config/modbusitemconfig.json")) {
+
+  if (this->_sysFS.exists("/modbusitemconfig.json")) {
     //file exists, reading and loading
     Config->logN(3, "reading modbus item config file....");
-    File configFile = LittleFS.open("/config/modbusitemconfig.json", "r");
+    File configFile = this->_sysFS.open("/modbusitemconfig.json", "r");
     if (configFile) {
       Config->logN(3, "modbus item config file is open:");
 

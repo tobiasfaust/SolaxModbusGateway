@@ -675,5 +675,19 @@ export function initDataValues() {
     document.getElementById('needToSave').classList.add('hide');
   }
 }
+
+/****************************************************************************************
+ * Show or hide an object
+ * @returns {*} void
+ * ****************************************************************************************/
+export function toggleView() {
+  const logView = document.getElementById('logView');
+  if (logView.style.display === 'none') {
+    logView.style.display = 'block';
+  } else {
+    logView.style.display = 'none';
+  }
+}
+
 /****************************************************************************************
 ****************************************************************************************/

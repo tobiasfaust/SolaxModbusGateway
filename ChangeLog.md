@@ -2,6 +2,7 @@ Release 3.4.0:
     +++++++ This version is not OTA compatible with older versions +++++++
     +++++++ Please do a fresh installation by web-installer +++++++
   - add python.env file with HTML_DIR variable
+  - splitting LittleFS partitions: Separating system files (web UI, static assets) and user configuration/data (settings, user uploads) into distinct partitions (sysFS/configFS) improves reliability, allows safe firmware updates without overwriting user data, and enables easier backup/restore of user settings independently from system files.
 
 Release 3.3.4:
   - Change default pins for ESP32-C3 (#149), thanks to @NHellFire

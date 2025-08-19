@@ -12,7 +12,7 @@
 
 class BaseConfig {
  public:
-    BaseConfig();
+    BaseConfig(fs::LittleFSFS& configFS);
     void      LoadJsonConfig();
     void      GetInitData(JsonDocument& json);
 
@@ -44,6 +44,7 @@ class BaseConfig {
     const String    GetReleaseName();
 
  private:
+    fs::LittleFSFS& configFS;
     String    mqtt_server;
     String    mqtt_username;
     String    mqtt_password;

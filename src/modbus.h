@@ -55,7 +55,7 @@ class modbus {
   #define DATAISLIVE (byte) 0x02
 
   public:
-    modbus();
+    modbus(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS);
     void                    init(bool firstrun);
     void                    LoadJsonConfig(bool firstrun);
     void                    LoadJsonItemConfig();
@@ -115,6 +115,8 @@ class modbus {
 
     MQTT*                   mqtt = NULL;
     openwb*                 OpenWB = NULL;
+    fs::LittleFSFS&         _sysFS;
+    fs::LittleFSFS&         _configFS;
 
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
