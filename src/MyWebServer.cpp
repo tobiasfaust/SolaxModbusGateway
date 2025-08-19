@@ -237,28 +237,17 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 }
 
 bool MyWebServer::handleReset() {
-  bool ret = true;
   Config->logN(3, "deletion of all config files was requested ....");
-  // configFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
-  File root = configFS.open("/");
-  File file = root.openNextFile();
-  while(file){
-    String path = String("/") + file.name();
-    if (path.indexOf(".json") == -1) {file = root.openNextFile(); continue;}
-    file.close();
-    
-    if (configFS.remove(path)) {
-      Config->logN(4, "deletion of configuration file '%s' was successful", file.name());
-    } else {
-      Config->logN(2, "deletion of configuration file '%s' has failed", file.name());
-      ret = false;
-    }
-    file = root.openNextFile();
+
+  bool result = configFS.format();
+  if (!result) {
+    Config->logN(2, "formatting of config Filesystem failed");
+  } else {
+    Config->logN(4, "formatting of config Filesystem was successful");
   }
-  root.close();
   this->DoReboot = true;
 
-  return ret;
+  return result;
 }
 
 void MyWebServer::GetInitDataNavi(JsonDocument& json) {
