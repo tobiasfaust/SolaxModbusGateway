@@ -650,7 +650,7 @@
           "name": "EnergyTotalToGridWh",
           "realname": "Total Energy to Grid in Wh",
           "datatype": "float",
-          "openwbtopic": "setcounterwh",
+          "openwbtopic": "setpvwh",
           "factor": 100,
           "unit": "Wh"
         },

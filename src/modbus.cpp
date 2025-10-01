@@ -20,7 +20,8 @@ modbus::modbus(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS)
     _sysFS(sysFS),
     _configFS(configFS),
     Conf_OpenWBModulID(1),
-    Conf_OpenWBBatteryID(2)
+    Conf_OpenWBBatteryID(2),
+    Conf_OpenWBMeterID(3)
 {
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
@@ -1536,6 +1537,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"]["openwbversion"])    { this->Conf_OpenWBVersion = doc["data"]["openwbversion"].as<String>(); this->OpenWB->setVersion(this->Conf_OpenWBVersion); }
         if (doc["data"]["openwbmodulid"])    { this->Conf_OpenWBModulID = doc["data"]["openwbmodulid"].as<uint8_t>(); this->OpenWB->addMapping("InverterID", String(this->Conf_OpenWBModulID)); }
         if (doc["data"]["openwbbatteryid"])  { this->Conf_OpenWBBatteryID = doc["data"]["openwbbatteryid"].as<uint8_t>(); this->OpenWB->addMapping("BatteryID", String(this->Conf_OpenWBBatteryID)); }
+        if (doc["data"]["openwbmeterid"])    { this->Conf_OpenWBMeterID = doc["data"]["openwbmeterid"].as<uint8_t>(); this->OpenWB->addMapping("SmartMeterID", String(this->Conf_OpenWBMeterID)); }
 
         this->Conf_EnableOpenWB       = doc["data"]["enableOpenWb"].as<bool>();
         this->Conf_EnableSetters      = doc["data"]["enable_setters"].as<bool>();
@@ -1719,6 +1721,7 @@ void modbus::GetInitData(JsonDocument &json){
   json["data"]["enableOpenWb"]        = ((this->Conf_EnableOpenWB)?1:0);
   json["data"]["openwbmodulid"]       = this->Conf_OpenWBModulID;
   json["data"]["openwbbatteryid"]     = this->Conf_OpenWBBatteryID;
+  json["data"]["openwbmeterid"]       = this->Conf_OpenWBMeterID;
 
   json["data"]["enableCrcCheck"]      = ((this->enableCrcCheck)?1:0);
   json["data"]["enableLengthCheck"]   = ((this->enableLengthCheck)?1:0);

@@ -173,6 +173,7 @@ class modbus {
     String                  Conf_OpenWBVersion;
     uint8_t                 Conf_OpenWBModulID;
     uint8_t                 Conf_OpenWBBatteryID;
+    uint8_t                 Conf_OpenWBMeterID;
     bool                    Conf_EnableSetters;
 
     byte                    String2Byte(String s);

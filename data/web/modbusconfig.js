@@ -25,11 +25,17 @@ export function init1() {
       "baudrate": 19200,
       "txintervallive": 10,
       "txintervalid": 60,
+      "enableRelays": false,
       "pin_RELAY1": 18,
       "pin_RELAY2": 19,
-      "openwbversion": "1.2.3",
+      "openwbversions": [{"openwbversion": {"text": "1.2.3"}}],
       "openwbmodulid": 1,
       "openwbbatteryid": 2,
+      "openwbmeterid": 3,
+      "enableOpenWb": true,
+      "enable_setters": false,
+      "enableCrcCheck": true,
+      "enableLengthCheck": false,
       "inverters": [ [ { "inverter": {"value": "Kostal", "text": "Kostal"}}]],
     },
     "response": {
@@ -40,12 +46,14 @@ export function init1() {
       "action": "GetInitData",
       "subaction": "status",
       "callbackFn": "mbconfig_Callback"
+    },
+    "js": {
+      "gpio_disabled": "[]"
     }
-  }
+  };
   
   global.handleJsonItems(data);
-
-  datavalues = global.getFormData("DataForm");
+  
 }
 
 export const functionMap = {

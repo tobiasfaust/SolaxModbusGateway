@@ -55,6 +55,7 @@
                     "position": [5, 6, 7, 8],
                     "name": "Power_PV_Input_W",
                     "realname": "Power of PV input",
+                    "openwbtopic": "setpvw",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"
@@ -119,6 +120,7 @@
                     "position": [77, 78],
                     "name": "AC_GridFrequency_Hz",
                     "realname": "Grid Frequency",
+                    "openwbtopic": "setcofre",
                     "datatype": "float",
                     "factor": 0.01,
                     "unit": "Hz"
@@ -127,6 +129,7 @@
                     "position": [109, 110, 111, 112],
                     "name": "Energy_Generated_today_kWh",
                     "realname": "generated Energy today",
+                    "openwbtopic": "setpvwh",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "kWh"
@@ -287,6 +290,7 @@
                     "position": [246, 247, 248, 249],
                     "name": "Power_Battery_Discharge_W",
                     "realname": "Discharge Power",
+                    "openwbtopic": "setbatexpwh",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"
@@ -295,6 +299,7 @@
                     "position": [250, 251, 252, 253],
                     "name": "Power_Battery_Charge_W",
                     "realname": "Charge Power",
+                    "openwbtopic": "setbatimpwh",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"
@@ -311,6 +316,7 @@
                     "position": [256, 257],
                     "name": "Battery_SOC_Percent",
                     "realname": "Battery State Of Charge",
+                    "openwbtopic": "setbatsoc",
                     "datatype": "float",
                     "factor": 1.0,
                     "unit": "%"
@@ -319,6 +325,7 @@
                     "position": [270, 271, 272, 273],
                     "name": "Power_AC_GridToUser_W",
                     "realname": "SmartMeter: AC Power Grid to User",
+                    "openwbtopic": "setbatimpwh",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"
@@ -327,6 +334,7 @@
                     "position": [286, 287, 288, 289],
                     "name": "Power_AC_UserToGrid_W",
                     "realname": "SmartMeter: AC Power User to Grid",
+                    "openwbtopic": "setcoexp",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"

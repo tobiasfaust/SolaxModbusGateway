@@ -405,7 +405,7 @@
                   ],
                   "name": "EnergyTotalToGridWh",
                   "realname": "Total Energy to Grid in Wh",
-                  "openwbtopic": "setcounterwh",
+                  "openwbtopic": "setpvwh",
                   "datatype": "integer",
                   "factor": 100,
                   "unit": "Wh"
