@@ -51,6 +51,9 @@ MQTT::MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, Strin
   if (Config->GetUseETH()) {
     #ifdef ESP32
       eth_shield_t* shield = this->GetEthShield(Config->GetLANBoard());
+     
+      // reserve all ETH pins
+      Config->disabledGPIO.addValues(shield->blockedGpio, BaseConfig::GpioIdentifier::ETH);
 
       // ETH.begin(1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN);
       ETH.begin(shield->PHY_ADDR,
@@ -65,6 +68,7 @@ MQTT::MQTT(const char* MqttServer, uint16_t MqttPort, String MqttBasepath, Strin
 
   } else {
     // use Wifi
+    Config->disabledGPIO.deleteAll(BaseConfig::GpioIdentifier::ETH); // free all ETH pins
     improvSerial.ConnectToWifi();
   }
 
@@ -220,8 +224,10 @@ void MQTT::reconnect() {
   memset(&topic[0], 0, sizeof(topic));
 
   if (Config->UseRandomMQTTClientID()) {
+    Config->logN(1, "Using random MQTT ClientID");
     snprintf (topic, sizeof(topic), "%s-%s", this->mqtt_root.c_str(), String(random(0xffff)).c_str());
   } else {
+    Config->logN(1, "Using fixed MQTT ClientID");
     snprintf (topic, sizeof(topic), "%s-%08X", this->mqtt_root.c_str(), ESP_getChipId());
   }
   snprintf(LWT, sizeof(LWT), "%s/state", this->mqtt_root.c_str());
@@ -244,8 +250,11 @@ void MQTT::reconnect() {
 
     // ... and resubscribe if needed
     for (uint8_t i=0; i< this->subscriptions->size(); i++) {
-      PubSubClient::subscribe(this->subscriptions->at(i).c_str());
-      Config->logN(1, "MQTT resubscribed to: %s", this->subscriptions->at(i).c_str());
+      String topic = this->subscriptions->at(i);
+      if (topic.endsWith("/")) topic += "#";
+      else topic += "/#";  
+      PubSubClient::subscribe(topic.c_str());
+      Config->logN(1, "MQTT resubscribed to: %s", topic.c_str());
     }
 
   } else {
@@ -294,7 +303,7 @@ void MQTT::Publish_String(const char* subtopic, String value, bool fulltopic) {
 
 String MQTT::getTopic(String subtopic, bool fulltopic) {
   if (!fulltopic) {
-    return std::move(this->mqtt_basepath + "/" + this->mqtt_root +  "/" + subtopic);
+    return std::move((this->mqtt_basepath.length()>0?this->mqtt_basepath + "/":"") + this->mqtt_root +  "/" + subtopic);
   }
   return std::move(subtopic);
 }
@@ -312,6 +321,8 @@ void MQTT::Publish_IP() {
 void MQTT::Subscribe(String topic) {
   this->subscriptions->push_back(topic);
   if (PubSubClient::connected()) {
+    if (topic.endsWith("/")) topic += "#";
+      else topic += "/#"; 
     PubSubClient::subscribe(topic.c_str());
     Config->logN(3, "MQTT now subscribed to: %s", topic.c_str());
   }
@@ -394,15 +405,21 @@ void MQTT::loop() {
     this->ConnectStatusMqtt = false;
   }
 
-  if (Config->GetDebugLevel() >=4 && millis() - this->last_keepalive > (30 * 1000))  {
+  if (Config->GetKeepAlive() > 0 && millis() - this->last_keepalivemsg > (Config->GetKeepAlive() * 1000)) {
+    this->last_keepalivemsg = millis();
+    this->Publish_String("state", "Online", false);
+    Config->logN(4, "KeepAlive: Publish state Online");
+  }
+
+  if (Config->GetDebugLevel() >=4 && millis() - this->last_debugmsg > (30 * 1000))  {
     // send messages for debugging every 30 seconds
-    this->last_keepalive = millis();
+    this->last_debugmsg = millis();
 
     if (Config->GetDebugLevel() >=4) {
       char buffer[100] = {0};
       memset(buffer, 0, sizeof(buffer));
 
-      snprintf(buffer, sizeof(buffer), "%d", ESP.getFreeHeap() / 1024);
+      snprintf(buffer, sizeof(buffer), "%d kb", ESP.getFreeHeap() / 1024);
       this->Publish_String("memory", buffer, false);
 
       snprintf(buffer, sizeof(buffer), "%d", WiFi.RSSI());

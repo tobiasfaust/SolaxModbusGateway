@@ -27,15 +27,35 @@
 
 
 #ifdef ESP32
-  typedef struct {
-      String name;
-      uint8_t PHY_ADDR;
-      int PHY_POWER;
-      int PHY_MDC;
-      int PHY_MDIO;
-      eth_phy_type_t  PHY_TYPE;
-      eth_clock_mode_t CLK_MODE;
-  } eth_shield_t;
+
+  struct eth_shield_t {
+  String name;
+  uint8_t PHY_ADDR;
+  int PHY_POWER;
+  int PHY_MDC;
+  int PHY_MDIO;
+  eth_phy_type_t  PHY_TYPE;
+  eth_clock_mode_t CLK_MODE;
+  std::vector<uint8_t> blockedGpio; // gpios blocked by eth device, DO not use them for other tasks!
+
+  eth_shield_t(const String& n,
+               uint8_t addr,
+               int power,
+               int mdc,
+               int mdio,
+               eth_phy_type_t phy,
+               eth_clock_mode_t clk,
+               std::initializer_list<uint8_t> blk = {})
+    : name(n),
+      PHY_ADDR(addr),
+      PHY_POWER(power),
+      PHY_MDC(mdc),
+      PHY_MDIO(mdio),
+      PHY_TYPE(phy),
+      CLK_MODE(clk),
+      blockedGpio(blk) {}
+};
+
 #elif defined(ESP8266)
   typedef struct {
       String name;
@@ -45,8 +65,11 @@
 class MQTT: PubSubClient {
   #ifdef ESP32
     std::vector<eth_shield_t> lan_shields = {
-        {"WT32-ETH01", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN},
-        {"test", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN}};
+        {"WT32-ETH01", 1, 16, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN, {16, 23, 18, 19, 21, 22}}
+        //{"TTGO T-ETH", 0, 0, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN, {2, 4, 15}},
+        //{"AI-Thinker", 0, -1, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN, {2, 4, 15}},
+        //{"M5Stack",   0, -1, 23, 18, ETH_PHY_LAN8720, ETH_CLOCK_GPIO0_IN, {2, 4, 15}}
+        };
   #elif defined(ESP8266)
     std::vector<eth_shield_t> lan_shields = {
       {"test1"},
@@ -91,7 +114,8 @@ class MQTT: PubSubClient {
     String            mqtt_root = "";
     String            mqtt_basepath = "";
     uint64_t          mqttreconnect_lasttry = 0;
-    uint64_t          last_keepalive = 0;
+    uint64_t          last_debugmsg = 0;
+    uint64_t          last_keepalivemsg = 0;
     bool              ConnectStatusWifi;
     bool              ConnectStatusMqtt;
     IPAddress         ipadresse;

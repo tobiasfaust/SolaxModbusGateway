@@ -92,8 +92,8 @@ void modbus::init(bool firstrun) {
 /*******************************************************
 * set websocket callback
 ********************************************************/
-void modbus::setWebSocketCallback(std::function<void(String&)> callback) {
-    webSocketCallback = callback;
+void modbus::onValues(std::function<void(String&)> callback) {
+    this->onValuesCallback = callback;
 }
 
 /*******************************************************
@@ -106,9 +106,9 @@ void modbus::ReadRelays() {
   this->state_Relay2 = digitalRead(this->pin_Relay2);    
   this->mqtt->Publish_Int("relay2", this->state_Relay2, false);
 
-  if (webSocketCallback) {
+  if (this->onValuesCallback) {
     String message = "{\"data-id\": {\"relay1.value\":\"" + String(this->state_Relay1?"On":"Off") + "\",\"relay2.value\":\"" + String(this->state_Relay2?"On":"Off") + "\"}}";
-    webSocketCallback(message);
+    onValuesCallback(message);
   }
 }
 
@@ -960,10 +960,10 @@ void modbus::ParseData() {
 
       }
 
-      //if (webSocketCallback) {
+      //if (this->onValuesCallback) {
         //const String ws("{\"data-id\":{\"" + d.Name + ".value\":\"" + d.value + " "+ d.unit +"\"}}");
         //const String ws("{\"" + d.Name + ".value\":\"" + d.value + " "+ d.unit +"\"}");
-        //webSocketCallback(ws);
+        //onValuesCallback(ws);
       //}
     
     } while (regfile.findUntil(",","]"));
@@ -982,7 +982,7 @@ void modbus::ParseData() {
     this->SaveIdDataframe->assign(this->DataFrame->begin(), this->DataFrame->end());
   }
 
-  if (webSocketCallback) {
+  if (this->onValuesCallback) {
     this->SendDataToWebSocket(RequestType == "livedata" ? this->InverterLiveData : this->InverterIdData);
   }
 
@@ -990,7 +990,7 @@ void modbus::ParseData() {
 }
 
 void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
-  if (webSocketCallback) {
+  if (this->onValuesCallback) {
     String msg("{\"data-id\":{"); msg.reserve(vector->size() * 25);
 
     for (uint8_t i=0; i < vector->size(); i++) {
@@ -998,7 +998,7 @@ void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
       msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value + " "+ vector->at(i).unit +"\"";
     }
     msg += "}}";
-    webSocketCallback(msg);
+    this->onValuesCallback(msg);
   }
 }
 
@@ -1507,10 +1507,12 @@ void modbus::LoadJsonConfig(bool firstrun) {
   bool enableRelays_old  = this->enableRelays;
   bool enableSetters_old = this->Conf_EnableSetters;
 
-  if (this->_sysFS.exists("/modbusconfig.json")) {
+  Config->disabledGPIO.deleteAll(BaseConfig::GpioIdentifier::MODBUS);
+
+  if (this->_configFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
     Config->logN(3, "reading config file....");
-    File configFile = this->_sysFS.open("/modbusconfig.json", "r");
+    File configFile = this->_configFS.open("/modbusconfig.json", "r");
     if (configFile) {
       Config->logN(3, "config file is open:");
       //size_t size = configFile.size();
@@ -1611,6 +1613,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
     this->LoadJsonItemConfig(false, false, true); // load only Setters
   }
 
+  Config->disabledGPIO.addValue(this->pin_RX, BaseConfig::GpioIdentifier::MODBUS);
+  Config->disabledGPIO.addValue(this->pin_TX, BaseConfig::GpioIdentifier::MODBUS);
+  Config->disabledGPIO.addValue(this->pin_RTS, BaseConfig::GpioIdentifier::MODBUS);
+
 }
 
 /*******************************************************
@@ -1622,10 +1628,10 @@ void modbus::LoadJsonItemConfig() {
 
 void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSetters) {
 
-  if (this->_sysFS.exists("/modbusitemconfig.json")) {
+  if (this->_configFS.exists("/modbusitemconfig.json")) {
     //file exists, reading and loading
     Config->logN(3, "reading modbus item config file....");
-    File configFile = this->_sysFS.open("/modbusitemconfig.json", "r");
+    File configFile = this->_configFS.open("/modbusitemconfig.json", "r");
     if (configFile) {
       Config->logN(3, "modbus item config file is open:");
 

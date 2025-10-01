@@ -50,9 +50,6 @@ jobs:
           - firmware: firmware_ESP32-C3
             architecture: ESP32-C3
             subvariant: standard
-          - firmware: firmware_ESP32-WebSerial
-            architecture: ESP32
-            subvariant: webSerial 
             
     steps:
       - name: checkout repository

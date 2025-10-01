@@ -6,6 +6,7 @@
 
 BaseConfig::BaseConfig(fs::LittleFSFS& configFS)
     : configFS(configFS),
+      keepalive(0),
       debuglevel(3),
       serial_rx(RX),
       serial_tx(TX),
@@ -18,6 +19,8 @@ BaseConfig::BaseConfig(fs::LittleFSFS& configFS)
 
 void BaseConfig::LoadJsonConfig() {
   bool loadDefaultConfig = false;
+  this->disabledGPIO.deleteAll(GpioIdentifier::BASECONFIG);
+  
   if (this->configFS.exists("/baseconfig.json")) {
     // file exists, reading and loading
     this->logN(2, "reading config file");
@@ -78,6 +81,8 @@ void BaseConfig::LoadJsonConfig() {
     this->mqtt_basepath = this->mqtt_basepath.substring(0, this->mqtt_basepath.length()-1); 
   }
 
+  this->disabledGPIO.addValue(this->serial_rx, GpioIdentifier::BASECONFIG);
+  this->disabledGPIO.addValue(this->serial_tx, GpioIdentifier::BASECONFIG);
 }
 
 const String BaseConfig::GetReleaseName() {
@@ -100,13 +105,8 @@ void BaseConfig::GetInitData(JsonDocument& json) {
   json["data"]["auth_pass"]   = this->auth_pass;
 
 
-  #ifdef USE_WEBSERIAL
-    json["data"]["tr_serial_rx"]["className"] = "hide";
-    json["data"]["tr_serial_tx"]["className"] = "hide";
-  #else
-    json["data"]["GpioPin_serial_rx"] = this->serial_rx;
-    json["data"]["GpioPin_serial_tx"] = this->serial_tx;
-  #endif
+  json["data"]["GpioPin_serial_rx"] = this->serial_rx;
+  json["data"]["GpioPin_serial_tx"] = this->serial_tx;
 
   json["response"]["status"] = 1;
   json["response"]["text"] = "successful";
@@ -119,13 +119,13 @@ void BaseConfig::logN(const int loglevel, const char* format, ...) {
   va_start(args, format);
   char buffer[256];
   vsnprintf(buffer, sizeof(buffer), format, args);
-  #ifdef USE_WEBSERIAL
-    WebSerial.printf("[Log %d] ", loglevel);
-    WebSerial.println(buffer);
-  #else
-    Serial.printf("[Log %d] ", loglevel);
-    Serial.println(buffer);
-  #endif
+  Serial.printf("[Log %d] ", loglevel);
+  Serial.println(buffer);
+  
+  if (this->onLogValuesCallback) {
+      this->onLogValuesCallback(buffer);
+  }
+
   va_end(args);
 }
 
@@ -136,22 +136,29 @@ void BaseConfig::log(const int loglevel, const char* format, ...) {
   va_start(args, format);
   char buffer[256];
   vsnprintf(buffer, sizeof(buffer), format, args);
-  #ifdef USE_WEBSERIAL
-    WebSerial.print(buffer);
-  #else
-    Serial.print(buffer);
-  #endif
+  
+  Serial.printf("[Log %d] ", loglevel);
+  Serial.print(buffer);
+
+  if (this->onLogValuesCallback) {
+      this->onLogValuesCallback(buffer);
+  }
+
   va_end(args);
 }
 
 void BaseConfig::log(const int loglevel, const JsonDocument& json) {
   if (this->GetDebugLevel() < loglevel) return;
   
-  #ifdef USE_WEBSERIAL
-    serializeJsonPretty(json, WebSerial);
-    WebSerial.println();
-  #else
-    serializeJsonPretty(json, Serial);
-    Serial.println();
-  #endif
+  Serial.printf("[Log %d] ", loglevel);
+  serializeJsonPretty(json, Serial);
+  Serial.println();
+
+  if (this->onLogValuesCallback) {
+      this->onLogValuesCallback(json.as<String>().c_str());
+  }
+}
+
+void BaseConfig::onLogValues(std::function<void(const char*)> callback) {
+    this->onLogValuesCallback = callback;
 }

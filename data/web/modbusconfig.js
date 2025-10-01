@@ -67,7 +67,7 @@ function GetInitData() {
 function MyCallback(json) {
   global.transformCheckboxes();
   global.handleRadioSelections();
-  global.CreateSelectionListFromInputField('input[type=number][id^=GpioPin]', [global.gpio]);
+  global.CreateSelectionListFromInputField('input[type=number][id^=GpioPin]', [global.gpio], JSON.parse(gpio_disabled));
 
   document.querySelectorAll('#DataForm input:not([type=checkbox]):not([type=radio]), #DataForm select').forEach(element => {
     element.addEventListener('blur', global.showMustSaveDialog);

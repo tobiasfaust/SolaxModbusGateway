@@ -25,7 +25,7 @@
 #define DEFAULT_MODBUS_TX_PIN 17
 #endif
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -75,9 +75,12 @@ class modbus {
     void                    ReceiveMQTT(String topic, String msg);
     JsonDocument            GetSetterByName(String name);
 
-    // Callback setzen
-    void setWebSocketCallback(std::function<void(String&)> callback);
-    void deleteWebSocketCallback() { webSocketCallback = nullptr; }
+    // callbacks
+    /************************
+     * @brief Callback for getting the values
+     * @param function(JsonDocument&) the callback function
+     ************************/
+    void onValues(std::function<void(String&)> callback);
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -150,8 +153,6 @@ class modbus {
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<std::vector<byte>>*  Conf_RequestIdData;
 
-    std::function<void(String&)> webSocketCallback; // Callback-Funktion
-
 		uint8_t                 Conf_ClientIdPos;
     //uint8_t                 Conf_LiveDataStartsAtPos;
 		//uint8_t                 Conf_IdDataStartsAtPos;
@@ -180,6 +181,8 @@ class modbus {
     std::vector<byte>*      SaveLiveDataframe;
 
     HardwareSerial*         RS485Serial;
+
+    std::function<void(String&)> onValuesCallback; // Callback function pointer
 
 };
 

@@ -7,11 +7,22 @@
 
 #include <commonlibs.h>
 #include <ArduinoJson.h>
+#include <vectorlist.h>
 #include <_Release.h>
 
 
 class BaseConfig {
- public:
+
+  public:
+
+    // Speaking identifiers
+    enum class GpioIdentifier : uint8_t {
+        BASECONFIG = 0,
+        MODBUS,
+        ETH,
+        OTHER
+    };
+    
     BaseConfig(fs::LittleFSFS& configFS);
     void      LoadJsonConfig();
     void      GetInitData(JsonDocument& json);
@@ -25,6 +36,13 @@ class BaseConfig {
     void logN(const int loglevel, const char* format, ...);
     void log(const int loglevel, const JsonDocument& json);
 
+    // callbacks
+    /************************
+     * @brief Callback for getting the values
+     * @param function(const char&) the callback function
+     ************************/
+    void onLogValues(std::function<void(const char*)> callback);
+
     const String&   GetMqttServer()    const {return mqtt_server;}
     const uint16_t& GetMqttPort()     const {return mqtt_port;}
     const String&   GetMqttUsername()  const {return mqtt_username;}
@@ -34,6 +52,7 @@ class BaseConfig {
     const bool&     UseRandomMQTTClientID() const { return mqtt_UseRandomClientID; }
     const bool&     GetUseETH()        const { return useETH; }
     const String&   GetLANBoard()      const {return LANBoard;}
+    const uint16_t& GetKeepAlive()     const {return keepalive;}
     const uint8_t&  GetDebugLevel()    const {return debuglevel;}
     const uint8_t&  GetSerialRx()      const {return serial_rx;}
     const uint8_t&  GetSerialTx()      const {return serial_tx;}
@@ -42,6 +61,9 @@ class BaseConfig {
     const String&   GetAuthPass()      const {return auth_pass;}
 
     const String    GetReleaseName();
+
+    // Maintains a list of currently 'reserved' GPIOs (SDA, SCL, 1Wire, Serial, etc.)
+    vectorlist<uint8_t, GpioIdentifier> disabledGPIO;
 
  private:
     fs::LittleFSFS& configFS;
@@ -54,12 +76,15 @@ class BaseConfig {
     bool      mqtt_UseRandomClientID;
     bool      useETH;  // otherwise use WIFI
     String    LANBoard;
+    uint16_t  keepalive;
     uint8_t   debuglevel;
     uint8_t   serial_rx;
     uint8_t   serial_tx;
     bool      useAuth;
     String    auth_user;
     String    auth_pass;
+
+    std::function<void(const char*)> onLogValuesCallback; // Callback function pointer
 };
 
 extern BaseConfig* Config;
