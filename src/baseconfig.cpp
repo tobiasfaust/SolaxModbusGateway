@@ -6,11 +6,11 @@
 
 BaseConfig::BaseConfig(fs::LittleFSFS& configFS)
     : configFS(configFS),
+      mqtt_UseRandomClientID(true),
       keepalive(0),
       debuglevel(3),
       serial_rx(RX),
       serial_tx(TX),
-      mqtt_UseRandomClientID(true),
       useAuth(false) {
   // Partition wird im main.cpp gemountet
   LoadJsonConfig();

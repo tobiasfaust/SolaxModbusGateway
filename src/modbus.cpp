@@ -17,10 +17,10 @@ modbus::modbus(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS)
     LastTxLiveData(0),
     LastTxIdData(0),
     LastTxInverter(0),
-    Conf_OpenWBModulID(1),
-    Conf_OpenWBBatteryID(2),
     _sysFS(sysFS),
-    _configFS(configFS)
+    _configFS(configFS),
+    Conf_OpenWBModulID(1),
+    Conf_OpenWBBatteryID(2)
 {
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
