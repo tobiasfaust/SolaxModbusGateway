@@ -31,10 +31,11 @@
             { "setcocur": "openWB/set/counter/#SmartMeterID#/get/currents" },
             { "setcofre": "openWB/set/counter/#SmartMeterID#/get/frequency" },
             { "setcovol": "openWB/set/counter/#SmartMeterID#/get/voltages" },
-            { "setcopow": "openWB/set/counter/#SmartMeterID#/get/powers" },
+            { "setcopow": "openWB/set/counter/#SmartMeterID#/get/power" },
             { "setcopowf": "openWB/set/counter/#SmartMeterID#/get/power_factors" },
             { "setcoimp": "openWB/set/counter/#SmartMeterID#/get/imported" },
             { "setcow": "openWB/set/counter/#SmartMeterID#/get/power" }
+
         ] 
     }
 ]
