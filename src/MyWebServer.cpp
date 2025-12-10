@@ -100,7 +100,6 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
     JsonDocument json;
     DeserializationError error = deserializeJson(json, msg.c_str());
     if (!error) {
-      // {"cmd":{"action":"subscribe","subaction":"modbus_data","filter":"onlyactive","highlight":"true","opts":"[+unit]"}}
       if (json["cmd"]) {
         if (json["cmd"]["action"])   {action    = json["cmd"]["action"].as<String>();}
         if (json["cmd"]["subaction"]){subaction = json["cmd"]["subaction"].as<String>();}
@@ -109,11 +108,9 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         
         if (json["cmd"]["opts"]) {
           // prüfe ob optionen übergeben wurden, validiere format [string1, string2, ...] und überführe die opts in -> std::list<String>* options
-          Serial.printf("opts: %s\n", json["cmd"]["opts"].as<String>().c_str());
           JsonArray optsArray = json["cmd"]["opts"].as<JsonArray>();
           options = new std::list<String>();
           for (String opt : optsArray) {
-            Serial.printf("opt: %s\n", opt.c_str());
             opt.toLowerCase();
             options->push_back(opt);
           }

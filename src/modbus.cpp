@@ -993,15 +993,21 @@ void modbus::ParseData() {
 
 void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
   if (this->onValuesCallback) {
+    uint16_t counter = 0;
     String msg("{\"data-id\":{"); msg.reserve(vector->size() * 25);
-
+    bool onlyactive = this->onValuesOptions && std::find(this->onValuesOptions->begin(), this->onValuesOptions->end(), "onlyactive") != this->onValuesOptions->end();
+    
     for (uint8_t i=0; i < vector->size(); i++) {
-      if (i > 0) msg += ",";
-      msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value;
-      if (this->onValuesOptions && std::find(this->onValuesOptions->begin(), this->onValuesOptions->end(), "+unit") != this->onValuesOptions->end()) {
-        msg += " "+ vector->at(i).unit;
+      if ((onlyactive && vector->at(i).active) || !onlyactive) {
+        if (counter > 0) msg += ",";
+        msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value;
+        if (this->onValuesOptions && std::find(this->onValuesOptions->begin(), this->onValuesOptions->end(), "+unit") != this->onValuesOptions->end()) {
+          msg += " "+ vector->at(i).unit;
+        }
+        msg += "\"";
+        counter++;
+      
       }
-      msg += "\"";
     }
     msg += "}}";
     this->onValuesCallback(msg);
@@ -1165,7 +1171,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
   std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
   std::shared_ptr<bool> firstRow = std::make_shared<bool>(true);
 
-  String subaction(""), json("{}");
+  String json("{}");
   
   if(request->hasArg("json")) {
     json = request->arg("json");
@@ -1176,14 +1182,11 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
   Config->logN(4, "[GetLiveDataAsJsonToWebServer] Json command empfangen: ");
   if (!error) {
     Config->log(4, jsonGet);
-
-    if (jsonGet["cmd"]["subaction"]) subaction = jsonGet["cmd"]["subaction"].as<String>();
-  
   } else { 
     Config->logN(2, "[GetLiveDataAsJsonToWebServer] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
   }
 
-	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, firstRow, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
+	AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, firstRow, counter](uint8_t *buffer, size_t maxLen, size_t index) {
 			String ret("");
       ret.reserve(maxLen);
       maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
@@ -1201,21 +1204,19 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
 
         // jedes JsonObject wird mit 200 bytes angenommen, + 100 bytes puffer am Ende
         while (i < this->InverterIdData->size() && ret.length() < maxLen) {
-          if (!(subaction == "onlyactive" && !this->InverterIdData->at(i).active)) {
-            if(!(*firstRow)) ret += ",";
-            ret += "{\"name\": \"" + this->InverterIdData->at(i).Name + "\",";
-            ret += "\"realname\": \"" + this->InverterIdData->at(i).RealName + "\",";
-            ret += "\"value\": {\"innerHTML\": \"" + this->InverterIdData->at(i).value + " " + this->InverterIdData->at(i).unit + "\", \"data-id\": \"" + this->InverterIdData->at(i).Name + ".value" + "\"},";
-            ret += "\"active\": {\"checked\": " + String(this->InverterIdData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterIdData->at(i).Name + "\"},";
-            ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterIdData->at(i).Name, false) + "\"";
+          if(!(*firstRow)) ret += ",";
+          ret += "{\"name\": \"" + this->InverterIdData->at(i).Name + "\",";
+          ret += "\"realname\": \"" + this->InverterIdData->at(i).RealName + "\",";
+          ret += "\"value\": {\"innerHTML\": \"" + this->InverterIdData->at(i).value + " " + this->InverterIdData->at(i).unit + "\", \"data-id\": \"" + this->InverterIdData->at(i).Name + ".value" + "\"},";
+          ret += "\"active\": {\"checked\": " + String(this->InverterIdData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterIdData->at(i).Name + "\"},";
+          ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterIdData->at(i).Name, false) + "\"";
             
-            if (this->Conf_EnableOpenWB && this->InverterIdData->at(i).openwb.length() > 0) {
-              ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterIdData->at(i).openwb) + "\"}]";
-            }
-            ret += "}";
-            (*firstRow) = false;
+          if (this->Conf_EnableOpenWB && this->InverterIdData->at(i).openwb.length() > 0) {
+            ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterIdData->at(i).openwb) + "\"}]";
           }
-
+          ret += "}";
+          (*firstRow) = false;
+          
           (*counter)++;
           i++;
         }
@@ -1226,21 +1227,19 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
         uint16_t i = *counter - this->InverterIdData->size() - 1;
         
         while (i < this->InverterLiveData->size() && ret.length() < maxLen) {
-          if (!(subaction == "onlyactive" && !this->InverterLiveData->at(i).active)) {
-            if(!(*firstRow)) ret += ",";
-            ret += "{\"name\": \"" + this->InverterLiveData->at(i).Name + "\",";
-            ret += "\"realname\": \"" + this->InverterLiveData->at(i).RealName + "\",";
-            ret += "\"value\": {\"innerHTML\": \"" + this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit + "\", \"data-id\": \"" + this->InverterLiveData->at(i).Name + ".value" + "\"},";
-            ret += "\"active\": {\"checked\": " + String(this->InverterLiveData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterLiveData->at(i).Name + "\"},";
-            ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false) + "\"";
+          if(!(*firstRow)) ret += ",";
+          ret += "{\"name\": \"" + this->InverterLiveData->at(i).Name + "\",";
+          ret += "\"realname\": \"" + this->InverterLiveData->at(i).RealName + "\",";
+          ret += "\"value\": {\"innerHTML\": \"" + this->InverterLiveData->at(i).value + " " + this->InverterLiveData->at(i).unit + "\", \"data-id\": \"" + this->InverterLiveData->at(i).Name + ".value" + "\"},";
+          ret += "\"active\": {\"checked\": " + String(this->InverterLiveData->at(i).active ? 1 : 0) + ", \"name\": \"" + this->InverterLiveData->at(i).Name + "\"},";
+          ret += "\"mqtttopic\": \"" + this->mqtt->getTopic(this->InverterLiveData->at(i).Name, false) + "\"";
             
-            if (this->Conf_EnableOpenWB && this->InverterLiveData->at(i).openwb.length() > 0) {
-              ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterLiveData->at(i).openwb) + "\"}]";
-            }
-            ret += "}";
-            (*firstRow) = false;
-          } 
-
+          if (this->Conf_EnableOpenWB && this->InverterLiveData->at(i).openwb.length() > 0) {
+            ret += ",\"openwb\": [{\"openwbtopic\": \"" + OpenWB->getOpenWbTopic(this->InverterLiveData->at(i).openwb) + "\"}]";
+          }
+          ret += "}";
+          (*firstRow) = false;
+          
           (*counter)++;
           i++;
         }
@@ -1266,8 +1265,7 @@ void modbus::GetLiveDataAsJsonToWebServer(AsyncWebServerRequest *request) {
 *******************************************************/
 void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
   std::shared_ptr<uint16_t> counter = std::make_shared<uint16_t>(0);
-  String subaction("");
-
+  
   if(request->hasArg("json")) {
     const String json = request->arg("json");
     Config->logN(4, "[GetSetterAsJson] Json command empfangen: %s", json.c_str());
@@ -1275,14 +1273,12 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
     JsonDocument jsonGet; 
     DeserializationError error = deserializeJson(jsonGet, json.c_str());
     
-    if (!error) {
-      if (jsonGet["cmd"]["subaction"]) subaction = jsonGet["cmd"]["subaction"].as<String>();
-    } else { 
+    if (error) {
       Config->logN(2, "[GetSetterAsJson] Json Command not parseable: %s -> %s", json.c_str(), error.c_str());
     }
   }
 
-  AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter, subaction](uint8_t *buffer, size_t maxLen, size_t index) {
+  AsyncWebServerResponse *response = request->beginChunkedResponse("application/json", [this, counter](uint8_t *buffer, size_t maxLen, size_t index) {
 			String ret("");
       ret.reserve(maxLen);
       maxLen -= 500; // use a puffer of 500 bytes, every item is assumed to be 200 bytes
@@ -1331,20 +1327,18 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
             }
           }
 
-          if ((subaction == "onlyactive" && isActive) || subaction != "onlyactive") {
-            if(*counter > 1) ret += ",";
-            String mapping = elem["mapping"].as<String>(); mapping.replace("\"", "'");
+          if(*counter > 1) ret += ",";
+          String mapping = elem["mapping"].as<String>(); mapping.replace("\"", "'");
             
-            ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
-            ret += "\"realname\": {\"innerHTML\": \"" + elem["realname"].as<String>() + "\"";
-            if (elem["info"])     ret += ", \"data-info\": \"" + elem["info"].as<String>() + "\"";
-            ret += "},";
-            ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
-            ret += "\"subscription\": {\"innerHTML\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\"";
-            if (elem["mapping"])  ret += ", \"data-mapping\": \""+ mapping + "\"";             
-            ret += "}}";
-          }
-
+          ret += "{\"name\": \"" + elem["name"].as<String>() + "\",";
+          ret += "\"realname\": {\"innerHTML\": \"" + elem["realname"].as<String>() + "\"";
+          if (elem["info"])     ret += ", \"data-info\": \"" + elem["info"].as<String>() + "\"";
+          ret += "},";
+          ret += "\"active\": {\"checked\": " + String(isActive ? 1 : 0) + ", \"name\": \"" + elem["name"].as<String>() + "\"},";
+          ret += "\"subscription\": {\"innerHTML\": \"" + this->GetMqttSetTopic(elem["name"].as<String>()) + "\"";
+          if (elem["mapping"])  ret += ", \"data-mapping\": \""+ mapping + "\"";             
+          ret += "}}";
+          
           (*counter)++;
         }
         

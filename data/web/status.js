@@ -93,9 +93,8 @@ function RefreshLiveData() {
   data.cmd = {};
   data.cmd.action = "subscribe";
   data.cmd.subaction = "modbus_data";
-  data.cmd.filter = "onlyactive";
   data.cmd.highlight = "true";
-  data.cmd.opts = ["+unit"];
+  data.cmd.opts = ["+unit", "onlyactive"];
   
   global.requestData(data);
 }
