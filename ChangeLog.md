@@ -1,3 +1,12 @@
+Release 3.4.0:
+    +++++++ This version is not OTA compatible with older versions +++++++
+    +++++++ Please do a fresh installation by web-installer +++++++
+  - add python.env file with HTML_DIR variable
+  - splitting LittleFS partitions: Separating system files (web UI, static assets) and user configuration/data (settings, user uploads) into distinct partitions (sysFS/configFS) improves reliability, allows safe firmware updates without overwriting user data, and enables easier backup/restore of user settings independently from system files.
+  - feature: add new webserial log monitor page for all variants
+  - fix broken ethernet connection handling by adding global gpio handling
+  - openwb: add more topics to Growatt-SPH (thanks to @AndreasNewbie) (#160) 
+
 Release 3.3.4:
   - Change default pins for ESP32-C3 (#149), thanks to @NHellFire
   - remove deprecated backup functionality  from Elegant-OTA

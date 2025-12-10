@@ -20,29 +20,36 @@
 
 class MyWebServer {
 
-  typedef struct {
-    uint32_t id;
-    String   json;
-  } WsConnClient_t;
+  struct wsclient_t {
+    uint32_t ws_id;
+    enum requestData_t {LOG_DATA, MODBUS_DATA} requestData;
+    // Equality operator needed for push_back_unique / std::find
+    bool operator==(const wsclient_t& other) const {
+      return ws_id == other.ws_id && requestData == other.requestData;
+    }
+  };
 
  public:
-    MyWebServer(AsyncWebServer *server, DNSServer* dns);
+    MyWebServer(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS, AsyncWebServer *server, DNSServer* dns);
 
     void      loop();
-    void      sendWebSocketMessage(String& message);
+    void      sendWebSocketMessage(String& message, String JsonRequest, uint32_t wsclient_id);
+    void      logGetValuesCallback(const char* logline, JsonDocument& json, uint32_t wsclient_id);
 
  private:
     
-    bool      DoReboot;
-    uint64_t  RequestRebootTime;
-
-    std::vector<WsConnClient_t>  WsConnectedClientsForBroadcast = {};
-    
+    fs::LittleFSFS&   sysFS;
+    fs::LittleFSFS&   configFS;
+    bool              DoReboot;
+    uint64_t          RequestRebootTime;
+      
+      
     AsyncWebServer* server;
     DNSServer* dns;
     AsyncWebSocket* ws;
-
     handleFiles* fsfiles;
+
+    std::vector<wsclient_t>* _wsclientRequests = nullptr;
 
     void      handleNotFound(AsyncWebServerRequest *request);
     bool      handleReset();
@@ -56,3 +63,4 @@ class MyWebServer {
 };
 
 #endif  // MYWEBSERVER_H_
+

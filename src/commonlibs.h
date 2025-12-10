@@ -16,10 +16,8 @@
 #include <string.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include <helper.h>
 
-#ifdef USE_WEBSERIAL
-  #include <WebSerial.h>
-#endif
 
 #ifdef ESP8266
   extern "C" {

@@ -76,7 +76,7 @@
                     ],
                     "name": "TotalEnergyPV",
                     "realname": "Erzeugte Energie PV",
-                    "openwbtopic": "setcounterwh",
+                    "openwbtopic": "setpvwh",
                     "datatype": "integer",
                     "factor": 100,
                     "unit": "Wh"

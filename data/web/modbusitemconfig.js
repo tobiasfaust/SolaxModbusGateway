@@ -66,7 +66,7 @@ export function init() {
   let checkWebSocketInterval = setInterval(() => {
     if (global.ws && global.ws.readyState === WebSocket.OPEN) {
       clearInterval(checkWebSocketInterval);
-      RefreshLiveData();
+      RequestDataStream();
     }
   }, 100);
 }
@@ -152,10 +152,11 @@ function createTooltip(obj, tooltip) {
 }
 
 // ************************************************
-function RefreshLiveData() {
+function RequestDataStream() {
   var data = {};
   data['cmd'] = {};
-  data['cmd']['action'] = "GetItemsAsStream";
+  data['cmd']['action'] = "subscribe";
+  data['cmd']['subaction'] = "modbus_data";
   data['cmd']['highlight'] = "true";
   
   global.requestData(data);

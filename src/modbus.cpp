@@ -2,21 +2,27 @@
  * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
  ********************************************************/
 
+
 #include "modbus.h"
+
 
 /*******************************************************
  * Constructor
 *******************************************************/
-modbus::modbus(): enableRelays(false), 
-                  Baudrate(19200), 
-                  enableCrcCheck(true), 
-                  enableLengthCheck(true), 
-                  LastTxLiveData(0), 
-                  LastTxIdData(0), 
-                  LastTxInverter(0),
-                  Conf_OpenWBModulID(1),
-                  Conf_OpenWBBatteryID(2) { 
-  
+modbus::modbus(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS)
+  : enableRelays(false),
+    Baudrate(19200),
+    enableCrcCheck(true),
+    enableLengthCheck(true),
+    LastTxLiveData(0),
+    LastTxIdData(0),
+    LastTxInverter(0),
+    _sysFS(sysFS),
+    _configFS(configFS),
+    Conf_OpenWBModulID(1),
+    Conf_OpenWBBatteryID(2),
+    Conf_OpenWBMeterID(3)
+{
   DataFrame           = new std::vector<byte>{};
   SaveIdDataframe     = new std::vector<byte>{};
   SaveLiveDataframe   = new std::vector<byte>{};
@@ -25,7 +31,7 @@ modbus::modbus(): enableRelays(false),
   InverterIdData      = new std::vector<reg_t>{};
   AvailableInverters  = new std::vector<regfiles_t>{};
   Setters             = new std::vector<setter_t>{};
-  OpenWB              = new openwb();
+  OpenWB              = new openwb(sysFS);
 
   Conf_RequestLiveData= new std::vector<std::vector<byte>>{};
   Conf_RequestIdData  = new std::vector<std::vector<byte>>{};
@@ -87,8 +93,8 @@ void modbus::init(bool firstrun) {
 /*******************************************************
 * set websocket callback
 ********************************************************/
-void modbus::setWebSocketCallback(std::function<void(String&)> callback) {
-    webSocketCallback = callback;
+void modbus::onValues(std::function<void(String&)> callback) {
+    this->onValuesCallback = callback;
 }
 
 /*******************************************************
@@ -101,9 +107,9 @@ void modbus::ReadRelays() {
   this->state_Relay2 = digitalRead(this->pin_Relay2);    
   this->mqtt->Publish_Int("relay2", this->state_Relay2, false);
 
-  if (webSocketCallback) {
+  if (this->onValuesCallback) {
     String message = "{\"data-id\": {\"relay1.value\":\"" + String(this->state_Relay1?"On":"Off") + "\",\"relay2.value\":\"" + String(this->state_Relay2?"On":"Off") + "\"}}";
-    webSocketCallback(message);
+    onValuesCallback(message);
   }
 }
 
@@ -125,7 +131,7 @@ void modbus::LoadSettersFromRegFile() {
   // clear vector
   this->Setters->clear();
   
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  File regfile = _sysFS.open("/regs/"+this->InverterType.filename);
   
   String streamString = "";
   streamString = "\""+ this->InverterType.name +"\": {";
@@ -266,7 +272,7 @@ void modbus::ReceiveMQTT(String topic, String msg) {
  * @return JsonDocument: json object for the setter
  * ******************************************************/
 JsonDocument modbus::GetSetterByName(String name) {
-  File regfile = LittleFS.open("/regs/" + this->InverterType.filename);
+  File regfile = _sysFS.open("/regs/" + this->InverterType.filename);
   if (!regfile) {
     Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     return JsonDocument();
@@ -312,7 +318,7 @@ void modbus::LoadInvertersFromJson() {
   AvailableInverters->clear();
 
   filter["*"]["config"]["ClientIdPos"] = true;  
-  File root = LittleFS.open("/regs/");
+  File root = _sysFS.open("/regs/");
   File file = root.openNextFile();
   while(file){
     Config->logN(3, "open register file from Filesystem: %s", file.name());
@@ -350,7 +356,7 @@ void modbus::LoadInverterConfigFromJson() {
   JsonDocument doc;
   JsonDocument filter;
 
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  File regfile = _sysFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
     Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
   }
@@ -784,8 +790,8 @@ void modbus::ParseData() {
 
     Config->logN(3, "parse %d bytes of data", this->DataFrame->size());
     Config->logN(4, "identified datatype: %s", RequestType.c_str());
-    
-    File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+
+    File regfile = this->_sysFS.open("/regs/"+this->InverterType.filename);
     if (!regfile) {
       Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     }
@@ -955,10 +961,10 @@ void modbus::ParseData() {
 
       }
 
-      //if (webSocketCallback) {
+      //if (this->onValuesCallback) {
         //const String ws("{\"data-id\":{\"" + d.Name + ".value\":\"" + d.value + " "+ d.unit +"\"}}");
         //const String ws("{\"" + d.Name + ".value\":\"" + d.value + " "+ d.unit +"\"}");
-        //webSocketCallback(ws);
+        //onValuesCallback(ws);
       //}
     
     } while (regfile.findUntil(",","]"));
@@ -977,7 +983,7 @@ void modbus::ParseData() {
     this->SaveIdDataframe->assign(this->DataFrame->begin(), this->DataFrame->end());
   }
 
-  if (webSocketCallback) {
+  if (this->onValuesCallback) {
     this->SendDataToWebSocket(RequestType == "livedata" ? this->InverterLiveData : this->InverterIdData);
   }
 
@@ -985,7 +991,7 @@ void modbus::ParseData() {
 }
 
 void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
-  if (webSocketCallback) {
+  if (this->onValuesCallback) {
     String msg("{\"data-id\":{"); msg.reserve(vector->size() * 25);
 
     for (uint8_t i=0; i < vector->size(); i++) {
@@ -993,7 +999,7 @@ void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
       msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value + " "+ vector->at(i).unit +"\"";
     }
     msg += "}}";
-    webSocketCallback(msg);
+    this->onValuesCallback(msg);
   }
 }
 
@@ -1282,7 +1288,7 @@ void modbus::GetSettersAsJsonToWebServer(AsyncWebServerRequest *request) {
         (*counter)++;
       }
 
-      File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+      File regfile = this->_sysFS.open("/regs/"+this->InverterType.filename);
       if (!regfile) {
         Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
         return 0;
@@ -1432,7 +1438,7 @@ void modbus::LoadRegItems(std::vector<reg_t>* vector, String type) {
 
   Config->logN(4, "Load RegItems for Inverter %s and type <%s>", this->InverterType.name.c_str(), type.c_str());
 
-  File regfile = LittleFS.open("/regs/"+this->InverterType.filename);
+  File regfile = this->_sysFS.open("/regs/"+this->InverterType.filename);
   if (!regfile) {
     Config->logN(1, "failed to open %s file", this->InverterType.filename.c_str());
     return;
@@ -1502,10 +1508,12 @@ void modbus::LoadJsonConfig(bool firstrun) {
   bool enableRelays_old  = this->enableRelays;
   bool enableSetters_old = this->Conf_EnableSetters;
 
-  if (LittleFS.exists("/config/modbusconfig.json")) {
+  Config->disabledGPIO.deleteAll(BaseConfig::GpioIdentifier::MODBUS);
+
+  if (this->_configFS.exists("/modbusconfig.json")) {
     //file exists, reading and loading
     Config->logN(3, "reading config file....");
-    File configFile = LittleFS.open("/config/modbusconfig.json", "r");
+    File configFile = this->_configFS.open("/modbusconfig.json", "r");
     if (configFile) {
       Config->logN(3, "config file is open:");
       //size_t size = configFile.size();
@@ -1529,6 +1537,7 @@ void modbus::LoadJsonConfig(bool firstrun) {
         if (doc["data"]["openwbversion"])    { this->Conf_OpenWBVersion = doc["data"]["openwbversion"].as<String>(); this->OpenWB->setVersion(this->Conf_OpenWBVersion); }
         if (doc["data"]["openwbmodulid"])    { this->Conf_OpenWBModulID = doc["data"]["openwbmodulid"].as<uint8_t>(); this->OpenWB->addMapping("InverterID", String(this->Conf_OpenWBModulID)); }
         if (doc["data"]["openwbbatteryid"])  { this->Conf_OpenWBBatteryID = doc["data"]["openwbbatteryid"].as<uint8_t>(); this->OpenWB->addMapping("BatteryID", String(this->Conf_OpenWBBatteryID)); }
+        if (doc["data"]["openwbmeterid"])    { this->Conf_OpenWBMeterID = doc["data"]["openwbmeterid"].as<uint8_t>(); this->OpenWB->addMapping("SmartMeterID", String(this->Conf_OpenWBMeterID)); }
 
         this->Conf_EnableOpenWB       = doc["data"]["enableOpenWb"].as<bool>();
         this->Conf_EnableSetters      = doc["data"]["enable_setters"].as<bool>();
@@ -1606,6 +1615,10 @@ void modbus::LoadJsonConfig(bool firstrun) {
     this->LoadJsonItemConfig(false, false, true); // load only Setters
   }
 
+  Config->disabledGPIO.addValue(this->pin_RX, BaseConfig::GpioIdentifier::MODBUS);
+  Config->disabledGPIO.addValue(this->pin_TX, BaseConfig::GpioIdentifier::MODBUS);
+  Config->disabledGPIO.addValue(this->pin_RTS, BaseConfig::GpioIdentifier::MODBUS);
+
 }
 
 /*******************************************************
@@ -1616,11 +1629,11 @@ void modbus::LoadJsonItemConfig() {
 }
 
 void modbus::LoadJsonItemConfig(bool loadLiveData, bool loadIdData, bool loadSetters) {
-  
-  if (LittleFS.exists("/config/modbusitemconfig.json")) {
+
+  if (this->_configFS.exists("/modbusitemconfig.json")) {
     //file exists, reading and loading
     Config->logN(3, "reading modbus item config file....");
-    File configFile = LittleFS.open("/config/modbusitemconfig.json", "r");
+    File configFile = this->_configFS.open("/modbusitemconfig.json", "r");
     if (configFile) {
       Config->logN(3, "modbus item config file is open:");
 
@@ -1708,6 +1721,7 @@ void modbus::GetInitData(JsonDocument &json){
   json["data"]["enableOpenWb"]        = ((this->Conf_EnableOpenWB)?1:0);
   json["data"]["openwbmodulid"]       = this->Conf_OpenWBModulID;
   json["data"]["openwbbatteryid"]     = this->Conf_OpenWBBatteryID;
+  json["data"]["openwbmeterid"]       = this->Conf_OpenWBMeterID;
 
   json["data"]["enableCrcCheck"]      = ((this->enableCrcCheck)?1:0);
   json["data"]["enableLengthCheck"]   = ((this->enableLengthCheck)?1:0);

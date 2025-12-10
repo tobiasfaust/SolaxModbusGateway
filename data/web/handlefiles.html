@@ -3,9 +3,9 @@
   <head>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
-    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='module' src='/web/Javascript.js'></script>
-     <script language='javascript' type='module' src='/web/handlefiles.js'></script>
+    <link rel='stylesheet' type='text/css' href='./Style.css'>
+    <script language='javascript' type='module' src='./Javascript.js'></script>
+    <script language='javascript' type='module' src='./handlefiles.js'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
 
     <script language='javascript' type='text/javascript' src='https://cdn.jsdelivr.net/gh/Stuk/jszip@main/dist/jszip.js'></script>
@@ -13,15 +13,23 @@
     <script language='javascript' type='text/javascript' src='https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js@master/dist/FileSaver.js'></script>
     
     <script type='module'>
-      import { init, listFiles, downloadFile, uploadFile, deleteFile, fetchFile, backup } from './handlefiles.js';
+      import { init, listFiles, downloadFile, uploadFile, deleteFile, deleteFolder, addFolder, fetchFile, backup, handleZipUpload } from './handlefiles.js';
       window.downloadFile = downloadFile;
       window.uploadFile = uploadFile;
       window.deleteFile = deleteFile;
+      window.deleteFolder = deleteFolder;
+      window.addFolder = addFolder;
       window.fetchFile = fetchFile;
       window.listFiles = listFiles;
       window.backup = backup;
-
+      window.handleZipUpload = handleZipUpload;
       window.addEventListener('DOMContentLoaded', init, false);
+
+      import { initExternalSite } from './navi.js';
+      window.initExternalSite = initExternalSite;
+      window.addEventListener('DOMContentLoaded', () => initExternalSite(document), false);
+      
+
     </script>
 
     <title>HandleFiles</title>
@@ -47,6 +55,12 @@
                   <div id='path'>{path}</div>
                   <div hidden id='fullpath'>{fullpath}</div>
                 </td>
+                <td style="border: none; width:100%; text-align: right;">
+                  <div style="text-align: right; width:100%;"></div>
+                  <button onclick="document.getElementById('confirmAddFolder').classList.remove('hide')" style='font-size:10px' class='fa' title='add folder'>&#xf0fe</button>
+                  <button onclick="document.getElementById('confirmDeleteFolder').classList.remove('hide')" style='font-size:10px' class='fa' title='delete complete folder'>&#xf146</button>
+                  </div>
+                </td>
               </tr>
             </table>
           </td>
@@ -67,9 +81,13 @@
             <input type='text' id='filename' value='{fullpath}' title='name of file to store'/>
             <button type='button' onclick='downloadFile()'style='font-size:18px' class='fa' title='download to pc'>&#xf019</button>
             <button onclick='uploadFile()' style='font-size:18px' class='fa' title='store it'>&#xf0c7</button>
-            <button onclick="document.getElementById('confirmDeleteFile').classList.remove('hide')" style='font-size:18px' class='fa' title='delete it'>&#xf014</button>
-            <button onclick='backup()' style='font-size:18px' class='fa' title='backup complete filesystem as zip'>&#xf1c6</button>
-            <span id='response'></span>
+            <button onclick="document.getElementById('confirmDeleteFile').classList.remove('hide')" style='font-size:18px' class='fa' title='delete this file'>&#xf014</button>
+            <button onclick='backup()' style='font-size:18px' class='fa' title='backup configuration as zip'>&#xf1c6</button>
+            
+            <div style="float: right;">
+              <input type="file" id="zipFileInput" accept=".zip" title="Bitte wählen Sie eine Datei aus">
+              <button type="button" style="font-size:18px" class="fa" title="upload zip file" onclick="handleZipUpload({target: document.getElementById('zipFileInput')})">&#xf093;</button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -77,14 +95,20 @@
     <div id="confirmDeleteFile" class="hide" style="position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 100px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
       <p>Are you sure you want to delete this file?</p>
       <button class="button" onclick="document.getElementById('confirmDeleteFile').classList.add('hide')">Cancel</button>
-      <button class="button" onclick='deleteFile()'>Confirm</button>
+      <button class="button" onclick='deleteFile();document.getElementById("confirmDeleteFile").classList.add("hide")'>Confirm</button>
+    </div>
+    <div id="confirmDeleteFolder" class="hide" style="position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 100px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
+      <p>Are you sure you want to delete this folder?</p>
+      <button class="button" onclick="document.getElementById('confirmDeleteFolder').classList.add('hide')">Cancel</button>
+      <button class="button" onclick='deleteFolder();document.getElementById("confirmDeleteFolder").classList.add("hide")'>Confirm</button>
+    </div>
+    <div id="confirmAddFolder" class="hide" style="position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 170px; border: 2px solid blue; border-radius: 10px; text-align: center; background-color: white; font-size: 70%;">
+      <p>Are you sure you want to add a new folder?</p>
+      <input type="text" id="newFolderName" placeholder="Enter folder name" /><p></p>
+      <button class="button" onclick="document.getElementById('confirmAddFolder').classList.add('hide')">Cancel</button>
+      <button class="button" onclick='addFolder(document.getElementById("newFolderName").value);document.getElementById("confirmAddFolder").classList.add("hide")'>Confirm</button>
     </div>
     <p></p>
-    <div style="position: fixed; bottom: 0; width: 100%; height: 20px; background-color: lightblue; text-align: center;">
-      <div style="font-size: 10px; float: right;">
-        Connection Status:
-        <span id="ws-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: red; margin-right: 25px; margin-top: 7px;"></span>
-      </div>
-    </div>
+    <div id="footer"></div>    
   </body>
 </html>

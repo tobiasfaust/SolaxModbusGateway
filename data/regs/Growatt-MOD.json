@@ -331,7 +331,7 @@
                     "name": "TotalEnergyGeneratedWh",
                     "realname": "Erzeugte Energie Gesamt in Wh",
                     "datatype": "integer",
-                    "openwbtopic": "setcounterwh",
+                    "openwbtopic": "setpvwh",
                     "factor": 100,
                     "unit": "KWh"
                 },

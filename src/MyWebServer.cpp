@@ -4,19 +4,22 @@
 
 #include "MyWebServer.h"
 
-MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns): 
-        DoReboot(false),
-        RequestRebootTime(0),
-        server(server),
-        dns(dns) {
+MyWebServer::MyWebServer(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS, AsyncWebServer *server, DNSServer* dns)
+    : sysFS(sysFS), configFS(configFS), DoReboot(false), RequestRebootTime(0), server(server), dns(dns) {
   
   fsfiles = new handleFiles(server);
+  fsfiles->registerLogCallback(std::bind(&BaseConfig::logN, Config, std::placeholders::_1, std::placeholders::_2));
+  fsfiles->registerLittleFS(&sysFS, "/web");
+  fsfiles->registerLittleFS(&configFS, "/config");
+
+  _wsclientRequests = new std::vector<wsclient_t>();
+
   ws = new AsyncWebSocket("/ajaxws");
 
   server->onNotFound(std::bind(&MyWebServer::handleNotFound, this, std::placeholders::_1));
-  server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1));
+  server->on("/",                       HTTP_GET, std::bind(&MyWebServer::handleRoot, this, std::placeholders::_1), nullptr, nullptr);
    
-  server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1));
+  server->on("/favicon.ico",            HTTP_GET, std::bind(&MyWebServer::handleFavIcon, this, std::placeholders::_1), nullptr, nullptr);
   server->on("/getitems",               HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetLiveDataAsJsonToWebServer(request); });
   server->on("/getsetter",              HTTP_GET, [&](AsyncWebServerRequest *request){ mb->GetSettersAsJsonToWebServer(request); });
 
@@ -33,6 +36,7 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   ElegantOTA.begin(server);    // Start ElegantOTA
   ElegantOTA.setGitEnv(String(GIT_OWNER), String(GIT_REPO), String(GIT_BRANCH), String(GITHUB_RUN).toInt());
   ElegantOTA.setFWVersion(String(Config->GetReleaseName() + " / Build: " + GITHUB_RUN ));
+  ElegantOTA.setTargetPartition("webdata");  // Set default partition for OTA updates
   ElegantOTA.setAutoReboot(true);
   
   //ElegantOTA callbacks
@@ -41,13 +45,15 @@ MyWebServer::MyWebServer(AsyncWebServer *server, DNSServer* dns):
   //ElegantOTA.onEnd(std::bind(&MyWebServer::onOTAEnd, this, std::placeholders::_1));
 
   if (Config->GetUseAuth()) {
-    server->serveStatic("/", LittleFS, "/", "max-age=3600")
-          .setDefaultFile("/web/index.html")
+    server->serveStatic("/web/", sysFS, "/", "max-age=3600")
+          .setDefaultFile("/web/web/index.html")
           .setAuthentication(Config->GetAuthUser().c_str(), Config->GetAuthPass().c_str());
   } else {
-    server->serveStatic("/", LittleFS, "/", "max-age=3600")
-          .setDefaultFile("/web/index.html");
+    server->serveStatic("/web/", sysFS, "/", "max-age=3600")
+          .setDefaultFile("/web/web/index.html");
   }
+
+  server->serveStatic("/config/", configFS, "/");
   
   // try to start the server if wifi is connected, otherwise wait for wifi connection
   if (mqtt->GetConnectStatusWifi()) {
@@ -65,18 +71,17 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
   } else if (type == WS_EVT_DISCONNECT) {
     Config->logN(2, "[Client: %u] WebSocket client disconnected", client->id());
 
-    // wenn client->id() in der Liste WsConnectedClientsForBroadcast vorhanden ist, dann entfernen
-    
-    auto it = std::find_if(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), 
-                 [client](const WsConnClient_t& c) { return c.id == client->id(); });
-    if (it != WsConnectedClientsForBroadcast.end()) {
-      WsConnectedClientsForBroadcast.erase(it);
-    }
+    // Remove client from WebSocket client requests if it exists
+    for (uint8_t i = 0; i < _wsclientRequests->size(); i++) {
+      if (_wsclientRequests->at(i).ws_id == client->id()) {
+        
+        if (_wsclientRequests->at(i).requestData == wsclient_t::MODBUS_DATA) { mb->onValues(nullptr); }
+        if (_wsclientRequests->at(i).requestData == wsclient_t::LOG_DATA) { Config->onLogValues(nullptr); }
 
-    // wenn keine clients mehr in der Liste sind, dann den Callback für die modbuswerte entfernen
-    if (this->WsConnectedClientsForBroadcast.size() == 0) {
-      mb->setWebSocketCallback(nullptr);
+        _wsclientRequests->erase(_wsclientRequests->begin() + i);
+      }
     }
+    _wsclientRequests->shrink_to_fit();
   
   } else if (type == WS_EVT_DATA) {
     String msg(""); msg.reserve(len + 1);
@@ -99,24 +104,16 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         if (json["cmd"]["subaction"]){subaction = json["cmd"]["subaction"].as<String>();}
         if (json["cmd"]["item"])     {item      = json["cmd"]["item"].as<String>();}
         if (json["cmd"]["newState"]) {newState  = (json["cmd"]["newState"].as<String>() == "true"?true:false);}
-        
       }
 
-      if (action == "GetItemsAsStream") {
-        // add client id to the list of clients to broadcast if not already in the list
-        auto it = std::find_if(WsConnectedClientsForBroadcast.begin(), WsConnectedClientsForBroadcast.end(), 
-           [client](const WsConnClient_t& c) { return c.id == client->id(); });
-        if (it == WsConnectedClientsForBroadcast.end()) {
-          const WsConnClient_t w = {client->id(), msg};
-          WsConnectedClientsForBroadcast.push_back(w);
+      if (action && action == "subscribe") {
+        if (subaction && subaction == "log_data") {
+          push_back_unique(_wsclientRequests, {client->id(), wsclient_t::LOG_DATA});
+          Config->onLogValues(std::bind(&MyWebServer::logGetValuesCallback, this, std::placeholders::_1, json, client->id()));
+        } else if (subaction && subaction == "modbus_data") {
+          push_back_unique(_wsclientRequests, {client->id(), wsclient_t::MODBUS_DATA});
+          mb->onValues(std::bind(&MyWebServer::sendWebSocketMessage, this, std::placeholders::_1, msg, client->id()));
         }
-        // if this is the first client in the list, then set the callback for the modbus values
-        if (this->WsConnectedClientsForBroadcast.size() == 1) {
-          mb->setWebSocketCallback([this](String& message) {
-            this->sendWebSocketMessage(message);
-          });
-        }
-        return;
       }
 
       if (action && action == "reset") {
@@ -142,8 +139,10 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
           this->GetInitDataNavi(json);
         } else if (subaction && subaction == "baseconfig") {
           Config->GetInitData(json);
+          json["js"]["gpio_disabled"] = Config->disabledGPIO.getArrayExcludeIdentifier(BaseConfig::GpioIdentifier::BASECONFIG);
         } else if (subaction && subaction == "modbusconfig") {
           mb->GetInitData(json);
+          json["js"]["gpio_disabled"] = Config->disabledGPIO.getArrayExcludeIdentifier(BaseConfig::GpioIdentifier::MODBUS);
         } else if (subaction && subaction == "rawdata") {
           mb->GetInitRawData(json);
         }
@@ -189,19 +188,6 @@ void MyWebServer::onImprovWiFiConnectedCb(const char *ssid, const char *password
   Config->logN(1, "WebServer has been started now ...");
 }
 
-void MyWebServer::sendWebSocketMessage(String& message) {
-  // send message to all connected clients in the list WsConnectedClientsForBroadcast
-  for (auto client : WsConnectedClientsForBroadcast) {
-    if (ws->client(client.id)) {
-      message = message.substring(0, message.length()-1) + "," + client.json.substring(1, client.json.length()-1);
-
-      Config->logN(4, "send WebSocket Message to client %u: %s", client.id, message.c_str());
-      ws->text(client.id, message);
-    }
-  }
-    
-}
-
 void MyWebServer::loop() {
   //delay(1); // slow response Issue: https://github.com/espressif/arduino-esp32/issues/4348#issuecomment-695115885
   if (this->DoReboot) {
@@ -223,7 +209,7 @@ void MyWebServer::handleNotFound(AsyncWebServerRequest *request) {
 }
 
 void MyWebServer::handleRoot(AsyncWebServerRequest *request) {
-  request->redirect("/web/index.html");
+  request->redirect("/web/web/index.html");
 }
 
 void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
@@ -233,28 +219,17 @@ void MyWebServer::handleFavIcon(AsyncWebServerRequest *request) {
 }
 
 bool MyWebServer::handleReset() {
-  bool ret = true;
   Config->logN(3, "deletion of all config files was requested ....");
-  //LittleFS.format(); // Werkszustand -> nur die config dateien loeschen, die register dateien muessen erhalten bleiben
-  File root = LittleFS.open("/config/");
-  File file = root.openNextFile();
-  while(file){
-    String path("/config/"); path.concat(file.name());
-    if (path.indexOf(".json") == -1) {file = root.openNextFile(); continue;}
-    file.close();
-    
-    if (LittleFS.remove(path)) {
-      Config->logN(4, "deletion of configuration file '%s' was successful", file.name());
-    } else {
-      Config->logN(2, "deletion of configuration file '%s' has failed", file.name());
-      ret = false;
-    }
-    file = root.openNextFile();
+
+  bool result = configFS.format();
+  if (!result) {
+    Config->logN(2, "formatting of config Filesystem failed");
+  } else {
+    Config->logN(4, "formatting of config Filesystem was successful");
   }
-  root.close();
   this->DoReboot = true;
 
-  return ret;
+  return result;
 }
 
 void MyWebServer::GetInitDataNavi(JsonDocument& json) {
@@ -285,11 +260,20 @@ void MyWebServer::GetInitDataStatus(JsonDocument& json) {
   json["data"]["uptime"] = uptime_formatter::getUptime();
   json["data"]["freeheapmem"] = ESP.getFreeHeap();
 
-  #ifndef USE_WEBSERIAL
-    json["data"]["tr_webserial"]["className"] = "hide";
-  #endif
-
   json["response"].to<JsonObject>();
   json["response"]["status"] = 1;
   json["response"]["text"] = "successful";
+}
+
+void MyWebServer::logGetValuesCallback(const char* logline, JsonDocument& json, uint32_t wsclient_id) {
+  json["logline"] = logline;
+  this->ws->text(wsclient_id, json.as<String>());
+}
+
+void MyWebServer::sendWebSocketMessage(String& message, String JsonRequest, uint32_t wsclient_id) {
+  // add original Request json to message
+  message = message.substring(0, message.length()-1) + "," + JsonRequest.substring(1, JsonRequest.length()-1);
+  Config->logN(4, "send WebSocket Message to client %u: %s", wsclient_id, message.c_str());
+
+  this->ws->text(wsclient_id, message);
 }

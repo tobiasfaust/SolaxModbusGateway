@@ -25,7 +25,7 @@
 #define DEFAULT_MODBUS_TX_PIN 17
 #endif
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 class modbus {
 
@@ -55,7 +55,7 @@ class modbus {
   #define DATAISLIVE (byte) 0x02
 
   public:
-    modbus();
+    modbus(fs::LittleFSFS& sysFS, fs::LittleFSFS& configFS);
     void                    init(bool firstrun);
     void                    LoadJsonConfig(bool firstrun);
     void                    LoadJsonItemConfig();
@@ -75,9 +75,12 @@ class modbus {
     void                    ReceiveMQTT(String topic, String msg);
     JsonDocument            GetSetterByName(String name);
 
-    // Callback setzen
-    void setWebSocketCallback(std::function<void(String&)> callback);
-    void deleteWebSocketCallback() { webSocketCallback = nullptr; }
+    // callbacks
+    /************************
+     * @brief Callback for getting the values
+     * @param function(JsonDocument&) the callback function
+     ************************/
+    void onValues(std::function<void(String&)> callback);
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -115,6 +118,8 @@ class modbus {
 
     MQTT*                   mqtt = NULL;
     openwb*                 OpenWB = NULL;
+    fs::LittleFSFS&         _sysFS;
+    fs::LittleFSFS&         _configFS;
 
     String                  PrintHex(byte num);
     String                  PrintDataFrame(std::vector<byte>* frame);
@@ -148,8 +153,6 @@ class modbus {
     std::vector<std::vector<byte>>*  Conf_RequestLiveData;
     std::vector<std::vector<byte>>*  Conf_RequestIdData;
 
-    std::function<void(String&)> webSocketCallback; // Callback-Funktion
-
 		uint8_t                 Conf_ClientIdPos;
     //uint8_t                 Conf_LiveDataStartsAtPos;
 		//uint8_t                 Conf_IdDataStartsAtPos;
@@ -170,6 +173,7 @@ class modbus {
     String                  Conf_OpenWBVersion;
     uint8_t                 Conf_OpenWBModulID;
     uint8_t                 Conf_OpenWBBatteryID;
+    uint8_t                 Conf_OpenWBMeterID;
     bool                    Conf_EnableSetters;
 
     byte                    String2Byte(String s);
@@ -178,6 +182,8 @@ class modbus {
     std::vector<byte>*      SaveLiveDataframe;
 
     HardwareSerial*         RS485Serial;
+
+    std::function<void(String&)> onValuesCallback; // Callback function pointer
 
 };
 

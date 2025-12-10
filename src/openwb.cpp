@@ -2,9 +2,11 @@
  * Copyright [2024] Tobias Faust <tobias.faust@gmx.net 
  ********************************************************/
 
+
 #include <openwb.h>
 
-openwb::openwb(): _version("") {
+
+openwb::openwb(fs::LittleFSFS& fs): _fs(fs), _version("") {
   OpenWBTopics = new std::vector<openwb_t>();
   OpenWBVersions = new std::vector<String>();
   OpenWBMappings = new std::vector<openwb_t>();
@@ -22,7 +24,7 @@ void openwb::setVersion(String version) {
 }
 
 void openwb::LoadAvailableOpenWbVersions() {
-  File file = LittleFS.open("/misc/openwb.json", "r");
+  File file = _fs.open("/misc/openwb.json", "r");
   if (!file) {
     Config->logN(1, "Failed to open /misc/openwb.json");
     return;
@@ -47,7 +49,7 @@ void openwb::LoadAvailableOpenWbVersions() {
 }
 
 void openwb::LoadOpenWBTopicsFromJson() {
-  File file = LittleFS.open("/misc/openwb.json", "r");
+  File file = _fs.open("/misc/openwb.json", "r");
   if (!file) {
     Config->logN(1, "Failed to open /misc/openwb.json");
     return;

@@ -124,7 +124,7 @@ for root, _, files in os.walk(args.binarypath):
             if os.path.isfile(os.path.join(args.binarypath, "littlefs.bin")):
                 files_data["parts"].append({
                     "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/littlefs.{FileExtension}.bin",
-                    "offset": int(readOffsetFromPartitionCSV("partitions.csv", "spiffs"), 16),
+                    "offset": int(readOffsetFromPartitionCSV("partitions.csv", "webdata"), 16),
                     "filetype": "filesystem"
                 })
 

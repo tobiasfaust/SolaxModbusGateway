@@ -16,6 +16,11 @@ _________________________________________________________________
 #include <mqtt.h>
 #include <MyWebServer.h>
 
+
+// Partitionen für System- und Konfigurationsdaten
+fs::LittleFSFS sysFS;
+fs::LittleFSFS configFS;
+
 AsyncWebServer server(80);
 DNSServer dns;
 
@@ -37,27 +42,35 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
   mb->ReceiveMQTT(topic, msg);
 }
 
+
 void setup() {
   Serial.begin(115200);
-  Config = new BaseConfig();
 
-  #ifndef USE_WEBSERIAL
-    Serial.begin(115200,
+  // Partitionen mounten
+  bool systemPartitionMounted = sysFS.begin(true, "/web", 5, "webdata");
+  bool configPartitionMounted = configFS.begin(true, "/config", 5, "config");
+
+  Config = new BaseConfig(configFS);
+
+  Serial.begin(115200,
                  SERIAL_8N1,
                  Config->GetSerialRx(),
                  Config->GetSerialTx());  // RX, TX, zb.: 33, 32
-    Serial.println("");
-    Serial.println("ready");
-  #endif
-
-  #ifdef USE_WEBSERIAL
-    WebSerial.onMessage([](const String& msg) { Serial.println(msg); });
-    WebSerial.begin(&server);
-    WebSerial.setBuffer(100);
-  #endif
+  Serial.println("");
+  Serial.println("ready");
 
   Config->logN(1, "Start of Modbus-RTU MQTT Gateway");
-  Config->logN(1, "Starting BaseConfig");
+  Config->logN(1, "BaseConfig started");
+
+  Config->logN(1, "***** File System *****");
+  Config->logN(1, "%s", systemPartitionMounted ? "System partition is mounted" : "System partition is not mounted");
+  Config->logN(1, "Size: %d byte", systemPartitionMounted ? sysFS.totalBytes() : 0);
+  Config->logN(1, "Used: %d byte", systemPartitionMounted ? sysFS.usedBytes() : 0);
+  Config->logN(1, "***** ********** *****");
+  Config->logN(1, "%s", configPartitionMounted ? "User partition is mounted" : "Config partition is not mounted");
+  Config->logN(1, "Size: %d byte", configPartitionMounted ? configFS.totalBytes() : 0);
+  Config->logN(1, "Used: %d byte", configPartitionMounted ? configFS.usedBytes() : 0);
+  Config->logN(1, "***** ********** *****\n\n");
 
   Config->logN(1, "Starting Wifi and MQTT");
   mqtt = new MQTT(Config->GetMqttServer().c_str(),
@@ -66,19 +79,15 @@ void setup() {
                     Config->GetMqttRoot().c_str());
   mqtt->setCallback(myMQTTCallBack);
 
-  mb = new modbus();
+  mb = new modbus(sysFS, configFS);
   mb->enableMqtt(mqtt);
 
   Config->logN(1, "attempting to start WebServer");
-  mywebserver = new MyWebServer(&server, &dns);
+  mywebserver = new MyWebServer(sysFS, configFS, &server, &dns);
 }
 
 void loop() {
   mqtt->loop();
   mywebserver->loop();
   mb->loop();
-
-  #ifdef USE_WEBSERIAL
-    WebSerial.loop();
-  #endif
 }

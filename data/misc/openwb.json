@@ -3,22 +3,38 @@
         "version": "1.9",
         "topics": [
             { "setpvw": "openWB/set/pv/#InverterID#/W" },
+            { "setpvwh": "openWB/set/pv/#InverterID#/WhCounter"},
+            { "setcoexp": "openWB/set/houseMeter/WhExported" },
+            { "setcocur": "openWB/set/houseMeter/Currents" },
+            { "setcofre": "openWB/set/houseMeter/Frequency" },
+            { "setcovol": "openWB/set/houseMeter/Voltages" },
+            { "setcopow": "openWB/set/houseMeter/Powers" },
+            { "setcopowf": "openWB/set/houseMeter/PowerFactors" },
+            { "setcoimp": "openWB/set/houseMeter/WhImported" },
+            { "setcow": "openWB/set/houseMeter/W" },
             { "setbatw": "openWB/set/houseBattery/W"},
             { "setbatsoc": "openWB/set/houseBattery/%Soc"},
             { "setbatexpwh": "openWB/set/houseBattery/WhExported"},
-            { "setbatimpwh": "openWB/set/houseBattery/WhImported"},
-            { "setcounterwh": "openWB/set/pv/#InverterID#/WhCounter"}
+            { "setbatimpwh": "openWB/set/houseBattery/WhImported"}
         ] 
     },
     {
         "version": "2.0",
         "topics": [
             { "setpvw": "openWB/set/pv/#InverterID#/get/power" },
-            { "setbatw": "openWB/set/bat/#BatteryID#/get/power"},
-            { "setbatsoc": "openWB/set/bat/#BatteryID#/get/soc"},
-            { "setbatexpwh": "openWB/set/bat/#BatteryID#/get/exported"},
-            { "setbatimpwh": "openWB/set/bat/#BatteryID#/get/imported"},
-            { "setcounterwh": " openWB/set/pv/#InverterID#/get/exported"}
+            { "setpvwh": "openWB/set/pv/#InverterID#/get/exported" },
+            { "setbatw": "openWB/set/bat/#BatteryID#/get/power" },
+            { "setbatsoc": "openWB/set/bat/#BatteryID#/get/soc" },
+            { "setbatexpwh": "openWB/set/bat/#BatteryID#/get/exported" },
+            { "setbatimpwh": "openWB/set/bat/#BatteryID#/get/imported" },
+            { "setcoexp": "openWB/set/counter/#SmartMeterID#/get/exported" },
+            { "setcocur": "openWB/set/counter/#SmartMeterID#/get/currents" },
+            { "setcofre": "openWB/set/counter/#SmartMeterID#/get/frequency" },
+            { "setcovol": "openWB/set/counter/#SmartMeterID#/get/voltages" },
+            { "setcopow": "openWB/set/counter/#SmartMeterID#/get/power" },
+            { "setcopowf": "openWB/set/counter/#SmartMeterID#/get/power_factors" },
+            { "setcoimp": "openWB/set/counter/#SmartMeterID#/get/imported" },
+            { "setcow": "openWB/set/counter/#SmartMeterID#/get/power" }
 
         ] 
     }

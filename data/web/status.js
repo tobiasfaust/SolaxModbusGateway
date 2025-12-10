@@ -91,8 +91,9 @@ function ReduceJsonOnlyActiveItems(json) {
 function RefreshLiveData() {
   var data = {};
   data['cmd'] = {};
-  data['cmd']['action'] = "GetItemsAsStream";
-  data['cmd']['subaction'] = "onlyactive";
+  data['cmd']['action'] = "subscribe";
+  data['cmd']['subaction'] = "modbus_data";
+  data['cmd']['filter'] = "onlyactive";
   data['cmd']['highlight'] = "true";
   
   global.requestData(data);

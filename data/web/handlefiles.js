@@ -12,8 +12,8 @@ export const functionMap = {
 // ************************************************
 export function init1() {
   var data = {"JS": {"listdir": [
-      {"path": "/", "content": [{"name": "file1.txt", "isDir": 0}, {"name": "file2.txt", "isDir": 0}, {"name": "dir1", "isDir": 1}]},
-      {"path": "/dir1", "content": [{"name": "file3.txt", "isDir": 0}, {"name": "file4.txt", "isDir": 0}]}
+      {"path": "/", "content": [{"name": "file1.txt", "isDir": 0}, {"name": "file2.txt", "isDir": 0}, {"name": "config", "isDir": 1}]},
+      {"path": "/config", "content": [{"name": "file3.txt", "isDir": 0}, {"name": "file4.txt", "isDir": 0}]}
     ]},
     "response": {"status": 1, "text": "successful"},
     "cmd": {"callbackFn": "files_Callback", "startpath": "/"}
@@ -268,6 +268,40 @@ export function deleteFile() {
   } else { global.setResponse(false, 'Filename is empty, Please define it.');}
 }
 
+// ************************************************
+export function deleteFolder() {
+  var pathOfFile = document.getElementById('path').innerHTML;
+  
+  if (pathOfFile != '/') {
+    var data = {};
+    data['cmd'] = {};
+    data['cmd']['action'] = 'handlefiles';
+    data['cmd']['subaction'] = "deleteFolder";
+    data['cmd']['foldername'] = pathOfFile;
+
+    global.setResponse(true, 'Please wait for deleting ...');
+    global.requestData(data);
+    GetInitData(getParentPath(pathOfFile));
+  } else { global.setResponse(false, 'You cannot delete the root folder.');}
+}
+
+// ************************************************
+export function addFolder(folderName) {
+  var pathOfFile = document.getElementById('path').innerHTML;
+
+  if (folderName != '') {
+    var data = {};
+    data['cmd'] = {};
+    data['cmd']['action'] = 'handlefiles';
+    data['cmd']['subaction'] = "addFolder";
+    data['cmd']['foldername'] = pathOfFile + '/' + folderName;
+
+    global.setResponse(true, 'Please wait for adding ...');
+    global.requestData(data);
+    GetInitData(pathOfFile);
+  } else { global.setResponse(false, 'Folder name is empty, Please define it.');}
+}
+
 // ***********************************
 // backup complete filesystem of ESP by zipfile
 //
@@ -278,31 +312,75 @@ export function backup() {
   
   for(let i = 0; i < DirJson.length; i++) { 
     DirJson[i].content.forEach(function (file) {
-		  if (file.isDir==0) {
-	      //console.log(DirJson[i].path, file.name)
-				url.push(DirJson[i].path + "/" + file.name)
+      //console.log("file: ", DirJson[i].path, file.name);
+      if (file.isDir == 0 && DirJson[i].path.toLowerCase().startsWith("/config")) {
+        url.push(DirJson[i].path + "/" + file.name);
       }
     })
   }
-  compressed_img(url, "backup");
+  handleZipDownload(url, "backup");
 }
 
-function compressed_img(urls, nombre) {
-  var zip = new JSZip();
-  var count = 0;
-  var name = nombre + ".zip";
-  urls.forEach(function(url){
-    JSZipUtils.getBinaryContent(url, function (err, data) {
-      if(err) {
-         throw err; 
+async function handleZipDownload(filePaths, zipFileName) {
+  const zip = new JSZip();
+
+  for (const filePath of filePaths) {
+    try {
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        global.setResponse(false, 'Failed to fetch file: ' + filePath);
+        console.error(`Failed to fetch ${filePath}: ${response.statusText}`);
+        continue;
       }
-       zip.file(url, data,  {binary:true});
-       count++;
-       if (count == urls.length) {
-         zip.generateAsync({type:'blob'}).then(function(content) {
-            saveAs(content, name);
-         });
-       }
-      });
+      const fileContent = await response.blob();
+      const relativePath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+      zip.file(relativePath, fileContent);
+    } catch (error) {
+      global.setResponse(false, 'Error fetching file: ' + filePath);
+      console.error(`Error fetching ${filePath}:`, error);
+    }
+  }
+
+  zip.generateAsync({ type: "blob" }).then((content) => {
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(content);
+    downloadLink.download = `${zipFileName}.zip`;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   });
+}
+
+export async function handleZipUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const zip = await JSZip.loadAsync(file);
+  for (const [relativePath, zipEntry] of Object.entries(zip.files)) {
+    if (!zipEntry.dir) {
+      const fileContent = await zipEntry.async("blob");
+      console.log("Uploading:", relativePath);
+      const formData = new FormData();
+      formData.append("file", fileContent, relativePath);
+
+      try {
+        const response = await fetch('/doUpload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          global.setResponse(false, `Failed to upload ${relativePath}: ${response.statusText}`);
+          console.error(`Failed to upload ${relativePath}: ${response.statusText}`);
+        } else {
+          global.setResponse(true, `Uploaded ${relativePath} successfully.`);
+          console.log(`Uploaded ${relativePath} successfully.`);
+        }
+      } catch (error) {
+        global.setResponse(false, `Error uploading ${relativePath}: ${error.message}`);
+        console.error(`Error uploading ${relativePath}:`, error);
+      }
+    }
+  }
 }

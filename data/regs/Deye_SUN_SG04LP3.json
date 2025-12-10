@@ -336,7 +336,7 @@
                     "realname": "Total PV Power in Wh",
                     "datatype": "float",
                     "factor": 100,
-                    "openwbtopic": "setcounterwh",
+                    "openwbtopic": "setpvwh",
                     "unit": "KWh"
                 },
                 {

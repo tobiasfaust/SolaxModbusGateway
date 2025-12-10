@@ -1,13 +1,16 @@
 {
     "Growatt-SPH-V124": {
         "config": {
-            "author": "StefanNouza",
+            "author": [
+                "StefanNouza",
+                "AndreasNewbie"
+            ],
             "RequestLiveData": [
                 ["#ClientID", "0x04", "0x00", "0x00", "0x00", "0x77"],
                 ["#ClientID", "0x04", "0x03", "0xF1", "0x00", "0x7D"]
             ],
             "RequestIdData": [
-            	["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x1E"]
+                ["#ClientID", "0x03", "0x00", "0x00", "0x00", "0x1E"]
             ],
             "ClientIdPos": 0,
             "LiveDataFunctionCodePos": 1,
@@ -40,23 +43,24 @@
                     "realname": "Inverter status (text)",
                     "datatype": "integer",
                     "mapping": [[0,"0: waiting"],
-                                [1,"1: normal"],
-                                [2,"2:"],
-                                [3,"3: fault"],
-                                [4,"4:"],
-                                [5,"5:"],
-                                [6,"6:"],
-                                [7,"7:"],
-                                [8,"8:"],
-                                [9,"9:"]],
+                                 [1,"1: normal"],
+                                 [2,"2:"],
+                                 [3,"3: fault"],
+                                 [4,"4:"],
+                                 [5,"5:"],
+                                 [6,"6:"],
+                                 [7,"7:"],
+                                 [8,"8:"],
+                                 [9,"9:"]],
                     "unit": ""
                 },
                 {
                     "position": [5, 6, 7, 8],
                     "name": "Power_PV_Input_W",
                     "realname": "Power of PV input",
+                    "openwbtopic": "setpvw",
                     "datatype": "float",
-                    "factor": 0.1,
+                    "factor": -0.1,
                     "unit": "W"
                 },
                 {
@@ -119,6 +123,7 @@
                     "position": [77, 78],
                     "name": "AC_GridFrequency_Hz",
                     "realname": "Grid Frequency",
+                    "openwbtopic": "setcofre",
                     "datatype": "float",
                     "factor": 0.01,
                     "unit": "Hz"
@@ -127,6 +132,7 @@
                     "position": [109, 110, 111, 112],
                     "name": "Energy_Generated_today_kWh",
                     "realname": "generated Energy today",
+                    "openwbtopic": "setpvwh",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "kWh"
@@ -143,7 +149,7 @@
                     "position": [117, 118, 119, 120],
                     "name": "Inverter_WorkTime_total_s",
                     "realname": "Inverter work time total",
-                    "datatype": "integer",
+                    "datatype": "float",
                     "factor": 0.5,
                     "unit": "s"
                 },
@@ -193,15 +199,15 @@
                     "realname": "Inverter derating mode",
                     "datatype": "integer",
                     "mapping": [[0,"no derate"],
-                                [1,"PV derate"],
-                                [2,"derate-2"],
-                                [3,"Vac derate"],
-                                [4,"Fac derate"],
-                                [5,"Tboost derate"],
-                                [6,"Tinv derate"],
-                                [7,"Control derate"],
-                                [8,"derate-8"],
-                                [9,"OverBack By Time derate"]],
+                                 [1,"PV derate"],
+                                 [2,"derate-2"],
+                                 [3,"Vac derate"],
+                                 [4,"Fac derate"],
+                                 [5,"Tboost derate"],
+                                 [6,"Tinv derate"],
+                                 [7,"Control derate"],
+                                 [8,"derate-8"],
+                                 [9,"OverBack By Time derate"]],
                     "unit": ""
                 },
                 {
@@ -216,38 +222,38 @@
                     "name": "Inverter_FaultCodeText",
                     "realname": "Inverter fault code bits (text)",
                     "datatype": "integer",
-                    "mapping": [[          1,"b00 "],
-                                [          2,"b01 communication error"],
-                                [          4,"b02 "],
-                                [          8,"b03 StrReverse or StrShort fault"],
-                                [         16,"b04 model init fault"],
-                                [         32,"b05 grid volt sample different"],
-                                [         64,"b06 ISO sample different"],
-                                [        128,"b07 GFCI sample different"],
-                                [        256,"b08 "],
-                                [        512,"b09 "],
-                                [       1024,"b10 "],
-                                [       2048,"b11 "],
-                                [       4096,"b12 AFCI fault"],
-                                [       8192,"b13 "],
-                                [      16384,"b14 AFCI module fault"],
-                                [      32768,"b15 "],
-                                [      65536,"b16 "],
-                                [     131072,"b17 relay check fault"],
-                                [     262144,"b18 "],
-                                [     524288,"b19 "],
-                                [    1048576,"b20 "],
-                                [    2097152,"b21 communication error"],
-                                [    4194304,"b22 bus voltage error"],
-                                [    8388608,"b23 auto-test fail"],
-                                [   16777216,"b24 no utility"],
-                                [   33554432,"b25 PV isolation low"],
-                                [   67108864,"b26 residual I high"],
-                                [  134217728,"b27 output high DCI"],
-                                [  268435456,"b28 PV voltage high"],
-                                [  536870912,"b29 AC V outrange"],
-                                [ 1073741824,"b30 AC F outrange"],
-                                [-2147483648,"b31 temperature high"]],
+                    "mapping": [[1,"b00 "],
+                                 [2,"b01 communication error"],
+                                 [4,"b02 "],
+                                 [8,"b03 StrReverse or StrShort fault"],
+                                 [16,"b04 model init fault"],
+                                 [32,"b05 grid volt sample different"],
+                                 [64,"b06 ISO sample different"],
+                                 [128,"b07 GFCI sample different"],
+                                 [256,"b08 "],
+                                 [512,"b09 "],
+                                 [1024,"b10 "],
+                                 [2048,"b11 "],
+                                 [4096,"b12 AFCI fault"],
+                                 [8192,"b13 "],
+                                 [16384,"b14 AFCI module fault"],
+                                 [32768,"b15 "],
+                                 [65536,"b16 "],
+                                 [131072,"b17 relay check fault"],
+                                 [262144,"b18 "],
+                                 [524288,"b19 "],
+                                 [1048576,"b20 "],
+                                 [2097152,"b21 communication error"],
+                                 [4194304,"b22 bus voltage error"],
+                                 [8388608,"b23 auto-test fail"],
+                                 [16777216,"b24 no utility"],
+                                 [33554432,"b25 PV isolation low"],
+                                 [67108864,"b26 residual I high"],
+                                 [134217728,"b27 output high DCI"],
+                                 [268435456,"b28 PV voltage high"],
+                                 [536870912,"b29 AC V outrange"],
+                                 [1073741824,"b30 AC F outrange"],
+                                 [-2147483648,"b31 temperature high"]],
                     "unit": ""
                 },
                 {
@@ -279,14 +285,15 @@
                     "realname": "Priority of power-distribution by inverter (text)",
                     "datatype": "integer",
                     "mapping": [[0,"0: Load first"],
-                                [1,"1: Batt first"],
-                                [2,"2: Grid first"]],
+                                 [1,"1: Batt first"],
+                                 [2,"2: Grid first"]],
                     "unit": ""
                 },
                 {
                     "position": [246, 247, 248, 249],
                     "name": "Power_Battery_Discharge_W",
                     "realname": "Discharge Power",
+                    "openwbtopic": "setbatexpwh",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "W"
@@ -295,8 +302,19 @@
                     "position": [250, 251, 252, 253],
                     "name": "Power_Battery_Charge_W",
                     "realname": "Charge Power",
+                    "openwbtopic": "setbatimpwh",
                     "datatype": "float",
                     "factor": 0.1,
+                    "unit": "W"
+                },
+                {
+                    "position": [246, 247, 248, 249],
+                    "position2": [250, 251, 252, 253],
+                    "name": "BatChargingPower",
+                    "realname": "Battery Charging Power",
+                    "openwbtopic": "setbatw",
+                    "datatype": "float",
+                    "factor": -0.1,
                     "unit": "W"
                 },
                 {
@@ -311,6 +329,7 @@
                     "position": [256, 257],
                     "name": "Battery_SOC_Percent",
                     "realname": "Battery State Of Charge",
+                    "openwbtopic": "setbatsoc",
                     "datatype": "float",
                     "factor": 1.0,
                     "unit": "%"
@@ -332,6 +351,16 @@
                     "unit": "W"
                 },
                 {
+                    "position": [270, 271, 272, 273],
+                    "position2": [286, 287, 288, 289],
+                    "name": "Power_AC_W",
+                    "realname": "SmartMeter: Power",
+                    "openwbtopic": "setcopow",
+                    "datatype": "float",
+                    "factor": 0.1,
+                    "unit": "W"
+                },
+                {
                     "position": [302, 303, 304, 305],
                     "name": "Power_AC_toLocalLoad_W",
                     "realname": "Power to Local Load",
@@ -345,7 +374,7 @@
                     "realname": "Battery Temperature",
                     "datatype": "float",
                     "factor": 0.1,
-                    "unit": "&deg;C"
+                    "unit": "°C"
                 },
                 {
                     "position": [316, 317, 318, 319],
@@ -359,6 +388,7 @@
                     "position": [320, 321, 322, 323],
                     "name": "Energy_toUser_total_kWh",
                     "realname": "Energy to User total",
+                    "openwbtopic": "setcoimp",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "kWh"
@@ -375,6 +405,7 @@
                     "position": [328, 329, 330, 331],
                     "name": "Energy_toGrid_total_kWh",
                     "realname": "Energy to Grid total",
+                    "openwbtopic": "setcoexp",
                     "datatype": "float",
                     "factor": 0.1,
                     "unit": "kWh"
@@ -545,7 +576,7 @@
                     "realname": "Battery Temperature from BMS",
                     "datatype": "float",
                     "factor": 0.1,
-                    "unit": "&deg;C"
+                    "unit": "°C"
                 },
                 {
                     "position": [418, 419],
@@ -598,7 +629,7 @@
                     "realname": "Highest cell temperature",
                     "datatype": "float",
                     "factor": 0.1,
-                    "unit": "&deg;C"
+                    "unit": "°C"
                 },
                 {
                     "position": [458, 459],
@@ -606,7 +637,7 @@
                     "realname": "Lowest cell temperature",
                     "datatype": "float",
                     "factor": 0.1,
-                    "unit": "&deg;C"
+                    "unit": "°C"
                 },
                 {
                     "position": [460, 461],
@@ -648,12 +679,13 @@
                 }
             ],
             "id": [
-            {
-                "position": [49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
-                "name": "InverterSN",
-                "realname": "Inverter SerialNumber",
-                "datatype": "string"
-            }]
-		}
-	}
+                {
+                    "position": [49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
+                    "name": "InverterSN",
+                    "realname": "Inverter SerialNumber",
+                    "datatype": "string"
+                }
+            ]
+        }
+    }
 }

@@ -3,9 +3,9 @@
   <head>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
     <meta charset='utf-8'>
-    <link rel='stylesheet' type='text/css' href='/web/Style.css'>
-    <script language='javascript' type='module' src='/web/Javascript.js'></script>
-    <script language='javascript' type='module' src='/web/modbusconfig.js'></script>
+    <link rel='stylesheet' type='text/css' href='./Style.css'>
+    <script language='javascript' type='module' src='./Javascript.js'></script>
+    <script language='javascript' type='module' src='./modbusconfig.js'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' >
     
     <script type='module'>
@@ -106,7 +106,7 @@
         <tr>
           <td>Enable OpenWB support</td>
           <td>
-            <input type='checkbox' name='enableOpenWb' id='enableOpenWb' onclick="onCheckboxSelection(this, ['EnableOpenWb_1','EnableOpenWb_2','EnableOpenWb_3'],[])"/>
+            <input type='checkbox' name='enableOpenWb' id='enableOpenWb' onclick="onCheckboxSelection(this, ['EnableOpenWb_1','EnableOpenWb_2','EnableOpenWb_3','EnableOpenWb_4'],[])"/>
           </td>
         </tr>
 
@@ -129,6 +129,11 @@
         <tr id='EnableOpenWb_3'>
           <td>Battery module ID</td>
           <td><input min='1' max='99' id='openwbbatteryid' name='openwbbatteryid' type='number' style='width: 6em'/></td>
+        </tr>
+
+        <tr id='EnableOpenWb_4'>
+          <td>smartmeter module ID</td>
+          <td><input min='1' max='99' id='openwbmeterid' name='openwbmeterid' type='number' style='width: 6em'/></td>
         </tr>
 
         <tr>
