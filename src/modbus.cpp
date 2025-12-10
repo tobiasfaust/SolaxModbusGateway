@@ -93,8 +93,9 @@ void modbus::init(bool firstrun) {
 /*******************************************************
 * set websocket callback
 ********************************************************/
-void modbus::onValues(std::function<void(String&)> callback) {
+void modbus::onValues(std::function<void(String&)> callback, std::list<String>* options) {
     this->onValuesCallback = callback;
+    this->onValuesOptions = options;
 }
 
 /*******************************************************
@@ -996,7 +997,11 @@ void modbus::SendDataToWebSocket(std::vector<reg_t>* vector) {
 
     for (uint8_t i=0; i < vector->size(); i++) {
       if (i > 0) msg += ",";
-      msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value + " "+ vector->at(i).unit +"\"";
+      msg += "\"" + vector->at(i).Name + ".value\":\"" + vector->at(i).value;
+      if (this->onValuesOptions && std::find(this->onValuesOptions->begin(), this->onValuesOptions->end(), "+unit") != this->onValuesOptions->end()) {
+        msg += " "+ vector->at(i).unit;
+      }
+      msg += "\"";
     }
     msg += "}}";
     this->onValuesCallback(msg);

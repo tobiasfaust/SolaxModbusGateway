@@ -1,3 +1,7 @@
+Release 3.4.1:
+  - fix BatVoltage in Growatt-SPH.json, thanks @Motl1 (#164)
+  - feature: add options "+unit" for modbus websocket streaming to show unit in output (#164)
+  
 Release 3.4.0:
     +++++++ This version is not OTA compatible with older versions +++++++
     +++++++ Please do a fresh installation by web-installer +++++++

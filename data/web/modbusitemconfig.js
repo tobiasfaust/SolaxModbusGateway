@@ -154,10 +154,11 @@ function createTooltip(obj, tooltip) {
 // ************************************************
 function RequestDataStream() {
   var data = {};
-  data['cmd'] = {};
-  data['cmd']['action'] = "subscribe";
-  data['cmd']['subaction'] = "modbus_data";
-  data['cmd']['highlight'] = "true";
+  data.cmd = {};
+  data.cmd.action = "subscribe";
+  data.cmd.subaction = "modbus_data";
+  data.cmd.highlight = "true";
+  data.cmd.opts = ["+unit"];
   
   global.requestData(data);
 }

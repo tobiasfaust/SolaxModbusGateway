@@ -90,11 +90,12 @@ function ReduceJsonOnlyActiveItems(json) {
 // ************************************************
 function RefreshLiveData() {
   var data = {};
-  data['cmd'] = {};
-  data['cmd']['action'] = "subscribe";
-  data['cmd']['subaction'] = "modbus_data";
-  data['cmd']['filter'] = "onlyactive";
-  data['cmd']['highlight'] = "true";
+  data.cmd = {};
+  data.cmd.action = "subscribe";
+  data.cmd.subaction = "modbus_data";
+  data.cmd.filter = "onlyactive";
+  data.cmd.highlight = "true";
+  data.cmd.opts = ["+unit"];
   
   global.requestData(data);
 }
