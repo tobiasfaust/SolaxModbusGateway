@@ -9,8 +9,8 @@ BaseConfig::BaseConfig(fs::LittleFSFS& configFS)
       mqtt_UseRandomClientID(true),
       keepalive(0),
       debuglevel(3),
-      serial_rx(RX),
-      serial_tx(TX),
+      serial_rx(DEFAULT_SERIAL_RX_PIN),
+      serial_tx(DEFAULT_SERIAL_TX_PIN),
       useAuth(false) {
   // Partition wird im main.cpp gemountet
   LoadJsonConfig();
@@ -43,8 +43,8 @@ void BaseConfig::LoadJsonConfig() {
         if (doc["data"]["SelectConnectivity"]){if (strcmp(doc["data"]["SelectConnectivity"], "wifi")==0) { this->useETH=false;} else {this->useETH=true;}} else {this->useETH = false;}
         if (doc["data"]["debuglevel"])       { this->debuglevel = _max(doc["data"]["debuglevel"].as<uint8_t>(), 0);} else {this->debuglevel = 0; }
         if (doc["data"]["SelectLAN"])        { this->LANBoard = doc["data"]["SelectLAN"].as<String>();} else {this->LANBoard = "";}
-        if (doc["data"]["serial_rx"])        { this->serial_rx = doc["data"]["serial_rx"].as<uint8_t>(); } else {this->serial_rx = RX;}
-        if (doc["data"]["serial_tx"])        { this->serial_tx = doc["data"]["serial_tx"].as<uint8_t>(); } else {this->serial_tx = TX;}
+        if (doc["data"]["serial_rx"])        { this->serial_rx = doc["data"]["serial_rx"].as<uint8_t>(); } else {this->serial_rx = DEFAULT_SERIAL_RX_PIN;}
+        if (doc["data"]["serial_tx"])        { this->serial_tx = doc["data"]["serial_tx"].as<uint8_t>(); } else {this->serial_tx = DEFAULT_SERIAL_TX_PIN;}
         if (doc["data"]["auth_user"])        { this->auth_user = doc["data"]["auth_user"].as<String>();} else {this->auth_user = "admin";}
         if (doc["data"]["auth_pass"])        { this->auth_pass = doc["data"]["auth_pass"].as<String>();} else {this->auth_pass = "password";}
       

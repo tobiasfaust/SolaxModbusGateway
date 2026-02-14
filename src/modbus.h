@@ -17,14 +17,6 @@
 #include <sstream>
 #include <openwb.h>
 
-#ifndef DEFAULT_MODBUS_RX_PIN
-#define DEFAULT_MODBUS_RX_PIN 16
-#endif
-
-#ifndef DEFAULT_MODBUS_TX_PIN
-#define DEFAULT_MODBUS_TX_PIN 17
-#endif
-
 #define DEBUGMODE
 
 class modbus {

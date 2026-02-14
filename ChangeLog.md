@@ -1,6 +1,10 @@
+Release 3.4.2:
+  - feature: specific board settings via board.h, important for ESP32-C3
+
 Release 3.4.1:
   - fix BatVoltage in Growatt-SPH.json, thanks @Motl1 (#164)
   - feature: add options "+unit" for modbus websocket streaming to show unit in output (#164)
+  - Fix: change gitpod to github codespace
   
 Release 3.4.0:
     +++++++ This version is not OTA compatible with older versions +++++++

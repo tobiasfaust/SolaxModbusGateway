@@ -17,6 +17,7 @@
 #include <FS.h>
 #include <LittleFS.h>
 #include <helper.h>
+#include <board.h>
 
 
 #ifdef ESP8266

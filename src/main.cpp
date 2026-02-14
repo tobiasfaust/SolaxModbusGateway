@@ -44,7 +44,6 @@ void myMQTTCallBack(char* topic, byte* payload, unsigned int length) {
 
 
 void setup() {
-  Serial.begin(115200);
 
   // Partitionen mounten
   bool systemPartitionMounted = sysFS.begin(true, "/web", 5, "webdata");
@@ -60,6 +59,7 @@ void setup() {
                  Config->GetSerialRx(),
                  Config->GetSerialTx());  // RX, TX, zb.: 33, 32
   #endif
+  
   Serial.println("");
   Serial.println("ready");
 
@@ -77,6 +77,9 @@ void setup() {
   Config->logN(1, "***** ********** *****\n\n");
 
   Config->logN(1, "Starting Wifi and MQTT");
+  #ifdef WIFI_TX_POWER
+    WiFi.setTxPower(WIFI_TX_POWER);
+  #endif
   mqtt = new MQTT(Config->GetMqttServer().c_str(),
                     Config->GetMqttPort(),
                     Config->GetMqttBasePath().c_str(),

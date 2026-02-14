@@ -3,3 +3,5 @@
 .git/
 data/web/handlefiles*
 data/web/webserial*
+include/board.h
+data/web/gpio.js
