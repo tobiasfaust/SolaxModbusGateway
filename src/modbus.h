@@ -80,7 +80,7 @@ class modbus {
      * @brief Callback for getting the values
      * @param function(JsonDocument&) the callback function
      ************************/
-    void onValues(std::function<void(String&)> callback);
+    void onValues(std::function<void(String&)> callback, std::list<String>* options);
 
   private:
     uint8_t                 pin_RX;               // Serial Receive pin
@@ -184,6 +184,7 @@ class modbus {
     HardwareSerial*         RS485Serial;
 
     std::function<void(String&)> onValuesCallback; // Callback function pointer
+    std::list<String>* onValuesOptions = nullptr;
 
 };
 

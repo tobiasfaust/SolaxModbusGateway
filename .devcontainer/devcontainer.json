@@ -1,0 +1,13 @@
+{
+    "name": "SolaxModbusGateway",
+    "image": "mcr.microsoft.com/devcontainers/python:3.11",
+    "onCreateCommand": "pip3 install -U platformio",
+    "postStartCommand": "platformio run && platformio run --target buildfs",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "platformio.platformio-ide"
+            ]
+        }
+    }
+}

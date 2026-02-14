@@ -75,7 +75,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
     for (uint8_t i = 0; i < _wsclientRequests->size(); i++) {
       if (_wsclientRequests->at(i).ws_id == client->id()) {
         
-        if (_wsclientRequests->at(i).requestData == wsclient_t::MODBUS_DATA) { mb->onValues(nullptr); }
+        if (_wsclientRequests->at(i).requestData == wsclient_t::MODBUS_DATA) { mb->onValues(nullptr, nullptr); }
         if (_wsclientRequests->at(i).requestData == wsclient_t::LOG_DATA) { Config->onLogValues(nullptr); }
 
         _wsclientRequests->erase(_wsclientRequests->begin() + i);
@@ -95,6 +95,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
     // example: {"data-id":{ "registername": "value", "registername": "value", ...}}
 
     String action(""), subaction(""), item("");
+    std::list<String>* options = nullptr;
     bool newState = false;
     JsonDocument json;
     DeserializationError error = deserializeJson(json, msg.c_str());
@@ -104,6 +105,16 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
         if (json["cmd"]["subaction"]){subaction = json["cmd"]["subaction"].as<String>();}
         if (json["cmd"]["item"])     {item      = json["cmd"]["item"].as<String>();}
         if (json["cmd"]["newState"]) {newState  = (json["cmd"]["newState"].as<String>() == "true"?true:false);}
+        
+        if (json["cmd"]["opts"]) {
+          // prüfe ob optionen übergeben wurden, validiere format [string1, string2, ...] und überführe die opts in -> std::list<String>* options
+          JsonArray optsArray = json["cmd"]["opts"].as<JsonArray>();
+          options = new std::list<String>();
+          for (String opt : optsArray) {
+            opt.toLowerCase();
+            options->push_back(opt);
+          }
+        }
       }
 
       if (action && action == "subscribe") {
@@ -112,7 +123,7 @@ void MyWebServer::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * clie
           Config->onLogValues(std::bind(&MyWebServer::logGetValuesCallback, this, std::placeholders::_1, json, client->id()));
         } else if (subaction && subaction == "modbus_data") {
           push_back_unique(_wsclientRequests, {client->id(), wsclient_t::MODBUS_DATA});
-          mb->onValues(std::bind(&MyWebServer::sendWebSocketMessage, this, std::placeholders::_1, msg, client->id()));
+          mb->onValues(std::bind(&MyWebServer::sendWebSocketMessage, this, std::placeholders::_1, msg, client->id()), options);
         }
       }
 

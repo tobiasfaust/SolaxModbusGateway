@@ -69,13 +69,18 @@ jobs:
       - name: Run PlatformIO
         id: buildFw
         run: |
+          mkdir -p firmware/
           platformio run -e ${{ matrix.variant.firmware }}
+          cp .pio/build/${{ matrix.variant.firmware }}/firmware.bin firmware/
+          cp .pio/build/${{ matrix.variant.firmware }}/partitions.bin firmware/
+          cp .pio/build/${{ matrix.variant.firmware }}/bootloader.bin firmware/
           if [ -d "data" ]; then
             platformio run --target buildfs -e ${{ matrix.variant.firmware }}
+            cp .pio/build/${{ matrix.variant.firmware }}/littlefs.bin firmware/
           fi
           python .github/scripts/createMergedFirmware.py \
             --ChipFamily ${{ matrix.variant.architecture }} \
-            --BuildDir .pio/build/${{ matrix.variant.firmware }} \
+            --BuildDir firmware \
             --PathOfPartitionsCSV partitions.csv \
             >> "$GITHUB_OUTPUT"
 
@@ -86,7 +91,7 @@ jobs:
 
       - name: Display generated files
         run: |
-          ls -R .pio/build/${{ matrix.variant.firmware }}/
+          ls -R firmware/
 
       - name: Schreibe Json/Manifest File
         id: json_params 
@@ -97,7 +102,8 @@ jobs:
                 --variant ${{ matrix.variant.subvariant }} \
                 --stage ${{ env.BRANCH_NAME }} \
                 --repository ${{ env.REPOSITORY }} \
-                --binarypath .pio/build/${{ matrix.variant.firmware }}/ \
+                --binarypath firmware/ \
+                --firmwarename ${{ matrix.variant.firmware }} \
                 --releasepath release \
                 --artifactpath artifacts \
                 --build ${{ github.run_number }} \
@@ -109,19 +115,6 @@ jobs:
         with:
           name: ${{ matrix.variant.firmware }}
           path: artifacts/*
-  
-#      - name: Upload to AWS S3
-#        uses: jakejarvis/s3-sync-action@master
-#        with:
-#          args: '--acl public-read --follow-symlinks'
-#        env:
-#          AWS_S3_BUCKET: 'tfa-releases'
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_REGION: 'eu-central-1'   # optional: defaults to us-east-1
-#          SOURCE_DIR: 'release'      # optional: defaults to entire repository
-#          DEST_DIR: ${{ env.REPOSITORY }}     
-
 
   web-installer:
     needs: [build]

@@ -114,7 +114,7 @@
                     "unit": "KWh"
                 },
                 {
-                    "position": [183, 284],
+                    "position": [272, 273],
                     "name": "BatVoltage",
                     "realname": "Battery Voltage",
                     "datatype": "float",

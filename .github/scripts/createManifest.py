@@ -10,6 +10,7 @@ parser.add_argument('-r', '--repository', type=str, help='Repository name')
 parser.add_argument('-s', '--build', type=str, help='Buildnummer der GithubAction (Unique ID)')
 parser.add_argument('-t', '--stage', type=str, help='Stage (Branch name)')
 parser.add_argument('-bp', '--binarypath', type=str, help='Path of binary files')
+parser.add_argument('-fn', '--firmwarename', type=str, help='Name of the firmware')
 parser.add_argument('-rp', '--releasepath', type=str, default="release", help='Path of destination, BIN and JSON files')
 parser.add_argument('-rf', '--releasefile', type=str, help='Path of release file, contains version number')
 parser.add_argument('-a', '--arch', type=str, help='Architecture (ESP8266|ESP32|ESP32-S2|ESP32-C3|...)')
@@ -26,6 +27,7 @@ if args.debug:
     logging.info(f"BUILDNUMMER={args.build}")
     logging.info(f"STAGE={args.stage}")
     logging.info(f"BINARYPATH={args.binarypath}")
+    logging.info(f"FIRMWARENAME={args.firmwarename}")
     logging.info(f"RELEASEPATH={args.releasepath}")
     logging.info(f"RELEASEFILE={args.releasefile}")
     logging.info(f"ARCHITECTURE={args.arch}")
@@ -57,9 +59,7 @@ for root, _, files in os.walk(args.binarypath):
     for file in files:
         if file == 'firmware.bin':
             FILENAME = os.path.splitext(file)[0]
-            FILEEXT = os.path.splitext(file)[1][1:]
-            FIRMWARENAME = args.binarypath.split(os.sep)[-2]  # get the name of the firmware folder
-            
+            FILEEXT = os.path.splitext(file)[1][1:]            
             DOWNLOADURL = f"https://tobiasfaust.github.io/{args.repository}/firmware/{FILENAME}.{FileExtension}.{FILEEXT}"
 
             ################ Create custom json ##################
@@ -98,32 +98,32 @@ for root, _, files in os.walk(args.binarypath):
 
             if os.path.isfile(os.path.join(args.binarypath, "merged-firmware.bin")):
                 manifest_data["parts"].append({
-                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/merged-firmware.{FileExtension}.bin",
+                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{args.firmwarename}/merged-firmware.{FileExtension}.bin",
                     "offset": 0
                 })
             else:
                 # fuer ESP8266
                 manifest_data["parts"].append({
-                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/{FILENAME}.{FileExtension}.{FILEEXT}",
+                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{args.firmwarename}/{FILENAME}.{FileExtension}.{FILEEXT}",
                     "offset": 0
                 })
 
             # process files.json
             if os.path.isfile(os.path.join(args.binarypath, "bootloader.bin")):
                 files_data["parts"].append({
-                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/bootloader.{FileExtension}.bin",
+                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{args.firmwarename}/bootloader.{FileExtension}.bin",
                     "offset": 4096,
                     "filetype": "bootloader"
                 })
             if os.path.isfile(os.path.join(args.binarypath, "partitions.bin")):
                 files_data["parts"].append({
-                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/partitions.{FileExtension}.bin",
+                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{args.firmwarename}/partitions.{FileExtension}.bin",
                     "offset": 32768,
                     "filetype": "partitions"
                 })
             if os.path.isfile(os.path.join(args.binarypath, "littlefs.bin")):
                 files_data["parts"].append({
-                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/littlefs.{FileExtension}.bin",
+                    "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{args.firmwarename}/littlefs.{FileExtension}.bin",
                     "offset": int(readOffsetFromPartitionCSV("partitions.csv", "webdata"), 16),
                     "filetype": "filesystem"
                 })
@@ -131,7 +131,7 @@ for root, _, files in os.walk(args.binarypath):
 
             OFFSET = 0 if "ESP8266" in args.arch else int(readOffsetFromPartitionCSV("partitions.csv", "app0"), 16)
             files_data["parts"].append({
-                "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{FIRMWARENAME}/{FILENAME}.{FileExtension}.{FILEEXT}",
+                "path": f"https://tobiasfaust.github.io/{args.repository}/firmware/{SubDir}/{args.firmwarename}/{FILENAME}.{FileExtension}.{FILEEXT}",
                 "offset": OFFSET,
                 "filetype": "firmware"
             })
