@@ -35,7 +35,25 @@
             { "setcopowf": "openWB/set/counter/#SmartMeterID#/get/power_factors" },
             { "setcoimp": "openWB/set/counter/#SmartMeterID#/get/imported" },
             { "setcow": "openWB/set/counter/#SmartMeterID#/get/power" }
-
         ] 
-    }
+    },
+    {
+    "version": "2.1.8",
+    "topics": [
+      { "setpvw": "openWB/set/mqtt/pv/#InverterID#/get/power" },
+      { "setpvwh": "openWB/set/mqtt/pv/#InverterID#/get/exported" },
+      { "setbatw": "openWB/set/mqtt/bat/#BatteryID#/get/power" },
+      { "setbatsoc": "openWB/set/mqtt/bat/#BatteryID#/get/soc" },
+      { "setbatexpwh": "openWB/set/mqtt/bat/#BatteryID#/get/exported" },
+      { "setbatimpwh": "openWB/set/mqtt/bat/#BatteryID#/get/imported" },
+      { "setcoexp": "openWB/set/mqtt/counter/#SmartMeterID#/get/exported" },
+      { "setcocur": "openWB/set/mqtt/counter/#SmartMeterID#/get/currents" },
+      { "setcofre": "openWB/set/mqtt/counter/#SmartMeterID#/get/frequency" },
+      { "setcovol": "openWB/set/mqtt/counter/#SmartMeterID#/get/voltages" },
+      { "setcopow": "openWB/set/mqtt/counter/#SmartMeterID#/get/power" },
+      { "setcopowf": "openWB/set/mqtt/counter/#SmartMeterID#/get/power_factors" },
+      { "setcoimp": "openWB/set/mqtt/counter/#SmartMeterID#/get/imported" },
+      { "setcow": "openWB/set/mqtt/counter/#SmartMeterID#/get/power" }
+    ]
+  }
 ]
