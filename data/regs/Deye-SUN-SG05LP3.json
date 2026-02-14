@@ -1,0 +1,127 @@
+{
+  "Deye-SUN-xxK-SG05LP3-EU-SM2": {
+    "config": {
+      "author": "MagicSven81",
+      "RequestLiveData": [
+        [
+          "#ClientID",
+          "0x03",
+          "0x02",
+          "0x44",
+          "0x00",
+          "0x66"
+        ]
+      ],
+      "ClientIdPos": 0,
+      "LiveDataFunctionCodePos": 1,
+      "LiveDataFunctionCode": "0x03",
+      "LiveDataStartsAtPos": 3,
+      "LiveDataSuccessCode": "0x03"
+    },
+    "data": {
+      "livedata": [
+        {
+          "position": [
+            17,
+            18
+          ],
+          "name": "BatV",
+          "realname": "Batterie Spannung",
+          "datatype": "float",
+          "factor": 0.01,
+          "unit": "V"
+        },
+        {
+          "position": [
+            19,
+            20
+          ],
+          "name": "BatSOC",
+          "realname": "Batterie SOC",
+          "datatype": "integer",
+          "unit": "%"
+        },
+        {
+          "position": [
+            23,
+            24
+          ],
+          "name": "BatP",
+          "realname": "Batterie Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            187,
+            188
+          ],
+          "name": "PV1_P",
+          "realname": "PV1 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            189,
+            190
+          ],
+          "name": "PV2_P",
+          "realname": "PV2 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            149,
+            150
+          ],
+          "name": "Load_Total",
+          "realname": "Hausverbrauch Gesamt",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            75,
+            76
+          ],
+          "name": "GridP_L1",
+          "realname": "Netz L1 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            77,
+            78
+          ],
+          "name": "GridP_L2",
+          "realname": "Netz L2 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            79,
+            80
+          ],
+          "name": "GridP_L3",
+          "realname": "Netz L3 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [
+            81,
+            82
+          ],
+          "name": "Grid_Total",
+          "realname": "Netz Gesamtleistung",
+          "datatype": "integer",
+          "unit": "W"
+        }
+      ]
+    }
+  }
+}
