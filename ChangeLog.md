@@ -1,5 +1,6 @@
 Release 3.4.2:
   - feature: specific board settings via board.h, important for ESP32-C3
+  - feature: add new Deye SG05LP3 (thanks to @MagicSven81) (#171)
 
 Release 3.4.1:
   - fix BatVoltage in Growatt-SPH.json, thanks @Motl1 (#164)
