@@ -52,10 +52,14 @@ void setup() {
 
   Config = new BaseConfig(configFS);
 
-  Serial.begin(115200,
+  #ifdef ARDUINO_USB_CDC_ON_BOOT
+    Serial.begin(115200);
+  #else
+    Serial.begin(115200,
                  SERIAL_8N1,
                  Config->GetSerialRx(),
                  Config->GetSerialTx());  // RX, TX, zb.: 33, 32
+  #endif
   Serial.println("");
   Serial.println("ready");
 
