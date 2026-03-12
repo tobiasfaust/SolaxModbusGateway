@@ -1,7 +1,7 @@
 .pio/
 .vscode/
 .git/
-data/web/handlefiles*
-data/web/webserial*
+data/web/handlefiles.*
+data/web/webserial.*
 include/board.h
 data/web/gpio.js
