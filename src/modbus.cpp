@@ -858,12 +858,12 @@ void modbus::ParseData() {
       
       // optional field
       if (elem["factor"]) {
-        factor = elem["factor"];
+        factor = elem["factor"].as<float>();
       }
 
       // optional field
       if (elem["valueAdd"]) {
-        valueAdd = elem["valueAdd"];
+        valueAdd = elem["valueAdd"].as<int>();
       }
       
       // optional field
