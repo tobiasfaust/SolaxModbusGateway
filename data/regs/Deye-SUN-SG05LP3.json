@@ -20,11 +20,9 @@
     },
     "data": {
       "livedata": [
+
         {
-          "position": [
-            17,
-            18
-          ],
+          "position": [17, 18],
           "name": "BatV",
           "realname": "Batterie Spannung",
           "datatype": "float",
@@ -32,95 +30,171 @@
           "unit": "V"
         },
         {
-          "position": [
-            19,
-            20
-          ],
+          "position": [19, 20],
           "name": "BatSOC",
           "realname": "Batterie SOC",
           "datatype": "integer",
           "unit": "%"
         },
         {
-          "position": [
-            23,
-            24
-          ],
+          "position": [21, 22],
+          "name": "BatCurrent",
+          "realname": "Batterie Strom",
+          "datatype": "float",
+          "factor": 0.01,
+          "unit": "A"
+        },
+        {
+          "position": [23, 24],
           "name": "BatP",
           "realname": "Batterie Leistung",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [
-            187,
-            188
-          ],
-          "name": "PV1_P",
-          "realname": "PV1 Leistung",
-          "datatype": "integer",
-          "unit": "W"
+          "position": [25, 26],
+          "name": "BatTemp",
+          "realname": "Batterie Temperatur",
+          "datatype": "float",
+          "factor": 0.1,
+          "valueAdd": -100,
+          "unit": "°C"
         },
         {
-          "position": [
-            189,
-            190
-          ],
-          "name": "PV2_P",
-          "realname": "PV2 Leistung",
-          "datatype": "integer",
-          "unit": "W"
+          "position": [69, 70],
+          "name": "GridV_L1",
+          "realname": "Netzspannung L1",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
         },
         {
-          "position": [
-            149,
-            150
-          ],
-          "name": "Load_Total",
-          "realname": "Hausverbrauch Gesamt",
-          "datatype": "integer",
-          "unit": "W"
+          "position": [71, 72],
+          "name": "GridV_L2",
+          "realname": "Netzspannung L2",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
         },
         {
-          "position": [
-            75,
-            76
-          ],
+          "position": [73, 74],
+          "name": "GridV_L3",
+          "realname": "Netzspannung L3",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [75, 76],
           "name": "GridP_L1",
           "realname": "Netz L1 Leistung",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [
-            77,
-            78
-          ],
+          "position": [77, 78],
           "name": "GridP_L2",
           "realname": "Netz L2 Leistung",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [
-            79,
-            80
-          ],
+          "position": [79, 80],
           "name": "GridP_L3",
           "realname": "Netz L3 Leistung",
           "datatype": "integer",
           "unit": "W"
         },
         {
-          "position": [
-            81,
-            82
-          ],
+          "position": [81, 82],
           "name": "Grid_Total",
           "realname": "Netz Gesamtleistung",
           "datatype": "integer",
           "unit": "W"
+        },
+        {
+          "position": [83, 84],
+          "name": "GridFreq",
+          "realname": "Netzfrequenz",
+          "datatype": "float",
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "position": [145, 146],
+          "name": "Load_L1",
+          "realname": "Hausverbrauch L1",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [147, 148],
+          "name": "Load_L2",
+          "realname": "Hausverbrauch L2",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [149, 150],
+          "name": "Load_Total",
+          "realname": "Hausverbrauch Gesamt",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [151, 152],
+          "name": "Load_L3",
+          "realname": "Hausverbrauch L3",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [187, 188],
+          "name": "PV1_P",
+          "realname": "PV1 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [189, 190],
+          "name": "PV2_P",
+          "realname": "PV2 Leistung",
+          "datatype": "integer",
+          "unit": "W"
+        },
+        {
+          "position": [193, 194],
+          "name": "PV1_V",
+          "realname": "PV1 Spannung",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [195, 196],
+          "name": "PV1_I",
+          "realname": "PV1 Strom",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
+        },
+        {
+          "position": [197, 198],
+          "name": "PV2_V",
+          "realname": "PV2 Spannung",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "V"
+        },
+        {
+          "position": [199, 200],
+          "name": "PV2_I",
+          "realname": "PV2 Strom",
+          "datatype": "float",
+          "factor": 0.1,
+          "unit": "A"
         }
+
       ]
     }
   }
