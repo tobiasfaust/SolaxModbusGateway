@@ -25,6 +25,7 @@ Currently the following Inverters are with thier special registers integrated:
 * Growatt SPH
 * Sofar-KTL Solarmax-SGA
 * Deye Sun SG04LP3
+* Deye Sun SG05LP3
 * QVolt-HYP-G3-3P
 
 If your Solar Inverter is not listed, feel free to add the special register simply, please check th [wiki page](configuration-register) or contact me by opening a [new issue](https://github.com/tobiasfaust/SolaxModbusGateway/issues) in github.
