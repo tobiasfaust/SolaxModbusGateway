@@ -21,6 +21,7 @@ on:
       - '**.js'
       - '**.css'
       - '**.html'
+      - '**.ini'
 
 jobs:
   build:
